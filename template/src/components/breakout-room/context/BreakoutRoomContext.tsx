@@ -1240,12 +1240,26 @@ const BreakoutRoomProvider = ({
         },
       );
 
+      // Check if user is a host
+      let isUserHost: boolean | undefined;
+      if (currentGroup) {
+        // User is moving from another breakout room
+        isUserHost = currentGroup.participants.hosts.includes(uid);
+      } else {
+        // User is moving from main room - check mainRoomRTMUsers
+        const rtmUser = mainRoomRTMUsers[uid];
+        if (rtmUser) {
+          isUserHost = rtmUser.isHost === 'true';
+        }
+      }
+
       dispatch({
         type: BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
         payload: {
           uid,
           fromGroupId: currentGroup?.id,
           toGroupId,
+          isHost: isUserHost,
         },
       });
     } catch (error) {

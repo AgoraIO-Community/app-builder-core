@@ -176,6 +176,7 @@ export type BreakoutRoomAction =
         uid: UidType;
         fromGroupId: string;
         toGroupId: string;
+        isHost?: boolean;
       };
     };
 
@@ -462,16 +463,22 @@ export const breakoutRoomReducer = (
     }
 
     case BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP: {
-      const {uid, fromGroupId, toGroupId} = action.payload;
+      const {uid, fromGroupId, toGroupId, isHost} = action.payload;
 
-      // Determine if user was a host or attendee in their previous group
-      let wasHost = false;
-      if (fromGroupId) {
+      // Determine if user should be added as host or attendee
+      let shouldBeHost = false;
+
+      if (isHost !== undefined) {
+        // Use explicit isHost flag if provided (from mainRoomRTMUsers for main room users)
+        shouldBeHost = isHost;
+      } else if (fromGroupId) {
+        // Fallback: check their role in the previous breakout group
         const sourceGroup = state.breakoutGroups.find(
           group => group.id === fromGroupId,
         );
-        wasHost = sourceGroup?.participants.hosts.includes(uid) || false;
+        shouldBeHost = sourceGroup?.participants.hosts.includes(uid) || false;
       }
+      // If isHost is undefined and no fromGroupId, default to attendee
 
       return {
         ...state,
@@ -489,16 +496,16 @@ export const breakoutRoomReducer = (
               },
             };
           }
-          // Add to target group with same role as previous group
+          // Add to target group with determined role
           if (group.id === toGroupId) {
             return {
               ...group,
               participants: {
                 ...group.participants,
-                hosts: wasHost
+                hosts: shouldBeHost
                   ? [...group.participants.hosts, uid]
                   : group.participants.hosts,
-                attendees: !wasHost
+                attendees: !shouldBeHost
                   ? [...group.participants.attendees, uid]
                   : group.participants.attendees,
               },
