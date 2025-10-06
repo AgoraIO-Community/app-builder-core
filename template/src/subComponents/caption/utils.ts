@@ -117,15 +117,33 @@ export const formatTranscriptContent = (
   meetingTranscript: TranscriptItem[],
   meetingTitle: string,
   defaultContent: ContentObjects,
+  selectedTranslationLanguage?: string,
 ) => {
+  // Helper function to get display text based on translation selection
+  const getDisplayText = (item: TranscriptItem): string => {
+    if (!selectedTranslationLanguage || !item.translations) {
+      return item.text; // no translation selected or no translations available, show original
+    }
+    
+    // find translation for selected language
+    const currentTranslation = item.translations.find(t => t.lang === selectedTranslationLanguage);
+    if (currentTranslation?.text) {
+      return currentTranslation.text;
+    }
+    
+    // if selected language not available, show original
+    return item.text;
+  };
+
   const formattedContent = meetingTranscript
     .map(item => {
-      if (item.uid.toString().indexOf('langUpdate') !== -1) {
+      if (item.uid.toString().indexOf('langUpdate') !== -1|| item.uid.toString().indexOf('translationUpdate')!== -1) {
         return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
       }
-      return `${defaultContent[item.uid].name} ${formatTime(
+      const displayText = getDisplayText(item);
+      return `${defaultContent[item.uid]?.name} ${formatTime(
         Number(item?.time),
-      )}:\n${item.text}`;
+      )}:\n${displayText}`;
     })
     .join('\n\n');
 

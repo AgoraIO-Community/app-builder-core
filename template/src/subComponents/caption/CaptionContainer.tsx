@@ -301,7 +301,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   // only Host is authorized to start/stop stt
   isHost &&
     actionMenuitems.push({
-      icon: 'lang-select',
+      icon: 'globe',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: changeSpokenLangLabel + ' ',
@@ -464,6 +464,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
           translate_config: [],
           lang: currentSpokenLanguages,
           userSelectedTranslation: '', // Empty string for "off"
+          isTranslationChange: true,
         });
         setSelectedTranslationLanguage('');
       } else {
@@ -481,6 +482,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
           translate_config: mergedTranslateConfig,
           lang: currentSpokenLanguages,
           userSelectedTranslation: targetLanguage,
+          isTranslationChange: true,
         });
         setSelectedTranslationLanguage(targetLanguage);
       }

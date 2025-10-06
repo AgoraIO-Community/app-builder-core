@@ -241,7 +241,7 @@ const DropdownMulti: FC<Props> = ({
             contentContainerStyle={styles.scrollContainer}
             style={[
               styles.dropdownOptionTextContainer,
-              selectedValues.length === maxAllowedSelection && {flex: 0.9},
+              selectedValues.length === maxAllowedSelection && {flex: 1},
             ]}>
             {formattedSelectedLanguages}
           </ScrollView>

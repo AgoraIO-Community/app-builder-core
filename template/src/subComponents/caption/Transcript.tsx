@@ -108,7 +108,7 @@ const Transcript = (props: TranscriptProps) => {
           iconType="plain"
           iconSize={20}
           tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-          name={'lang-select'}
+          name={'globe'}
         />
 
         <Text style={styles.langChange}>
