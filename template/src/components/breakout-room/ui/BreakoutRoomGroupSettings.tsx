@@ -308,6 +308,7 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
           currentRoomName={roomToEdit.name}
           updateRoomName={onRoomNameChange}
           setModalOpen={setRenameRoomModalOpen}
+          existingRoomNames={breakoutGroups.map(group => group.name)}
         />
       )}
     </View>

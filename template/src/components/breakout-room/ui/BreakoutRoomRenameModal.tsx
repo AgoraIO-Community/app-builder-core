@@ -8,17 +8,43 @@ interface BreakoutRoomRenameModalProps {
   setModalOpen: Dispatch<SetStateAction<boolean>>;
   currentRoomName: string;
   updateRoomName: (newName: string) => void;
+  existingRoomNames: string[];
 }
 
 export default function BreakoutRoomRenameModal(
   props: BreakoutRoomRenameModalProps,
 ) {
-  const {currentRoomName, setModalOpen, updateRoomName} = props;
+  const {currentRoomName, setModalOpen, updateRoomName, existingRoomNames} =
+    props;
   const [roomName, setRoomName] = React.useState(currentRoomName);
 
   const MAX_ROOM_NAME_LENGTH = 30;
+
+  // Helper function to normalize room name (trim and collapse multiple spaces)
+  const normalizeRoomName = (name: string) => {
+    return name.trim().replace(/\s+/g, ' ');
+  };
+
+  // Check if the normalized room name already exists in other rooms
+  const isDuplicateName = existingRoomNames.some(existingName => {
+    const normalizedExistingName =
+      normalizeRoomName(existingName).toLowerCase();
+    const normalizedNewName = normalizeRoomName(roomName).toLowerCase();
+    const normalizedCurrentName =
+      normalizeRoomName(currentRoomName).toLowerCase();
+
+    return (
+      normalizedExistingName === normalizedNewName &&
+      normalizedExistingName !== normalizedCurrentName
+    );
+  });
+
   const disabled =
-    roomName.trim() === '' || roomName.trim().length > MAX_ROOM_NAME_LENGTH;
+    roomName.trim() === '' ||
+    roomName.trim().length > MAX_ROOM_NAME_LENGTH ||
+    normalizeRoomName(roomName).toLowerCase() ===
+      normalizeRoomName(currentRoomName).toLowerCase() ||
+    isDuplicateName;
 
   return (
     <GenericModal
@@ -52,7 +78,8 @@ export default function BreakoutRoomRenameModal(
               <Text
                 style={[
                   style.characterCount,
-                  roomName.trim().length > MAX_ROOM_NAME_LENGTH &&
+                  (roomName.trim().length > MAX_ROOM_NAME_LENGTH ||
+                    isDuplicateName) &&
                     style.characterCountError,
                 ]}>
                 {roomName.trim().length}/{MAX_ROOM_NAME_LENGTH}
@@ -60,6 +87,11 @@ export default function BreakoutRoomRenameModal(
               {roomName.trim().length > MAX_ROOM_NAME_LENGTH && (
                 <Text style={style.errorText}>
                   Room name cannot exceed {MAX_ROOM_NAME_LENGTH} characters
+                </Text>
+              )}
+              {isDuplicateName && (
+                <Text style={style.errorText}>
+                  A room with this name already exists
                 </Text>
               )}
             </View>
@@ -83,7 +115,7 @@ export default function BreakoutRoomRenameModal(
               text={'Save'}
               disabled={disabled}
               onPress={() => {
-                updateRoomName(roomName);
+                updateRoomName(normalizeRoomName(roomName));
               }}
             />
           </View>
