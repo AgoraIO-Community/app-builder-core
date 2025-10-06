@@ -254,17 +254,27 @@ const RTMConfigureMainRoomProvider: React.FC<
     Object.entries(mainRoomRTMUsers).forEach(([uidStr, rtmUser]) => {
       const uid = parseInt(uidStr, 10);
 
-      // Create only RTM data
-      const userData: RTMUserData = {
-        // RTM data
-        name: rtmUser.name || '',
-        screenUid: rtmUser.screenUid || 0,
-        offline: !!rtmUser.offline,
-        lastMessageTimeStamp: rtmUser.lastMessageTimeStamp || 0,
-        isInWaitingRoom: rtmUser?.isInWaitingRoom || false,
-        isHost: rtmUser.isHost,
-        type: rtmUser.type,
-      };
+      let userData: Partial<RTMUserData> = {};
+      // screenshare RTM data
+      if (rtmUser.type === 'screenshare') {
+        userData = {
+          // RTM data
+          name: rtmUser.name || '',
+          parentUid: rtmUser.parentUid || 0,
+          type: rtmUser.type,
+        };
+      } else {
+        userData = {
+          // user RTM data
+          name: rtmUser.name || '',
+          screenUid: rtmUser.screenUid || 0,
+          offline: !!rtmUser.offline,
+          lastMessageTimeStamp: rtmUser.lastMessageTimeStamp || 0,
+          isInWaitingRoom: rtmUser?.isInWaitingRoom || false,
+          isHost: rtmUser.isHost,
+          type: rtmUser.type,
+        };
+      }
 
       // Dispatch directly for each user
       dispatch({type: 'UpdateRenderList', value: [uid, userData]});
@@ -307,7 +317,7 @@ const RTMConfigureMainRoomProvider: React.FC<
   const init = async () => {
     // Set main room as active channel when this provider mounts again active
     const currentActiveChannel = RTMEngine.getInstance().getActiveChannelName();
-    const wasInBreakoutRoom = currentActiveChannel === RTM_ROOMS.BREAKOUT;
+    // const wasInBreakoutRoom = currentActiveChannel === RTM_ROOMS.BREAKOUT;
 
     if (currentActiveChannel !== RTM_ROOMS.MAIN) {
       RTMEngine.getInstance().setActiveChannelName(RTM_ROOMS.MAIN);
@@ -318,10 +328,10 @@ const RTMConfigureMainRoomProvider: React.FC<
       RTM_EVENTS_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES,
     );
 
-    // Rehydrate session attributes ONLY when returning from breakout room
-    if (wasInBreakoutRoom) {
-      await rehydrateSessionAttributes();
-    }
+    // // Rehydrate session attributes ONLY when returning from breakout room
+    // if (wasInBreakoutRoom) {
+    //   await rehydrateSessionAttributes();
+    // }
 
     await getChannelAttributes();
 
