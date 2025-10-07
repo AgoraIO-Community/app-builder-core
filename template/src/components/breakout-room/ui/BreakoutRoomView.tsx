@@ -34,8 +34,9 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
     upsertBreakoutRoomAPI,
     closeAllRooms,
     permissions,
-    isBreakoutUpdateInFlight,
+    isBreakoutUILocked,
   } = useBreakoutRoom();
+  console.log('supriya-isBreakoutUILocked: ', isBreakoutUILocked);
 
   useEffect(() => {
     const init = async () => {
@@ -61,7 +62,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
   }, []);
 
   // Disable all actions when API is in flight or another host is operating
-  const disableAllActions = isBreakoutUpdateInFlight;
+  const disableAllActions = isBreakoutUILocked;
 
   return (
     <>

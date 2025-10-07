@@ -28,6 +28,7 @@ import {useContent} from '../../../../customization-api';
 import events, {PersistanceLevel} from '../../../rtm-events-api';
 import {BreakoutRoomAction, initialBreakoutGroups} from '../state/reducer';
 import {BreakoutRoomEventNames} from '../events/constants';
+import {EventNames} from '../../../rtm-events';
 import {BreakoutRoomSyncStateEventPayload} from '../state/types';
 import {IconsInterface} from '../../../atoms/CustomIcon';
 import Toast from '../../../../react-native-toast-message';
@@ -178,6 +179,7 @@ const defaulBreakoutRoomPermission: BreakoutRoomPermissions = {
 };
 interface BreakoutRoomContextValue {
   mainChannelId: string;
+  isBreakoutUILocked: boolean;
   breakoutSessionId: BreakoutRoomState['breakoutSessionId'];
   breakoutGroups: BreakoutRoomState['breakoutGroups'];
   assignmentStrategy: RoomAssignmentStrategy;
@@ -200,9 +202,12 @@ interface BreakoutRoomContextValue {
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
   handleAssignParticipants: (strategy: RoomAssignmentStrategy) => void;
   // Presenters
-  onMakeMePresenter: (action: 'start' | 'stop') => void;
-  presenters: {uid: UidType; timestamp: number}[];
-  clearAllPresenters: () => void;
+  // onMakeMePresenter: (
+  //   action: 'start' | 'stop',
+  //   shouldSendEvent?: boolean,
+  // ) => void;
+  // presenters: {uid: UidType; timestamp: number}[];
+  // clearAllPresenters: () => void;
   // State sync
   handleBreakoutRoomSyncState: (
     data: BreakoutRoomSyncStateEventPayload['data'],
@@ -230,6 +235,7 @@ interface BreakoutRoomContextValue {
 
 const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   mainChannelId: '',
+  isBreakoutUILocked: false,
   breakoutSessionId: undefined,
   unassignedParticipants: [],
   breakoutGroups: [],
@@ -251,9 +257,9 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   getRoomMemberDropdownOptions: () => [],
   upsertBreakoutRoomAPI: async () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
-  onMakeMePresenter: () => {},
-  presenters: [],
-  clearAllPresenters: () => {},
+  // onMakeMePresenter: () => {},
+  // presenters: [],
+  // clearAllPresenters: () => {},
   handleBreakoutRoomSyncState: () => {},
   // Multi-host coordination handlers
   handleHostOperationStart: () => {},
@@ -279,7 +285,8 @@ const BreakoutRoomProvider = ({
 }) => {
   const {store} = useContext(StorageContext);
   const {defaultContent, activeUids} = useContent();
-  const {mainRoomRTMUsers} = useRTMGlobalState();
+  const {mainRoomRTMUsers, customRTMMainRoomData, setCustomRTMMainRoomData} =
+    useRTMGlobalState();
   const localUid = useLocalUid();
   const {
     data: {isHost, roomId: joinRoomId},
@@ -308,8 +315,14 @@ const BreakoutRoomProvider = ({
     string | undefined
   >(undefined);
 
-  // Timestamp tracking for event ordering
+  // Timestamp Server (authoritative ordering)
+  const lastProcessedServerTsRef = useRef(0);
+  // 2Self join guard (prevent stale reverts) (when self join happens)
+  const lastSelfJoinRef = useRef<{roomId: string; ts: number} | null>(null);
+  // Timestamp client tracking for event ordering client side
   const lastSyncedTimestampRef = useRef(0);
+  const isBreakoutUILocked =
+    isBreakoutUpdateInFlight || !!currentOperatingHostName;
   const lastSyncedSnapshotRef = useRef<{
     session_id: string;
     switch_room: boolean;
@@ -335,10 +348,12 @@ const BreakoutRoomProvider = ({
   // Presenter
   const {isScreenshareActive, stopScreenshare} = useScreenshare();
 
-  const [canIPresent, setICanPresent] = useState<boolean>(false);
-  const [presenters, setPresenters] = useState<
-    {uid: UidType; timestamp: number}[]
-  >([]);
+  // const [canIPresent, setICanPresent] = useState<boolean>(false);
+  // Get presenters from custom RTM main room data (memoized to maintain stable reference)
+  // const presenters = React.useMemo(
+  //   () => customRTMMainRoomData.breakout_room_presenters || [],
+  //   [customRTMMainRoomData],
+  // );
 
   // State version tracker to force dependent hooks to re-compute
   const [breakoutRoomVersion, setBreakoutRoomVersion] = useState(0);
@@ -384,8 +399,29 @@ const BreakoutRoomProvider = ({
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
+
+      // // Clear presenter attribute on unmount if user is presenting
+      // if (canIPresent && !isHostRef.current) {
+      //   logger.log(
+      //     LogSource.Internals,
+      //     'BREAKOUT_ROOM',
+      //     'Clearing presenter attribute on unmount',
+      //     {localUid},
+      //   );
+
+      //   // Send event to clear presenter status
+      //   events.send(
+      //     EventNames.BREAKOUT_PRESENTER_ATTRIBUTE,
+      //     JSON.stringify({
+      //       uid: localUid,
+      //       isPresenter: false,
+      //       timestamp: Date.now(),
+      //     }),
+      //     PersistanceLevel.Sender,
+      //   );
+      // }
     };
-  }, []);
+  }, [localUid]);
 
   // Timeouts
   const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
@@ -1240,6 +1276,38 @@ const BreakoutRoomProvider = ({
         },
       );
 
+      // // Clean up presenter status if user is switching rooms
+      // const isPresenting = presenters.some(p => p.uid === uid);
+      // if (isPresenting) {
+      //   setCustomRTMMainRoomData(prev => ({
+      //     ...prev,
+      //     breakout_room_presenters: (
+      //       prev.breakout_room_presenters || []
+      //     ).filter((p: any) => p.uid !== uid),
+      //   }));
+
+      //   // Notify the user that their presenter access was removed
+      //   try {
+      //     events.send(
+      //       BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
+      //       JSON.stringify({
+      //         uid: uid,
+      //         timestamp: Date.now(),
+      //         action: 'stop',
+      //       }),
+      //       PersistanceLevel.None,
+      //       uid,
+      //     );
+      //   } catch (error) {
+      //     logger.log(
+      //       LogSource.Internals,
+      //       'BREAKOUT_ROOM',
+      //       'Error sending presenter stop event on room switch',
+      //       {error: error.message},
+      //     );
+      //   }
+      // }
+
       // Check if user is a host
       let isUserHost: boolean | undefined;
       if (currentGroup) {
@@ -1329,11 +1397,12 @@ const BreakoutRoomProvider = ({
           currentlyInRoom &&
           hasAvailableRooms &&
           (isHostRef.current || allowAttendeeSwitch),
-        canScreenshare: isHostRef.current
-          ? true
-          : currentlyInRoom
-          ? canIPresent
-          : true,
+        canScreenshare: true,
+        // isHostRef.current
+        //   ? true
+        //   : currentlyInRoom
+        //   ? canIPresent
+        //   : true,
         canRaiseHands: !isHostRef.current && !!current.session_id,
         canAssignParticipants: isHostRef.current && !currentlyInRoom,
         canHostManageMainRoom: isHostRef.current,
@@ -1345,7 +1414,7 @@ const BreakoutRoomProvider = ({
       };
       setPermissions(nextPermissions);
     }
-  }, [breakoutRoomVersion, canIPresent, isBreakoutMode, localUid]);
+  }, [breakoutRoomVersion, isBreakoutMode, localUid]);
 
   const joinRoom = (
     toRoomId: string,
@@ -1380,7 +1449,7 @@ const BreakoutRoomProvider = ({
       toRoomName: stateRef.current.breakoutGroups.find(r => r.id === toRoomId)
         ?.name,
     });
-
+    lastSelfJoinRef.current = {roomId: toRoomId, ts: Date.now()};
     moveUserIntoGroup(localUid, toRoomId);
     if (!isHostRef.current) {
       setSelfJoinRoomId(toRoomId);
@@ -1407,6 +1476,18 @@ const BreakoutRoomProvider = ({
       // valid data in defaultcontent as u cannot exit from the room
       // you are not in
       const localUser = defaultContentRef.current[localUid];
+
+      // // Clean up presenter status if user is presenting
+      // const isPresenting = presenters.some(p => p.uid === localUid);
+      // if (isPresenting) {
+      //   setCustomRTMMainRoomData(prev => ({
+      //     ...prev,
+      //     breakout_room_presenters: (
+      //       prev.breakout_room_presenters || []
+      //     ).filter((p: any) => p.uid !== localUid),
+      //   }));
+      //   setICanPresent(false);
+      // }
 
       try {
         if (localUser) {
@@ -1490,6 +1571,9 @@ const BreakoutRoomProvider = ({
       },
     );
 
+    // Clear all presenters when closing all rooms
+    // clearAllPresenters();
+
     dispatch({type: BreakoutGroupActionTypes.CLOSE_ALL_GROUPS});
   };
 
@@ -1521,116 +1605,139 @@ const BreakoutRoomProvider = ({
       : [];
   };
 
-  const isUserPresenting = useCallback(
-    (uid?: UidType) => {
-      if (uid !== undefined) {
-        return presenters.some(presenter => presenter.uid === uid);
-      }
-      // fall back to current user
-      return canIPresent;
-    },
-    [presenters, canIPresent],
-  );
+  // const isUserPresenting = useCallback(
+  //   (uid?: UidType) => {
+  //     if (uid !== undefined) {
+  //       return presenters.some(presenter => presenter.uid === uid);
+  //     }
+  //     // fall back to current user
+  //     return canIPresent;
+  //   },
+  //   [presenters, canIPresent],
+  // );
 
-  // User wants to start presenting
-  const makePresenter = (uid: UidType, action: 'start' | 'stop') => {
-    logger.log(
-      LogSource.Internals,
-      'BREAKOUT_ROOM',
-      `Make presenter - ${action}`,
-      {
-        targetUserId: uid,
-        action,
-        isHost: isHostRef.current,
-      },
-    );
-    if (!uid) {
-      return;
-    }
-    try {
-      // Host can make someone a presenter
-      events.send(
-        BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
-        JSON.stringify({
-          uid: uid,
-          timestamp: Date.now(),
-          action,
-        }),
-        PersistanceLevel.None,
-        uid,
-      );
-      if (action === 'start') {
-        addPresenter(uid);
-      } else if (action === 'stop') {
-        removePresenter(uid);
-      }
-    } catch (error) {
-      logger.log(
-        LogSource.Internals,
-        'BREAKOUT_ROOM',
-        'Error making user presenter',
-        {
-          targetUserId: uid,
-          action,
-          error: error.message,
-        },
-      );
-    }
-  };
+  // // User wants to start presenting
+  // const makePresenter = (uid: UidType, action: 'start' | 'stop') => {
+  //   logger.log(
+  //     LogSource.Internals,
+  //     'BREAKOUT_ROOM',
+  //     `Make presenter - ${action}`,
+  //     {
+  //       targetUserId: uid,
+  //       action,
+  //       isHost: isHostRef.current,
+  //     },
+  //   );
+  //   if (!uid) {
+  //     return;
+  //   }
+  //   try {
+  //     const timestamp = Date.now();
+  //     console.log('supriya-presenter sending make presenter');
+  //     // Host sends BREAKOUT_ROOM_MAKE_PRESENTER event to the attendee
+  //     events.send(
+  //       BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
+  //       JSON.stringify({
+  //         uid: uid,
+  //         timestamp,
+  //         action,
+  //       }),
+  //       PersistanceLevel.None,
+  //       uid,
+  //     );
 
-  // Presenter management functions (called by event handlers)
-  const addPresenter = useCallback((uid: UidType) => {
-    setPresenters(prev => {
-      // Check if already presenting to avoid duplicates
-      const exists = prev.find(presenter => presenter.uid === uid);
-      if (exists) {
-        return prev;
-      }
-      return [...prev, {uid, timestamp: Date.now()}];
-    });
-  }, []);
+  //     // Host immediately updates their own customRTMMainRoomData
+  //     if (action === 'start') {
+  //       setCustomRTMMainRoomData(prev => {
+  //         const currentPresenters = prev.breakout_room_presenters || [];
+  //         // Check if already presenting to avoid duplicates
+  //         const exists = currentPresenters.find(
+  //           (presenter: any) => presenter.uid === uid,
+  //         );
+  //         if (exists) {
+  //           return prev;
+  //         }
+  //         return {
+  //           ...prev,
+  //           breakout_room_presenters: [...currentPresenters, {uid, timestamp}],
+  //         };
+  //       });
+  //     } else if (action === 'stop') {
+  //       setCustomRTMMainRoomData(prev => ({
+  //         ...prev,
+  //         breakout_room_presenters: (
+  //           prev.breakout_room_presenters || []
+  //         ).filter((presenter: any) => presenter.uid !== uid),
+  //       }));
+  //     }
+  //   } catch (error) {
+  //     logger.log(
+  //       LogSource.Internals,
+  //       'BREAKOUT_ROOM',
+  //       'Error making user presenter',
+  //       {
+  //         targetUserId: uid,
+  //         action,
+  //         error: error.message,
+  //       },
+  //     );
+  //   }
+  // };
 
-  const removePresenter = useCallback((uid: UidType) => {
-    if (uid) {
-      setPresenters(prev => prev.filter(presenter => presenter.uid !== uid));
-    }
-  }, []);
+  // const onMakeMePresenter = useCallback(
+  //   (action: 'start' | 'stop', shouldSendEvent: boolean = true) => {
+  //     logger.log(
+  //       LogSource.Internals,
+  //       'BREAKOUT_ROOM',
+  //       `User became presenter - ${action}`,
+  //     );
 
-  const onMakeMePresenter = useCallback(
-    (action: 'start' | 'stop') => {
-      logger.log(
-        LogSource.Internals,
-        'BREAKOUT_ROOM',
-        `User became presenter - ${action}`,
-      );
+  //     const timestamp = Date.now();
 
-      if (action === 'start') {
-        setICanPresent(true);
-        // Show toast notification when presenter permission is granted
-        Toast.show({
-          type: 'success',
-          text1: 'You can now present in this breakout room',
-          visibilityTime: 3000,
-        });
-      } else if (action === 'stop') {
-        if (isScreenshareActive) {
-          stopScreenshare();
-        }
-        setICanPresent(false);
-        // Show toast notification when presenter permission is removed
-        Toast.show({
-          type: 'info',
-          text1: 'Your presenter access has been removed',
-          visibilityTime: 3000,
-        });
-      }
-    },
-    [isScreenshareActive],
-  );
+  //     // Send event only if requested (not when restoring from attribute)
+  //     if (shouldSendEvent) {
+  //       // Attendee sends BREAKOUT_PRESENTER_ATTRIBUTE event to persist their presenter status
+  //       events.send(
+  //         EventNames.BREAKOUT_PRESENTER_ATTRIBUTE,
+  //         JSON.stringify({
+  //           uid: localUid,
+  //           isPresenter: action === 'start',
+  //           timestamp,
+  //         }),
+  //         PersistanceLevel.Sender,
+  //       );
+  //     }
 
-  const clearAllPresenters = useCallback(() => {
-    setPresenters([]);
-  }, []);
+  //     if (action === 'start') {
+  //       setICanPresent(true);
+  //       // Show toast notification when presenter permission is granted
+  //       Toast.show({
+  //         type: 'success',
+  //         text1: 'You can now present in this breakout room',
+  //         visibilityTime: 3000,
+  //       });
+  //     } else if (action === 'stop') {
+  //       if (isScreenshareActive) {
+  //         stopScreenshare();
+  //       }
+  //       setICanPresent(false);
+  //       // Show toast notification when presenter permission is removed
+  //       Toast.show({
+  //         type: 'info',
+  //         text1: 'Your presenter access has been removed',
+  //         visibilityTime: 3000,
+  //       });
+  //     }
+  //   },
+  //   [isScreenshareActive, localUid],
+  // );
+
+  // const clearAllPresenters = useCallback(() => {
+  //   setCustomRTMMainRoomData(prev => ({
+  //     ...prev,
+  //     breakout_room_presenters: [],
+  //   }));
+  // }, [setCustomRTMMainRoomData]);
 
   const getRoomMemberDropdownOptions = useCallback(
     (memberUid: UidType) => {
@@ -1673,28 +1780,29 @@ const BreakoutRoomProvider = ({
           });
         });
 
-      // Make presenter option is available only for host
-      // and if the incoming member is also a host we dont
-      // need to show this option as they can already present
-      const isUserHost =
-        currentRoom?.participants.hosts.includes(memberUid) || false;
-      if (isUserHost) {
-        return options;
-      }
-      if (isHostRef.current) {
-        const userIsPresenting = isUserPresenting(memberUid);
-        const title = userIsPresenting ? 'Stop presenter' : 'Make a Presenter';
-        const action = userIsPresenting ? 'stop' : 'start';
-        options.push({
-          type: 'make-presenter',
-          icon: 'promote-filled',
-          title,
-          onOptionPress: () => makePresenter(memberUid, action),
-        });
-      }
+      // // Make presenter option is available only for host
+      // // and if the incoming member is also a host we dont
+      // // need to show this option as they can already present
+      // const isUserHost =
+      //   currentRoom?.participants.hosts.includes(memberUid) || false;
+      // if (isUserHost) {
+      //   return options;
+      // }
+      // if (isHostRef.current) {
+      //   const userIsPresenting = isUserPresenting(memberUid);
+      //   const title = userIsPresenting ? 'Stop presenter' : 'Make a Presenter';
+      //   const action = userIsPresenting ? 'stop' : 'start';
+      //   options.push({
+      //     type: 'make-presenter',
+      //     icon: 'promote-filled',
+      //     title,
+      //     onOptionPress: () => makePresenter(memberUid, action),
+      //   });
+      // }
       return options;
     },
-    [isUserPresenting, presenters, breakoutRoomVersion],
+    // [isUserPresenting, presenters, breakoutRoomVersion],
+    [breakoutRoomVersion],
   );
 
   // const handleBreakoutRoomSyncState = useCallback(
@@ -1898,7 +2006,8 @@ const BreakoutRoomProvider = ({
     (operationName: string, hostUid: UidType, hostName: string) => {
       // Only process if current user is also a host and it's not their own event
       console.log('supriya-state-sync host operation started', operationName);
-      if (!isHostRef.current || hostUid === localUid) {
+      // if (!isHostRef.current || hostUid === localUid) {
+      if (hostUid === localUid) {
         return;
       }
 
@@ -1909,16 +2018,9 @@ const BreakoutRoomProvider = ({
         {operationName, hostUid, hostName},
       );
 
-      // Show toast notification
-      showDeduplicatedToast(`host-operation-start-${hostUid}`, {
-        type: 'info',
-        text1: `${hostName} is managing breakout rooms`,
-        text2: 'Please wait for them to finish',
-        visibilityTime: 5000,
-      });
       setCurrentOperatingHostName(hostName);
     },
-    [localUid, showDeduplicatedToast],
+    [localUid],
   );
 
   const handleHostOperationEnd = useCallback(
@@ -1926,7 +2028,8 @@ const BreakoutRoomProvider = ({
       // Only process if current user is also a host and it's not their own event
       console.log('supriya-state-sync host operation ended', operationName);
 
-      if (!isHostRef.current || hostUid === localUid) {
+      // if (!isHostRef.current || hostUid === localUid) {
+      if (hostUid === localUid) {
         return;
       }
 
@@ -2059,35 +2162,59 @@ const BreakoutRoomProvider = ({
       timestamp: number,
     ) => {
       console.log(
-        'supriya-api-sync response',
+        'supriya-sync-ordering exact response',
         timestamp,
         JSON.stringify(payload),
       );
+      const {srcuid, data} = payload;
+      const {
+        session_id,
+        switch_room,
+        breakout_room,
+        assignment_type,
+        sts = 0,
+      } = data;
+      console.log('supriya-sync-ordering Sync state event received', {
+        sessionId: session_id,
+        incomingRoom: breakout_room || [],
+        currentRoom: stateRef.current.breakoutGroups || [],
+        switchRoom: switch_room,
+        assignmentType: assignment_type,
+      });
 
-      // Skip events older than the last processed timestamp
-      if (timestamp && timestamp <= lastSyncedTimestampRef.current) {
-        console.log('supriya-api-sync Skipping old breakout room sync event', {
-          timestamp,
-          lastProcessed: lastSyncedTimestampRef.current,
-        });
+      // global server ordering
+      if (sts <= lastProcessedServerTsRef.current) {
+        console.log(
+          `supriya-sync-ordering [BreakoutSync] Ignoring out-of-order state (sts=${sts}, last=${lastProcessedServerTsRef.current})`,
+        );
+        return;
+      }
+      lastProcessedServerTsRef.current = sts;
+
+      // Self-join race protection — ignore stale reverts right after joining
+      if (
+        lastSelfJoinRef.current &&
+        Date.now() - lastSelfJoinRef.current.ts < 2000 && // 2s cooldown
+        !findUserRoomId(localUid, breakout_room)
+      ) {
+        console.log(
+          'supriya-sync-ordering [SyncGuard] Ignoring stale sync conflicting with recent self-join to',
+          lastSelfJoinRef.current.roomId,
+        );
         return;
       }
 
-      const {srcuid, data} = payload;
-      const {session_id, switch_room, breakout_room, assignment_type} = data;
-
-      logger.log(
-        LogSource.Internals,
-        'BREAKOUT_ROOM',
-        'Sync state event received',
-        {
-          sessionId: session_id,
-          incomingRoomCount: breakout_room?.length || 0,
-          currentRoomCount: stateRef.current.breakoutGroups.length,
-          switchRoom: switch_room,
-          assignmentType: assignment_type,
-        },
-      );
+      // Local duplicate protection (client-side ordering) Skip events older than the last processed timestamp
+      if (timestamp && timestamp <= lastSyncedTimestampRef.current) {
+        console.log(
+          'supriya-sync-ordering Skipping old breakout room sync event',
+          {
+            timestamp,
+            lastProcessed: lastSyncedTimestampRef.current,
+          },
+        );
+        return;
+      }
 
       // Snapshot before applying
       const prevSnapshot = lastSyncedSnapshotRef?.current;
@@ -2314,6 +2441,7 @@ const BreakoutRoomProvider = ({
     <BreakoutRoomContext.Provider
       value={{
         mainChannelId: mainChannel,
+        isBreakoutUILocked,
         breakoutSessionId: state.breakoutSessionId,
         breakoutGroups: state.breakoutGroups,
         assignmentStrategy: state.assignmentStrategy,
@@ -2335,9 +2463,9 @@ const BreakoutRoomProvider = ({
         updateRoomName,
         getAllRooms,
         getRoomMemberDropdownOptions,
-        onMakeMePresenter,
-        presenters,
-        clearAllPresenters,
+        // onMakeMePresenter,
+        // presenters,
+        // clearAllPresenters,
         handleBreakoutRoomSyncState: enqueueBreakoutSyncEvent,
         // Multi-host coordination handlers
         handleHostOperationStart,

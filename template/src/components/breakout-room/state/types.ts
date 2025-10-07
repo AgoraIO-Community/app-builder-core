@@ -39,8 +39,9 @@ export interface BreakoutRoomSyncStateEventPayload {
     data: {
       switch_room: boolean;
       session_id: string;
-      breakout_room: BreakoutGroup[];
       assignment_type: RoomAssignmentStrategy;
+      breakout_room: BreakoutGroup[];
+      sts: number;
     };
     act: 'SYNC_STATE';
     srcuid: number;

@@ -49,6 +49,8 @@ const SPOTLIGHT_USER_CHANGED = 'SPOTLIGHT_USER_CHANGED';
 const BREAKOUT_RAISE_HAND_ATTRIBUTE = 'breakout_raise_hand';
 // 10. Cross-room raise hand notifications (messages, not attributes)
 const CROSS_ROOM_RAISE_HAND_NOTIFICATION = 'cross_room_raise_hand_notification';
+// 11. Breakout room presenter attribute
+const BREAKOUT_PRESENTER_ATTRIBUTE = 'breakout_presenter';
 
 const EventNames = {
   RECORDING_STATE_ATTRIBUTE,
@@ -73,6 +75,7 @@ const EventNames = {
   SPOTLIGHT_USER_CHANGED,
   BREAKOUT_RAISE_HAND_ATTRIBUTE,
   CROSS_ROOM_RAISE_HAND_NOTIFICATION,
+  BREAKOUT_PRESENTER_ATTRIBUTE,
 };
 /** ***** EVENT NAMES ENDS ***** */
 

@@ -68,6 +68,11 @@ const RTMGlobalStateContext = React.createContext<{
   setMainRoomRTMUsers: React.Dispatch<
     React.SetStateAction<{[uid: number]: RTMUserData}>
   >;
+  // Custom state for developer features (main room scope, cross-room accessible)
+  customRTMMainRoomData: {[key: string]: any};
+  setCustomRTMMainRoomData: React.Dispatch<
+    React.SetStateAction<{[key: string]: any}>
+  >;
   registerMainChannelMessageHandler: (
     handler: (message: MessageEvent) => void,
   ) => void;
@@ -79,6 +84,8 @@ const RTMGlobalStateContext = React.createContext<{
 }>({
   mainRoomRTMUsers: {},
   setMainRoomRTMUsers: () => {},
+  customRTMMainRoomData: {},
+  setCustomRTMMainRoomData: () => {},
   registerMainChannelMessageHandler: () => {},
   unregisterMainChannelMessageHandler: () => {},
   registerMainChannelStorageHandler: () => {},
@@ -96,6 +103,11 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
   // Main room RTM users (RTM-specific data only)
   const [mainRoomRTMUsers, setMainRoomRTMUsers] = useState<{
     [uid: number]: RTMUserData;
+  }>({});
+
+  // Custom state for developer features (main room scope, cross-room accessible)
+  const [customRTMMainRoomData, setCustomRTMMainRoomData] = useState<{
+    [key: string]: any;
   }>({});
 
   // Timeout Refs
@@ -676,6 +688,8 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
       value={{
         mainRoomRTMUsers,
         setMainRoomRTMUsers,
+        customRTMMainRoomData,
+        setCustomRTMMainRoomData,
         registerMainChannelMessageHandler,
         unregisterMainChannelMessageHandler,
         registerMainChannelStorageHandler,
