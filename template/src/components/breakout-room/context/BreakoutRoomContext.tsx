@@ -2260,24 +2260,30 @@ const BreakoutRoomProvider = ({
         console.log('supriya-sync-ordering 1. all room closed: ');
         // 1. User is in breakout toom and the exits
         if (prevRoomId) {
-          showDeduplicatedToast('all-rooms-closed', {
-            leadingIconName: 'close-room',
-            type: 'info',
-            text1: `Host: ${senderName} has closed all breakout rooms.`,
-            text2: 'Returning to the main room...',
-            visibilityTime: 3000,
-          });
+          // Don't show toast if the user is the author
+          if (srcuid !== localUid) {
+            showDeduplicatedToast('all-rooms-closed', {
+              leadingIconName: 'close-room',
+              type: 'info',
+              text1: `Host: ${senderName} has closed all breakout rooms.`,
+              text2: 'Returning to the main room...',
+              visibilityTime: 3000,
+            });
+          }
           // Set transition flag - user will remount in main room and need fresh data
           sessionStorage.setItem('breakout_room_transition', 'true');
           return exitRoom(true);
         } else {
           // 2. User is in main room recevies just notification
-          showDeduplicatedToast('all-rooms-closed', {
-            leadingIconName: 'close-room',
-            type: 'info',
-            text1: `Host: ${senderName} has closed all breakout rooms`,
-            visibilityTime: 4000,
-          });
+          // Don't show toast if the user is the author
+          if (srcuid !== localUid) {
+            showDeduplicatedToast('all-rooms-closed', {
+              leadingIconName: 'close-room',
+              type: 'info',
+              text1: `Host: ${senderName} has closed all breakout rooms`,
+              visibilityTime: 4000,
+            });
+          }
         }
       }
 
@@ -2289,24 +2295,30 @@ const BreakoutRoomProvider = ({
         const roomStillExists = breakout_room.some(r => r.id === prevRoomId);
         //  Case A: Room deleted
         if (!roomStillExists) {
-          showDeduplicatedToast(`current-room-closed-${prevRoomId}`, {
-            leadingIconName: 'close-room',
-            type: 'error',
-            text1: `Host: ${senderName} has closed "${
-              prevRoom?.name || ''
-            }" room.`,
-            text2: 'Returning to main room...',
-            visibilityTime: 3000,
-          });
+          // Don't show toast if the user is the author
+          if (srcuid !== localUid) {
+            showDeduplicatedToast(`current-room-closed-${prevRoomId}`, {
+              leadingIconName: 'close-room',
+              type: 'error',
+              text1: `Host: ${senderName} has closed "${
+                prevRoom?.name || ''
+              }" room.`,
+              text2: 'Returning to main room...',
+              visibilityTime: 3000,
+            });
+          }
         } else {
           // Host removed user from room (handled here)
           // (Room still exists for others, but you were unassigned)
-          showDeduplicatedToast(`moved-to-main-${prevRoomId}`, {
-            leadingIconName: 'arrow-up',
-            type: 'info',
-            text1: `Host: ${senderName} has moved you to main room.`,
-            visibilityTime: 3000,
-          });
+          // Don't show toast if the user is the author
+          if (srcuid !== localUid) {
+            showDeduplicatedToast(`moved-to-main-${prevRoomId}`, {
+              leadingIconName: 'arrow-up',
+              type: 'info',
+              text1: `Host: ${senderName} has moved you to main room.`,
+              visibilityTime: 3000,
+            });
+          }
         }
 
         // Set transition flag - user will remount in main room and need fresh data
@@ -2336,13 +2348,16 @@ const BreakoutRoomProvider = ({
       // 4. Rooms control switched
       if (switch_room && !prevSwitchRoom) {
         console.log('supriya-sync-ordering 4. switch_room changed: ');
-        showDeduplicatedToast('switch-room-toggle', {
-          leadingIconName: 'open-room',
-          type: 'info',
-          text1: `Host:${senderName} has opened breakout rooms.`,
-          text2: 'Please choose a room to join.',
-          visibilityTime: 3000,
-        });
+        // Don't show toast if the user is the author
+        if (srcuid !== localUid) {
+          showDeduplicatedToast('switch-room-toggle', {
+            leadingIconName: 'open-room',
+            type: 'info',
+            text1: `Host:${senderName} has opened breakout rooms.`,
+            text2: 'Please choose a room to join.',
+            visibilityTime: 3000,
+          });
+        }
       }
 
       // 5. Group renamed
@@ -2350,11 +2365,14 @@ const BreakoutRoomProvider = ({
         const after = breakout_room.find(r => r.id === prevRoom.id);
         if (after && after.name !== prevRoom.name) {
           console.log('supriya-sync-ordering 5. group renamed ');
-          showDeduplicatedToast(`room-renamed-${after.id}`, {
-            type: 'info',
-            text1: `Host: ${senderName} has renamed room "${prevRoom.name}" to "${after.name}".`,
-            visibilityTime: 3000,
-          });
+          // Don't show toast if the user is the author
+          if (srcuid !== localUid) {
+            showDeduplicatedToast(`room-renamed-${after.id}`, {
+              type: 'info',
+              text1: `Host: ${senderName} has renamed room "${prevRoom.name}" to "${after.name}".`,
+              visibilityTime: 3000,
+            });
+          }
         }
       });
 
