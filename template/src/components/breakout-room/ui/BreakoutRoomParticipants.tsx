@@ -17,10 +17,11 @@ import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import ThemeConfig from '../../../theme';
 import ImageIcon from '../../../atoms/ImageIcon';
 import Tooltip from '../../../atoms/Tooltip';
+import {BreakoutRoomUser} from '../state/reducer';
 
 interface Props {
   isHost?: boolean;
-  participants?: {uid: UidType; user: ContentInterface}[];
+  participants?: {uid: UidType; user: BreakoutRoomUser}[];
 }
 
 const BreakoutRoomParticipants: React.FC<Props> = ({

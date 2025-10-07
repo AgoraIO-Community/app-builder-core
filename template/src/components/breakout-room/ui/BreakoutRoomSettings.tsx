@@ -64,7 +64,7 @@ export default function BreakoutRoomSettings() {
       <View style={style.section}>
         <BreakoutRoomParticipants participants={unassignedParticipants} />
       </View>
-      <Divider />
+      <Divider marginTop={0} marginBottom={0} />
       <View style={style.section}>
         <SelectParticipantAssignmentStrategy
           selectedStrategy={localAssignmentStrategy}
@@ -81,6 +81,7 @@ export default function BreakoutRoomSettings() {
               ? $config.SEMANTIC_NEUTRAL
               : $config.PRIMARY_ACTION_BRAND_COLOR,
           }}
+          textStyle={{color: $config.PRIMARY_ACTION_TEXT_COLOR}}
           onPress={handleAssignClick}
           text={'Assign participants'}
         />
@@ -93,7 +94,7 @@ export default function BreakoutRoomSettings() {
             disabled={$config.EVENT_MODE}
             isEnabled={canUserSwitchRoom}
             toggleSwitch={toggleRoomSwitchingAllowed}
-            circleColor={$config.FONT_COLOR}
+            circleColor={$config.PRIMARY_ACTION_TEXT_COLOR}
           />
         </View>
       </View>
