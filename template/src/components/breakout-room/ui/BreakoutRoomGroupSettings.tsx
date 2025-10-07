@@ -288,7 +288,7 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
             <IconButton
               iconProps={{
                 iconType: 'plain',
-                name: 'speaker',
+                name: 'announcement',
                 iconSize: 20,
                 tintColor: $config.SECONDARY_ACTION_COLOR,
               }}
