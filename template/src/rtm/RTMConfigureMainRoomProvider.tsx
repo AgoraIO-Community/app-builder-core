@@ -294,17 +294,18 @@ const RTMConfigureMainRoomProvider: React.FC<
       attr.items.forEach(item => {
         try {
           // Check if this is a room-aware session attribute for current room
-          if (item.key && item.key.startsWith(`${RTM_ROOMS.MAIN}__`)) {
-            const parsed = JSON.parse(item.value);
-            if (parsed.persistLevel === PersistanceLevel.Session) {
-              // Replay into eventDispatcher so state gets rebuilt
-              eventDispatcher(
-                {evt: item.key, value: item.value},
-                uid,
-                Date.now(),
-              );
-            }
+          // if (item.key && item.key.startsWith(`${RTM_ROOMS.MAIN}__`)) {
+          const parsed = JSON.parse(item.value);
+          if (parsed.persistLevel === PersistanceLevel.Session) {
+            // Put into queuue
+            const data = {evt: item.key, value: item.value};
+            EventsQueue.enqueue({
+              data,
+              uid,
+              ts: Date.now(),
+            });
           }
+          // }
         } catch (e) {
           console.log('Failed to rehydrate session attribute', item.key, e);
         }
@@ -317,7 +318,7 @@ const RTMConfigureMainRoomProvider: React.FC<
   const init = async () => {
     // Set main room as active channel when this provider mounts again active
     const currentActiveChannel = RTMEngine.getInstance().getActiveChannelName();
-    // const wasInBreakoutRoom = currentActiveChannel === RTM_ROOMS.BREAKOUT;
+    const wasInBreakoutRoom = currentActiveChannel === RTM_ROOMS.BREAKOUT;
 
     if (currentActiveChannel !== RTM_ROOMS.MAIN) {
       RTMEngine.getInstance().setActiveChannelName(RTM_ROOMS.MAIN);
@@ -329,9 +330,9 @@ const RTMConfigureMainRoomProvider: React.FC<
     );
 
     // // Rehydrate session attributes ONLY when returning from breakout room
-    // if (wasInBreakoutRoom) {
-    //   await rehydrateSessionAttributes();
-    // }
+    if (wasInBreakoutRoom) {
+      await rehydrateSessionAttributes();
+    }
 
     await getChannelAttributes();
 
