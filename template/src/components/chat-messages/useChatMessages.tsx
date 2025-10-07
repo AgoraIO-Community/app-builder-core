@@ -290,11 +290,20 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
-  const fromText = (name: string, msgType: ChatMessageType) => {
+  const fromText = (
+    name: string,
+    msgType: ChatMessageType,
+    announcement?: AnnouncementText,
+  ) => {
     let text = '';
     switch (msgType) {
       case ChatMessageType.TXT:
-        text = txtToastHeading?.current(name);
+        if (announcement?.text) {
+          text = `${announcement.sender}: made an announcement in public chat`;
+        } else {
+          text = txtToastHeading?.current(name);
+        }
+
         break;
       case ChatMessageType.IMAGE:
         text = imgToastHeading?.current(name);
@@ -708,13 +717,16 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           : isPrivateMessage
           ? privateMessageLabel?.current()
           : //@ts-ignore
-          defaultContentRef.current.defaultContent[uidAsNumber]?.name
+          announcement?.sender
+          ? announcement.sender
+          : defaultContentRef.current.defaultContent[uidAsNumber]?.name
           ? fromText(
               trimText(
                 //@ts-ignore
                 defaultContentRef.current.defaultContent[uidAsNumber]?.name,
               ),
               msgType,
+              announcement,
             )
           : '',
         text2: isPrivateMessage
