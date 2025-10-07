@@ -488,12 +488,17 @@ const style = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderRadius: 4,
-    borderWidth: 0,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
   },
   checkboxIconContainer: {
     paddingRight: 24,
   },
   checkboxIcon: {
+    borderColor: $config.SECONDARY_ACTION_COLOR,
+    borderRadius: 2,
     width: 17,
     height: 17,
   },
@@ -522,7 +527,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   participantTableHeaderRowCellText: {
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.small,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     lineHeight: 16,
