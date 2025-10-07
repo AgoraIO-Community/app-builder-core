@@ -134,7 +134,7 @@ const style = StyleSheet.create({
   },
   userAvatarText: {
     fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
+    lineHeight: 24,
     fontWeight: '600',
     color: $config.BACKGROUND_COLOR,
     display: 'flex',

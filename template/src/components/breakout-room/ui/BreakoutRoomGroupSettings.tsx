@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     height: 28,
   },
   roomActionBtnText: {
-    color: $config.SECONDARY_ACTION_COLOR,
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 16,
     fontWeight: '600',
@@ -546,20 +546,20 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   userAvatarContainer: {
-    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
     width: 24,
     height: 24,
     borderRadius: 12,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
   },
   userAvatarOffline: {
     backgroundColor: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
   userAvatarText: {
     fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
+    lineHeight: 24,
     fontWeight: '600',
     color: $config.BACKGROUND_COLOR,
   },

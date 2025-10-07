@@ -582,10 +582,14 @@ const style = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
   },
   participantAvatarText: {
     fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: 32,
     fontWeight: '600',
     color: $config.BACKGROUND_COLOR,
   },
@@ -615,7 +619,7 @@ const style = StyleSheet.create({
   },
   // Buttons
   actionBtnText: {
-    color: $config.SECONDARY_ACTION_COLOR,
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 16,
   },
