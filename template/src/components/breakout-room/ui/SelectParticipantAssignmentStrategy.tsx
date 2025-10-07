@@ -50,7 +50,7 @@ const style = StyleSheet.create({
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 16,
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontFamily: ThemeConfig.FontFamily.sansPro,
   },
 });
