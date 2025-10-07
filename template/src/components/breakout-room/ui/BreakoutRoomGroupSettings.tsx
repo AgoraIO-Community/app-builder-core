@@ -46,7 +46,6 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
   const {defaultContent} = useContent();
   const {sendChatSDKMessage} = useChatConfigure();
   const {isUserHandRaised} = useRaiseHand();
-  const {defaultContent} = useContent();
 
   const {
     breakoutGroups,
