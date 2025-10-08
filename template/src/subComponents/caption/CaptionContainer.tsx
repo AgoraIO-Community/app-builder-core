@@ -535,19 +535,33 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
     onPress: () => handleTranslationToggle(''),
   });
 
-  // Add Translation language options
+  // Add selected translation language right after "Off" if one is selected
+  if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
+    const selectedLanguage = langData.find(lang => lang.value === selectedTranslationLanguage);
+    if (selectedLanguage) {
+      actionMenuitems.push({
+        icon: 'tick-fill',
+        iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: selectedLanguage.label,
+        iconPosition: 'end',
+        onPress: () => handleTranslationToggle(selectedLanguage.value),
+      });
+    }
+  }
+
+  // Add remaining Translation language options (excluding the selected one)
   langData.forEach(language => {
-    actionMenuitems.push({
-      icon:
-        selectedTranslationLanguage === language.value
-          ? 'tick-fill'
-          : undefined,
-      iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: language.label,
-      iconPosition: 'end',
-      onPress: () => handleTranslationToggle(language.value),
-    });
+    if (language.value !== selectedTranslationLanguage) {
+      actionMenuitems.push({
+        icon: undefined,
+        iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: language.label,
+        iconPosition: 'end',
+        onPress: () => handleTranslationToggle(language.value),
+      });
+    }
   });
 
   React.useEffect(() => {
