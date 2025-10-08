@@ -16,6 +16,8 @@
     "web:build": "cross-env TARGET=web NODE_ENV=production webpack --config webpack.web.config.js",
     "web-sdk": "cross-env TARGET=wsdk NODE_ENV=development gulp webSdk",
     "web-sdk:build": "cross-env TARGET=wsdk NODE_ENV=production gulp webSdk",
+    "web-sdk-hosted": "cross-env TARGET=wsdk NODE_ENV=development gulp webSdkHosted",
+    "web-sdk-hosted:build": "cross-env TARGET=wsdk NODE_ENV=production gulp webSdkHosted",
     "react-sdk": "cross-env TARGET=rsdk NODE_ENV=development gulp reactSdk",
     "react-sdk:build": "cross-env TARGET=rsdk NODE_ENV=production gulp reactSdk",
     "react-sdk:esbuild": "cross-env TARGET=rsdk NODE_ENV=production gulp reactSdkEsbuild",

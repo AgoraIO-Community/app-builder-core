@@ -421,6 +421,22 @@ module.exports.webSdk = series(
   general.generateNpmPackage,
 );
 
+module.exports.webSdkHosted = series(
+  general.cleanBuildDirectory,
+  general.createBuildDirectory,
+  general.addPackageInfo,
+  parallel(
+    webSdk.webpack,
+    series(
+      general.generateApiTypedefs,
+      general.bundleApiTypedefs,
+      webSdk.generateSdkTypedefs,
+      webSdk.bundleSdkTypedefs,
+      general.cleanTempFiles,
+    ),
+  ),
+);
+
 module.exports.makeWsdkTsDefs = series(
   general.cleanBuildDirectory,
   general.createBuildDirectory,
