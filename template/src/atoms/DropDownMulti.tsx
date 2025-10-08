@@ -144,11 +144,13 @@ const DropdownMulti: FC<Props> = ({
 
   // renders multiselect lang dropdown
   const renderDropdown = (): ReactElement<any, any> => {
+    // filter for inhous asr lang code : en-US , zh-CN
+    const tempData = data.filter((lang) => lang.value === 'en-US' || lang.value === 'zh-CN');
     return (
       <View style={[styles.dropdown]}>
         <FlatList
           showsVerticalScrollIndicator={true}
-          data={data}
+          data={tempData}
           renderItem={renderItem}
           keyExtractor={(item, index) => index.toString()}
           style={{maxHeight}}
