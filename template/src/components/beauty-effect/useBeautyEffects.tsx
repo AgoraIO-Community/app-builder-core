@@ -1,6 +1,5 @@
 import {createHook} from 'customization-implementation';
-import React, {useState} from 'react';
-import {useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 import BeautyExtension from 'agora-extension-beauty-effect';
 import {useRoomInfo, useRtc} from 'customization-api';
@@ -77,19 +76,51 @@ const BeautyEffectProvider: React.FC = ({children}) => {
 
   const {RtcEngineUnsafe} = useRtc();
   //@ts-ignore
-  const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
+  const localVideoTrack: ILocalVideoTrack | undefined =
+    RtcEngineUnsafe?.localStream?.video;
+
+  // ✅ useRef to persist timeout across renders
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  if (timeoutRef.current) {
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = null;
+  }
 
   if (!roomPreference?.disableVideoProcessors) {
-    if ($config.ENABLE_VIRTUAL_BACKGROUND) {
-      localVideoTrack
-        ?.pipe(beautyProcessor)
-        .pipe(vbProcessor)
-        .pipe(localVideoTrack?.processorDestination);
-    } else {
-      localVideoTrack
-        ?.pipe(beautyProcessor)
-        .pipe(localVideoTrack?.processorDestination);
-    }
+    console.log(
+      'supriya-trackstatus',
+      localVideoTrack?.getMediaStreamTrack()?.readyState,
+    );
+
+    /**
+     * Small delay to ensure the new track is stable
+     * when we move from main room to breakout room the track changes
+     * from live to ended instantly as the user audio or video preferences are applied
+     * It solves the error 'MediaStreamTrackProcessor': Input track cannot be ended'
+     */
+    timeoutRef.current = setTimeout(() => {
+      const trackStatus = localVideoTrack?.getMediaStreamTrack()?.readyState;
+      if (trackStatus === 'live') {
+        console.log('supriya-trackstatus applying');
+        try {
+          if ($config.ENABLE_VIRTUAL_BACKGROUND) {
+            localVideoTrack
+              ?.pipe(beautyProcessor)
+              .pipe(vbProcessor)
+              .pipe(localVideoTrack?.processorDestination);
+          } else {
+            localVideoTrack
+              ?.pipe(beautyProcessor)
+              .pipe(localVideoTrack?.processorDestination);
+          }
+        } catch (err) {
+          console.error('Error applying processors:', err);
+        }
+      } else {
+        console.warn('Track not live after delay, skipping pipe');
+      }
+    }, 300);
   }
 
   useEffect(() => {
@@ -112,6 +143,20 @@ const BeautyEffectProvider: React.FC = ({children}) => {
     rednessLevel,
     lighteningContrastLevel,
   ]);
+
+  // Proper cleanup for both processor and timeout
+  useEffect(() => {
+    return () => {
+      console.log('supriya-trackstatus cleanup');
+      beautyProcessor?.disable();
+      beautyProcessor?.unpipe?.();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+        console.log('supriya-trackstatus timeout cleared');
+      }
+    };
+  }, []);
 
   const removeBeautyEffect = async () => {
     await beautyProcessor.disable();
