@@ -23,6 +23,7 @@ import {isWeb, isWebInternal} from '../utils/common';
 import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
 import {nativeLinkStateMapping} from '../../bridge/rtm/web/Types';
+import {RTMStatusBanner} from './RTMStatusBanner';
 
 // ---- Helpers ---- //
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -45,11 +46,13 @@ async function loginWithBackoff(
     } catch (e: any) {
       attempt += 1;
       onAttempt?.(attempt);
+
       if (attempt > maxAttempts) {
-        throw new Error(`RTM login failed: ${e?.message ?? e}`);
+        const errorMsg = `RTM login failed: ${e?.message ?? e}`;
+        throw new Error(errorMsg);
       }
       const backoff =
-        Math.min(1000 * 2 ** (attempt - 1), 30_000) +
+        Math.min(5000 * 2 ** (attempt - 1), 60_000) +
         Math.floor(Math.random() * 300);
       await delay(backoff);
     }
@@ -108,6 +111,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
   const mountedRef = useRef(true);
   const cleaningRef = useRef(false);
   const callbackRegistry = useRef<Map<string, EventCallbacks>>(new Map());
+  const errorRef = useRef<Error | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -115,6 +119,22 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       mountedRef.current = false;
     };
   }, []);
+
+  // Sync error ref with state to prevent state clearing
+  useEffect(() => {
+    errorRef.current = error;
+  }, [error]);
+
+  // Keep error persistent if we have a failed state
+  useEffect(() => {
+    if (
+      connectionState === nativeLinkStateMapping.FAILED &&
+      !error &&
+      errorRef.current
+    ) {
+      setError(errorRef.current);
+    }
+  }, [connectionState, error]);
 
   // Memoize userInfo
   const stableUserInfo = useMemo(
@@ -240,7 +260,16 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
 
     const onLink = async (evt: LinkStateEvent) => {
       setConnectionState(evt.currentState);
-      if (evt.currentState === nativeLinkStateMapping.DISCONNECTED) {
+
+      if (evt.currentState === nativeLinkStateMapping.FAILED) {
+        setIsLoggedIn(false);
+        // Set error if we're in FAILED state and don't have one
+        if (!errorRef.current) {
+          const failedError = new Error('RTM connection failed');
+          errorRef.current = failedError;
+          setError(failedError);
+        }
+      } else if (evt.currentState === nativeLinkStateMapping.DISCONNECTED) {
         setIsLoggedIn(false);
         if (stableUserInfo.rtmToken) {
           try {
@@ -249,15 +278,22 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
               return;
             }
             setIsLoggedIn(true);
+            // Clear error only after successful login
+            errorRef.current = null;
+            setError(null);
           } catch (err: any) {
             if (!mountedRef.current) {
               return;
             }
+            errorRef.current = err;
             setError(err);
           }
         }
       } else if (evt.currentState === nativeLinkStateMapping.CONNECTED) {
         setIsLoggedIn(true);
+        // Clear error on successful connection
+        errorRef.current = null;
+        setError(null);
       }
     };
 
@@ -274,7 +310,6 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
     }
 
     (async () => {
-      console.log('supriya-rtm-lifecycle init');
       // 1, Check if engine is already connected
       // 2. Initialize RTM Engine
       if (!RTMEngine.getInstance()?.isEngineReady) {
@@ -300,6 +335,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
         if (!mountedRef.current) {
           return;
         }
+        errorRef.current = err;
         setError(err);
       }
     })();
@@ -374,6 +410,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
         registerCallbacks,
         unregisterCallbacks,
       }}>
+      {/* <RTMStatusBanner /> */}
       {children}
     </RTMContext.Provider>
   );
