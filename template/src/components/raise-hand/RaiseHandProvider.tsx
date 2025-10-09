@@ -222,8 +222,8 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
         if (uid !== localUid) {
           const userName = getDisplayName(uid) || `User ${uid}`;
           Toast.show({
-            leadingIconName: 'lower-hand',
-            type: raised ? 'success' : 'info',
+            leadingIconName: raised ? 'raise-hand' : 'lower-hand',
+            type: 'info',
             text1: raised
               ? `${userName} raised hand`
               : `${userName} lowered hand`,
