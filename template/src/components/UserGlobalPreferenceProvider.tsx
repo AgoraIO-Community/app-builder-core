@@ -21,6 +21,7 @@ import {
   ToggleState,
   PermissionState,
   DefaultContentInterface,
+  ContentInterface,
 } from '../../agora-rn-uikit';
 import {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 
@@ -48,7 +49,7 @@ interface UserGlobalPreferenceInterface {
   userGlobalPreferences: UserGlobalPreferences;
   syncUserPreferences: (prefs: Partial<UserGlobalPreferences>) => void;
   applyUserPreferences: (
-    currentUserData: DefaultContentInterface,
+    currentUserData: ContentInterface,
     toggleMuteFn: (type: number, action?: number) => Promise<void>,
   ) => Promise<void>;
 }

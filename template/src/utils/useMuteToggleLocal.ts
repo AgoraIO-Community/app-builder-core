@@ -96,15 +96,6 @@ function useMuteToggleLocal() {
                 value: [newAudioState],
               });
 
-              // Sync audio preference to RTM (only saves in main room)
-              try {
-                syncUserPreferences({
-                  audioMuted: newAudioState === ToggleState.disabled,
-                });
-              } catch (error) {
-                console.warn('Failed to sync audio preference:', error);
-              }
-
               handleQueue();
             } catch (e) {
               dispatch({
@@ -172,15 +163,6 @@ function useMuteToggleLocal() {
                 type: 'LocalMuteVideo',
                 value: [newVideoState],
               });
-
-              // Sync video preference to RTM (only saves in main room)
-              try {
-                syncUserPreferences({
-                  videoMuted: newVideoState === ToggleState.disabled,
-                });
-              } catch (error) {
-                console.warn('Failed to sync video preference:', error);
-              }
 
               handleQueue();
             } catch (e) {
