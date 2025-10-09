@@ -2259,7 +2259,7 @@ const BreakoutRoomProvider = ({
       if (breakout_room.length === 0 && prevGroups.length > 0) {
         console.log('supriya-sync-ordering 1. all room closed: ');
         // 1. User is in breakout toom and the exits
-        if (prevRoomId) {
+        if (prevRoomId && isBreakoutMode) {
           // Don't show toast if the user is the author
           if (srcuid !== localUid) {
             showDeduplicatedToast('all-rooms-closed', {
@@ -2272,6 +2272,7 @@ const BreakoutRoomProvider = ({
           }
           // Set transition flag - user will remount in main room and need fresh data
           sessionStorage.setItem('breakout_room_transition', 'true');
+          lastSyncedSnapshotRef.current = null;
           return exitRoom(true);
         } else {
           // 2. User is in main room recevies just notification
@@ -2288,7 +2289,7 @@ const BreakoutRoomProvider = ({
       }
 
       // 2. User's room deleted (they were in a room → now not)
-      if (userLeftBreakoutRoom) {
+      if (userLeftBreakoutRoom && isBreakoutMode) {
         console.log('supriya-sync-ordering 2. they were in a room → now not: ');
 
         const prevRoom = prevGroups.find(r => r.id === prevRoomId);
@@ -2323,6 +2324,7 @@ const BreakoutRoomProvider = ({
 
         // Set transition flag - user will remount in main room and need fresh data
         sessionStorage.setItem('breakout_room_transition', 'true');
+        lastSyncedSnapshotRef.current = null;
         return exitRoom(true);
       }
 

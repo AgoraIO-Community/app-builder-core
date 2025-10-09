@@ -75,19 +75,21 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
 
   // Detect room changes and lower hand if raised
   useEffect(() => {
-    // Send RTM event to reset attribute
+    // Send RTM event to reset attribute only if hand is raised
     return () => {
-      events.send(
-        EventNames.BREAKOUT_RAISE_HAND_ATTRIBUTE,
-        JSON.stringify({
-          uid: localUid,
-          raised: false,
-          timestamp: Date.now(),
-        }),
-        PersistanceLevel.Sender,
-      );
+      if (isHandRaised) {
+        events.send(
+          EventNames.BREAKOUT_RAISE_HAND_ATTRIBUTE,
+          JSON.stringify({
+            uid: localUid,
+            raised: false,
+            timestamp: Date.now(),
+          }),
+          PersistanceLevel.Sender,
+        );
+      }
     };
-  }, [localUid]);
+  }, [localUid, isHandRaised]);
 
   // Check if any user has hand raised
   const isUserHandRaised = useCallback(
@@ -149,6 +151,7 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
     // Show toast notification
     Toast.show({
       type: 'success',
+      leadingIconName: 'raise-hand',
       text1: 'Hand raised',
       visibilityTime: 2000,
     });
@@ -219,6 +222,7 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
         if (uid !== localUid) {
           const userName = getDisplayName(uid) || `User ${uid}`;
           Toast.show({
+            leadingIconName: 'lower-hand',
             type: raised ? 'success' : 'info',
             text1: raised
               ? `${userName} raised hand`
