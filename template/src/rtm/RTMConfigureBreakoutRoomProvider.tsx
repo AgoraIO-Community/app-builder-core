@@ -128,6 +128,7 @@ const RTMConfigureBreakoutRoomProvider = (
   const {callActive, currentChannel} = props;
   const {dispatch} = useContext(DispatchContext);
   const {defaultContent, activeUids} = useContent();
+  console.log('rudra-core-client: activeUids: ', activeUids);
   const {
     waitingRoomStatus,
     data: {isHost},
@@ -232,6 +233,10 @@ const RTMConfigureBreakoutRoomProvider = (
     await subscribeChannel();
     await getMembersWithAttributes();
     await getChannelAttributes();
+    const result = await RTMEngine.getInstance().engine.presence.whereNow(
+      `${localUid}`,
+    );
+    console.log('rudra-core-client: user is now at channels ', result);
     setHasUserJoinedRTM(true);
     await runQueuedEvents();
     setIsInitialQueueCompleted(true);
@@ -247,6 +252,8 @@ const RTMConfigureBreakoutRoomProvider = (
           '🚫  RTM already subscribed channel skipping',
           currentChannel,
         );
+        const channelids = RTMEngine.getInstance().allChannelIds;
+        console.log('rudra-core-client: alreadt subscribed', channelids);
       } else {
         await client.subscribe(currentChannel, {
           withMessage: true,
@@ -291,6 +298,11 @@ const RTMConfigureBreakoutRoomProvider = (
         'API',
         'RTM presence.getOnlineUsers(getMembers) start',
       );
+      console.log(
+        'rudra-core-client: fetchOnlineMembersWithRetries inside breakout room ',
+        client,
+        currentChannel,
+      );
       const {allMembers, totalOccupancy} = await fetchOnlineMembersWithRetries(
         client,
         currentChannel,
@@ -319,7 +331,7 @@ const RTMConfigureBreakoutRoomProvider = (
                     },
                   );
                   console.log(
-                    'supriya rtm [breakout] attr backoffAttributes',
+                    `rudra-core-client: getting user attributes for user ${member.userId}`,
                     userAttributes,
                   );
                   mapUserAttributesToState(
@@ -358,7 +370,11 @@ const RTMConfigureBreakoutRoomProvider = (
           },
         },
       );
-
+      console.log(
+        'rudra-core-client: totalOccupancy',
+        allMembers,
+        totalOccupancy,
+      );
       logger.debug(
         LogSource.AgoraSDK,
         'Log',
@@ -804,7 +820,7 @@ const RTMConfigureBreakoutRoomProvider = (
       setHasUserJoinedRTM(false);
       setIsInitialQueueCompleted(false);
       currentClient.unsubscribe(channel);
-      RTMEngine.getInstance().removeChannel(channel);
+      RTMEngine.getInstance().removeChannel(RTM_ROOMS.BREAKOUT);
       logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
       if (isIOS() || isAndroid()) {
         EventUtils.clear();
@@ -830,6 +846,7 @@ const RTMConfigureBreakoutRoomProvider = (
       logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', {error});
     }
     return async () => {
+      console.log('rudra-core-client: cleaning up for channel', currentChannel);
       const currentClient = RTMEngine.getInstance().engine;
       hasInitRef.current = false;
       isRTMMounted.current = false;

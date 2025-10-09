@@ -655,7 +655,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         unregisterCallbacks(mainChannelName);
         if (RTMEngine.getInstance().hasChannel(mainChannelName)) {
           client?.unsubscribe(mainChannelName).catch(() => {});
-          RTMEngine.getInstance().removeChannel(mainChannelName);
+          RTMEngine.getInstance().removeChannel(RTM_ROOMS.MAIN);
         }
       }
 

@@ -11,7 +11,7 @@
 */
 
 ('use strict');
-import {type RTMClient} from 'agora-react-native-rtm';
+import {RtmMessageType, type RTMClient} from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
 import {
   EventUtils,
@@ -167,6 +167,8 @@ class Events {
         }
         await rtmEngine.publish(toChannelId, text, {
           channelType: nativeChannelTypeMapping.MESSAGE, // 1 is message
+          // customType: 'PlainText',
+          // messageType: RtmMessageType.string,
         });
       } catch (error) {
         logger.error(
@@ -189,6 +191,8 @@ class Events {
       try {
         await rtmEngine.publish(`${adjustedUID}`, text, {
           channelType: nativeChannelTypeMapping.USER, // user
+          // customType: 'PlainText',
+          // messageType: RtmMessageType.string,
         });
       } catch (error) {
         logger.error(

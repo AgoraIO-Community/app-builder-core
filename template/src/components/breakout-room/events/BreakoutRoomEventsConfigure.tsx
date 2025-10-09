@@ -6,8 +6,6 @@ import {BreakoutRoomSyncStateEventPayload} from '../state/types';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useRoomInfo} from '../../../components/room-info/useRoomInfo';
 import {logger, LogSource} from '../../../logger/AppBuilderLogger';
-import {EventNames} from '../../../rtm-events';
-import {useRTMGlobalState} from '../../../rtm/RTMGlobalStateProvider';
 
 interface Props {
   children: React.ReactNode;
