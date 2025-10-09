@@ -230,10 +230,19 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
             {room.participants.hosts.length > 0 ||
             room.participants.attendees.length > 0 ? (
               <>
-                {room.participants.hosts.map(member => renderMember(member))}
-                {room.participants.attendees.map(member =>
-                  renderMember(member),
-                )}
+                {/* Combine and sort members - local user first */}
+                {[...room.participants.hosts, ...room.participants.attendees]
+                  .sort((a, b) => {
+                    // Local user always comes first
+                    if (a === localUid) {
+                      return -1;
+                    }
+                    if (b === localUid) {
+                      return 1;
+                    }
+                    return 0; // Keep others in original order
+                  })
+                  .map(member => renderMember(member))}
               </>
             ) : (
               <View style={styles.emptyRoom}>
