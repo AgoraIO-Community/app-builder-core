@@ -247,6 +247,7 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
           if (type === 'raise_hand') {
             Toast.show({
               type: 'info',
+              leadingIconName: 'raise-hand',
               text1: `${userName} raised hand in ${roomName}`,
               visibilityTime: 4000,
             });
