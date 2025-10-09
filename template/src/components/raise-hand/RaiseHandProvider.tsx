@@ -69,8 +69,25 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
   } = useRoomInfo();
   const {isInBreakoutRoute} = useCurrentRoomInfo();
   const {breakoutRoomChannelData} = useBreakoutRoomInfo();
+
   // Get current user's hand state
   const isHandRaised = raisedHands[localUid]?.raised || false;
+
+  // Detect room changes and lower hand if raised
+  useEffect(() => {
+    // Send RTM event to reset attribute
+    return () => {
+      events.send(
+        EventNames.BREAKOUT_RAISE_HAND_ATTRIBUTE,
+        JSON.stringify({
+          uid: localUid,
+          raised: false,
+          timestamp: Date.now(),
+        }),
+        PersistanceLevel.Sender,
+      );
+    };
+  }, [localUid]);
 
   // Check if any user has hand raised
   const isUserHandRaised = useCallback(
@@ -114,7 +131,7 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
             type: 'raise_hand',
             uid: localUid,
             userName: userName,
-            roomName: breakoutRoomChannelData?.breakoutRoomName || '',
+            roomName: breakoutRoomChannelData?.room_name || '',
             timestamp,
           }),
           PersistanceLevel.None,
@@ -141,6 +158,7 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
     getDisplayName,
     isInBreakoutRoute,
     mainChannelId,
+    breakoutRoomChannelData?.room_name,
   ]);
 
   // Lower hand action
