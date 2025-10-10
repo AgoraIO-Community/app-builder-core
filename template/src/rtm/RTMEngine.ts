@@ -187,25 +187,32 @@ class RTMEngine {
     }
     console.log('supriya-rtm-lifecycle unsubscribing from all channel');
 
-    // Unsubscribe from all tracked channels
+    // 1. Unsubscribe from all tracked channels
     for (const channel of this.allChannelIds) {
+      console.log('supriya-stt channel: ', channel);
       try {
         await this._engine.unsubscribe(channel);
       } catch (err) {
         console.warn(`Failed to unsubscribe from '${channel}':`, err);
       }
     }
+    // 2. Remove user metadata
+    try {
+      console.log('supriya-rtm-lifecycle removing user metadata');
+      await this._engine?.storage.removeUserMetadata();
+    } catch (err) {
+      console.warn('Failed to remove user metadata:', err);
+    }
 
-    // 2. Remove all listeners if supported
+    // 3. Remove all listeners
     try {
       console.log('supriya-rtm-lifecycle remove all listeners ');
-
-      await this._engine.removeAllListeners?.();
+      this._engine.removeAllListeners?.();
     } catch {
       console.warn('Failed to remove listeners:');
     }
 
-    // 3. Logout and release resources
+    // 4. Logout and release resources
     try {
       await this._engine.logout();
       console.log('supriya-rtm-lifecycle logged out ');
