@@ -698,10 +698,18 @@ const RTMConfigureMainRoomProvider: React.FC<
 
   useAsyncEffect(async () => {
     try {
-      if (client && isLoggedIn && callActive && currentChannel) {
-        registerMainChannelMessageHandler(handleMainChannelMessageEvent);
-        registerMainChannelStorageHandler(handleMainChannelStorageEvent);
-        await init();
+      if (client && isLoggedIn && currentChannel) {
+        // RTM initialization logic:
+        // - Waiting room attendees: Connect immediately
+        // - Waiting room hosts: Wait for callActive
+        // - Non-waiting room: Everyone waits for callActive
+        const shouldInit =
+          callActive || ($config.ENABLE_WAITING_ROOM && !isHost);
+        if (shouldInit) {
+          registerMainChannelMessageHandler(handleMainChannelMessageEvent);
+          registerMainChannelStorageHandler(handleMainChannelStorageEvent);
+          await init();
+        }
       }
     } catch (error) {
       logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', {error});
@@ -728,7 +736,7 @@ const RTMConfigureMainRoomProvider: React.FC<
       setIsInitialQueueCompleted(false);
       logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
     };
-  }, [client, isLoggedIn, callActive, currentChannel]);
+  }, [client, isLoggedIn, callActive, currentChannel, isHost]);
 
   // Provide context data to children
   const contextValue: RTMMainRoomData = {

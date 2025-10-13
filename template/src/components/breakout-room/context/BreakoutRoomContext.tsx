@@ -753,7 +753,7 @@ const BreakoutRoomProvider = ({
         console.log('supriya-api-get response', data.sts, data);
 
         if (data?.session_id) {
-          logger.log(LogSource.Internals, 'BREAKOUT_ROOM', 'Session exits', {
+          logger.log(LogSource.Internals, 'BREAKOUT_ROOM', 'Session exists', {
             sessionId: data.session_id,
             roomCount: data?.breakout_room?.length || 0,
             assignmentType: data?.assignment_type,
