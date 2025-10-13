@@ -9,7 +9,6 @@ import {
 import {PropsContext, DispatchContext} from '../../agora-rn-uikit';
 import {useHistory} from '../components/Router';
 import {stopForegroundService} from '../subComponents/LocalEndCall';
-import RTMEngine from '../rtm/RTMEngine';
 import {ENABLE_AUTH} from '../auth/config';
 import {useAuth} from '../auth/AuthProvider';
 import {useChatConfigure} from '../components/chat/chatConfigure';

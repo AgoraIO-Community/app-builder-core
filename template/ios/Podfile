@@ -5,6 +5,13 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+require 'cocoapods'
+class Pod::Installer::Xcode::TargetValidator
+  def verify_no_duplicate_framework_and_library_names(*)
+    # Do nothing - allows duplicate frameworks
+  end
+end
+
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
@@ -59,6 +66,40 @@ target 'HelloWorld' do
       :mac_catalyst_enabled => false
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
+
+    # === BEGIN: Bitcode Stripping ===
+    bitcode_strip_path = `xcrun --find bitcode_strip`.chomp
+
+    def strip_bitcode(framework_path, bitcode_strip_path)
+      if File.exist?(framework_path)
+        puts ":wrench: Stripping bitcode from: #{framework_path}"
+        system("#{bitcode_strip_path} #{framework_path} -r -o #{framework_path}")
+      else
+        puts ":warning: Framework not found: #{framework_path}"
+      end
+    end
+
+    frameworks_to_strip = [
+      # Agora RTM - device & simulator
+      "Pods/AgoraRtm_iOS/AgoraRtmKit.xcframework/ios-arm64_armv7/AgoraRtmKit.framework/AgoraRtmKit",
+      "Pods/AgoraRtm_iOS/AgoraRtmKit.xcframework/ios-arm64_i386_x86_64-simulator/AgoraRtmKit.framework/AgoraRtmKit",
+
+      # Hermes - device & simulator
+      "Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64/hermes.framework/hermes",
+      "Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64_x86_64-simulator/hermes.framework/hermes"
+    ]
+
+    frameworks_to_strip.each do |framework|
+      strip_bitcode(framework, bitcode_strip_path)
+    end
+
+    # Disable ENABLE_BITCODE for all Pod targets
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['ENABLE_BITCODE'] = 'NO'
+      end
+    end
+    # === END: Bitcode Stripping ===
   end
 end
 
