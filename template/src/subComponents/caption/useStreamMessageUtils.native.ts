@@ -6,10 +6,15 @@ type StreamMessageCallback = (args: [number, Uint8Array]) => void;
 type FinalListType = {
   [key: string]: string[];
 };
-type TranscriptItem = {
-  uid: string;
-  time: number;
+type TranslationData = {
+  lang: string;
   text: string;
+  isFinal: boolean;
+};
+type FinalTranslationListType = {
+  [key: string]: {
+    [lang: string]: string[];
+  };
 };
 
 const useStreamMessageUtils = (): {
@@ -20,11 +25,15 @@ const useStreamMessageUtils = (): {
     setMeetingTranscript,
     activeSpeakerRef,
     prevSpeakerRef,
+    // Use ref instead of state to avoid stale closure issues
+    // The ref always has the current value, even in callbacks created at mount time
+    selectedTranslationLanguageRef,
   } = useCaption();
 
   let captionStartTime: number = 0;
   const finalList: FinalListType = {};
   const finalTranscriptList: FinalListType = {};
+  const finalTranslationList: FinalTranslationListType = {};
 
   const streamMessageCallback: StreamMessageCallback = args => {
     /* uid - bot which sends stream message in channel
@@ -35,6 +44,7 @@ const useStreamMessageUtils = (): {
     let finalText = ''; // holds final strings
     let currentFinalText = ''; // holds current caption
     let isInterjecting = false;
+    let translations: TranslationData[] = [];
 
     const textstream = protoRoot
       .lookupType('Text')
@@ -129,16 +139,51 @@ const useStreamMessageUtils = (): {
       captionStartTime = null; // Reset start time
     }
 
+    /* Process translations if available */
+    if (textstream.translations && textstream.translations.length > 0) {
+      for (const translation of textstream.translations) {
+        const translationWords = translation.texts || [];
+        let translationFinalText = '';
+
+        for (const word of translationWords) {
+          if (word.isFinal) {
+            translationFinalText += word.text;
+          }
+        }
+
+        if (translationFinalText) {
+          // Initialize translation storage for this uid and language
+          if (!finalTranslationList[textstream.uid]) {
+            finalTranslationList[textstream.uid] = {};
+          }
+          if (!finalTranslationList[textstream.uid][translation.lang]) {
+            finalTranslationList[textstream.uid][translation.lang] = [];
+          }
+
+          finalTranslationList[textstream.uid][translation.lang].push(translationFinalText);
+
+          translations.push({
+            lang: translation.lang,
+            text: finalTranslationList[textstream.uid][translation.lang].join(' '),
+            isFinal: true,
+          });
+        }
+      }
+    }
+
     /* Updating Meeting Transcript */
     if (currentFinalText.length) {
+      // Prepare final translations for transcript
+      const finalTranslationsForTranscript = translations.filter(t => t.isFinal);
+
       setMeetingTranscript(prevTranscript => {
         const lastTranscriptIndex = prevTranscript.length - 1;
         const lastTranscript =
           lastTranscriptIndex >= 0 ? prevTranscript[lastTranscriptIndex] : null;
 
         /*
-            checking if the last item transcript matches with current uid 
-            If yes then updating the last transcript msg with current text
+            checking if the last item transcript matches with current uid
+            If yes then updating the last transcript msg with current text and translations
             If no then adding a new entry in the transcript
           */
         if (lastTranscript && lastTranscript.uid === textstream.uid) {
@@ -146,6 +191,9 @@ const useStreamMessageUtils = (): {
             ...lastTranscript,
             //text: lastTranscript.text + ' ' + currentFinalText, // missing few updates with reading prev values
             text: finalTranscriptList[textstream.uid].join(' '),
+            translations: finalTranslationsForTranscript,
+            // preserve the original translation language from when this transcript was created
+            selectedTranslationLanguage: lastTranscript.selectedTranslationLanguage,
           };
 
           return [
@@ -164,14 +212,18 @@ const useStreamMessageUtils = (): {
               uid: textstream.uid,
               time: new Date().getTime(),
               text: currentFinalText,
+              translations: finalTranslationsForTranscript,
+              // Store the current translation language with this transcript item
+              // This preserves which translation was active when this text was spoken
+              selectedTranslationLanguage: selectedTranslationLanguageRef.current,
             },
           ];
         }
       });
     }
 
-    /* 
-     Previous final words of the uid are prepended and 
+    /*
+     Previous final words of the uid are prepended and
      then current non final words so that context of speech is not lost
     */
     const existingStringBuffer = isInterjecting
@@ -183,13 +235,45 @@ const useStreamMessageUtils = (): {
         ? existingStringBuffer + ' ' + latestString
         : latestString;
 
-    // updating the captions
+    // Process non-final translations for captions
+    let nonFinalTranslations: TranslationData[] = [];
+    if (textstream.translations && textstream.translations.length > 0) {
+      for (const translation of textstream.translations) {
+        const translationWords = translation.texts || [];
+        let nonFinalTranslationText = '';
+
+        for (const word of translationWords) {
+          if (!word.isFinal) {
+            nonFinalTranslationText += word.text !== '.' ? word.text : '';
+          }
+        }
+
+        if (nonFinalTranslationText) {
+          const existingTranslationBuffer = isInterjecting
+            ? ''
+            : finalTranslationList[textstream.uid]?.[translation.lang]?.join(' ') || '';
+
+          const fullTranslationText = existingTranslationBuffer.length > 0
+            ? existingTranslationBuffer + ' ' + nonFinalTranslationText
+            : nonFinalTranslationText;
+
+          nonFinalTranslations.push({
+            lang: translation.lang,
+            text: fullTranslationText,
+            isFinal: false,
+          });
+        }
+      }
+    }
+
+    // updating the captions with translations
     captionText &&
       setCaptionObj(prevState => {
         return {
           ...prevState,
           [textstream.uid]: {
             text: captionText,
+            translations: nonFinalTranslations,
             lastUpdated: new Date().getTime(),
           },
         };

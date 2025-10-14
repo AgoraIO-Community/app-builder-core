@@ -12,6 +12,7 @@ import {
   StyleProp,
   TextStyle,
   Pressable,
+  ScrollView,
 } from 'react-native';
 import React, {SetStateAction, useState} from 'react';
 
@@ -50,6 +51,7 @@ export interface ActionMenuItem {
   iconSize?: number;
   hide?: ToolbarItemHide;
   type?: string;
+  iconPosition?: 'start' | 'end';
 }
 export interface ActionMenuProps {
   from: string;
@@ -83,6 +85,7 @@ export interface UserActionMenuItemProps {
   isBase64Icon?: boolean;
   externalIconString?: string;
   titleStyle?: StyleProp<TextStyle>;
+  iconPosition?: 'start' | 'end';
 }
 
 export const UserActionMenuItem = ({
@@ -101,12 +104,18 @@ export const UserActionMenuItem = ({
   isExternalIcon = false,
   isBase64Icon = false,
   externalIconString = '',
+  iconPosition = 'start',
 }: UserActionMenuItemProps) => {
   const iconToShow = isHovered && onHoverIcon && !disabled ? onHoverIcon : icon;
 
-  const content = (
-    <>
-      <View style={styles.iconContainer}>
+  const renderIcon = () => {
+    if (!iconToShow) return null;
+    
+    return (
+      <View style={[
+        styles.iconContainer,
+        iconPosition === 'end' && styles.iconContainerEnd
+      ]}>
         {isExternalIcon ? (
           <ImageIcon
             base64={isBase64Icon}
@@ -127,7 +136,23 @@ export const UserActionMenuItem = ({
           />
         )}
       </View>
-      <Text style={[styles.text, titleStyle, {color: textColor}]}>{label}</Text>
+    );
+  };
+
+  const content = (
+    <>
+      {iconPosition === 'start' && renderIcon()}
+      
+      <Text style={[
+        styles.text, 
+        titleStyle, 
+        {color: textColor},
+        iconPosition === 'end' && styles.textWithEndIcon
+      ]}>
+        {label}
+      </Text>
+
+      {iconPosition === 'end' && renderIcon()}
 
       {typeof toggleStatus === 'boolean' && (
         <View style={styles.toggleContainer}>
@@ -202,6 +227,7 @@ const ActionMenu = (props: ActionMenuProps) => {
         iconSize = 20,
         titleStyle = {},
         type = '',
+        iconPosition = 'start',
       } = item;
       return (
         <PlatformWrapper key={props.from + '_' + title + index}>
@@ -272,6 +298,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                     isHovered={isHovered}
                     isExternalIcon={isExternalIcon}
                     externalIconString={externalIconString}
+                    iconPosition={iconPosition}
                     isBase64Icon={isBase64Icon}
                     onHoverIcon={onHoverIcon}
                   />
@@ -284,6 +311,22 @@ const ActionMenu = (props: ActionMenuProps) => {
     });
   };
 
+  const shouldUseScrollView = props?.containerStyle?.maxHeight !== undefined;
+  
+  const renderScrollableContent = () => {
+    return shouldUseScrollView ? (
+      <ScrollView 
+        style={{ maxHeight: props.containerStyle.maxHeight }}
+        showsVerticalScrollIndicator={true}
+        nestedScrollEnabled={true}
+      >
+        {renderItems()}
+      </ScrollView>
+    ) : (
+      renderItems()
+    );
+  };
+
   return (
     <View>
       {hoverMode ? (
@@ -293,7 +336,7 @@ const ActionMenu = (props: ActionMenuProps) => {
             <div
               onMouseEnter={() => props?.onHover && props.onHover(true)}
               onMouseLeave={() => props?.onHover && props.onHover(false)}>
-              {renderItems()}
+              {renderScrollableContent()}
             </div>
           </View>
         )
@@ -311,7 +354,7 @@ const ActionMenu = (props: ActionMenuProps) => {
           </TouchableWithoutFeedback>
           <View
             style={[styles.modalView, props?.containerStyle, modalPosition]}>
-            {renderItems()}
+            {renderScrollableContent()}
           </View>
         </Modal>
       )}
@@ -387,6 +430,16 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginVertical: 12,
     marginLeft: 12,
+  },
+  iconContainerEnd: {
+    marginLeft: 10,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textWithEndIcon: {
+    marginRight: 0,
+    paddingLeft:12
   },
   toggleContainer: {
     justifyContent: 'center',

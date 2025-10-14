@@ -871,10 +871,10 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     }
 
     try {
-      const res = await start(language);
+      const res = await start(language, language);
       if (res?.message.includes('STARTED')) {
         // channel is already started now restart
-        await restart(language);
+        await restart(language, language);
       }
     } catch (error) {
       logger.error(LogSource.Internals, 'STT', 'error in starting stt', error);
@@ -1234,15 +1234,15 @@ const Controls = (props: ControlsProps) => {
       };
     }
 
-    Toast.show({
-      leadingIconName: 'lang-select',
-      type: 'info',
-      text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
-      visibilityTime: 3000,
-      primaryBtn: null,
-      secondaryBtn: null,
-      text2: subheading(subheadingObj),
-    });
+    // Toast.show({
+    //   leadingIconName: 'lang-select',
+    //   type: 'info',
+    //   text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
+    //   visibilityTime: 3000,
+    //   primaryBtn: null,
+    //   secondaryBtn: null,
+    //   text2: subheading(subheadingObj),
+    // });
     setRoomInfo(prev => {
       return {
         ...prev,

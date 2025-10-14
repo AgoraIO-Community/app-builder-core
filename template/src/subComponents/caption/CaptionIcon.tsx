@@ -80,7 +80,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     iconButtonProps.toolTipMessage = label;
   }
 
-  const onConfirm = async (langChanged, language) => {
+  const onConfirm = async (langChanged, language, userOwnLanguages) => {
     setLanguagePopup(false);
     closeActionSheet();
     isFirstTimePopupOpen.current = false;
@@ -89,10 +89,10 @@ const CaptionIcon = (props: CaptionIconProps) => {
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
     setIsCaptionON(prev => !prev);
     try {
-      const res = await start(language);
+      const res = await start(language, userOwnLanguages);
       if (res?.message.includes('STARTED')) {
         // channel is already started now restart
-        await restart(language);
+        await restart(language, userOwnLanguages);
       }
     } catch (error) {
       console.log('eror in starting stt', error);
