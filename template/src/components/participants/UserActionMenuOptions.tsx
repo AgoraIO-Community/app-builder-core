@@ -77,13 +77,21 @@ import {
   DEFAULT_ACTION_KEYS,
   UserActionMenuItemsConfig,
 } from '../../atoms/UserActionMenuPreset';
+import {
+  MemberDropdownOption,
+  useBreakoutRoom,
+} from '../breakout-room/context/BreakoutRoomContext';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: any;
-  from: 'partcipant' | 'screenshare-participant' | 'video-tile';
+  from:
+    | 'partcipant'
+    | 'screenshare-participant'
+    | 'video-tile'
+    | 'breakout-room';
   spotlightUid?: UidType;
   setSpotlightUid?: (uid: UidType) => void;
   items?: UserActionMenuItemsConfig;
@@ -102,7 +110,8 @@ export default function UserActionMenuOptionsOptions(
     useState(false);
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
-  const {user, actionMenuVisible, setActionMenuVisible, spotlightUid} = props;
+  const {user, actionMenuVisible, setActionMenuVisible, spotlightUid, from} =
+    props;
   const {currentLayout} = useLayout();
   const {pinnedUid, activeUids, customContent, secondaryPinnedUid} =
     useContent();
@@ -729,6 +738,7 @@ export default function UserActionMenuOptionsOptions(
     secondaryPinnedUid,
     currentLayout,
     spotlightUid,
+    from,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();

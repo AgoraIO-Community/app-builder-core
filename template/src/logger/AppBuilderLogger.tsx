@@ -53,7 +53,13 @@ export enum LogSource {
 }
 
 type LogType = {
-  [LogSource.AgoraSDK]: 'Log' | 'API' | 'Event' | 'Service' | 'AI_AGENT';
+  [LogSource.AgoraSDK]:
+    | 'Log'
+    | 'API'
+    | 'Event'
+    | 'Service'
+    | 'AI_AGENT'
+    | 'RTMConfigure';
   [LogSource.Internals]:
     | 'AUTH'
     | 'CREATE_MEETING'
@@ -81,7 +87,8 @@ type LogType = {
     | 'STORE'
     | 'GET_MEETING_PHRASE'
     | 'MUTE_PSTN'
-    | 'FULL_SCREEN';
+    | 'FULL_SCREEN'
+    | 'BREAKOUT_ROOM';
   [LogSource.NetworkRest]:
     | 'idp_login'
     | 'token_login'
@@ -105,7 +112,8 @@ type LogType = {
     | 'recording_stop'
     | 'recordings_get'
     | 'recording_delete'
-    | 'ban_user';
+    | 'ban_user'
+    | 'breakout-room';
   [LogSource.Events]: 'CUSTOM_EVENTS' | 'RTM_EVENTS';
   [LogSource.CustomizationAPI]:
     | 'Log'

@@ -1,5 +1,9 @@
+import {RTM_EVENT_SCOPE} from '../rtm-events';
+
 export const hasJsonStructure = (str: string) => {
-  if (typeof str !== 'string') return false;
+  if (typeof str !== 'string') {
+    return false;
+  }
   try {
     const result = JSON.parse(str);
     const type = Object.prototype.toString.call(result);
@@ -42,3 +46,66 @@ export const get32BitUid = (peerId: string) => {
   arr[0] = parseInt(peerId);
   return arr[0];
 };
+
+export function isEventForActiveChannel(
+  scope: RTM_EVENT_SCOPE,
+  eventChannelId: string | undefined,
+  currentChannel: string,
+): boolean {
+  // Case 1: Events without scope/channel → assume SERVER event → always pass
+  if (!scope && !eventChannelId) {
+    console.log(
+      'isEventForActiveChannel: passing server event (no scope/channel)',
+    );
+    return true;
+  }
+
+  // Case 2: Global events always pass
+  if (scope === RTM_EVENT_SCOPE.GLOBAL) {
+    return true;
+  }
+
+  // Case 3: Local and Session scope must match current channel
+  if (
+    (scope === RTM_EVENT_SCOPE.LOCAL || scope === RTM_EVENT_SCOPE.SESSION) &&
+    eventChannelId !== currentChannel
+  ) {
+    console.log(
+      `isEventForActiveChannel: skipped ${scope.toLowerCase()} event (expected=${currentChannel}, got=${eventChannelId})`,
+    );
+    return false;
+  }
+  // Default: allow
+  return true;
+}
+
+// export function stripRoomPrefixFromEventKey(
+//   eventKey: string,
+//   currentRoomKey: string,
+// ): string | null {
+//   // Event key
+//   if (!eventKey) {
+//     return eventKey;
+//   }
+
+//   // Only handle room-aware keys
+//   if (!eventKey.startsWith(`${currentRoomKey}__`)) {
+//     return eventKey;
+//   }
+
+//   // Format: room__<roomKey>__<evt>
+//   const parts = eventKey.split('__');
+//   const [roomKey, ...evtParts] = parts;
+
+//   // If the roomKey matches current room, strip and return event name
+//   if (roomKey === currentRoomKey) {
+//     return evtParts.join('__');
+//   }
+
+//   // If the roomKey is "MAIN" or "BREAKOUT" but doesn't match current room → skip
+//   if (roomKey === RTM_ROOMS.MAIN || roomKey === RTM_ROOMS.BREAKOUT) {
+//     return null;
+//   }
+
+//   return null;
+// }

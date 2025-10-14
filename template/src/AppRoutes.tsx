@@ -11,7 +11,6 @@
 */
 import React from 'react';
 import Join from './pages/Join';
-import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
 import {Route, Switch, Redirect} from './components/Router';
 import AuthRoute from './auth/AuthRoute';
@@ -25,6 +24,7 @@ import {useIsRecordingBot} from './subComponents/recording/useIsRecordingBot';
 import {isValidReactComponent} from './utils/common';
 import ErrorBoundary from './components/ErrorBoundary';
 import {ErrorBoundaryFallback} from './components/ErrorBoundaryFallback';
+import VideoCallStateWrapper from './pages/video-call/VideoCallStateWrapper';
 
 function VideoCallWrapper(props) {
   const {isRecordingBot} = useIsRecordingBot();
@@ -32,13 +32,13 @@ function VideoCallWrapper(props) {
   return isRecordingBot ? (
     <RecordingBotRoute history={props.history}>
       <ErrorBoundary fallback={ErrorBoundaryFallbackComponent}>
-        <VideoCall />
+        <VideoCallStateWrapper />
       </ErrorBoundary>
     </RecordingBotRoute>
   ) : (
     <AuthRoute>
       <ErrorBoundary fallback={ErrorBoundaryFallbackComponent}>
-        <VideoCall />
+        <VideoCallStateWrapper />
       </ErrorBoundary>
     </AuthRoute>
   );

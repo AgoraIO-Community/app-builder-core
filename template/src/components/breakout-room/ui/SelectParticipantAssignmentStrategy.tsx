@@ -1,0 +1,57 @@
+import React from 'react';
+import {Text, StyleSheet} from 'react-native';
+import {Dropdown} from 'customization-api';
+import ThemeConfig from '../../../theme';
+import {RoomAssignmentStrategy} from '../state/reducer';
+
+interface Props {
+  selectedStrategy: RoomAssignmentStrategy;
+  onStrategyChange: (strategy: RoomAssignmentStrategy) => void;
+  disabled: boolean;
+}
+
+const strategyList = [
+  {
+    label: 'Auto-assign people to all rooms',
+    value: RoomAssignmentStrategy.AUTO_ASSIGN,
+  },
+  {
+    label: 'Manually Assign participants',
+    value: RoomAssignmentStrategy.MANUAL_ASSIGN,
+  },
+  {
+    label: 'Let people choose their rooms',
+    value: RoomAssignmentStrategy.NO_ASSIGN,
+  },
+];
+const SelectParticipantAssignmentStrategy: React.FC<Props> = ({
+  selectedStrategy,
+  onStrategyChange,
+  disabled = false,
+}) => {
+  return (
+    <>
+      <Text style={style.label}>Assign participants to breakout rooms</Text>
+      <Dropdown
+        enabled={!disabled}
+        selectedValue={selectedStrategy}
+        label={strategyList[0].label}
+        data={strategyList}
+        onSelect={async ({label, value}) => {
+          onStrategyChange(value as RoomAssignmentStrategy);
+        }}
+      />
+    </>
+  );
+};
+
+const style = StyleSheet.create({
+  label: {
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 16,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+});
+export default SelectParticipantAssignmentStrategy;

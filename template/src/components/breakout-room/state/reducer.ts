@@ -1,0 +1,522 @@
+import {ContentInterface, UidType} from '../../../../agora-rn-uikit/src';
+import {randomNameGenerator} from '../../../utils';
+
+export enum RoomAssignmentStrategy {
+  AUTO_ASSIGN = 'AUTO_ASSIGN',
+  MANUAL_ASSIGN = 'MANUAL_ASSIGN',
+  NO_ASSIGN = 'NO_ASSIGN',
+}
+export interface ManualParticipantAssignment {
+  uid: UidType;
+  roomId: string | null; // null means stay in main room
+  isHost: boolean;
+  isSelected: boolean;
+}
+
+export interface BreakoutRoomUser {
+  name: string;
+  isHost: boolean;
+}
+
+export interface BreakoutGroup {
+  id: string;
+  name: string;
+  participants: {
+    hosts: UidType[];
+    attendees: UidType[];
+  };
+}
+export interface BreakoutRoomState {
+  breakoutSessionId: string;
+  breakoutGroups: BreakoutGroup[];
+  unassignedParticipants: {uid: UidType; user: BreakoutRoomUser}[];
+  manualAssignments: ManualParticipantAssignment[];
+  assignmentStrategy: RoomAssignmentStrategy;
+  canUserSwitchRoom: boolean;
+}
+
+export const initialBreakoutGroups = [
+  {
+    name: 'Room 1',
+    id: `temp_${randomNameGenerator(6)}`,
+    participants: {hosts: [], attendees: []},
+  },
+  {
+    name: 'Room 2',
+    id: `temp_${randomNameGenerator(6)}`,
+    participants: {hosts: [], attendees: []},
+  },
+];
+
+export const initialBreakoutRoomState: BreakoutRoomState = {
+  breakoutSessionId: '',
+  assignmentStrategy: RoomAssignmentStrategy.NO_ASSIGN,
+  canUserSwitchRoom: true,
+  unassignedParticipants: [],
+  manualAssignments: [],
+  breakoutGroups: [],
+};
+
+export const BreakoutGroupActionTypes = {
+  // Initial state
+  SYNC_STATE: 'BREAKOUT_ROOM/SYNC_STATE',
+  // session
+  SET_SESSION_ID: 'BREAKOUT_ROOM/SET_SESSION_ID',
+  // Manual assignment strategy
+  SET_MANUAL_ASSIGNMENTS: 'BREAKOUT_ROOM/SET_MANUAL_ASSIGNMENTS',
+  CLEAR_MANUAL_ASSIGNMENTS: 'BREAKOUT_ROOM/CLEAR_MANUAL_ASSIGNMENTS',
+  // switch room
+  SET_ALLOW_PEOPLE_TO_SWITCH_ROOM:
+    'BREAKOUT_ROOM/SET_ALLOW_PEOPLE_TO_SWITCH_ROOM',
+  // Group management
+  SET_GROUPS: 'BREAKOUT_ROOM/SET_GROUPS',
+  UPDATE_GROUPS_IDS: 'BREAKOUT_ROOM/UPDATE_GROUPS_IDS',
+  CREATE_GROUP: 'BREAKOUT_ROOM/CREATE_GROUP',
+  RENAME_GROUP: 'BREAKOUT_ROOM/RENAME_GROUP',
+  EXIT_GROUP: 'BREAKOUT_ROOM/EXIT_GROUP',
+  CLOSE_GROUP: 'BREAKOUT_ROOM/CLOSE_GROUP',
+  CLOSE_ALL_GROUPS: 'BREAKOUT_ROOM/CLOSE_ALL_GROUPS',
+  // Participants Assignment
+  UPDATE_UNASSIGNED_PARTICIPANTS:
+    'BREAKOUT_ROOM/UPDATE_UNASSIGNED_PARTICIPANTS',
+  AUTO_ASSIGN_PARTICPANTS: 'BREAKOUT_ROOM/AUTO_ASSIGN_PARTICPANTS',
+  MANUAL_ASSIGN_PARTICPANTS: 'BREAKOUT_ROOM/MANUAL_ASSIGN_PARTICPANTS',
+  NO_ASSIGN_PARTICIPANTS: 'BREAKOUT_ROOM/NO_ASSIGN_PARTICIPANTS',
+  MOVE_PARTICIPANT_TO_MAIN: 'BREAKOUT_ROOM/MOVE_PARTICIPANT_TO_MAIN',
+  MOVE_PARTICIPANT_TO_GROUP: 'BREAKOUT_ROOM/MOVE_PARTICIPANT_TO_GROUP',
+} as const;
+
+export type BreakoutRoomAction =
+  | {
+      type: typeof BreakoutGroupActionTypes.SYNC_STATE;
+      payload: {
+        sessionId: BreakoutRoomState['breakoutSessionId'];
+        switchRoom: BreakoutRoomState['canUserSwitchRoom'];
+        rooms: BreakoutRoomState['breakoutGroups'];
+        assignmentStrategy: BreakoutRoomState['assignmentStrategy'];
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.SET_SESSION_ID;
+      payload: {sessionId: string};
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.SET_MANUAL_ASSIGNMENTS;
+      payload: {
+        assignments: ManualParticipantAssignment[];
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.CLEAR_MANUAL_ASSIGNMENTS;
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM;
+      payload: {
+        canUserSwitchRoom: boolean;
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.SET_GROUPS;
+      payload: BreakoutGroup[];
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.UPDATE_GROUPS_IDS;
+      payload: BreakoutGroup[];
+    }
+  | {type: typeof BreakoutGroupActionTypes.CREATE_GROUP}
+  | {
+      type: typeof BreakoutGroupActionTypes.CLOSE_GROUP;
+      payload: {
+        groupId: string;
+      };
+    }
+  | {type: typeof BreakoutGroupActionTypes.CLOSE_ALL_GROUPS}
+  | {
+      type: typeof BreakoutGroupActionTypes.RENAME_GROUP;
+      payload: {
+        newName: string;
+        groupId: string;
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.EXIT_GROUP;
+      payload: {
+        user: ContentInterface;
+        fromGroupId: string;
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS;
+      payload: {
+        unassignedParticipants: {uid: UidType; user: BreakoutRoomUser}[];
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS;
+      payload: {
+        localUid: UidType;
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS;
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS;
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN;
+      payload: {
+        uid: UidType;
+        fromGroupId: string;
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP;
+      payload: {
+        uid: UidType;
+        fromGroupId: string;
+        toGroupId: string;
+        isHost?: boolean;
+      };
+    };
+
+export const breakoutRoomReducer = (
+  state: BreakoutRoomState,
+  action: BreakoutRoomAction,
+): BreakoutRoomState => {
+  switch (action.type) {
+    case BreakoutGroupActionTypes.SYNC_STATE: {
+      return {
+        ...state,
+        breakoutSessionId: action.payload.sessionId,
+        canUserSwitchRoom: action.payload.switchRoom,
+        assignmentStrategy: action.payload.assignmentStrategy,
+        breakoutGroups: action.payload.rooms.map(group => ({
+          id: group.id,
+          name: group.name,
+          participants: {
+            hosts: [...new Set(group?.participants?.hosts ?? [])],
+            attendees: [...new Set(group?.participants?.attendees ?? [])],
+          },
+        })),
+      };
+    }
+    // group management cases
+    case BreakoutGroupActionTypes.SET_SESSION_ID: {
+      return {...state, breakoutSessionId: action.payload.sessionId};
+    }
+
+    case BreakoutGroupActionTypes.SET_GROUPS: {
+      return {
+        ...state,
+        breakoutGroups: action.payload.map(group => ({
+          ...group,
+          participants: {
+            hosts: group.participants?.hosts ?? [],
+            attendees: group.participants?.attendees ?? [],
+          },
+        })),
+      };
+    }
+
+    case BreakoutGroupActionTypes.UPDATE_GROUPS_IDS: {
+      return {
+        ...state,
+        breakoutGroups: action.payload.map(group => ({
+          ...group,
+          participants: {
+            hosts: group.participants?.hosts ?? [],
+            attendees: group.participants?.attendees ?? [],
+          },
+        })),
+      };
+    }
+
+    case BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS: {
+      return {
+        ...state,
+        unassignedParticipants: action.payload.unassignedParticipants || [],
+      };
+    }
+
+    case BreakoutGroupActionTypes.SET_MANUAL_ASSIGNMENTS:
+      return {
+        ...state,
+        manualAssignments: action.payload.assignments,
+      };
+
+    case BreakoutGroupActionTypes.CLEAR_MANUAL_ASSIGNMENTS:
+      return {
+        ...state,
+        manualAssignments: [],
+      };
+
+    case BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS:
+      // Only applies when strategy is MANUAL
+      const updatedGroups = state.breakoutGroups.map(group => {
+        const roomAssignments = state.manualAssignments.filter(
+          assignment => assignment.roomId === group.id,
+        );
+
+        const hostsToAdd = roomAssignments
+          .filter(assignment => assignment.isHost)
+          .map(assignment => assignment.uid);
+
+        const attendeesToAdd = roomAssignments
+          .filter(assignment => !assignment.isHost)
+          .map(assignment => assignment.uid);
+
+        return {
+          ...group,
+          participants: {
+            hosts: [...group.participants.hosts, ...hostsToAdd],
+            attendees: [...group.participants.attendees, ...attendeesToAdd],
+          },
+        };
+      });
+
+      return {
+        ...state,
+        assignmentStrategy: RoomAssignmentStrategy.MANUAL_ASSIGN, // Update strategy
+        breakoutGroups: updatedGroups,
+        manualAssignments: [], // Clear after applying
+      };
+
+    case BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM: {
+      return {
+        ...state,
+        canUserSwitchRoom: action.payload.canUserSwitchRoom,
+      };
+    }
+
+    case BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS: {
+      return {
+        ...state,
+        assignmentStrategy: RoomAssignmentStrategy.NO_ASSIGN, // Update strategy
+        canUserSwitchRoom: true,
+      };
+    }
+
+    case BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS: {
+      const roomAssignments = new Map<
+        string,
+        {hosts: UidType[]; attendees: UidType[]}
+      >();
+
+      // Initialize with existing participants for each room
+      state.breakoutGroups.forEach(room => {
+        roomAssignments.set(room.id, {
+          hosts: [...room.participants.hosts],
+          attendees: [...room.participants.attendees],
+        });
+      });
+
+      let assignedParticipantUids: UidType[] = [];
+      // AUTO ASSIGN Simple round-robin assignment (no capacity limits)
+      // Exclude local user from auto assignment
+      const participantsToAssign = state.unassignedParticipants.filter(
+        participant => participant.uid !== action.payload.localUid,
+      );
+
+      let roomIndex = 0;
+      const roomIds = state.breakoutGroups.map(room => room.id);
+      participantsToAssign.forEach(participant => {
+        const currentRoomId = roomIds[roomIndex];
+        const roomAssignment = roomAssignments.get(currentRoomId)!;
+        // Assign participant based on their isHost status (string "true"/"false")
+        if (participant.user?.isHost) {
+          roomAssignment.hosts.push(participant.uid);
+        } else {
+          roomAssignment.attendees.push(participant.uid);
+        }
+        // Move it to assigned list
+        assignedParticipantUids.push(participant.uid);
+        // Move to next room for round-robin
+        roomIndex = (roomIndex + 1) % roomIds.length;
+      });
+
+      // Update breakoutGroups with new assignments
+      const updatedBreakoutGroups = state.breakoutGroups.map(group => {
+        const roomParticipants = roomAssignments.get(group.id) || {
+          hosts: [],
+          attendees: [],
+        };
+        return {
+          ...group,
+          participants: {
+            hosts: roomParticipants.hosts,
+            attendees: roomParticipants.attendees,
+          },
+        };
+      });
+
+      // Remove assigned participants from unassignedParticipants
+      const updatedUnassignedParticipants = state.unassignedParticipants.filter(
+        participant => !assignedParticipantUids.includes(participant.uid),
+      );
+
+      return {
+        ...state,
+        unassignedParticipants: updatedUnassignedParticipants,
+        assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN,
+        breakoutGroups: updatedBreakoutGroups,
+      };
+    }
+
+    case BreakoutGroupActionTypes.CREATE_GROUP: {
+      // Find the next available room number
+      const existingRoomNumbers = state.breakoutGroups
+        .map(room => {
+          const match = room.name.match(/^Room (\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        })
+        .filter(num => num > 0);
+
+      const nextRoomNumber =
+        existingRoomNumbers.length === 0
+          ? 1
+          : Math.max(...existingRoomNumbers) + 1;
+
+      return {
+        ...state,
+        breakoutGroups: [
+          ...state.breakoutGroups,
+          {
+            name: `Room ${nextRoomNumber}`,
+            id: `temp_${randomNameGenerator(6)}`,
+            participants: {hosts: [], attendees: []},
+          },
+        ],
+      };
+    }
+
+    case BreakoutGroupActionTypes.EXIT_GROUP: {
+      // Same logic as MOVE_PARTICIPANT_TO_MAIN but more explicit
+      const {user, fromGroupId} = action.payload;
+      return {
+        ...state,
+        breakoutGroups: state.breakoutGroups.map(group => {
+          if (group.id === fromGroupId) {
+            return {
+              ...group,
+              participants: {
+                hosts: group.participants.hosts.filter(uid => uid !== user.uid),
+                attendees: group.participants.attendees.filter(
+                  uid => uid !== user.uid,
+                ),
+              },
+            };
+          }
+          return group;
+        }),
+      };
+    }
+
+    case BreakoutGroupActionTypes.CLOSE_GROUP: {
+      const {groupId} = action.payload;
+      return {
+        ...state,
+        breakoutGroups: state.breakoutGroups.filter(
+          room => room.id !== groupId,
+        ),
+      };
+    }
+
+    case BreakoutGroupActionTypes.CLOSE_ALL_GROUPS: {
+      return {
+        ...state,
+        breakoutGroups: [],
+      };
+    }
+
+    case BreakoutGroupActionTypes.RENAME_GROUP: {
+      const {groupId, newName} = action.payload;
+      return {
+        ...state,
+        breakoutGroups: state.breakoutGroups.map(group =>
+          group.id === groupId ? {...group, name: newName} : group,
+        ),
+      };
+    }
+
+    case BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN: {
+      const {uid, fromGroupId} = action.payload;
+      return {
+        ...state,
+        breakoutGroups: state.breakoutGroups.map(group => {
+          // Remove participant from their current breakout group
+          if (fromGroupId && group.id === fromGroupId) {
+            return {
+              ...group,
+              participants: {
+                ...group.participants,
+                hosts: group.participants.hosts.filter(id => id !== uid),
+                attendees: group.participants.attendees.filter(
+                  id => id !== uid,
+                ),
+              },
+            };
+          }
+          return group;
+        }),
+      };
+    }
+
+    case BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP: {
+      const {uid, fromGroupId, toGroupId, isHost} = action.payload;
+
+      // Determine if user should be added as host or attendee
+      let shouldBeHost = false;
+
+      if (isHost !== undefined) {
+        // Use explicit isHost flag if provided (from mainRoomRTMUsers for main room users)
+        shouldBeHost = isHost;
+      } else if (fromGroupId) {
+        // Fallback: check their role in the previous breakout group
+        const sourceGroup = state.breakoutGroups.find(
+          group => group.id === fromGroupId,
+        );
+        shouldBeHost = sourceGroup?.participants.hosts.includes(uid) || false;
+      }
+      // If isHost is undefined and no fromGroupId, default to attendee
+
+      return {
+        ...state,
+        breakoutGroups: state.breakoutGroups.map(group => {
+          // Remove from source group (if fromGroupId exists)
+          if (fromGroupId && group.id === fromGroupId) {
+            return {
+              ...group,
+              participants: {
+                ...group.participants,
+                hosts: group.participants.hosts.filter(id => id !== uid),
+                attendees: group.participants.attendees.filter(
+                  id => id !== uid,
+                ),
+              },
+            };
+          }
+          // Add to target group with determined role
+          if (group.id === toGroupId) {
+            return {
+              ...group,
+              participants: {
+                ...group.participants,
+                hosts: shouldBeHost
+                  ? [...group.participants.hosts, uid]
+                  : group.participants.hosts,
+                attendees: !shouldBeHost
+                  ? [...group.participants.attendees, uid]
+                  : group.participants.attendees,
+              },
+            };
+          }
+          return group;
+        }),
+      };
+    }
+
+    default:
+      return state;
+  }
+};

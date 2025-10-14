@@ -10,7 +10,7 @@ function getInitials(name: string) {
   return 'U';
 }
 
-const UserAvatar = ({name, containerStyle, textStyle}) => {
+const UserAvatar = ({name, containerStyle = {}, textStyle = {}}) => {
   return (
     <View
       style={[

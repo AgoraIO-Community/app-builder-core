@@ -104,6 +104,7 @@ import {
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
   toolbarItemManageTextTracksText,
+  toolbarItemBreakoutRoomText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
@@ -117,6 +118,8 @@ import {
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
+import {useBreakoutRoom} from './breakout-room/context/BreakoutRoomContext';
+import {ExitBreakoutRoomToolbarItem} from './controls/toolbar-items/ExitBreakoutRoomToolbarItem';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -285,6 +288,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
   const chatLabel = useString(toolbarItemChatText)();
   const inviteLabel = useString(toolbarItemInviteText)();
+  const breakoutRoomLabel = useString(toolbarItemBreakoutRoomText)();
   const peopleLabel = useString(toolbarItemPeopleText)();
   const layoutLabel = useString(toolbarItemLayoutText)();
   const {dispatch} = useContext(DispatchContext);
@@ -482,7 +486,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       : false;
 
   // 2. whiteboard ends
-  if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
+  const canAccessWhiteboard = useControlPermissionMatrix('whiteboardControl');
+  if (canAccessWhiteboard) {
     actionMenuitems.push({
       componentName: 'whiteboard',
       order: 2,
@@ -524,7 +529,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 3. host can see stt options and attendee can view only when stt is enabled by a host in the channel
-  if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
+  const canAccessCaption = useControlPermissionMatrix('captionsControl');
+  const canAccessTranscripts = useControlPermissionMatrix('transcriptsControl');
+  if (canAccessCaption) {
     actionMenuitems.push({
       componentName: 'caption',
       order: 3,
@@ -554,7 +561,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       },
     });
     // 4. Meeting transcript
-    if ($config.ENABLE_MEETING_TRANSCRIPT) {
+
+    if (canAccessTranscripts) {
       actionMenuitems.push({
         componentName: 'transcript',
         order: 4,
@@ -591,7 +599,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 5. view recordings
-  if (isHost && $config.CLOUD_RECORDING && isWeb()) {
+  const canAccessViewRecording = useControlPermissionMatrix('recordingControl');
+  if (canAccessViewRecording && isWeb()) {
     actionMenuitems.push({
       componentName: 'view-recordings',
       order: 5,
@@ -677,6 +686,12 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 8. Screenshare
+  const {permissions} = useBreakoutRoom();
+  const canAccessBreakoutRoom = useControlPermissionMatrix(
+    'breakoutRoomControl',
+  );
+  const canScreenshareInBreakoutRoom = permissions?.canScreenshare;
+
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   if (canAccessScreenshare) {
     if (
@@ -693,13 +708,16 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         componentName: 'screenshare',
         order: 8,
         disabled:
-          rtcProps.role == ClientRoleType.ClientRoleAudience &&
-          $config.EVENT_MODE &&
-          $config.RAISE_HAND &&
-          !isHost,
+          (rtcProps.role == ClientRoleType.ClientRoleAudience &&
+            $config.EVENT_MODE &&
+            $config.RAISE_HAND &&
+            !isHost) ||
+          !canScreenshareInBreakoutRoom,
         icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
         iconColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
+          : !canScreenshareInBreakoutRoom
+          ? $config.SEMANTIC_NEUTRAL
           : $config.SECONDARY_ACTION_COLOR,
         textColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
@@ -714,7 +732,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 9. Recording
-  if (isHost && $config.CLOUD_RECORDING) {
+  const canAccessRecording = useControlPermissionMatrix('recordingControl');
+  if (canAccessRecording) {
     actionMenuitems.push({
       hide: w => {
         return w >= BREAKPOINTS.sm ? true : false;
@@ -817,9 +836,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 13. Text-tracks to download
-  const canAccessAllTextTracks =
-    useControlPermissionMatrix('viewAllTextTracks');
-
+  const canAccessAllTextTracks = useControlPermissionMatrix(
+    'viewAllTextTracksControl',
+  );
   if (canAccessAllTextTracks) {
     actionMenuitems.push({
       componentName: 'view-all-text-tracks',
@@ -830,6 +849,22 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       title: viewTextTracksLabel,
       onPress: () => {
         toggleTextTrackModal();
+      },
+    });
+  }
+
+  // 14. Breakout Room
+  if (canAccessBreakoutRoom) {
+    actionMenuitems.push({
+      componentName: 'breakoutRoom',
+      order: 14,
+      icon: 'breakout-room',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: isHost ? breakoutRoomLabel : 'View Breakout Rooms',
+      onPress: () => {
+        setActionMenuVisible(false);
+        setSidePanel(SidePanelType.BreakoutRoom);
       },
     });
   }
@@ -1133,18 +1168,18 @@ export const MoreButtonToolbarItem = (props?: {
     forceUpdate();
   }, [isHost]);
 
+  const canAccessRecording = useControlPermissionMatrix('recordingControl');
+  const canAccessWhiteboard = useControlPermissionMatrix('whiteboardControl');
+  const canAccessCaptions = useControlPermissionMatrix('captionsControl');
   return width < BREAKPOINTS.lg ||
-    ($config.ENABLE_STT &&
-      $config.ENABLE_CAPTION &&
-      (isHost || (!isHost && isSTTActive))) ||
+    (canAccessCaptions && (isHost || (!isHost && isSTTActive))) ||
     $config.ENABLE_NOISE_CANCELLATION ||
-    (isHost && $config.CLOUD_RECORDING && isWeb()) ||
+    (canAccessRecording && isWeb()) ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
-    (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (
+    canAccessWhiteboard ? (
     <ToolbarItem testID="more-btn" toolbarProps={props}>
       {((!$config.AUTO_CONNECT_RTM && !isHost) || $config.AUTO_CONNECT_RTM) &&
-      $config.ENABLE_WHITEBOARD &&
-      isWebInternal() ? (
+      canAccessWhiteboard ? (
         <WhiteboardListener />
       ) : (
         <></>
@@ -1192,6 +1227,7 @@ const Controls = (props: ControlsProps) => {
 
   const {sttLanguage, isSTTActive} = useRoomInfo();
   const {addStreamMessageListener} = useSpeechToText();
+  const {permissions} = useBreakoutRoom();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -1286,6 +1322,9 @@ const Controls = (props: ControlsProps) => {
 
   const canAccessInvite = useControlPermissionMatrix('inviteControl');
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
+  const canAccessRecordings = useControlPermissionMatrix('recordingControl');
+
+  const canAccessExitBreakoutRoomBtn = permissions?.canExitRoom;
 
   const defaultItems: ToolbarPresetProps['items'] = React.useMemo(() => {
     return {
@@ -1335,7 +1374,7 @@ const Controls = (props: ControlsProps) => {
       },
       recording: {
         align: 'center',
-        component: RecordingToolbarItem,
+        component: canAccessRecordings ? RecordingToolbarItem : null,
         order: 5,
         hide: w => {
           return w < BREAKPOINTS.sm ? true : false;
@@ -1346,13 +1385,20 @@ const Controls = (props: ControlsProps) => {
         component: MoreButtonToolbarItem,
         order: 6,
       },
+      'exit-breakout-room': {
+        align: 'center',
+        component: canAccessExitBreakoutRoomBtn
+          ? ExitBreakoutRoomToolbarItem
+          : null,
+        order: 7,
+      },
       'end-call': {
         align: 'center',
         component: LocalEndcallToolbarItem,
-        order: 7,
+        order: 8,
       },
     };
-  }, [canAccessInvite, canAccessScreenshare]);
+  }, [canAccessInvite, canAccessScreenshare, canAccessExitBreakoutRoomBtn]);
 
   const mergedItems = CustomToolbarMerge(
     includeDefaultItems ? defaultItems : {},

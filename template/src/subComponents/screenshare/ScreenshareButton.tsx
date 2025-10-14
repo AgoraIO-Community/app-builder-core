@@ -25,6 +25,7 @@ import {
   toolbarItemShareText,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {useToolbarProps} from '../../atoms/ToolbarItem';
+import {useBreakoutRoom} from '../../components/breakout-room/context/BreakoutRoomContext';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
@@ -53,6 +54,11 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const {setShowStartScreenSharePopup} = useVideoCall();
   const screenShareButtonLabel = useString<boolean>(toolbarItemShareText);
   const lstooltip = useString<boolean>(livestreamingShareTooltipText);
+  const {permissions} = useBreakoutRoom();
+  // In the main room (default case), permissions come from the main room state.
+  // If the user is in a breakout room, retrieve permissions from the breakout room instead.
+  const canScreenshareInBreakoutRoom = permissions.canScreenshare;
+
   const onPress = () => {
     if (isScreenshareActive) {
       stopScreenshare();
@@ -102,6 +108,16 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage = lstooltip(isHandRaised(local.uid));
+    iconButtonProps.disabled = true;
+  }
+
+  if (!canScreenshareInBreakoutRoom) {
+    iconButtonProps.iconProps = {
+      ...iconButtonProps.iconProps,
+      tintColor: $config.SEMANTIC_NEUTRAL,
+      showWarningIcon: true,
+    };
+    iconButtonProps.toolTipMessage = 'cannot screenshare';
     iconButtonProps.disabled = true;
   }
 

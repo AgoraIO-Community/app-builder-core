@@ -50,7 +50,7 @@ const log = (...args: any[]) => {
 type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
 interface Props {
-  userRole: ClientRoleType;
+  userRole?: ClientRoleType;
 }
 export type deviceInfo = MediaDeviceInfo;
 export type deviceId = deviceInfo['deviceId'];

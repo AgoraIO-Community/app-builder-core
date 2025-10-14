@@ -444,6 +444,33 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     }
   }, [whiteboardActive]);
 
+  // Cleanup whiteboard on unmount
+  useEffect(() => {
+    return () => {
+      if (
+        whiteboardRoom.current &&
+        Object.keys(whiteboardRoom.current)?.length
+      ) {
+        try {
+          whiteboardRoom.current?.disconnect();
+          whiteboardRoom.current?.bindHtmlElement(null);
+          logger.log(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'Whiteboard disconnected on unmount',
+          );
+        } catch (err) {
+          logger.error(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'Error disconnecting whiteboard on unmount',
+            err,
+          );
+        }
+      }
+    };
+  }, []);
+
   return (
     <whiteboardContext.Provider
       value={{
