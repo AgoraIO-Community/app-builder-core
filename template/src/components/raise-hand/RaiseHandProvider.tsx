@@ -121,11 +121,10 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
       }),
       PersistanceLevel.Sender,
     );
-    console.log('supriya-here outside', isInBreakoutRoute);
+
     // 2. Send cross-room notification to main room (if in breakout room)
     if (isInBreakoutRoute) {
       try {
-        console.log('supriya-here inside', isInBreakoutRoute);
         // Get current active channel to restore later
         events.send(
           EventNames.CROSS_ROOM_RAISE_HAND_NOTIFICATION,
@@ -211,7 +210,6 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
         const {payload} = data;
         const eventData = JSON.parse(payload);
         const {uid, raised, timestamp} = eventData;
-        console.log('supriya-here same room');
         // Update raised hands state
         setRaisedHands(prev => ({
           ...prev,
@@ -240,7 +238,6 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
         const {payload} = data;
         const eventData = JSON.parse(payload);
         const {type, uid, userName, roomName} = eventData;
-        console.log('supriya-here cross room');
 
         // Only show notifications for other users and only in main room
         if (uid !== localUid && !isInBreakoutRoute) {

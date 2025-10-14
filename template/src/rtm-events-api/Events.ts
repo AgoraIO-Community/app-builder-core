@@ -273,10 +273,6 @@ class Events {
       }
 
       const rtmAttribute = [{key: rtmPayload.evt, value: rtmPayload.value}];
-      console.log(
-        'supriya-channel-attrbiutes setting channel attrbiytes: ',
-        rtmAttribute,
-      );
       await rtmEngine.storage.setChannelMetadata(
         toChannelId,
         nativeChannelTypeMapping.MESSAGE,

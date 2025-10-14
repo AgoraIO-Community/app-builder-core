@@ -74,7 +74,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
         // Process the event payload
         const {payload} = evtData;
         const data: BreakoutChannelJoinEventPayload = JSON.parse(payload);
-        console.log('supriya-event Breakout room join event received', data);
+        console.log('Breakout room join event received', data);
         if (data?.data?.act === 'CHAN_JOIN') {
           const {channel_name, mainUser, screenShare, chat, room_name} =
             data.data.data;

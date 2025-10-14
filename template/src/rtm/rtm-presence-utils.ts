@@ -11,9 +11,8 @@ import {
 } from 'agora-react-native-rtm';
 import {RTMUserData} from './RTMGlobalStateProvider';
 import {RECORDING_BOT_UID} from '../utils/constants';
-import {hasJsonStructure, stripRoomPrefixFromEventKey} from '../rtm/utils';
+import {hasJsonStructure} from '../rtm/utils';
 import {nativeChannelTypeMapping} from '../../bridge/rtm/web/Types';
-import {PersistanceLevel} from '../rtm-events-api';
 
 export const fetchOnlineMembersWithRetries = async (
   client: RTMClient,
@@ -253,7 +252,6 @@ export const fetchChannelAttributesWithRetries = async (
     await client.storage
       .getChannelMetadata(channelName, nativeChannelTypeMapping.MESSAGE)
       .then(async (data: GetChannelMetadataResponse) => {
-        console.log('supriya-channel-attributes: ', data);
         for (const item of data.items) {
           try {
             const {key, value, authorUserId, updateTs} = item;

@@ -40,9 +40,6 @@ export default function BreakoutRoomSettings() {
 
     // Immediately call API for NO_ASSIGN strategy
     if (newStrategy === RoomAssignmentStrategy.NO_ASSIGN) {
-      console.log(
-        'supriya-state-sync calling handleAssignParticipants on strategy change',
-      );
       handleAssignParticipants(newStrategy);
     }
   };

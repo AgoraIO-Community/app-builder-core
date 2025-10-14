@@ -88,11 +88,6 @@ const BeautyEffectProvider: React.FC = ({children}) => {
   }
 
   if (!roomPreference?.disableVideoProcessors) {
-    console.log(
-      'supriya-trackstatus',
-      localVideoTrack?.getMediaStreamTrack()?.readyState,
-    );
-
     /**
      * Small delay to ensure the new track is stable
      * when we move from main room to breakout room the track changes
@@ -102,7 +97,6 @@ const BeautyEffectProvider: React.FC = ({children}) => {
     timeoutRef.current = setTimeout(() => {
       const trackStatus = localVideoTrack?.getMediaStreamTrack()?.readyState;
       if (trackStatus === 'live') {
-        console.log('supriya-trackstatus applying');
         try {
           if ($config.ENABLE_VIRTUAL_BACKGROUND) {
             localVideoTrack
@@ -147,13 +141,11 @@ const BeautyEffectProvider: React.FC = ({children}) => {
   // Proper cleanup for both processor and timeout
   useEffect(() => {
     return () => {
-      console.log('supriya-trackstatus cleanup');
       beautyProcessor?.disable();
       beautyProcessor?.unpipe?.();
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
-        console.log('supriya-trackstatus timeout cleared');
       }
     };
   }, []);

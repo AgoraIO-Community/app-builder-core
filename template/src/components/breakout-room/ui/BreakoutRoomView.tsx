@@ -36,7 +36,6 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
     permissions,
     isBreakoutUILocked,
   } = useBreakoutRoom();
-  console.log('supriya-isBreakoutUILocked: ', isBreakoutUILocked);
 
   useEffect(() => {
     const init = async () => {

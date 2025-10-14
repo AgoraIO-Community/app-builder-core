@@ -733,7 +733,6 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
 
   // 9. Recording
   const canAccessRecording = useControlPermissionMatrix('recordingControl');
-  console.log('supriya-canAccessRecording: ', canAccessRecording);
   if (canAccessRecording) {
     actionMenuitems.push({
       hide: w => {

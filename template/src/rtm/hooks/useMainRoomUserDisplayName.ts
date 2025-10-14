@@ -9,12 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+
 import {useCallback} from 'react';
 import {videoRoomUserFallbackText} from '../../language/default-labels/videoCallScreenLabels';
 import {useString} from '../../utils/useString';
 import {UidType} from '../../../agora-rn-uikit';
 import {useRTMGlobalState} from '../RTMGlobalStateProvider';
 import {useContent} from 'customization-api';
+
 /**
  * Hook to get user display names with fallback to main room RTM users
  * This ensures users in breakout rooms can see names of users in other rooms
@@ -26,12 +28,12 @@ export const useMainRoomUserDisplayName = () => {
 
   const sanitize = (name?: string) => name?.trim() || undefined;
 
-  // 👇 useCallback ensures the returned function updates whenever
-  // defaultContent or mainRoomRTMUsers change
+  /**
+   * useCallback ensures the returned function updates whenever
+   * defaultContent or mainRoomRTMUsers change
+   */
   return useCallback(
     (uid: UidType): string => {
-      console.log('supriya-name defaultContent', defaultContent);
-      console.log('supriya-name mainRoomRTMUsers', mainRoomRTMUsers);
       return (
         sanitize(defaultContent?.[uid]?.name) ||
         sanitize(mainRoomRTMUsers?.[uid]?.name) ||
