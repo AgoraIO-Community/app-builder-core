@@ -6,7 +6,7 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
-import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
+import {UidType} from '../../../../agora-rn-uikit';
 import {createHook} from 'customization-implementation';
 import {randomNameGenerator} from '../../../utils';
 import StorageContext from '../../StorageContext';
@@ -25,10 +25,9 @@ import {
 } from '../state/reducer';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useContent} from '../../../../customization-api';
-import events, {PersistanceLevel} from '../../../rtm-events-api';
+import events from '../../../rtm-events-api';
 import {BreakoutRoomAction, initialBreakoutGroups} from '../state/reducer';
 import {BreakoutRoomEventNames} from '../events/constants';
-import {EventNames} from '../../../rtm-events';
 import {BreakoutRoomSyncStateEventPayload} from '../state/types';
 import {IconsInterface} from '../../../atoms/CustomIcon';
 import Toast from '../../../../react-native-toast-message';
@@ -40,7 +39,6 @@ import {
   RTMUserData,
   useRTMGlobalState,
 } from '../../../rtm/RTMGlobalStateProvider';
-import {useScreenshare} from '../../../subComponents/screenshare/useScreenshare';
 
 const HOST_BROADCASTED_OPERATIONS = [
   BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
@@ -130,14 +128,15 @@ const needsDeepCloning = (action: BreakoutRoomAction): boolean => {
     BreakoutGroupActionTypes.EXIT_GROUP,
     BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS,
     BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS,
-    BreakoutGroupActionTypes.CLOSE_GROUP, // Safe to include
-    BreakoutGroupActionTypes.CLOSE_ALL_GROUPS, // Safe to include
+    BreakoutGroupActionTypes.CLOSE_GROUP,
+    BreakoutGroupActionTypes.CLOSE_ALL_GROUPS,
     BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS,
     BreakoutGroupActionTypes.SYNC_STATE,
   ];
 
   return CLONING_REQUIRED_ACTIONS.includes(action.type as any);
 };
+
 export interface MemberDropdownOption {
   type: 'move-to-main' | 'move-to-room' | 'make-presenter';
   icon: keyof IconsInterface;
@@ -166,10 +165,9 @@ interface BreakoutRoomPermissions {
 const defaulBreakoutRoomPermission: BreakoutRoomPermissions = {
   canJoinRoom: false,
   canExitRoom: false,
-  canSwitchBetweenRooms: false, // Media controls
+  canSwitchBetweenRooms: false,
   canScreenshare: true,
   canRaiseHands: false,
-  // Room management (host only)
   canHostManageMainRoom: false,
   canAssignParticipants: false,
   canCreateRooms: false,
@@ -177,6 +175,7 @@ const defaulBreakoutRoomPermission: BreakoutRoomPermissions = {
   canCloseRooms: false,
   canMakePresenter: false,
 };
+
 interface BreakoutRoomContextValue {
   mainChannelId: string;
   isBreakoutUILocked: boolean;
@@ -264,7 +263,6 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   // Multi-host coordination handlers
   handleHostOperationStart: () => {},
   handleHostOperationEnd: () => {},
-  // Provide a safe non-null default object
   permissions: {...defaulBreakoutRoomPermission},
   // Loading states
   isBreakoutUpdateInFlight: false,
@@ -285,8 +283,7 @@ const BreakoutRoomProvider = ({
 }) => {
   const {store} = useContext(StorageContext);
   const {defaultContent, activeUids} = useContent();
-  const {mainRoomRTMUsers, customRTMMainRoomData, setCustomRTMMainRoomData} =
-    useRTMGlobalState();
+  const {mainRoomRTMUsers} = useRTMGlobalState();
   const localUid = useLocalUid();
   const {
     data: {isHost, roomId: joinRoomId},
@@ -296,8 +293,9 @@ const BreakoutRoomProvider = ({
     breakoutRoomReducer,
     initialBreakoutRoomState,
   );
-  console.log('supriya-event state', state);
+
   const [isBreakoutUpdateInFlight, setBreakoutUpdateInFlight] = useState(false);
+
   // Parse URL to determine current mode
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -315,9 +313,9 @@ const BreakoutRoomProvider = ({
     string | undefined
   >(undefined);
 
-  // Timestamp Server (authoritative ordering)
+  // Timestamp Server
   const lastProcessedServerTsRef = useRef(0);
-  // 2Self join guard (prevent stale reverts) (when self join happens)
+  // Self join guard (prevent stale reverts) (when self join happens)
   const lastSelfJoinRef = useRef<{roomId: string; ts: number} | null>(null);
   // Timestamp client tracking for event ordering client side
   const lastSyncedTimestampRef = useRef(0);
@@ -346,7 +344,7 @@ const BreakoutRoomProvider = ({
   const [selfJoinRoomId, setSelfJoinRoomId] = useState<string | null>(null);
 
   // Presenter
-  const {isScreenshareActive, stopScreenshare} = useScreenshare();
+  // const {isScreenshareActive, stopScreenshare} = useScreenshare();
 
   // const [canIPresent, setICanPresent] = useState<boolean>(false);
   // Get presenters from custom RTM main room data (memoized to maintain stable reference)
@@ -358,16 +356,28 @@ const BreakoutRoomProvider = ({
   // State version tracker to force dependent hooks to re-compute
   const [breakoutRoomVersion, setBreakoutRoomVersion] = useState(0);
 
-  //  Refs to avoid stale closures in async callbacks
+  // Refs to avoid stale closures in async callbacks
   const stateRef = useRef(state);
   const prevStateRef = useRef(state);
   const isHostRef = useRef(isHost);
   const defaultContentRef = useRef(defaultContent);
   const isMountedRef = useRef(true);
+
   // Enhanced dispatch that tracks user actions
   const [lastAction, setLastAction] = useState<BreakoutRoomAction | null>(null);
 
   const dispatch = useCallback((action: BreakoutRoomAction) => {
+    // Minimal action summary for Datadog
+    logger.debug(
+      LogSource.Internals,
+      'BREAKOUT_ROOM',
+      `[Base DISPATCH] Action -> ${action.type}`,
+      {
+        type: action.type,
+        payloadKeys: Object.keys(action?.payload || {}),
+      },
+    );
+
     if (needsDeepCloning(action)) {
       // Only deep clone when necessary
       prevStateRef.current = {
@@ -380,7 +390,7 @@ const BreakoutRoomProvider = ({
       // Shallow copy for non-participant actions
       prevStateRef.current = {
         ...stateRef.current,
-        breakoutGroups: [...stateRef.current.breakoutGroups], // Shallow copy
+        breakoutGroups: [...stateRef.current.breakoutGroups],
       };
     }
     baseDispatch(action);
@@ -442,6 +452,11 @@ const BreakoutRoomProvider = ({
     return () => {
       snapshot.forEach(timeoutId => clearTimeout(timeoutId));
       snapshot.clear();
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[CLEANUP] Cleared all pending timeouts',
+      );
     };
   }, []);
 
@@ -473,7 +488,7 @@ const BreakoutRoomProvider = ({
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Broadcasting host operation start',
+        `[HOST] Broadcasting start for operation -> ${operationName}`,
         {operation: operationName, hostName, hostUid: localUid},
       );
 
@@ -501,8 +516,12 @@ const BreakoutRoomProvider = ({
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Broadcasting host operation end',
-        {operation: operationName, hostName, hostUid: localUid},
+        `[HOST] Broadcast end for operation -> ${operationName}`,
+        {
+          operation: operationName,
+          hostName,
+          hostUid: localUid,
+        },
       );
 
       events.send(
@@ -521,36 +540,35 @@ const BreakoutRoomProvider = ({
   // Common operation lock for API-triggering actions with multi-host coordination
   const acquireOperationLock = useCallback(
     (operationName: string): boolean => {
-      // Check if another host is operating
-      console.log('supriya-state-sync acquiring lock step 1');
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        `[LOCK] Attempt acquire for operation -> ${operationName}`,
+        {operationName, inFlight: isBreakoutUpdateInFlight},
+      );
 
-      // Check if API call is in progress
       if (isBreakoutUpdateInFlight) {
-        logger.log(
+        logger.warn(
           LogSource.Internals,
           'BREAKOUT_ROOM',
-          'Operation blocked - API call in progress',
-          {
-            blockedOperation: operationName,
-            currentlyInFlight: isBreakoutUpdateInFlight,
-          },
+          `[LOCK] Blocked as (Update BreakoutRoom API in flight) for operation -> ${operationName}`,
+          {blockedOperation: operationName},
         );
         return false;
       }
 
       // Broadcast that this host is starting an operation
-      console.log(
-        'supriya-state-sync broadcasting host operation start',
-        operationName,
-      );
+
       setBreakoutUpdateInFlight(true);
       broadcastHostOperationStart(operationName);
 
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        `Operation lock acquired for ${operationName}`,
-        {operation: operationName},
+        `[LOCK] Acquired for operation -> ${operationName}`,
+        {
+          operationName,
+        },
       );
       return true;
     },
@@ -561,7 +579,7 @@ const BreakoutRoomProvider = ({
     ],
   );
 
-  // Update unassigned participants and remove offline users from breakout rooms
+  // Update unassigned participants
   useEffect(() => {
     if (!stateRef.current?.breakoutSessionId) {
       return;
@@ -596,9 +614,6 @@ const BreakoutRoomProvider = ({
         // Get additional RTM data if available for cross-room scenarios
         const rtmUser = mainRoomRTMUsers[uid];
         const user = v || rtmUser;
-
-        console.log('supriya-breakoutSessionId user: ', user);
-
         // Create BreakoutRoomUser object with proper fallback
         const breakoutRoomUser: BreakoutRoomUser = {
           name: user?.name || rtmUser?.name || '',
@@ -618,6 +633,16 @@ const BreakoutRoomProvider = ({
       }
       return 0;
     });
+
+    logger.debug(
+      LogSource.Internals,
+      'BREAKOUT_ROOM',
+      '[STATE] Update unassigned participants',
+      {
+        count: filteredParticipants.length,
+        filteredParticipants: filteredParticipants,
+      },
+    );
 
     // // Find offline users who are currently assigned to breakout rooms
     // const currentlyAssignedUids = new Set<UidType>();
@@ -645,9 +670,7 @@ const BreakoutRoomProvider = ({
     // Update unassigned participants
     dispatch({
       type: BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS,
-      payload: {
-        unassignedParticipants: filteredParticipants,
-      },
+      payload: {unassignedParticipants: filteredParticipants},
     });
   }, [
     defaultContent,
@@ -658,7 +681,7 @@ const BreakoutRoomProvider = ({
     mainRoomRTMUsers,
   ]);
 
-  // Increment version when breakout group assignments change
+  // Increment Version when breakout data changes
   useEffect(() => {
     setBreakoutRoomVersion(prev => prev + 1);
   }, [state.breakoutGroups]);
@@ -669,19 +692,23 @@ const BreakoutRoomProvider = ({
     useCallback(async (): Promise<boolean> => {
       // Skip API call if roomId is not available or if API update is in progress
       if (!joinRoomId?.host && !joinRoomId?.attendee) {
-        console.log('supriya-sync-queue: Skipping GET no roomId available');
+        logger.debug(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          '[API: checkIfBreakoutRoomSessionExistsAPI] Skipped (no roomId available yet)',
+        );
         return false;
       }
 
       if (isBreakoutUpdateInFlight) {
-        console.log('supriya-sync-queue upsert in progress: Skipping GET');
+        logger.debug(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          '[API checkIfBreakoutRoomSessionExistsAPI] Skipped (upsert in progress)',
+        );
         return false;
       }
-      console.log(
-        'supriya-sync-queue calling checkIfBreakoutRoomSessionExistsAPI',
-        joinRoomId,
-        isHostRef.current,
-      );
+
       const startTime = Date.now();
       const requestId = getUniqueID();
       const url = `${
@@ -690,11 +717,10 @@ const BreakoutRoomProvider = ({
         isHostRef.current ? joinRoomId.host : joinRoomId.attendee
       }`;
 
-      // Log internals for breakout room lifecycle
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Checking active session',
+        '[API checkIfBreakoutRoomSessionExistsAPI] current sessionId and role',
         {
           isHost: isHostRef.current,
           sessionId: stateRef.current.breakoutSessionId,
@@ -716,7 +742,7 @@ const BreakoutRoomProvider = ({
           logger.log(
             LogSource.Internals,
             'BREAKOUT_ROOM',
-            'Check session API cancelled - component unmounted',
+            '[API checkIfBreakoutRoomSessionExistsAPI] cancelled (unmounted)',
             {requestId},
           );
           return false;
@@ -729,13 +755,7 @@ const BreakoutRoomProvider = ({
           LogSource.NetworkRest,
           'breakout-room',
           'GET breakout-room session',
-          {
-            url,
-            method: 'GET',
-            status: response.status,
-            latency,
-            requestId,
-          },
+          {url, method: 'GET', status: response.status, latency, requestId},
         );
         if (!response.ok) {
           throw new Error(`Failed with status ${response.status}`);
@@ -744,44 +764,57 @@ const BreakoutRoomProvider = ({
           logger.log(
             LogSource.Internals,
             'BREAKOUT_ROOM',
-            'No active session found',
+            '[API checkIfBreakoutRoomSessionExistsAPI] No active session',
           );
           return false;
         }
 
         const data = await response.json();
-        console.log('supriya-api-get response', data.sts, data);
 
         if (data?.session_id) {
-          logger.log(LogSource.Internals, 'BREAKOUT_ROOM', 'Session exists', {
-            sessionId: data.session_id,
-            roomCount: data?.breakout_room?.length || 0,
-            assignmentType: data?.assignment_type,
-            switchRoom: data?.switch_room,
-          });
+          logger.log(
+            LogSource.Internals,
+            'BREAKOUT_ROOM',
+            '[API checkIfBreakoutRoomSessionExistsAPI] session exists got breakout data',
+            {
+              sessionId: data.session_id,
+              rooms: data?.breakout_room || 0,
+              roomCount: data?.breakout_room?.length || 0,
+              assignmentType: data?.assignment_type,
+              switchRoom: data?.switch_room,
+            },
+          );
           return true;
         }
         return false;
-      } catch (error) {
+      } catch (error: any) {
         const latency = Date.now() - startTime;
-        logger.log(LogSource.NetworkRest, 'breakout-room', 'API call failed', {
-          url,
-          method: 'GET',
-          error: error.message,
-          latency,
-          requestId,
-        });
+        logger.error(
+          LogSource.NetworkRest,
+          'breakout-room',
+          'GET breakout-room session failed',
+          {
+            url,
+            method: 'GET',
+            error: error?.message,
+            latency,
+            requestId,
+          },
+        );
         return false;
       }
     }, [isBreakoutUpdateInFlight, joinRoomId, store.token]);
 
+  // Initial session check with delayed start
   useEffect(() => {
     if (!joinRoomId?.host && !joinRoomId?.attendee) {
       return;
     }
     const loadInitialData = async () => {
-      console.log(
-        'supriya-sync-queue checkIfBreakoutRoomSessionExistsAPI called',
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[API checkIfBreakoutRoomSessionExistsAPI] will be called , inside loadInitial data',
       );
       await checkIfBreakoutRoomSessionExistsAPI();
     };
@@ -794,8 +827,13 @@ const BreakoutRoomProvider = ({
     const delay = justEnteredBreakout ? 3000 : 1200;
 
     if (justEnteredBreakout) {
-      sessionStorage.removeItem('breakout_room_transition'); // Clear flag
-      console.log('Using extended delay for breakout transition');
+      sessionStorage.removeItem('breakout_room_transition');
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[INIT] Using a bit of delay after breakout transition so it gives time for user to join the call',
+        {delay},
+      );
     }
 
     const timeoutId = setTimeout(() => {
@@ -807,6 +845,7 @@ const BreakoutRoomProvider = ({
     };
   }, [joinRoomId, checkIfBreakoutRoomSessionExistsAPI]);
 
+  // Upsert API
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START', retryCount = 0) => {
       type UpsertPayload = {
@@ -822,11 +861,10 @@ const BreakoutRoomProvider = ({
       const requestId = getUniqueID();
       const url = `${$config.BACKEND_ENDPOINT}/v1/channel/breakout-room`;
 
-      // Log internals for lifecycle
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        `Upsert API called - ${type}`,
+        `[API upsertBreakoutRoomAPI] Upsert start called with intent ->(${type})`,
         {
           type,
           isHost: isHostRef.current,
@@ -877,21 +915,18 @@ const BreakoutRoomProvider = ({
           body: JSON.stringify(payload),
         });
 
-        // Guard against component unmount after fetch
         if (!isMountedRef.current) {
           logger.log(
             LogSource.Internals,
             'BREAKOUT_ROOM',
-            'Upsert API cancelled - component unmounted after fetch',
+            '[API upsertBreakoutRoomAPI] Upsert cancelled (unmounted)',
             {type, requestId},
           );
           return;
         }
 
-        const endRequestTs = Date.now();
-        const latency = endRequestTs - startReqTs;
+        const latency = Date.now() - startReqTs;
 
-        // Log network request
         logger.log(
           LogSource.NetworkRest,
           'breakout-room',
@@ -910,12 +945,11 @@ const BreakoutRoomProvider = ({
         if (!response.ok) {
           const msg = await response.text();
 
-          // 🛡️ Guard against component unmount after error text parsing
           if (!isMountedRef.current) {
             logger.log(
               LogSource.Internals,
               'BREAKOUT_ROOM',
-              'Error text parsing cancelled - component unmounted',
+              '[API upsertBreakoutRoomAPI] Error text parsing cancelled (unmounted)',
               {type, status: response.status, requestId},
             );
             return;
@@ -924,14 +958,12 @@ const BreakoutRoomProvider = ({
           throw new Error(`Breakout room creation failed: ${msg}`);
         } else {
           const data = await response.json();
-          console.log('supriya-api-upsert response', data.sts, data);
 
-          // 🛡️ Guard against component unmount after JSON parsing
           if (!isMountedRef.current) {
             logger.log(
               LogSource.Internals,
               'BREAKOUT_ROOM',
-              'Upsert API success cancelled - component unmounted after parsing',
+              '[API upsertBreakoutRoomAPI] Upsert success cancelled (unmounted)',
               {type, requestId},
             );
             return;
@@ -940,7 +972,7 @@ const BreakoutRoomProvider = ({
           logger.log(
             LogSource.Internals,
             'BREAKOUT_ROOM',
-            `Upsert API success - ${type}`,
+            `[API upsertBreakoutRoomAPI] Upsert success called with intent -> (${type})`,
             {
               type,
               newSessionId: data?.session_id,
@@ -956,23 +988,23 @@ const BreakoutRoomProvider = ({
             });
           }
         }
-      } catch (err) {
+      } catch (err: any) {
         const latency = Date.now() - startReqTs;
         const maxRetries = 3;
         const isRetriableError =
-          err.name === 'TypeError' || // Network errors
-          err.message.includes('fetch') ||
-          err.message.includes('timeout') ||
-          err.response?.status >= 500; // Server errors
+          err?.name === 'TypeError' || // Network errors
+          err?.message?.includes('fetch') ||
+          err?.message?.includes('timeout') ||
+          err?.response?.status >= 500; // Server errors
 
         logger.log(
           LogSource.NetworkRest,
           'breakout-room',
-          'Upsert API failed',
+          'POST breakout-room upsert failed',
           {
             url,
             method: 'POST',
-            error: err.message,
+            error: err?.message,
             latency,
             requestId,
             type,
@@ -982,39 +1014,33 @@ const BreakoutRoomProvider = ({
           },
         );
 
-        // 🛡️ Retry logic for network/server errors
+        // Retry logic for network/server errors
         if (retryCount < maxRetries && isRetriableError) {
-          const retryDelay = Math.min(1000 * Math.pow(2, retryCount), 5000); // Exponential backoff, max 5s
-
+          const retryDelay = Math.min(1000 * Math.pow(2, retryCount), 5000);
           logger.log(
             LogSource.Internals,
             'BREAKOUT_ROOM',
-            `Retrying upsert API in ${retryDelay}ms`,
+            `[API upsertBreakoutRoomAPI] Retrying upsert in ${retryDelay}ms`,
             {retryCount: retryCount + 1, maxRetries, type},
           );
 
-          // Don't clear polling/selfJoinRoomId on retry
           safeSetTimeout(() => {
-            // 🛡️ Guard against component unmount during retry delay
             if (!isMountedRef.current) {
               logger.log(
                 LogSource.Internals,
                 'BREAKOUT_ROOM',
-                'API retry cancelled - component unmounted',
+                '[API upsertBreakoutRoomAPI] Retry cancelled (unmounted)',
                 {type, retryCount: retryCount + 1},
               );
               return;
             }
-            console.log('supriya-state-sync calling upsertBreakoutRoomAPI 941');
             upsertBreakoutRoomAPI(type, retryCount + 1);
           }, retryDelay);
           return; // Don't execute finally block on retry
         }
 
-        // 🛡️ Only clear state if we're not retrying
         setSelfJoinRoomId(null);
       } finally {
-        // 🛡️ Only clear state on successful completion (not on retry)
         if (retryCount === 0) {
           setSelfJoinRoomId(null);
         }
@@ -1032,6 +1058,12 @@ const BreakoutRoomProvider = ({
 
   const setManualAssignments = useCallback(
     (assignments: ManualParticipantAssignment[]) => {
+      logger.log(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[ACTION] Set manual assignments',
+        {count: assignments.length},
+      );
       dispatch({
         type: BreakoutGroupActionTypes.SET_MANUAL_ASSIGNMENTS,
         payload: {assignments},
@@ -1041,41 +1073,35 @@ const BreakoutRoomProvider = ({
   );
 
   const clearManualAssignments = useCallback(() => {
+    logger.log(
+      LogSource.Internals,
+      'BREAKOUT_ROOM',
+      '[ACTION] Clear manual assignments',
+    );
     dispatch({
       type: BreakoutGroupActionTypes.CLEAR_MANUAL_ASSIGNMENTS,
     });
   }, [dispatch]);
 
   const toggleRoomSwitchingAllowed = (value: boolean) => {
-    console.log(
-      'supriya-state-sync toggleRoomSwitchingAllowed value is',
-      value,
-    );
     if (!acquireOperationLock('SET_ALLOW_PEOPLE_TO_SWITCH_ROOM')) {
-      console.log('supriya-state-sync lock acquired');
       return;
     }
 
     logger.log(
       LogSource.Internals,
       'BREAKOUT_ROOM',
-      'Switch rooms permission changed',
+      `[ACTION] Toggle room switching with value ${value}`,
       {
         previousValue: stateRef.current.canUserSwitchRoom,
         newValue: value,
         isHost: isHostRef.current,
-        roomCount: stateRef.current.breakoutGroups.length,
       },
-    );
-    console.log(
-      'supriya-state-sync dispatching SET_ALLOW_PEOPLE_TO_SWITCH_ROOM',
     );
 
     dispatch({
       type: BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
-      payload: {
-        canUserSwitchRoom: value,
-      },
+      payload: {canUserSwitchRoom: value},
     });
   };
 
@@ -1087,7 +1113,7 @@ const BreakoutRoomProvider = ({
     logger.log(
       LogSource.Internals,
       'BREAKOUT_ROOM',
-      'Creating new breakout room',
+      '[ACTION] Create new breakout room',
       {
         currentRoomCount: stateRef.current.breakoutGroups.length,
         isHost: isHostRef.current,
@@ -1095,19 +1121,22 @@ const BreakoutRoomProvider = ({
       },
     );
 
-    dispatch({
-      type: BreakoutGroupActionTypes.CREATE_GROUP,
-    });
+    dispatch({type: BreakoutGroupActionTypes.CREATE_GROUP});
   };
 
   const handleAssignParticipants = (strategy: RoomAssignmentStrategy) => {
-    console.log('supriya-assign', stateRef.current);
     if (stateRef.current.breakoutGroups.length === 0) {
       Toast.show({
         type: 'info',
         text1: 'No breakout rooms found.',
         visibilityTime: 3000,
       });
+      logger.warn(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[ACTION] Assign participants blocked (no rooms)',
+        {strategy},
+      );
       return;
     }
 
@@ -1126,41 +1155,43 @@ const BreakoutRoomProvider = ({
           ? 'No other participants to assign. (Host is excluded from auto-assignment)'
           : 'No participants left to assign.';
 
-      Toast.show({
-        type: 'info',
-        text1: message,
-        visibilityTime: 3000,
-      });
+      Toast.show({type: 'info', text1: message, visibilityTime: 3000});
+      logger.warn(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[ACTION] Assign participants blocked (none available)',
+        {strategy},
+      );
       return;
     }
+
     if (!acquireOperationLock(`ASSIGN_${strategy}`)) {
       return;
     }
 
-    logger.log(LogSource.Internals, 'BREAKOUT_ROOM', 'Assigning participants', {
-      strategy,
-      unassignedCount: stateRef.current.unassignedParticipants.length,
-      roomCount: stateRef.current.breakoutGroups.length,
-      isHost: isHostRef.current,
-    });
+    logger.log(
+      LogSource.Internals,
+      'BREAKOUT_ROOM',
+      `[ACTION] Assign participants with strategy ${strategy}`,
+      {
+        strategy,
+        unassignedCount: stateRef.current.unassignedParticipants.length,
+        roomCount: stateRef.current.breakoutGroups.length,
+        isHost: isHostRef.current,
+      },
+    );
 
     if (strategy === RoomAssignmentStrategy.AUTO_ASSIGN) {
       dispatch({
         type: BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS,
-        payload: {
-          localUid,
-        },
+        payload: {localUid},
       });
     }
     if (strategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
-      dispatch({
-        type: BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS,
-      });
+      dispatch({type: BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS});
     }
     if (strategy === RoomAssignmentStrategy.NO_ASSIGN) {
-      dispatch({
-        type: BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS,
-      });
+      dispatch({type: BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS});
     }
   };
 
@@ -1170,17 +1201,17 @@ const BreakoutRoomProvider = ({
         logger.log(
           LogSource.Internals,
           'BREAKOUT_ROOM',
-          'Move to main room failed - no uid provided',
+          '[ACTION] Move to main blocked (no uid)',
         );
         return;
       }
 
-      // 🛡️ Check for API operation conflicts first
+      // Check for API operation conflicts first
       if (!acquireOperationLock('MOVE_PARTICIPANT_TO_MAIN')) {
         return;
       }
 
-      // 🛡️ Use fresh state to avoid race conditions
+      // Use fresh state to avoid race conditions
       const currentState = stateRef.current;
       const currentGroup = currentState.breakoutGroups.find(
         group =>
@@ -1191,7 +1222,7 @@ const BreakoutRoomProvider = ({
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Moving user to main room',
+        '[ACTION] Move user to main',
         {
           userId: uid,
           fromGroupId: currentGroup?.id,
@@ -1202,21 +1233,15 @@ const BreakoutRoomProvider = ({
       if (currentGroup) {
         dispatch({
           type: BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN,
-          payload: {
-            uid,
-            fromGroupId: currentGroup.id,
-          },
+          payload: {uid, fromGroupId: currentGroup.id},
         });
       }
-    } catch (error) {
-      logger.log(
+    } catch (error: any) {
+      logger.error(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Error moving user to main room',
-        {
-          userId: uid,
-          error: error.message,
-        },
+        '[ERROR] Move to main failed',
+        {userId: uid, error: error?.message},
       );
     }
   };
@@ -1227,18 +1252,18 @@ const BreakoutRoomProvider = ({
         logger.log(
           LogSource.Internals,
           'BREAKOUT_ROOM',
-          'Move to group failed - no uid provided',
+          '[ACTION] Move to group blocked (no uid)',
           {toGroupId},
         );
         return;
       }
 
-      // 🛡️ Check for API operation conflicts first
+      // Check for API operation conflicts first
       if (!acquireOperationLock('MOVE_PARTICIPANT_TO_GROUP')) {
         return;
       }
 
-      // 🛡️ Use fresh state to avoid race conditions
+      // Use fresh state to avoid race conditions
       const currentState = stateRef.current;
       const currentGroup = currentState.breakoutGroups.find(
         group =>
@@ -1253,29 +1278,38 @@ const BreakoutRoomProvider = ({
         logger.log(
           LogSource.Internals,
           'BREAKOUT_ROOM',
-          'Target group not found',
-          {
-            userId: uid,
-            toGroupId,
-          },
+          '[ACTION] Move to group blocked (target not found)',
+          {userId: uid, toGroupId},
         );
-
         return;
+      }
+
+      // Determine if user is host
+      let isUserHost: boolean | undefined;
+      if (currentGroup) {
+        // User is moving from another breakout room
+        isUserHost = currentGroup.participants.hosts.includes(uid);
+      } else {
+        // User is moving from main room - check mainRoomRTMUsers
+        const rtmUser = mainRoomRTMUsers[uid];
+        if (rtmUser) {
+          isUserHost = rtmUser.isHost === 'true';
+        }
       }
 
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Moving user between groups',
+        '[ACTION] Move user between groups',
         {
           userId: uid,
           fromGroupId: currentGroup?.id,
           fromGroupName: currentGroup?.name,
           toGroupId,
           toGroupName: targetGroup.name,
+          isUserHost,
         },
       );
-
       // // Clean up presenter status if user is switching rooms
       // const isPresenting = presenters.some(p => p.uid === uid);
       // if (isPresenting) {
@@ -1308,19 +1342,6 @@ const BreakoutRoomProvider = ({
       //   }
       // }
 
-      // Check if user is a host
-      let isUserHost: boolean | undefined;
-      if (currentGroup) {
-        // User is moving from another breakout room
-        isUserHost = currentGroup.participants.hosts.includes(uid);
-      } else {
-        // User is moving from main room - check mainRoomRTMUsers
-        const rtmUser = mainRoomRTMUsers[uid];
-        if (rtmUser) {
-          isUserHost = rtmUser.isHost === 'true';
-        }
-      }
-
       dispatch({
         type: BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
         payload: {
@@ -1330,16 +1351,12 @@ const BreakoutRoomProvider = ({
           isHost: isUserHost,
         },
       });
-    } catch (error) {
-      logger.log(
+    } catch (error: any) {
+      logger.error(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Error moving user to breakout room',
-        {
-          userId: uid,
-          toGroupId,
-          error: error.message,
-        },
+        '[ERROR] Move to group failed',
+        {userId: uid, toGroupId, error: error?.message},
       );
     }
   };
@@ -1375,7 +1392,7 @@ const BreakoutRoomProvider = ({
       return hosts.includes(uid) || attendees.includes(uid);
     })?.id ?? null;
 
-  // Permissions
+  // Permissions recompute
   useEffect(() => {
     if (lastSyncedSnapshotRef.current) {
       const current = lastSyncedSnapshotRef.current;
@@ -1383,12 +1400,7 @@ const BreakoutRoomProvider = ({
       const currentlyInRoom = !!findUserRoomId(localUid, current.breakout_room);
       const hasAvailableRooms = current.breakout_room?.length > 0;
       const allowAttendeeSwitch = current.switch_room;
-      console.log(
-        'supriya-canraisehands',
-        !isHostRef.current && !!current.session_id && currentlyInRoom,
-        localUid,
-        current.breakout_room,
-      );
+
       const nextPermissions: BreakoutRoomPermissions = {
         canJoinRoom:
           hasAvailableRooms && (isHostRef.current || allowAttendeeSwitch),
@@ -1398,11 +1410,6 @@ const BreakoutRoomProvider = ({
           hasAvailableRooms &&
           (isHostRef.current || allowAttendeeSwitch),
         canScreenshare: true,
-        // isHostRef.current
-        //   ? true
-        //   : currentlyInRoom
-        //   ? canIPresent
-        //   : true,
         canRaiseHands: !isHostRef.current && !!current.session_id,
         canAssignParticipants: isHostRef.current && !currentlyInRoom,
         canHostManageMainRoom: isHostRef.current,
@@ -1412,6 +1419,19 @@ const BreakoutRoomProvider = ({
           isHostRef.current && hasAvailableRooms && !!current.session_id,
         canMakePresenter: isHostRef.current,
       };
+
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[PERMISSIONS] Recomputed',
+        {
+          currentlyInRoom,
+          hasAvailableRooms,
+          allowAttendeeSwitch,
+          isHost: isHostRef.current,
+        },
+      );
+
       setPermissions(nextPermissions);
     }
   }, [breakoutRoomVersion, isBreakoutMode, localUid]);
@@ -1424,12 +1444,8 @@ const BreakoutRoomProvider = ({
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Join room blocked - no permission at call time',
-        {
-          toRoomId,
-          permissionAtCallTime,
-          currentPermission: permissions.canJoinRoom,
-        },
+        '[ACTION] Join blocked (no permission)',
+        {toRoomId, currentPermission: permissions.canJoinRoom},
       );
       return;
     }
@@ -1437,18 +1453,26 @@ const BreakoutRoomProvider = ({
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Join room failed - user not found',
-        {localUid, toRoomId},
+        '[ACTION] Join blocked (no local user)',
+        {toRoomId},
       );
       return;
     }
 
-    logger.log(LogSource.Internals, 'BREAKOUT_ROOM', 'User joining room', {
-      userId: localUid,
-      toRoomId,
-      toRoomName: stateRef.current.breakoutGroups.find(r => r.id === toRoomId)
-        ?.name,
-    });
+    const toRoomName =
+      stateRef.current.breakoutGroups.find(r => r.id === toRoomId)?.name || '';
+
+    logger.log(
+      LogSource.Internals,
+      'BREAKOUT_ROOM',
+      `[ACTION] User joining room ${toRoomName}`,
+      {
+        userId: localUid,
+        toRoomId,
+        toRoomName: toRoomName,
+      },
+    );
+
     lastSelfJoinRef.current = {roomId: toRoomId, ts: Date.now()};
     moveUserIntoGroup(localUid, toRoomId);
     if (!isHostRef.current) {
@@ -1458,16 +1482,13 @@ const BreakoutRoomProvider = ({
 
   const exitRoom = useCallback(
     async (permissionAtCallTime = permissions.canExitRoom) => {
-      // 🛡️ Use permission passed at call time to avoid race conditions
+      // Use permission passed at call time to avoid race conditions
       if (!permissionAtCallTime) {
         logger.log(
           LogSource.Internals,
           'BREAKOUT_ROOM',
-          'Exit room blocked - no permission at call time',
-          {
-            permissionAtCallTime,
-            currentPermission: permissions.canExitRoom,
-          },
+          '[ACTION] Exit blocked (no permission)',
+          {currentPermission: permissions.canExitRoom},
         );
         return;
       }
@@ -1494,34 +1515,34 @@ const BreakoutRoomProvider = ({
           // Use breakout-specific exit (doesn't destroy main RTM)
           await breakoutRoomExit();
 
-          // 🛡️ Guard against component unmount
+          // Guard against component unmount
           if (!isMountedRef.current) {
             logger.log(
               LogSource.Internals,
               'BREAKOUT_ROOM',
-              'Exit room cancelled - component unmounted',
+              '[ACTION] Exit cancelled (unmounted)',
               {userId: localUid},
             );
             return;
           }
+
+          logger.log(
+            LogSource.Internals,
+            'BREAKOUT_ROOM',
+            '[ACTION] Exit success',
+            {userId: localUid},
+          );
         }
-      } catch (error) {
-        logger.log(
+      } catch (error: any) {
+        logger.error(
           LogSource.Internals,
           'BREAKOUT_ROOM',
-          'Exit room error - fallback dispatch',
-          {
-            userId: localUid,
-            error: error.message,
-          },
+          '[ERROR] Exit room failed',
+          {userId: localUid, error: error?.message},
         );
       }
     },
-    [
-      localUid,
-      permissions.canExitRoom, // TODO:SUP move to the method call
-      breakoutRoomExit,
-    ],
+    [localUid, permissions.canExitRoom, breakoutRoomExit],
   );
 
   const closeRoom = (roomIdToClose: string) => {
@@ -1533,14 +1554,19 @@ const BreakoutRoomProvider = ({
       r => r.id === roomIdToClose,
     );
 
-    logger.log(LogSource.Internals, 'BREAKOUT_ROOM', 'Closing breakout room', {
-      roomId: roomIdToClose,
-      roomName: roomToClose?.name,
-      participantCount:
-        (roomToClose?.participants.hosts.length || 0) +
-        (roomToClose?.participants.attendees.length || 0),
-      isHost: isHostRef.current,
-    });
+    logger.log(
+      LogSource.Internals,
+      'BREAKOUT_ROOM',
+      `[ACTION] Close room -> ${roomToClose?.name}`,
+      {
+        roomId: roomIdToClose,
+        roomName: roomToClose?.name,
+        participantCount:
+          (roomToClose?.participants.hosts.length || 0) +
+          (roomToClose?.participants.attendees.length || 0),
+        isHost: isHostRef.current,
+      },
+    );
 
     dispatch({
       type: BreakoutGroupActionTypes.CLOSE_GROUP,
@@ -1556,7 +1582,7 @@ const BreakoutRoomProvider = ({
     logger.log(
       LogSource.Internals,
       'BREAKOUT_ROOM',
-      'Closing all breakout rooms',
+      '[ACTION] Close all rooms',
       {
         roomCount: stateRef.current.breakoutGroups.length,
         totalParticipants: stateRef.current.breakoutGroups.reduce(
@@ -1586,7 +1612,7 @@ const BreakoutRoomProvider = ({
       r => r.id === roomIdToEdit,
     );
 
-    logger.log(LogSource.Internals, 'BREAKOUT_ROOM', 'Renaming breakout room', {
+    logger.log(LogSource.Internals, 'BREAKOUT_ROOM', '[ACTION] Rename room', {
       roomId: roomIdToEdit,
       oldName: roomToRename?.name,
       newName: newRoomName,
@@ -1742,8 +1768,6 @@ const BreakoutRoomProvider = ({
   const getRoomMemberDropdownOptions = useCallback(
     (memberUid: UidType) => {
       const options: MemberDropdownOption[] = [];
-      // Find which room the user is currently in
-
       if (!memberUid) {
         return options;
       }
@@ -1753,13 +1777,18 @@ const BreakoutRoomProvider = ({
           group.participants.hosts.includes(memberUid) ||
           group.participants.attendees.includes(memberUid),
       );
-      console.log(
-        'supriya-currentRoom',
-        currentRoom,
-        memberUid,
-        JSON.stringify(stateRef.current.breakoutGroups),
+
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[UI] Member dropdown options computed',
+        {
+          memberUid,
+          currentRoomId: currentRoom?.id,
+          roomCount: stateRef.current.breakoutGroups.length,
+        },
       );
-      // Move to Main Room option
+
       options.push({
         icon: 'double-up-arrow',
         type: 'move-to-main',
@@ -1805,208 +1834,369 @@ const BreakoutRoomProvider = ({
     [breakoutRoomVersion],
   );
 
-  // const handleBreakoutRoomSyncState = useCallback(
-  //   (payload: BreakoutRoomSyncStateEventPayload['data'], timestamp) => {
-  //     console.log(
-  //       'supriya-api-sync response',
-  //       timestamp,
-  //       JSON.stringify(payload),
-  //     );
+  // ---- SYNC (EVENTS) ----
 
-  //     // Skip events older than the last processed timestamp
-  //     if (timestamp && timestamp <= lastProcessedTimestampRef.current) {
-  //       console.log('supriya-api-sync Skipping old breakout room sync event', {
-  //         timestamp,
-  //         lastProcessed: lastProcessedTimestampRef.current,
-  //       });
-  //       return;
-  //     }
+  const _handleBreakoutRoomSyncState = useCallback(
+    async (
+      payload: BreakoutRoomSyncStateEventPayload['data'],
+      timestamp: number,
+    ) => {
+      const {srcuid, data} = payload;
+      const {
+        session_id,
+        switch_room,
+        breakout_room,
+        assignment_type,
+        sts = 0,
+      } = data;
 
-  //     const {srcuid, data} = payload;
-  //     console.log('supriya-event flow step 2', srcuid);
-  //     console.log('supriya-event uids', srcuid, localUid);
+      logger.debug(
+        LogSource.Events,
+        'RTM_EVENTS',
+        '[SYNC] Breakout sync event received',
+        {
+          srcuid,
+          session_id,
+          timestamp,
+          sts,
+          newRooms: breakout_room?.length || 0,
+          currentRooms: stateRef.current.breakoutGroups.length,
+        },
+      );
 
-  //     // if (srcuid === localUid) {
-  //     //   console.log('supriya-event flow skipping');
+      // Global server ordering
+      if (sts <= lastProcessedServerTsRef.current) {
+        logger.warn(
+          LogSource.Events,
+          'RTM_EVENTS',
+          '[SYNC] Ignored out-of-order state',
+          {sts, lastProcessedServerTs: lastProcessedServerTsRef.current},
+        );
+        return;
+      }
+      lastProcessedServerTsRef.current = sts;
 
-  //     //   return;
-  //     // }
-  //     const {session_id, switch_room, breakout_room, assignment_type} = data;
-  //     console.log('supriya-event-sync new data: ', data);
-  //     console.log('supriya-event-sync old data: ', stateRef.current);
+      // Self-join race protection
+      if (
+        lastSelfJoinRef.current &&
+        Date.now() - lastSelfJoinRef.current.ts < 2000 && // 2s cooldown
+        !findUserRoomId(localUid, breakout_room)
+      ) {
+        logger.warn(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          '[SYNC] Ignored stale revert conflicting with recent self-join',
+          {recentJoinRoomId: lastSelfJoinRef.current.roomId},
+        );
+        return;
+      }
 
-  //     logger.log(
-  //       LogSource.Internals,
-  //       'BREAKOUT_ROOM',
-  //       'Sync state event received',
-  //       {
-  //         sessionId: session_id,
-  //         incomingRoomCount: breakout_room?.length || 0,
-  //         currentRoomCount: stateRef.current.breakoutGroups.length,
-  //         switchRoom: switch_room,
-  //         assignmentType: assignment_type,
-  //       },
-  //     );
+      // Local duplicate protection (client-side ordering) Skip events older than the last processed timestamp
+      if (timestamp && timestamp <= lastSyncedTimestampRef.current) {
+        logger.warn(
+          LogSource.Events,
+          'RTM_EVENTS',
+          '[SYNC] Ignored old sync event',
+          {
+            timestamp,
+            lastProcessed: lastSyncedTimestampRef.current,
+          },
+        );
+        return;
+      }
 
-  //     if (isAnotherHostOperating) {
-  //       setIsAnotherHostOperating(false);
-  //       setCurrentOperatingHostName(undefined);
-  //     }
-  //     // 🛡️ BEFORE snapshot - using stateRef to avoid stale closure
-  //     const prevGroups = stateRef.current.breakoutGroups;
-  //     console.log('supriya-event-sync prevGroups: ', prevGroups);
-  //     const prevSwitchRoom = stateRef.current.canUserSwitchRoom;
+      const prevSnapshot = lastSyncedSnapshotRef?.current;
+      const prevGroups = prevSnapshot?.breakout_room || [];
+      const prevSwitchRoom = prevSnapshot?.switch_room ?? true;
+      const prevRoomId = findUserRoomId(localUid, prevGroups);
+      const nextRoomId = findUserRoomId(localUid, breakout_room);
 
-  //     // Helpers to find membership
-  //     const findUserRoomId = (uid: UidType, groups: BreakoutGroup[] = []) =>
-  //       groups.find(g => {
-  //         const hosts = Array.isArray(g?.participants?.hosts)
-  //           ? g.participants.hosts
-  //           : [];
-  //         const attendees = Array.isArray(g?.participants?.attendees)
-  //           ? g.participants.attendees
-  //           : [];
-  //         return hosts.includes(uid) || attendees.includes(uid);
-  //       })?.id ?? null;
+      // 1. !prevRoomId && nextRoomId = Main → Breakout (joining)
+      // 2. prevRoomId && nextRoomId && prevRoomId !== nextRoomId = Breakout A → Breakout B (switching)
+      // 3. prevRoomId && !nextRoomId = Breakout → Main (leaving)
+      // 4. !prevRoomId && !nextRoomId = Main → Main (no change)
 
-  //     const prevRoomId = findUserRoomId(localUid, prevGroups);
-  //     const nextRoomId = findUserRoomId(localUid, breakout_room);
+      const userMovedBetweenRooms =
+        prevRoomId && nextRoomId && prevRoomId !== nextRoomId;
+      const userLeftBreakoutRoom = prevRoomId && !nextRoomId;
 
-  //     console.log(
-  //       'supriya-event-sync prevRoomId and nextRoomId: ',
-  //       prevRoomId,
-  //       nextRoomId,
-  //     );
+      const senderName = getDisplayName(srcuid);
 
-  //     console.log('supriya-event-sync 1: ');
-  //     // Show notifications based on changes
-  //     // 1. Switch room enabled notification
-  //     const senderName = getDisplayName(srcuid);
-  //     if (switch_room && !prevSwitchRoom) {
-  //       console.log('supriya-toast 1');
-  //       showDeduplicatedToast('switch-room-toggle', {
-  //         leadingIconName: 'open-room',
-  //         type: 'info',
-  //         text1: `Host:${senderName} has opened breakout rooms.`,
-  //         text2: 'Please choose a room to join.',
-  //         visibilityTime: 3000,
-  //       });
-  //     }
-  //     console.log('supriya-event-sync 2: ');
+      // ---- SCREEN SHARE CLEANUP ----
+      // Stop screen share if user is moving between rooms or leaving breakout
+      // if (
+      //   (userMovedBetweenRooms || userLeftBreakoutRoom) &&
+      //   isScreenshareActive
+      // ) {
+      //   console.log(
+      //     'supriya-sync-ordering: stopping screenshare due to room change',
+      //   );
+      //   stopScreenshare();
+      // }
 
-  //     // 2. User joined a room (compare previous and current state)
-  //     // The notification for this comes from the main room channel_join event
-  //     if (prevRoomId === nextRoomId) {
-  //       // No logic
-  //     }
+      // ---- PRIORITY ORDER ----
+      // 1) All rooms closed
+      if (breakout_room.length === 0 && prevGroups.length > 0) {
+        logger.log(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          '[SYNC][Condition 1] All rooms closed',
+          {prevRoomCount: prevGroups.length, srcuid, senderName},
+        );
 
-  //     console.log('supriya-event-sync 3: ');
+        if (prevRoomId && isBreakoutMode) {
+          // Don't show toast if the user is the author
+          if (srcuid !== localUid) {
+            showDeduplicatedToast('all-rooms-closed', {
+              leadingIconName: 'close-room',
+              type: 'info',
+              text1: `Host: ${senderName} has closed all breakout rooms.`,
+              text2: 'Returning to the main room...',
+              visibilityTime: 3000,
+            });
+          }
+          // Set transition flag - user will remount in main room and need fresh data
+          sessionStorage.setItem('breakout_room_transition', 'true');
+          lastSyncedSnapshotRef.current = null;
+          return exitRoom(true);
+        } else {
+          // 2. User is in main room recevies just notification
+          // Don't show toast if the user is the author
+          if (srcuid !== localUid) {
+            showDeduplicatedToast('all-rooms-closed', {
+              leadingIconName: 'close-room',
+              type: 'info',
+              text1: `Host: ${senderName} has closed all breakout rooms`,
+              visibilityTime: 4000,
+            });
+          }
+        }
+      }
 
-  //     // 3. User was moved to main room
-  //     if (prevRoomId && !nextRoomId) {
-  //       const prevRoom = prevGroups.find(r => r.id === prevRoomId);
-  //       // Distinguish "room closed" vs "moved to main"
-  //       const roomStillExists = breakout_room.some(r => r.id === prevRoomId);
+      // 2. User's room deleted (they were in a room → now not)
+      if (userLeftBreakoutRoom && isBreakoutMode) {
+        const prevRoom = prevGroups.find(r => r.id === prevRoomId);
+        const roomStillExists = breakout_room.some(r => r.id === prevRoomId);
+        //  Case A: Room deleted
+        if (!roomStillExists) {
+          // Don't show toast if the user is the author
+          if (srcuid !== localUid) {
+            showDeduplicatedToast(`current-room-closed-${prevRoomId}`, {
+              leadingIconName: 'close-room',
+              type: 'error',
+              text1: `Host: ${senderName} has closed "${
+                prevRoom?.name || ''
+              }" room.`,
+              text2: 'Returning to main room...',
+              visibilityTime: 3000,
+            });
+          }
+        } else {
+          // Host removed user from room (handled here)
+          // (Room still exists for others, but you were unassigned)
+          // Don't show toast if the user is the author
+          if (srcuid !== localUid) {
+            showDeduplicatedToast(`moved-to-main-${prevRoomId}`, {
+              leadingIconName: 'arrow-up',
+              type: 'info',
+              text1: `Host: ${senderName} has moved you to main room.`,
+              visibilityTime: 3000,
+            });
+          }
+        }
 
-  //       if (!roomStillExists) {
-  //         showDeduplicatedToast(`current-room-closed-${prevRoomId}`, {
-  //           leadingIconName: 'close-room',
-  //           type: 'error',
-  //           text1: `Host: ${senderName} has closed "${
-  //             prevRoom?.name || ''
-  //           }" room. `,
-  //           text2: 'Returning to main room...',
-  //           visibilityTime: 3000,
-  //         });
-  //       } else {
-  //         showDeduplicatedToast(`moved-to-main-${prevRoomId}`, {
-  //           leadingIconName: 'arrow-up',
-  //           type: 'info',
-  //           text1: `Host: ${senderName} has moved you to main room.`,
-  //           visibilityTime: 3000,
-  //         });
-  //       }
-  //       // Exit breakout room and return to main room
-  //       return exitRoom(true);
-  //     }
+        logger.log(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          '[SYNC][Condition 2] User leaving breakout (to main)',
+          {prevRoomId, srcuid, senderName},
+        );
 
-  //     console.log('supriya-event-sync 5: ');
+        // Set transition flag - user will remount in main room and need fresh data
+        sessionStorage.setItem('breakout_room_transition', 'true');
+        lastSyncedSnapshotRef.current = null;
+        return exitRoom(true);
+      }
 
-  //     // 5. All breakout rooms closed
-  //     if (breakout_room.length === 0 && prevGroups.length > 0) {
-  //       console.log('supriya-toast 5', prevRoomId, nextRoomId);
+      // 3. User moved between breakout rooms
+      if (userMovedBetweenRooms) {
+        logger.log(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          '[SYNC][Condition 3] User moved between breakout rooms',
+          {prevRoomId, nextRoomId, srcuid, senderName},
+        );
+      }
 
-  //       // Show different messages based on user's current location
-  //       if (prevRoomId) {
-  //         // User was in a breakout room - returning to main
-  //         showDeduplicatedToast('all-rooms-closed', {
-  //           leadingIconName: 'close-room',
-  //           type: 'info',
-  //           text1: `Host: ${senderName} has closed all breakout rooms.`,
-  //           text2: 'Returning to the main room...',
-  //           visibilityTime: 3000,
-  //         });
-  //         return exitRoom(true);
-  //       } else {
-  //         // User was already in main room - just notify about closure
-  //         showDeduplicatedToast('all-rooms-closed', {
-  //           leadingIconName: 'close-room',
-  //           type: 'info',
-  //           text1: `Host: ${senderName} has closed all breakout rooms`,
-  //           visibilityTime: 4000,
-  //         });
-  //       }
-  //     }
+      // 4) Rooms switch control toggled
+      if (switch_room && !prevSwitchRoom) {
+        if (srcuid !== localUid) {
+          showDeduplicatedToast('switch-room-toggle', {
+            leadingIconName: 'open-room',
+            type: 'info',
+            text1: `Host:${senderName} has opened breakout rooms.`,
+            text2: 'Please choose a room to join.',
+            visibilityTime: 3000,
+          });
+        }
+        logger.log(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          '[SYNC][Condition 4] Switch room enabled',
+          {srcuid, senderName},
+        );
+      }
 
-  //     console.log('supriya-event-sync 6: ');
+      // 5) Room renamed
+      prevGroups.forEach(prevRoom => {
+        const after = breakout_room.find(r => r.id === prevRoom.id);
+        if (after && after.name !== prevRoom.name) {
+          if (srcuid !== localUid) {
+            showDeduplicatedToast(`room-renamed-${after.id}`, {
+              type: 'info',
+              text1: `Host: ${senderName} has renamed room "${prevRoom.name}" to "${after.name}".`,
+              visibilityTime: 3000,
+            });
+          }
+          logger.log(
+            LogSource.Internals,
+            'BREAKOUT_ROOM',
+            '[SYNC][Condition 5] Room renamed',
+            {roomId: after.id, from: prevRoom.name, to: after.name},
+          );
+        }
+      });
 
-  //     // 6) Room renamed (compare per-room names)
-  //     prevGroups.forEach(prevRoom => {
-  //       const after = breakout_room.find(r => r.id === prevRoom.id);
-  //       if (after && after.name !== prevRoom.name) {
-  //         showDeduplicatedToast(`room-renamed-${after.id}`, {
-  //           type: 'info',
-  //           text1: `Host: ${senderName} has renamed room "${prevRoom.name}"  to "${after.name}".`,
-  //           visibilityTime: 3000,
-  //         });
-  //       }
-  //     });
+      // Apply new state
+      dispatch({
+        type: BreakoutGroupActionTypes.SYNC_STATE,
+        payload: {
+          sessionId: session_id,
+          assignmentStrategy: assignment_type,
+          switchRoom: switch_room,
+          rooms: breakout_room,
+        },
+      });
 
-  //     console.log('supriya-event-sync 7: ');
+      // Store the snap of this
+      lastSyncedSnapshotRef.current = payload.data;
+      lastSyncedTimestampRef.current = timestamp || Date.now();
 
-  //     // The host clicked on the room to close in which he is a part of
-  //     if (!prevRoomId && !nextRoomId) {
-  //       return exitRoom(true);
-  //     }
-  //     // Finally, apply the authoritative state
-  //     dispatch({
-  //       type: BreakoutGroupActionTypes.SYNC_STATE,
-  //       payload: {
-  //         sessionId: session_id,
-  //         assignmentStrategy: assignment_type,
-  //         switchRoom: switch_room,
-  //         rooms: breakout_room,
-  //       },
-  //     });
-  //     // Update the last processed timestamp after successful processing
-  //     lastProcessedTimestampRef.current = timestamp || Date.now();
-  //   },
-  //   [
-  //     dispatch,
-  //     exitRoom,
-  //     localUid,
-  //     showDeduplicatedToast,
-  //     isAnotherHostOperating,
-  //     getDisplayName,
-  //   ],
-  // );
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[SYNC] State applied',
+        {
+          session_id,
+          rooms: breakout_room?.length || 0,
+          timestampApplied: lastSyncedTimestampRef.current,
+        },
+      );
+    },
+    [
+      dispatch,
+      exitRoom,
+      localUid,
+      showDeduplicatedToast,
+      getDisplayName,
+      isBreakoutMode,
+    ],
+  );
+
+  /**
+   * While Event 1 is processing…
+   * Event 2 arrives (ts=200) and Event 3 arrives (ts=300).
+   * Both will overwrite latestTask:
+   * Now, queue.latestTask only holds event 3, because event 2 was replaced before it could be picked up.
+   * Latest-event-wins queue: enqueue only the freshest by timestamp.
+   */
+
+  const enqueueBreakoutSyncEvent = useCallback(
+    (payload: BreakoutRoomSyncStateEventPayload['data'], timestamp: number) => {
+      const queue = breakoutSyncQueueRef.current;
+
+      if (
+        !queue.latestTask ||
+        (timestamp && timestamp > queue.latestTask.timestamp)
+      ) {
+        queue.latestTask = {payload, timestamp};
+      }
+
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[QUEUE] Enqueued sync event',
+        {
+          latestTs: queue.latestTask?.timestamp,
+          currentlyProcessing: queue.isProcessing,
+        },
+      );
+
+      processBreakoutSyncQueue();
+    },
+    [],
+  );
+
+  const processBreakoutSyncQueue = useCallback(async () => {
+    const queue = breakoutSyncQueueRef.current;
+
+    // 1. If the queue is already being processed by another call, exit immediately.
+    if (queue.isProcessing) {
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[QUEUE] Already processing, skipping start',
+      );
+      return;
+    }
+
+    try {
+      // 2. "lock" the queue, so no second process can start.
+      queue.isProcessing = true;
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[QUEUE] Processing started',
+      );
+
+      while (queue.latestTask) {
+        const {payload, timestamp} = queue.latestTask;
+        queue.latestTask = null;
+
+        try {
+          await _handleBreakoutRoomSyncState(payload, timestamp);
+        } catch (err: any) {
+          logger.error(
+            LogSource.Internals,
+            'BREAKOUT_ROOM',
+            '[QUEUE] Error processing sync event',
+            {error: err?.message},
+          );
+          // Continue processing other events even if one fails
+        }
+      }
+    } catch (err: any) {
+      logger.error(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[QUEUE] Critical error',
+        {error: err?.message},
+      );
+    } finally {
+      // Always unlock the queue, even if there's an error
+      queue.isProcessing = false;
+      logger.debug(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        '[QUEUE] Processing finished',
+      );
+    }
+  }, []);
 
   // Multi-host coordination handlers
   const handleHostOperationStart = useCallback(
     (operationName: string, hostUid: UidType, hostName: string) => {
       // Only process if current user is also a host and it's not their own event
-      console.log('supriya-state-sync host operation started', operationName);
-      // if (!isHostRef.current || hostUid === localUid) {
       if (hostUid === localUid) {
         return;
       }
@@ -2014,7 +2204,7 @@ const BreakoutRoomProvider = ({
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
-        'Another host started operation - locking UI',
+        `[HOST] Another host has started operation (lock UI) -> ${operationName}`,
         {operationName, hostUid, hostName},
       );
 
@@ -2026,12 +2216,16 @@ const BreakoutRoomProvider = ({
   const handleHostOperationEnd = useCallback(
     (operationName: string, hostUid: UidType, hostName: string) => {
       // Only process if current user is also a host and it's not their own event
-      console.log('supriya-state-sync host operation ended', operationName);
-
-      // if (!isHostRef.current || hostUid === localUid) {
       if (hostUid === localUid) {
         return;
       }
+
+      logger.log(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        `[HOST] Another host ended operation (unlock UI) ${operationName}`,
+        {operationName, hostUid, hostName},
+      );
 
       setCurrentOperatingHostName(undefined);
     },
@@ -2044,62 +2238,38 @@ const BreakoutRoomProvider = ({
       setBreakoutUpdateInFlight(true);
 
       try {
-        console.log(
-          'supriya-state-sync before calling upsertBreakoutRoomAPI 2007',
+        logger.debug(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          '[API] Debounced upsert start for',
+          {type, operationName},
         );
 
         await upsertBreakoutRoomAPI(type);
-        console.log(
-          'supriya-state-sync after calling upsertBreakoutRoomAPI 2007',
+
+        logger.debug(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          '[API] Debounced upsert success',
+          {type, operationName},
         );
-        console.log('supriya-state-sync operationName', operationName);
 
         // Broadcast operation end after successful API call
         if (operationName) {
-          console.log(
-            'supriya-state-sync broadcasting host operation end',
-            operationName,
-          );
-
           broadcastHostOperationEnd(operationName);
         }
-      } catch (error) {
-        logger.log(
+      } catch (error: any) {
+        logger.error(
           LogSource.Internals,
           'BREAKOUT_ROOM',
-          'API call failed. Reverting to previous state.',
-          error,
+          '[API] Debounced upsert failed',
+          {error: error?.message, type, operationName},
         );
 
         // Broadcast operation end even on failure
         if (operationName) {
           broadcastHostOperationEnd(operationName);
         }
-
-        // // 🔁 Rollback to last valid state
-        // if (
-        //   prevStateRef.current &&
-        //   validateRollbackState(prevStateRef.current)
-        // ) {
-        //   baseDispatch({
-        //     type: BreakoutGroupActionTypes.SYNC_STATE,
-        //     payload: {
-        //       sessionId: prevStateRef.current.breakoutSessionId,
-        //       assignmentStrategy: prevStateRef.current.assignmentStrategy,
-        //       switchRoom: prevStateRef.current.canUserSwitchRoom,
-        //       rooms: prevStateRef.current.breakoutGroups,
-        //     },
-        //   });
-        //   showDeduplicatedToast('breakout-api-failure', {
-        //     type: 'error',
-        //     text1: 'Sync failed. Reverted to previous state.',
-        //   });
-        // } else {
-        //   showDeduplicatedToast('breakout-api-failure-no-rollback', {
-        //     type: 'error',
-        //     text1: 'Sync failed. Could not rollback safely.',
-        //   });
-        // }
       } finally {
         setBreakoutUpdateInFlight(false);
       }
@@ -2145,317 +2315,22 @@ const BreakoutRoomProvider = ({
       ? lastAction?.type
       : undefined;
 
-    console.log(
-      'supriya-state-sync shouldCallAPI',
-      shouldCallAPI,
-      lastAction.type,
-      lastOperationName,
+    logger.debug(
+      LogSource.Internals,
+      'BREAKOUT_ROOM',
+      '[ACTION] Post-dispatch evaluation',
+      {
+        actionType: lastAction.type,
+        shouldCallAPI,
+        attendeeSelfJoinAllowed,
+        lastOperationName,
+      },
     );
+
     if (shouldCallAPI) {
       debouncedUpsertAPI('UPDATE', lastOperationName);
     }
   }, [lastAction]);
-
-  const _handleBreakoutRoomSyncState = useCallback(
-    async (
-      payload: BreakoutRoomSyncStateEventPayload['data'],
-      timestamp: number,
-    ) => {
-      console.log(
-        'supriya-sync-ordering exact response',
-        timestamp,
-        JSON.stringify(payload),
-      );
-      const {srcuid, data} = payload;
-      const {
-        session_id,
-        switch_room,
-        breakout_room,
-        assignment_type,
-        sts = 0,
-      } = data;
-      console.log('supriya-sync-ordering Sync state event received', {
-        sessionId: session_id,
-        incomingRoom: breakout_room || [],
-        currentRoom: stateRef.current.breakoutGroups || [],
-        switchRoom: switch_room,
-        assignmentType: assignment_type,
-      });
-
-      // global server ordering
-      if (sts <= lastProcessedServerTsRef.current) {
-        console.log(
-          `supriya-sync-ordering [BreakoutSync] Ignoring out-of-order state (sts=${sts}, last=${lastProcessedServerTsRef.current})`,
-        );
-        return;
-      }
-      lastProcessedServerTsRef.current = sts;
-
-      // Self-join race protection — ignore stale reverts right after joining
-      if (
-        lastSelfJoinRef.current &&
-        Date.now() - lastSelfJoinRef.current.ts < 2000 && // 2s cooldown
-        !findUserRoomId(localUid, breakout_room)
-      ) {
-        console.log(
-          'supriya-sync-ordering [SyncGuard] Ignoring stale sync conflicting with recent self-join to',
-          lastSelfJoinRef.current.roomId,
-        );
-        return;
-      }
-
-      // Local duplicate protection (client-side ordering) Skip events older than the last processed timestamp
-      if (timestamp && timestamp <= lastSyncedTimestampRef.current) {
-        console.log(
-          'supriya-sync-ordering Skipping old breakout room sync event',
-          {
-            timestamp,
-            lastProcessed: lastSyncedTimestampRef.current,
-          },
-        );
-        return;
-      }
-
-      // Snapshot before applying
-      const prevSnapshot = lastSyncedSnapshotRef?.current;
-      const prevGroups = prevSnapshot?.breakout_room || [];
-      const prevSwitchRoom = prevSnapshot?.switch_room ?? true;
-      const prevRoomId = findUserRoomId(localUid, prevGroups);
-      const nextRoomId = findUserRoomId(localUid, breakout_room);
-
-      // 1. !prevRoomId && nextRoomId = Main → Breakout (joining)
-      // 2. prevRoomId && nextRoomId && prevRoomId !== nextRoomId = Breakout A → Breakout B (switching)
-      // 3. prevRoomId && !nextRoomId = Breakout → Main (leaving)
-      // 4. !prevRoomId && !nextRoomId = Main → Main (no change)
-
-      const userMovedBetweenRooms =
-        prevRoomId && nextRoomId && prevRoomId !== nextRoomId;
-      const userLeftBreakoutRoom = prevRoomId && !nextRoomId;
-
-      console.log(
-        'supriya-sync-ordering prevRoomId nextRoomId and new  breakout_room',
-        prevRoomId,
-        nextRoomId,
-        breakout_room,
-      );
-
-      const senderName = getDisplayName(srcuid);
-      console.log('supriya-senderName: ', senderName, srcuid);
-
-      // ---- SCREEN SHARE CLEANUP ----
-      // Stop screen share if user is moving between rooms or leaving breakout
-      // if (
-      //   (userMovedBetweenRooms || userLeftBreakoutRoom) &&
-      //   isScreenshareActive
-      // ) {
-      //   console.log(
-      //     'supriya-sync-ordering: stopping screenshare due to room change',
-      //   );
-      //   stopScreenshare();
-      // }
-
-      // ---- PRIORITY ORDER ----
-      // 1. Room closed
-      if (breakout_room.length === 0 && prevGroups.length > 0) {
-        console.log('supriya-sync-ordering 1. all room closed: ');
-        // 1. User is in breakout toom and the exits
-        if (prevRoomId && isBreakoutMode) {
-          // Don't show toast if the user is the author
-          if (srcuid !== localUid) {
-            showDeduplicatedToast('all-rooms-closed', {
-              leadingIconName: 'close-room',
-              type: 'info',
-              text1: `Host: ${senderName} has closed all breakout rooms.`,
-              text2: 'Returning to the main room...',
-              visibilityTime: 3000,
-            });
-          }
-          // Set transition flag - user will remount in main room and need fresh data
-          sessionStorage.setItem('breakout_room_transition', 'true');
-          lastSyncedSnapshotRef.current = null;
-          return exitRoom(true);
-        } else {
-          // 2. User is in main room recevies just notification
-          // Don't show toast if the user is the author
-          if (srcuid !== localUid) {
-            showDeduplicatedToast('all-rooms-closed', {
-              leadingIconName: 'close-room',
-              type: 'info',
-              text1: `Host: ${senderName} has closed all breakout rooms`,
-              visibilityTime: 4000,
-            });
-          }
-        }
-      }
-
-      // 2. User's room deleted (they were in a room → now not)
-      if (userLeftBreakoutRoom && isBreakoutMode) {
-        console.log('supriya-sync-ordering 2. they were in a room → now not: ');
-
-        const prevRoom = prevGroups.find(r => r.id === prevRoomId);
-        const roomStillExists = breakout_room.some(r => r.id === prevRoomId);
-        //  Case A: Room deleted
-        if (!roomStillExists) {
-          // Don't show toast if the user is the author
-          if (srcuid !== localUid) {
-            showDeduplicatedToast(`current-room-closed-${prevRoomId}`, {
-              leadingIconName: 'close-room',
-              type: 'error',
-              text1: `Host: ${senderName} has closed "${
-                prevRoom?.name || ''
-              }" room.`,
-              text2: 'Returning to main room...',
-              visibilityTime: 3000,
-            });
-          }
-        } else {
-          // Host removed user from room (handled here)
-          // (Room still exists for others, but you were unassigned)
-          // Don't show toast if the user is the author
-          if (srcuid !== localUid) {
-            showDeduplicatedToast(`moved-to-main-${prevRoomId}`, {
-              leadingIconName: 'arrow-up',
-              type: 'info',
-              text1: `Host: ${senderName} has moved you to main room.`,
-              visibilityTime: 3000,
-            });
-          }
-        }
-
-        // Set transition flag - user will remount in main room and need fresh data
-        sessionStorage.setItem('breakout_room_transition', 'true');
-        lastSyncedSnapshotRef.current = null;
-        return exitRoom(true);
-      }
-
-      // 3. User moved between breakout rooms
-      if (userMovedBetweenRooms) {
-        console.log(
-          'supriya-sync-ordering 3. user moved between breakout rooms',
-        );
-        // const prevRoom = prevGroups.find(r => r.id === prevRoomId);
-        // const nextRoom = breakout_room.find(r => r.id === nextRoomId);
-
-        // showDeduplicatedToast(`user-moved-${prevRoomId}-${nextRoomId}`, {
-        //   leadingIconName: 'arrow-right',
-        //   type: 'info',
-        //   text1: `Host: ${senderName} has moved you to "${
-        //     nextRoom?.name || nextRoomId
-        //   }".`,
-        //   text2: `From "${prevRoom?.name || prevRoomId}"`,
-        //   visibilityTime: 3000,
-        // });
-      }
-
-      // 4. Rooms control switched
-      if (switch_room && !prevSwitchRoom) {
-        console.log('supriya-sync-ordering 4. switch_room changed: ');
-        // Don't show toast if the user is the author
-        if (srcuid !== localUid) {
-          showDeduplicatedToast('switch-room-toggle', {
-            leadingIconName: 'open-room',
-            type: 'info',
-            text1: `Host:${senderName} has opened breakout rooms.`,
-            text2: 'Please choose a room to join.',
-            visibilityTime: 3000,
-          });
-        }
-      }
-
-      // 5. Group renamed
-      prevGroups.forEach(prevRoom => {
-        const after = breakout_room.find(r => r.id === prevRoom.id);
-        if (after && after.name !== prevRoom.name) {
-          console.log('supriya-sync-ordering 5. group renamed ');
-          // Don't show toast if the user is the author
-          if (srcuid !== localUid) {
-            showDeduplicatedToast(`room-renamed-${after.id}`, {
-              type: 'info',
-              text1: `Host: ${senderName} has renamed room "${prevRoom.name}" to "${after.name}".`,
-              visibilityTime: 3000,
-            });
-          }
-        }
-      });
-
-      dispatch({
-        type: BreakoutGroupActionTypes.SYNC_STATE,
-        payload: {
-          sessionId: session_id,
-          assignmentStrategy: assignment_type,
-          switchRoom: switch_room,
-          rooms: breakout_room,
-        },
-      });
-
-      // Store the snap of this
-      lastSyncedSnapshotRef.current = payload.data;
-      lastSyncedTimestampRef.current = timestamp || Date.now();
-    },
-    [dispatch, exitRoom, localUid, showDeduplicatedToast, getDisplayName],
-  );
-
-  /**
-   * While Event 1 is processing…
-   * Event 2 arrives (ts=200) and Event 3 arrives (ts=300).
-   * Both will overwrite latestTask:
-   * Now, queue.latestTask only holds event 3, because event 2 was replaced before it could be picked up.
-   */
-
-  const enqueueBreakoutSyncEvent = useCallback(
-    (payload: BreakoutRoomSyncStateEventPayload['data'], timestamp: number) => {
-      const queue = breakoutSyncQueueRef.current;
-      // Always keep the freshest event only
-      console.log('supriya-sync-queue 1', queue);
-      if (
-        !queue.latestTask ||
-        (timestamp && timestamp > queue.latestTask.timestamp)
-      ) {
-        console.log('supriya-sync-queue 2', queue);
-        queue.latestTask = {payload, timestamp};
-      }
-      console.log('supriya-sync-queue 3', queue.latestTask);
-
-      processBreakoutSyncQueue();
-    },
-    [],
-  );
-
-  const processBreakoutSyncQueue = useCallback(async () => {
-    const queue = breakoutSyncQueueRef.current;
-    console.log('supriya-sync-queue 4', queue.latestTask);
-
-    // 1. If the queue is already being processed by another call, exit immediately.
-    if (queue.isProcessing) {
-      console.log('supriya-sync-queue 5 returning ');
-
-      return;
-    }
-
-    try {
-      // 2. "lock" the queue, so no second process can start.
-      queue.isProcessing = true;
-      console.log('supriya-sync-queue 6 lcoked ');
-      // 3. Loop the queue
-      while (queue.latestTask) {
-        const {payload, timestamp} = queue.latestTask;
-        console.log('supriya-sync-queue 7  ', payload, timestamp);
-        queue.latestTask = null;
-
-        try {
-          await _handleBreakoutRoomSyncState(payload, timestamp);
-        } catch (err) {
-          console.error('[BreakoutSync] Error processing sync event', err);
-          // Continue processing other events even if one fails
-        }
-      }
-    } catch (err) {
-      console.error('[BreakoutSync] Critical error in queue processing', err);
-    } finally {
-      // Always unlock the queue, even if there's an error
-      queue.isProcessing = false;
-    }
-  }, []);
 
   return (
     <BreakoutRoomContext.Provider
@@ -2483,19 +2358,12 @@ const BreakoutRoomProvider = ({
         updateRoomName,
         getAllRooms,
         getRoomMemberDropdownOptions,
-        // onMakeMePresenter,
-        // presenters,
-        // clearAllPresenters,
         handleBreakoutRoomSyncState: enqueueBreakoutSyncEvent,
-        // Multi-host coordination handlers
         handleHostOperationStart,
         handleHostOperationEnd,
         permissions,
-        // Loading states
         isBreakoutUpdateInFlight,
-        // Multi-host coordination
         currentOperatingHostName,
-        // State version for forcing re-computation in dependent hooks
         breakoutRoomVersion,
       }}>
       {children}
