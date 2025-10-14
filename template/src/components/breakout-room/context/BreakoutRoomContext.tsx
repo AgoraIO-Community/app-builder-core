@@ -1659,7 +1659,6 @@ const BreakoutRoomProvider = ({
   //   }
   //   try {
   //     const timestamp = Date.now();
-  //     console.log('supriya-presenter sending make presenter');
   //     // Host sends BREAKOUT_ROOM_MAKE_PRESENTER event to the attendee
   //     events.send(
   //       BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
@@ -1928,9 +1927,6 @@ const BreakoutRoomProvider = ({
       //   (userMovedBetweenRooms || userLeftBreakoutRoom) &&
       //   isScreenshareActive
       // ) {
-      //   console.log(
-      //     'supriya-sync-ordering: stopping screenshare due to room change',
-      //   );
       //   stopScreenshare();
       // }
 
