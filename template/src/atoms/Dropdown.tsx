@@ -14,6 +14,8 @@ import {
   Modal,
   View,
   Image,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
 import {isWebInternal} from '../utils/common';
 import ThemeConfig from '../theme';
@@ -28,6 +30,7 @@ interface Props {
   onSelect: (item: {label: string; value: string}) => void;
   enabled: boolean;
   selectedValue: string;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 const Dropdown: FC<Props> = ({
@@ -37,6 +40,7 @@ const Dropdown: FC<Props> = ({
   enabled,
   selectedValue,
   icon,
+  containerStyle = {},
 }) => {
   const DropdownButton = useRef();
   const [visible, setVisible] = useState(false);
@@ -148,6 +152,7 @@ const Dropdown: FC<Props> = ({
       ref={DropdownButton}
       style={[
         styles.dropdownOptionContainer,
+        containerStyle,
         !enabled || !data || !data.length
           ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
           : {},

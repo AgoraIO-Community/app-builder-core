@@ -24,6 +24,42 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-raise-hand-fill:before {
+  content: '\e9ac';
+  color: #ffab00;
+}
+.icon-open-room:before {
+  content: '\e9ab';
+  color: #fff;
+}
+.icon-people-assigned:before {
+  content: '\e9a4';
+  color: #e8eaed;
+}
+.icon-double-up-arrow:before {
+  content: '\e9a5';
+  color: #fff;
+}
+.icon-move-up:before {
+  content: '\e9a6';
+  color: #fff;
+}
+.icon-close-room:before {
+  content: '\e9a7';
+  color: #fff;
+}
+.icon-announcement:before {
+  content: '\e9a8';
+  color: #fff;
+}
+.icon-settings-outlined:before {
+  content: '\e9a9';
+  color: #fff;
+}
+.icon-breakout-room:before {
+  content: '\e9aa';
+  color: #d9d9d9;
+}
 .icon-spotlight:before {
   content: '\e9a3';
   color: #fff;

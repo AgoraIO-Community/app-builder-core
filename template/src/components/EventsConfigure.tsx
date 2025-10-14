@@ -268,7 +268,8 @@ const EventsConfigure: React.FC<Props> = ({
     permissionStatusRef.current = permissionStatus;
   }, [permissionStatus]);
 
-  const {hasUserJoinedRTM, isInitialQueueCompleted} = useContext(ChatContext);
+  const {hasUserJoinedRTM, isInitialQueueCompleted, syncUserState} =
+    useContext(ChatContext);
   const {startSpeechToText, addStreamMessageListener} = useSpeechToText();
 
   //auto start stt
@@ -612,10 +613,11 @@ const EventsConfigure: React.FC<Props> = ({
       if (!isHostRef.current) return;
       const {attendee_uid, approved} = JSON.parse(data?.payload);
       // update waiting room status in other host's panel
-      dispatch({
-        type: 'UpdateRenderList',
-        value: [attendee_uid, {isInWaitingRoom: false}],
-      });
+      // dispatch({
+      //   type: 'UpdateRenderList',
+      //   value: [attendee_uid, {isInWaitingRoom: false}],
+      // });
+      syncUserState(attendee_uid, {isInWaitingRoom: false});
 
       waitingRoomRef.current[attendee_uid] = approved ? 'APPROVED' : 'REJECTED';
       // hide toast in other host's screen
@@ -660,10 +662,11 @@ const EventsConfigure: React.FC<Props> = ({
         defaultContentRef.current.defaultContent[attendee_uid]?.name ||
         'Attendee';
       // put the attendee in waitingroom in renderlist
-      dispatch({
-        type: 'UpdateRenderList',
-        value: [attendee_uid, {isInWaitingRoom: true}],
-      });
+      // dispatch({
+      //   type: 'UpdateRenderList',
+      //   value: [attendee_uid, {isInWaitingRoom: true}],
+      // });
+      syncUserState(attendee_uid, {isInWaitingRoom: true});
 
       waitingRoomRef.current[attendee_uid] = 'PENDING';
       // check if any other host has approved then dont show permission to join the room
@@ -676,10 +679,11 @@ const EventsConfigure: React.FC<Props> = ({
           attendee_screenshare_uid: attendee_screenshare_uid,
           approved: true,
         });
-        dispatch({
-          type: 'UpdateRenderList',
-          value: [attendee_uid, {isInWaitingRoom: false}],
-        });
+        // dispatch({
+        //   type: 'UpdateRenderList',
+        //   value: [attendee_uid, {isInWaitingRoom: false}],
+        // });
+        syncUserState(attendee_uid, {isInWaitingRoom: false});
 
         waitingRoomRef.current[attendee_uid] = 'APPROVED';
 
@@ -724,10 +728,11 @@ const EventsConfigure: React.FC<Props> = ({
               attendee_screenshare_uid: attendee_screenshare_uid,
               approved: false,
             });
-            dispatch({
-              type: 'UpdateRenderList',
-              value: [attendee_uid, {isInWaitingRoom: false}],
-            });
+            // dispatch({
+            //   type: 'UpdateRenderList',
+            //   value: [attendee_uid, {isInWaitingRoom: false}],
+            // });
+            syncUserState(attendee_uid, {isInWaitingRoom: false});
 
             waitingRoomRef.current[attendee_uid] = 'REJECTED';
 

@@ -1,7 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import {PropsContext} from '../../../agora-rn-uikit';
 import VideoCallScreen from '../video-call/VideoCallScreen';
-import {isWebInternal} from '../../utils/common';
 import {useLocation} from '../../components/Router';
 import {getParamFromURL} from '../../utils/common';
 import {useUserPreference} from '../../components/useUserPreference';

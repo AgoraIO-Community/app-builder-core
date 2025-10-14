@@ -9,8 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-// @ts-nocheck
-import React, {useState, useContext, useEffect, useRef} from 'react';
+import React, {useState, useContext, useEffect, useRef, useMemo} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import {
   RtcConfigure,
@@ -20,10 +19,12 @@ import {
   LocalUserContext,
   UidType,
   CallbacksInterface,
+  RtcPropsInterface,
 } from '../../agora-rn-uikit';
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
+import RTMConfigureMainRoomProvider from '../rtm/RTMConfigureMainRoomProvider';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
 import {useHasBrandLogo, isMobileUA, isWebInternal} from '../utils/common';
@@ -79,62 +80,31 @@ import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useCustomization} from 'customization-implementation';
 import {BeautyEffectProvider} from '../components/beauty-effect/useBeautyEffects';
 import {UserActionMenuProvider} from '../components/useUserActionMenu';
+import {RaiseHandProvider} from '../components/raise-hand';
 import Toast from '../../react-native-toast-message';
 import {AuthErrorCodes} from '../utils/common';
+import {BreakoutRoomProvider} from '../components/breakout-room/context/BreakoutRoomContext';
+import BreakoutRoomEventsConfigure from '../components/breakout-room/events/BreakoutRoomEventsConfigure';
+import {RTM_ROOMS} from '../rtm/constants';
 
-enum RnEncryptionEnum {
-  /**
-   * @deprecated
-   * 0: This mode is deprecated.
-   */
-  None = 0,
-  /**
-   * 1: (Default) 128-bit AES encryption, XTS mode.
-   */
-  AES128XTS = 1,
-  /**
-   * 2: 128-bit AES encryption, ECB mode.
-   */
-  AES128ECB = 2,
-  /**
-   * 3: 256-bit AES encryption, XTS mode.
-   */
-  AES256XTS = 3,
-  /**
-   * 4: 128-bit SM4 encryption, ECB mode.
-   *
-   * @since v3.1.2.
-   */
-  SM4128ECB = 4,
-  /**
-   * 6: 256-bit AES encryption, GCM mode.
-   *
-   * @since v3.1.2.
-   */
-  AES256GCM = 6,
-
-  /**
-   * 7:  128-bit GCM encryption, GCM mode.
-   *
-   * @since v3.4.5
-   */
-  AES128GCM2 = 7,
-  /**
-   * 8: 256-bit GCM encryption, GCM mode.
-   * @since v3.1.2.
-   * Compared to AES256GCM encryption mode, AES256GCM2 encryption mode is more secure and requires you to set the salt (encryptionKdfSalt).
-   */
-  AES256GCM2 = 8,
+interface VideoCallProps {
+  callActive: boolean;
+  setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
+  rtcProps: RtcPropsInterface;
+  setRtcProps: React.Dispatch<React.SetStateAction<Partial<RtcPropsInterface>>>;
+  callbacks: CallbacksInterface;
+  styleProps: any;
 }
 
-const VideoCall: React.FC = () => {
-  const hasBrandLogo = useHasBrandLogo();
-  const joiningLoaderLabel = useString(videoRoomStartingCallText)();
-  const bannedUserText = useString(userBannedText)();
-
-  const {setGlobalErrorMessage} = useContext(ErrorContext);
-  const {awake, release} = useWakeLock();
-  const {isRecordingBot} = useIsRecordingBot();
+const VideoCall = (videoCallProps: VideoCallProps) => {
+  const {
+    callActive,
+    setCallActive,
+    rtcProps,
+    setRtcProps,
+    callbacks,
+    styleProps,
+  } = videoCallProps;
   /**
    *  Should we set the callscreen to active ??
    *  a) If Recording bot( i.e prop: recordingBot) is TRUE then it means,
@@ -144,34 +114,9 @@ const VideoCall: React.FC = () => {
    *  b) If Recording bot( i.e prop: recordingBot) is FALSE then we should set
    *     the callActive depending upon the value of magic variable - $config.PRECALL
    */
-  const shouldCallBeSetToActive = isRecordingBot
-    ? true
-    : $config.PRECALL
-    ? false
-    : true;
-  const [callActive, setCallActive] = useState(shouldCallBeSetToActive);
   const [isRecordingActive, setRecordingActive] = useState(false);
-  const [queryComplete, setQueryComplete] = useState(false);
-  const [waitingRoomAttendeeJoined, setWaitingRoomAttendeeJoined] =
-    useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
   const [recordingAutoStarted, setRecordingAutoStarted] = useState(false);
-
-  const {phrase} = useParams<{phrase: string}>();
-
-  const {store} = useContext(StorageContext);
-  const {
-    join: SdkJoinState,
-    microphoneDevice: sdkMicrophoneDevice,
-    cameraDevice: sdkCameraDevice,
-    clearState,
-  } = useContext(SdkApiContext);
-
-  // commented for v1 release
-  const afterEndCall = useCustomization(
-    data =>
-      data?.lifecycle?.useAfterEndCall && data?.lifecycle?.useAfterEndCall(),
-  );
 
   const {PrefereceWrapper} = useCustomization(data => {
     let components: {
@@ -190,454 +135,162 @@ const VideoCall: React.FC = () => {
     return components;
   });
 
-  const [rtcProps, setRtcProps] = React.useState({
-    appId: $config.APP_ID,
-    channel: null,
-    uid: null,
-    token: null,
-    rtm: null,
-    screenShareUid: null,
-    screenShareToken: null,
-    profile: $config.PROFILE,
-    screenShareProfile: $config.SCREEN_SHARE_PROFILE,
-    dual: true,
-    encryption: $config.ENCRYPTION_ENABLED
-      ? {key: null, mode: RnEncryptionEnum.AES128GCM2, screenKey: null}
-      : false,
-    role: ClientRoleType.ClientRoleBroadcaster,
-    geoFencing: $config.GEO_FENCING,
-    audioRoom: $config.AUDIO_ROOM,
-    activeSpeaker: $config.ACTIVE_SPEAKER,
-    preferredCameraId:
-      sdkCameraDevice.deviceId || store?.activeDeviceId?.videoinput || null,
-    preferredMicrophoneId:
-      sdkMicrophoneDevice.deviceId || store?.activeDeviceId?.audioinput || null,
-    recordingBot: isRecordingBot ? true : false,
-  });
-
-  const history = useHistory();
-  const currentMeetingPhrase = useRef(history.location.pathname);
-
-  const useJoin = useJoinRoom();
-  const {setRoomInfo} = useSetRoomInfo();
-  const {isJoinDataFetched, data, isInWaitingRoom, waitingRoomStatus} =
-    useRoomInfo();
-
-  useEffect(() => {
-    if (!isJoinDataFetched) {
-      return;
-    }
-    logger.log(LogSource.Internals, 'SET_MEETING_DETAILS', 'Room details', {
-      user_id: data?.uid || '',
-      meeting_title: data?.meetingTitle || '',
-      channel_id: data?.channel,
-      host_id: data?.roomId?.host || '',
-      attendee_id: data?.roomId?.attendee || '',
-    });
-  }, [isJoinDataFetched, data, phrase]);
-
-  React.useEffect(() => {
-    return () => {
-      logger.debug(
-        LogSource.Internals,
-        'VIDEO_CALL_ROOM',
-        'Videocall unmounted',
-      );
-      setRoomInfo(prevState => {
-        return {
-          ...RoomInfoDefaultValue,
-          loginToken: prevState?.loginToken,
-        };
-      });
-      if (awake) {
-        release();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!SdkJoinState.phrase) {
-      useJoin(phrase, RoomInfoDefaultValue.roomPreference)
-        .then(() => {
-          logger.log(
-            LogSource.Internals,
-            'JOIN_MEETING',
-            'Join channel success',
-          );
-        })
-        .catch(error => {
-          const errorCode = error?.code;
-          if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
-            SDKEvents.emit('unauthorized', error);
-          }
-          logger.error(
-            LogSource.Internals,
-            'JOIN_MEETING',
-            'Join channel error',
-            JSON.stringify(error || {}),
-          );
-          setGlobalErrorMessage(error);
-          history.push('/');
-        });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isSDK() || !SdkJoinState.initialized) {
-      return;
-    }
-    const {
-      phrase: sdkMeetingPhrase,
-      meetingDetails: sdkMeetingDetails,
-      skipPrecall,
-      promise,
-      preference,
-    } = SdkJoinState;
-
-    const sdkMeetingPath = `/${sdkMeetingPhrase}`;
-
-    setCallActive(skipPrecall);
-
-    if (sdkMeetingDetails) {
-      setQueryComplete(false);
-      setRoomInfo(roomInfo => {
-        return {
-          ...roomInfo,
-          isJoinDataFetched: true,
-          data: {
-            ...roomInfo.data,
-            ...sdkMeetingDetails,
-          },
-          roomPreference: preference,
-        };
-      });
-    } else if (sdkMeetingPhrase) {
-      setQueryComplete(false);
-      currentMeetingPhrase.current = sdkMeetingPath;
-      useJoin(sdkMeetingPhrase, preference)
-        .then(() => {
-          logger.log(
-            LogSource.Internals,
-            'JOIN_MEETING',
-            'Join channel success',
-          );
-        })
-        .catch(error => {
-          const errorCode = error?.code;
-          if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
-            SDKEvents.emit('unauthorized', error);
-          }
-          logger.error(
-            LogSource.Internals,
-            'JOIN_MEETING',
-            'Join channel error',
-            JSON.stringify(error || {}),
-          );
-          setGlobalErrorMessage(error);
-          history.push('/');
-          currentMeetingPhrase.current = '';
-          promise.rej(error);
-        });
-    }
-  }, [SdkJoinState]);
-
-  React.useEffect(() => {
-    if (
-      //isJoinDataFetched === true && (!queryComplete || !isInWaitingRoom)
-      //non waiting room - host/attendee
-      (!$config.ENABLE_WAITING_ROOM &&
-        isJoinDataFetched === true &&
-        !queryComplete) ||
-      //waiting room - host
-      ($config.ENABLE_WAITING_ROOM &&
-        isJoinDataFetched === true &&
-        data.isHost &&
-        !queryComplete) ||
-      //waiting room - attendee
-      ($config.ENABLE_WAITING_ROOM &&
-        isJoinDataFetched === true &&
-        !data.isHost &&
-        (!queryComplete || !isInWaitingRoom) &&
-        !waitingRoomAttendeeJoined)
-    ) {
-      setRtcProps(prevRtcProps => ({
-        ...prevRtcProps,
-        channel: data.channel,
-        uid: data.uid,
-        token: data.token,
-        rtm: data.rtmToken,
-        encryption: $config.ENCRYPTION_ENABLED
-          ? {
-              key: data.encryptionSecret,
-              mode: data.encryptionMode,
-              screenKey: data.encryptionSecret,
-              salt: data.encryptionSecretSalt,
-            }
-          : false,
-        screenShareUid: data.screenShareUid,
-        screenShareToken: data.screenShareToken,
-        role: data.isHost
-          ? ClientRoleType.ClientRoleBroadcaster
-          : ClientRoleType.ClientRoleAudience,
-        preventJoin:
-          !$config.ENABLE_WAITING_ROOM ||
-          ($config.ENABLE_WAITING_ROOM && data.isHost) ||
-          ($config.ENABLE_WAITING_ROOM &&
-            !data.isHost &&
-            waitingRoomStatus === WaitingRoomStatus.APPROVED)
-            ? false
-            : true,
-      }));
-
-      if (
-        $config.ENABLE_WAITING_ROOM &&
-        !data.isHost &&
-        waitingRoomStatus === WaitingRoomStatus.APPROVED
-      ) {
-        setWaitingRoomAttendeeJoined(true);
-      }
-      // 1. Store the display name from API
-      // if (data.username) {
-      //   setUsername(data.username);
-      // }
-      setQueryComplete(true);
-    }
-  }, [isJoinDataFetched, data, queryComplete]);
-
-  const callbacks: CallbacksInterface = {
-    // RtcLeft: () => {},
-    // RtcJoined: () => {
-    //   if (SdkJoinState.phrase && SdkJoinState.skipPrecall) {
-    //     SdkJoinState.promise?.res();
-    //   }
-    // },
-    EndCall: () => {
-      clearState('join');
-      setTimeout(() => {
-        // TODO: These callbacks are being called twice
-        SDKEvents.emit('leave');
-        if (afterEndCall) {
-          afterEndCall(data.isHost, history as unknown as History);
-        } else {
-          history.push('/');
-        }
-      }, 0);
-    },
-    UserJoined: (uid: UidType) => {
-      console.log('UIKIT Callback: UserJoined', uid);
-      SDKEvents.emit('rtc-user-joined', uid);
-    },
-    UserOffline: (uid: UidType) => {
-      console.log('UIKIT Callback: UserOffline', uid);
-      SDKEvents.emit('rtc-user-left', uid);
-    },
-    RemoteAudioStateChanged: (uid: UidType, status: 0 | 2) => {
-      console.log('UIKIT Callback: RemoteAudioStateChanged', uid, status);
-      if (status === 0) {
-        SDKEvents.emit('rtc-user-unpublished', uid, 'audio');
-      } else {
-        SDKEvents.emit('rtc-user-published', uid, 'audio');
-      }
-    },
-    RemoteVideoStateChanged: (uid: UidType, status: 0 | 2) => {
-      console.log('UIKIT Callback: RemoteVideoStateChanged', uid, status);
-      if (status === 0) {
-        SDKEvents.emit('rtc-user-unpublished', uid, 'video');
-      } else {
-        SDKEvents.emit('rtc-user-published', uid, 'video');
-      }
-    },
-    UserBanned(isBanned) {
-      console.log('UIKIT Callback: UserBanned', isBanned);
-      Toast.show({
-        leadingIconName: 'alert',
-        type: 'error',
-        text1: bannedUserText,
-        visibilityTime: 3000,
-      });
-    },
-  };
-
   return (
-    <>
-      {queryComplete ? (
-        queryComplete || !callActive ? (
-          <>
-            <PropsProvider
-              value={{
-                rtcProps: {
-                  ...rtcProps,
-                  callActive,
-                  // commented for v1 release
-                  //lifecycle,
-                },
-                callbacks,
-                styleProps,
-                mode: $config.EVENT_MODE
-                  ? ChannelProfileType.ChannelProfileLiveBroadcasting
-                  : ChannelProfileType.ChannelProfileCommunication,
-              }}>
-              <RtcConfigure>
-                <DeviceConfigure>
-                  <NoiseSupressionProvider callActive={callActive}>
-                    <VideoQualityContextProvider>
-                      <ChatUIControlsProvider>
-                        <ChatNotificationProvider>
-                          <LayoutProvider>
-                            <FocusProvider>
-                              <SidePanelProvider>
-                                <ChatMessagesProvider callActive={callActive}>
-                                  <ScreenShareProvider>
-                                    <RtmConfigure callActive={callActive}>
-                                      <UserPreferenceProvider
+    <PropsProvider
+      value={{
+        rtcProps: {
+          ...rtcProps,
+          callActive,
+          // commented for v1 release
+          //lifecycle,
+        },
+        callbacks,
+        styleProps,
+        mode: $config.EVENT_MODE
+          ? ChannelProfileType.ChannelProfileLiveBroadcasting
+          : ChannelProfileType.ChannelProfileCommunication,
+      }}>
+      <RtcConfigure>
+        <DeviceConfigure>
+          <NoiseSupressionProvider callActive={callActive}>
+            <VideoQualityContextProvider>
+              <ChatUIControlsProvider>
+                <ChatNotificationProvider>
+                  <LayoutProvider>
+                    <FocusProvider>
+                      <SidePanelProvider>
+                        <ChatMessagesProvider callActive={callActive}>
+                          <ScreenShareProvider>
+                            <RTMConfigureMainRoomProvider
+                              callActive={callActive}
+                              currentChannel={rtcProps.channel}>
+                              <RtmConfigure room={RTM_ROOMS.MAIN}>
+                                <UserPreferenceProvider callActive={callActive}>
+                                  <CaptionProvider>
+                                    <WaitingRoomProvider>
+                                      <EventsConfigure
+                                        setSttAutoStarted={setSttAutoStarted}
+                                        sttAutoStarted={sttAutoStarted}
                                         callActive={callActive}>
-                                        <CaptionProvider>
-                                          <WaitingRoomProvider>
-                                            <EventsConfigure
-                                              setSttAutoStarted={
-                                                setSttAutoStarted
-                                              }
-                                              sttAutoStarted={sttAutoStarted}
-                                              callActive={callActive}>
-                                              <ScreenshareConfigure
-                                                isRecordingActive={
-                                                  isRecordingActive
-                                                }>
-                                                <LiveStreamContextProvider
+                                        <ScreenshareConfigure
+                                          isRecordingActive={isRecordingActive}>
+                                          <LiveStreamContextProvider
+                                            value={{
+                                              setRtcProps,
+                                              rtcProps,
+                                              callActive,
+                                            }}>
+                                            <LiveStreamDataProvider>
+                                              <LocalUserContext
+                                                localUid={rtcProps?.uid}>
+                                                <RecordingProvider
                                                   value={{
-                                                    setRtcProps,
-                                                    rtcProps,
+                                                    setRecordingActive,
+                                                    isRecordingActive,
                                                     callActive,
+                                                    recordingAutoStarted,
+                                                    setRecordingAutoStarted,
                                                   }}>
-                                                  <LiveStreamDataProvider>
-                                                    <LocalUserContext
-                                                      localUid={rtcProps?.uid}>
-                                                      <RecordingProvider
-                                                        value={{
-                                                          setRecordingActive,
-                                                          isRecordingActive,
-                                                          callActive,
-                                                          recordingAutoStarted,
-                                                          setRecordingAutoStarted,
-                                                        }}>
-                                                        <NetworkQualityProvider>
-                                                          {!isMobileUA() && (
-                                                            <PermissionHelper />
-                                                          )}
-                                                          <UserActionMenuProvider>
-                                                            <VBProvider>
-                                                              <BeautyEffectProvider>
-                                                                <PrefereceWrapper
-                                                                  callActive={
-                                                                    callActive
-                                                                  }
-                                                                  setCallActive={
-                                                                    setCallActive
-                                                                  }>
-                                                                  <SdkMuteToggleListener>
-                                                                    {callActive ? (
-                                                                      <VideoMeetingDataProvider>
-                                                                        <VideoCallProvider>
-                                                                          <DisableChatProvider>
-                                                                            <VideoCallScreenWrapper />
-                                                                          </DisableChatProvider>
-                                                                        </VideoCallProvider>
-                                                                      </VideoMeetingDataProvider>
-                                                                    ) : $config.PRECALL ? (
-                                                                      <PreCallProvider
-                                                                        value={{
-                                                                          callActive,
-                                                                          setCallActive,
-                                                                        }}>
-                                                                        <Precall />
-                                                                      </PreCallProvider>
-                                                                    ) : (
-                                                                      <></>
-                                                                    )}
-                                                                  </SdkMuteToggleListener>
-                                                                </PrefereceWrapper>
-                                                              </BeautyEffectProvider>
-                                                            </VBProvider>
-                                                          </UserActionMenuProvider>
-                                                        </NetworkQualityProvider>
-                                                      </RecordingProvider>
-                                                    </LocalUserContext>
-                                                  </LiveStreamDataProvider>
-                                                </LiveStreamContextProvider>
-                                              </ScreenshareConfigure>
-                                            </EventsConfigure>
-                                          </WaitingRoomProvider>
-                                        </CaptionProvider>
-                                      </UserPreferenceProvider>
-                                    </RtmConfigure>
-                                  </ScreenShareProvider>
-                                </ChatMessagesProvider>
-                              </SidePanelProvider>
-                            </FocusProvider>
-                          </LayoutProvider>
-                        </ChatNotificationProvider>
-                      </ChatUIControlsProvider>
-                    </VideoQualityContextProvider>
-                  </NoiseSupressionProvider>
-                </DeviceConfigure>
-              </RtcConfigure>
-            </PropsProvider>
-          </>
-        ) : (
-          <View style={style.loader}>
-            <View style={style.loaderLogo}>{hasBrandLogo() && <Logo />}</View>
-            <Text style={style.loaderText}>{joiningLoaderLabel}</Text>
-          </View>
-        )
-      ) : (
-        <></>
-      )}
-    </>
+                                                  <NetworkQualityProvider>
+                                                    {!isMobileUA() && (
+                                                      <PermissionHelper />
+                                                    )}
+                                                    <UserActionMenuProvider>
+                                                      <VBProvider>
+                                                        <BeautyEffectProvider>
+                                                          {/* <PrefereceWrapper
+                                                                    callActive={
+                                                                      callActive
+                                                                    }
+                                                                    setCallActive={
+                                                                      setCallActive
+                                                                    }> */}
+                                                          <SdkMuteToggleListener>
+                                                            {callActive ? (
+                                                              <VideoMeetingDataProvider>
+                                                                <VideoCallProvider>
+                                                                  <DisableChatProvider>
+                                                                    <RaiseHandProvider>
+                                                                      <BreakoutRoomProvider
+                                                                        mainChannel={
+                                                                          rtcProps.channel
+                                                                        }
+                                                                        handleLeaveBreakout={
+                                                                          null
+                                                                        }>
+                                                                        <BreakoutRoomEventsConfigure
+                                                                          mainChannelName={
+                                                                            rtcProps.channel
+                                                                          }>
+                                                                          <VideoCallScreenWrapper />
+                                                                        </BreakoutRoomEventsConfigure>
+                                                                      </BreakoutRoomProvider>
+                                                                    </RaiseHandProvider>
+                                                                  </DisableChatProvider>
+                                                                </VideoCallProvider>
+                                                              </VideoMeetingDataProvider>
+                                                            ) : $config.PRECALL ? (
+                                                              <PreCallProvider
+                                                                value={{
+                                                                  callActive,
+                                                                  setCallActive,
+                                                                }}>
+                                                                <Precall />
+                                                              </PreCallProvider>
+                                                            ) : (
+                                                              <></>
+                                                            )}
+                                                          </SdkMuteToggleListener>
+                                                          {/* </PrefereceWrapper> */}
+                                                        </BeautyEffectProvider>
+                                                      </VBProvider>
+                                                    </UserActionMenuProvider>
+                                                  </NetworkQualityProvider>
+                                                </RecordingProvider>
+                                              </LocalUserContext>
+                                            </LiveStreamDataProvider>
+                                          </LiveStreamContextProvider>
+                                        </ScreenshareConfigure>
+                                      </EventsConfigure>
+                                    </WaitingRoomProvider>
+                                  </CaptionProvider>
+                                </UserPreferenceProvider>
+                              </RtmConfigure>
+                            </RTMConfigureMainRoomProvider>
+                          </ScreenShareProvider>
+                        </ChatMessagesProvider>
+                      </SidePanelProvider>
+                    </FocusProvider>
+                  </LayoutProvider>
+                </ChatNotificationProvider>
+              </ChatUIControlsProvider>
+            </VideoQualityContextProvider>
+          </NoiseSupressionProvider>
+        </DeviceConfigure>
+      </RtcConfigure>
+    </PropsProvider>
   );
 };
 
-const styleProps = {
-  maxViewStyles: styles.temp,
-  minViewStyles: styles.temp,
-  localBtnContainer: styles.bottomBar,
-  localBtnStyles: {
-    muteLocalAudio: styles.localButton,
-    muteLocalVideo: styles.localButton,
-    switchCamera: styles.localButton,
-    endCall: styles.endCall,
-    fullScreen: styles.localButton,
-    recording: styles.localButton,
-    screenshare: styles.localButton,
-  },
-  theme: $config.PRIMARY_ACTION_BRAND_COLOR,
-  remoteBtnStyles: {
-    muteRemoteAudio: styles.remoteButton,
-    muteRemoteVideo: styles.remoteButton,
-    remoteSwap: styles.remoteButton,
-    minCloseBtnStyles: styles.minCloseBtn,
-    liveStreamHostControlBtns: styles.liveStreamHostControlBtns,
-  },
-  BtnStyles: styles.remoteButton,
-};
 //change these to inline styles or sth
-const style = StyleSheet.create({
-  full: {
-    flex: 1,
-    flexDirection: 'column',
-    overflow: 'hidden',
-  },
-  videoView: videoView,
-  loader: {
-    flex: 1,
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
-  loaderLogo: {
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginBottom: 30,
-  },
-  loaderText: {fontWeight: '500', color: $config.FONT_COLOR},
-});
+// const style = StyleSheet.create({
+//   full: {
+//     flex: 1,
+//     flexDirection: 'column',
+//     overflow: 'hidden',
+//   },
+//   videoView: videoView,
+//   loader: {
+//     flex: 1,
+//     alignSelf: 'center',
+//     justifyContent: 'center',
+//   },
+//   loaderLogo: {
+//     alignSelf: 'center',
+//     justifyContent: 'center',
+//     marginBottom: 30,
+//   },
+//   loaderText: {fontWeight: '500', color: $config.FONT_COLOR},
+// });
 
 export default VideoCall;

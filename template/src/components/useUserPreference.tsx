@@ -67,7 +67,7 @@ const UserPreferenceProvider = (props: {
   const {dispatch} = useContext(DispatchContext);
   const [uids, setUids] = useState({});
   const {store, setStore} = useContext(StorageContext);
-  const {hasUserJoinedRTM} = useContext(ChatContext);
+  const {hasUserJoinedRTM, syncUserState} = useContext(ChatContext);
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [displayName, setDisplayName] = useState(getInitialUsername());
@@ -91,7 +91,12 @@ const UserPreferenceProvider = (props: {
           );
           const keys = Object.keys(users);
           if (users && keys && keys?.length) {
-            updateRenderListState(screenShareUidToUpdate, {
+            //  updateRenderListState(screenShareUidToUpdate, {
+            //   name: getScreenShareName(
+            //     users[parseInt(keys[0])]?.name || userText,
+            //   ),
+            // });
+            syncUserState(screenShareUidToUpdate, {
               name: getScreenShareName(
                 users[parseInt(keys[0])]?.name || userText,
               ),
@@ -111,7 +116,13 @@ const UserPreferenceProvider = (props: {
       const value = JSON.parse(data?.payload);
       if (value) {
         if (value?.uid) {
-          updateRenderListState(value?.uid, {
+          //  updateRenderListState(value?.uid, {
+          //   name:
+          //     String(value?.uid)[0] === '1'
+          //       ? pstnUserLabel
+          //       : value?.name || userText,
+          // });
+          syncUserState(value?.uid, {
             name:
               String(value?.uid)[0] === '1'
                 ? pstnUserLabel
@@ -142,7 +153,11 @@ const UserPreferenceProvider = (props: {
           }
         }
         if (value?.screenShareUid) {
-          updateRenderListState(value?.screenShareUid, {
+          //  updateRenderListState(value?.screenShareUid, {
+          //   name: getScreenShareName(value?.name || userText),
+          //   type: 'screenshare',
+          // });
+          syncUserState(value?.screenShareUid, {
             name: getScreenShareName(value?.name || userText),
             type: 'screenshare',
           });
@@ -164,11 +179,17 @@ const UserPreferenceProvider = (props: {
     });
 
     //update local state for user and screenshare
-    updateRenderListState(localUid, {name: displayName || userText});
-    updateRenderListState(screenShareUid, {
+    //  updateRenderListState(localUid, {name: displayName || userText});
+    // updateRenderListState(screenShareUid, {
+    //   name: getScreenShareName(displayName || userText),
+    //   type: 'screenshare',
+    // });
+    syncUserState(localUid, {name: displayName || userText});
+    syncUserState(screenShareUid, {
       name: getScreenShareName(displayName || userText),
       type: 'screenshare',
     });
+    console.log('user-attribute name check displayName 1', displayName);
 
     if (hasUserJoinedRTM && callActive) {
       //set local uids
@@ -181,9 +202,14 @@ const UserPreferenceProvider = (props: {
           },
         };
       });
+      console.log('user-attribute name check displayName 2', displayName);
+
+      syncUserState(localUid, {name: displayName || userText});
     }
 
     if (hasUserJoinedRTM) {
+      console.log('user-attribute name check displayName 3', displayName);
+
       //update remote state for user and screenshare
       events.send(
         EventNames.NAME_ATTRIBUTE,
@@ -199,12 +225,13 @@ const UserPreferenceProvider = (props: {
     }
   }, [displayName, hasUserJoinedRTM, callActive, isHost]);
 
-  const updateRenderListState = (
-    uid: number,
-    data: Partial<ContentInterface>,
-  ) => {
-    dispatch({type: 'UpdateRenderList', value: [uid, data]});
-  };
+  // Below method is now replaced with syncUserState
+  // const updateRenderListState = (
+  //   uid: number,
+  //   data: Partial<ContentInterface>,
+  // ) => {
+  //   dispatch({type: 'UpdateRenderList', value: [uid, data]});
+  // };
 
   return (
     <UserPreferenceContext.Provider

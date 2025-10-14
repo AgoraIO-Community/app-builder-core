@@ -9,8 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import RtmEngine from 'agora-react-native-rtm';
-import {UidType} from '../../agora-rn-uikit';
+import {type RTMClient} from 'agora-react-native-rtm';
+import {UidType, ContentInterface} from '../../agora-rn-uikit';
+import {RTMUserPreferences} from '../rtm/RTMGlobalStateProvider';
 import {createContext, SetStateAction} from 'react';
 
 import {ChatMessageType, Reaction} from './chat-messages/useChatMessages';
@@ -89,9 +90,10 @@ export interface RtmContextInterface {
   isInitialQueueCompleted: boolean;
   hasUserJoinedRTM: boolean;
   rtmInitTimstamp: number;
-  engine: RtmEngine;
+  engine: RTMClient;
   localUid: UidType;
   onlineUsersCount: number;
+  syncUserState: (uid: number, data: Partial<ContentInterface>) => void;
 }
 
 export enum controlMessageEnum {

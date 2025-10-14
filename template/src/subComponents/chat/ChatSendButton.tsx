@@ -71,6 +71,7 @@ export const handleChatSend = ({
     return;
   }
 
+  // Text message sent update sender side ui
   const sendTextMessage = () => {
     const option = {
       chatType: selectedUserId

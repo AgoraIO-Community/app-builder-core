@@ -91,6 +91,7 @@ const DefaultConfig = {
   ENABLE_WAITING_ROOM_AUTO_APPROVAL: false,
   ENABLE_WAITING_ROOM_AUTO_REQUEST: false,
   ENABLE_TEXT_TRACKS: false,
+  ENABLE_BREAKOUT_ROOM: false,
 };
 
 module.exports = DefaultConfig;

@@ -72,7 +72,7 @@ export const CaptionContext = React.createContext<{
 });
 
 interface CaptionProviderProps {
-  callActive: boolean;
+  callActive?: boolean;
   children: React.ReactNode;
 }
 

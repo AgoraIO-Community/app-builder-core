@@ -18,6 +18,7 @@ import {isMobileUA} from '../../utils/common';
 import {retrieveImagesFromStorage} from './VButils';
 import imagePathsArray from './imagePaths';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {useRtm} from '../ChatContext';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -120,6 +121,8 @@ const VBProvider: React.FC = ({children}) => {
   const {video: localVideoStatus} = useLocalUserInfo();
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 
+  const {syncUserPreferences} = useRtm();
+
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
@@ -160,6 +163,21 @@ const VBProvider: React.FC = ({children}) => {
         break;
     }
   }, [vbMode, selectedImage, saveVB, previewVideoTrack, isLocalVideoON]);
+
+  /* Sync VB preferences to RTM (only saves in main room) */
+  React.useEffect(() => {
+    try {
+      syncUserPreferences({
+        virtualBackground: {
+          type:
+            vbMode === 'blur' ? 'blur' : vbMode === 'image' ? 'image' : 'none',
+          ...(vbMode === 'image' && selectedImage && {imageUrl: selectedImage}),
+        },
+      });
+    } catch (error) {
+      console.warn('Failed to sync VB preference:', error);
+    }
+  }, [vbMode, selectedImage, syncUserPreferences]);
 
   /* Fetch Saved Images from IndexDB to show in VBPanel */
   React.useEffect(() => {

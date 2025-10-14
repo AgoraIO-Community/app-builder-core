@@ -46,6 +46,11 @@ interface ChatMessagesProviderProps {
   children: React.ReactNode;
   callActive: boolean;
 }
+
+export enum ChatNotificationType {
+  ANNOUNCEMENT = 'ANNOUNCEMENT',
+}
+
 export enum ChatMessageType {
   /**
    * Text message.
@@ -85,6 +90,10 @@ export enum ChatMessageType {
   COMBINE = 'combine',
 }
 
+export interface AnnouncementMessage {
+  sender: string;
+  heading: string;
+}
 export interface messageInterface {
   createdTimestamp: number;
   updatedTimestamp?: number;
@@ -99,6 +108,7 @@ export interface messageInterface {
   reactions?: Reaction[];
   replyToMsgId?: string;
   hide?: boolean;
+  announcement?: AnnouncementMessage;
 }
 
 export enum SDKChatType {
@@ -122,6 +132,7 @@ export interface ChatOption {
     channel?: string;
     msg?: string;
     replyToMsgId?: string;
+    announcement?: AnnouncementMessage;
   };
   url?: string;
 }
@@ -178,6 +189,8 @@ interface ChatMessagesInterface {
     uid: string,
     isPrivateMessage?: boolean,
     msgType?: ChatMessageType,
+    forceStop?: boolean,
+    notificationType?: ChatNotificationType,
   ) => void;
   openPrivateChat: (toUid: UidType) => void;
   removeMessageFromStore: (msgId: string, isMsgRecalled: boolean) => void;
@@ -277,11 +290,20 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
-  const fromText = (name: string, msgType: ChatMessageType) => {
+  const fromText = (
+    name: string,
+    msgType: ChatMessageType,
+    announcement?: AnnouncementText,
+  ) => {
     let text = '';
     switch (msgType) {
       case ChatMessageType.TXT:
-        text = txtToastHeading?.current(name);
+        if (announcement?.text) {
+          text = `${announcement.sender}: made an announcement in public chat`;
+        } else {
+          text = txtToastHeading?.current(name);
+        }
+
         break;
       case ChatMessageType.IMAGE:
         text = imgToastHeading?.current(name);
@@ -329,12 +351,15 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   //TODO: check why need
 
-  const updateRenderListState = (
-    uid: number,
-    data: Partial<ContentInterface>,
-  ) => {
-    dispatch({type: 'UpdateRenderList', value: [uid, data]});
-  };
+  // If this is needed use syncUserState
+  //
+  // const updateRenderListState = (
+  //   uid: number,
+  //   data: Partial<ContentInterface>,
+  // ) => {
+  //   dispatch({type: 'UpdateRenderList', value: [uid, data]});
+  // };
+  //
 
   const addMessageToStore = (uid: UidType, body: messageInterface) => {
     setMessageStore((m: messageStoreInterface[]) => {
@@ -353,6 +378,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           fileName: body?.fileName,
           replyToMsgId: body?.replyToMsgId,
           hide: false,
+          announcement: body?.announcement,
         },
       ];
     });
@@ -520,6 +546,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     isPrivateMessage: boolean = false,
     msgType: ChatMessageType,
     forceStop: boolean = false,
+    announcement: AnnouncementMessage,
   ) => {
     if (isUserBanedRef.current.isUserBaned) {
       return;
@@ -684,17 +711,22 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         primaryBtn: null,
         secondaryBtn: null,
         type: 'info',
-        leadingIconName: 'chat-nav',
-        text1: isPrivateMessage
+        leadingIconName: announcement ? 'announcement' : 'chat-nav',
+        text1: announcement
+          ? announcement.heading
+          : isPrivateMessage
           ? privateMessageLabel?.current()
           : //@ts-ignore
-          defaultContentRef.current.defaultContent[uidAsNumber]?.name
+          announcement?.sender
+          ? announcement.sender
+          : defaultContentRef.current.defaultContent[uidAsNumber]?.name
           ? fromText(
               trimText(
                 //@ts-ignore
                 defaultContentRef.current.defaultContent[uidAsNumber]?.name,
               ),
               msgType,
+              announcement,
             )
           : '',
         text2: isPrivateMessage

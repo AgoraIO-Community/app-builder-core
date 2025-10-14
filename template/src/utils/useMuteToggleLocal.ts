@@ -86,14 +86,16 @@ function useMuteToggleLocal() {
                   );
 
               // Enable UI
+              const newAudioState =
+                localAudioState === ToggleState.enabled
+                  ? ToggleState.disabled
+                  : ToggleState.enabled;
+
               dispatch({
                 type: 'LocalMuteAudio',
-                value: [
-                  localAudioState === ToggleState.enabled
-                    ? ToggleState.disabled
-                    : ToggleState.enabled,
-                ],
+                value: [newAudioState],
               });
+
               handleQueue();
             } catch (e) {
               dispatch({
@@ -152,14 +154,16 @@ function useMuteToggleLocal() {
                 );
               }
               // Enable UI
+              const newVideoState =
+                localVideoState === ToggleState.enabled
+                  ? ToggleState.disabled
+                  : ToggleState.enabled;
+
               dispatch({
                 type: 'LocalMuteVideo',
-                value: [
-                  localVideoState === ToggleState.enabled
-                    ? ToggleState.disabled
-                    : ToggleState.enabled,
-                ],
+                value: [newVideoState],
               });
+
               handleQueue();
             } catch (e) {
               dispatch({

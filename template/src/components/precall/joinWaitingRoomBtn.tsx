@@ -45,6 +45,7 @@ import {
   waitingRoomHostNotJoined,
   waitingRoomUsersInCall,
 } from '../../language/default-labels/videoCallScreenLabels';
+import ChatContext from '../ChatContext';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -84,7 +85,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   const localUid = useLocalUid();
   const {dispatch} = useContext(DispatchContext);
-
+  const {syncUserState} = useContext(ChatContext);
   const [buttonText, setButtonText] = React.useState(
     waitingRoomButton({
       ready: isInWaitingRoom,
@@ -144,10 +145,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
       if (callActive) return;
       // on approve/reject response from host, waiting room permission is reset
       // update waitinng room status on uid
-      dispatch({
-        type: 'UpdateRenderList',
-        value: [localUid, {isInWaitingRoom: false}],
-      });
+      // dispatch({
+      //   type: 'UpdateRenderList',
+      //   value: [localUid, {isInWaitingRoom: false}],
+      // });
+      syncUserState(localUid, {isInWaitingRoom: false});
 
       if (approved) {
         setRoomInfo(prev => {
@@ -241,10 +243,12 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     //setCallActive(true);
 
     // add the waitingRoomStatus to the uid
-    dispatch({
-      type: 'UpdateRenderList',
-      value: [localUid, {isInWaitingRoom: true}],
-    });
+    // dispatch({
+    //   type: 'UpdateRenderList',
+    //   value: [localUid, {isInWaitingRoom: true}],
+    // });
+    syncUserState(localUid, {isInWaitingRoom: true});
+
     // Enter waiting rooom;
     setRoomInfo(prev => {
       return {...prev, isInWaitingRoom: true};
@@ -281,7 +285,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const title = buttonText;
   const onPress = () => onSubmit();
   const disabled = $config.ENABLE_WAITING_ROOM_AUTO_REQUEST
-    ? !hasHostJoined || isInWaitingRoom ||  username?.trim() === ''
+    ? !hasHostJoined || isInWaitingRoom || username?.trim() === ''
     : isInWaitingRoom || username?.trim() === '';
   return props?.render ? (
     props.render(onPress, title, disabled)
