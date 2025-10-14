@@ -118,23 +118,26 @@ export const formatTranscriptContent = (
   meetingTranscript: TranscriptItem[],
   meetingTitle: string,
   defaultContent: ContentObjects,
-  selectedTranslationLanguage?: string,
 ) => {
-  // Helper function to get display text based on translation selection
+  // Helper function to get display text based on stored translation language
+  // Uses the translation language that was active when this transcript item was created
   const getDisplayText = (item: TranscriptItem): string => {
-    if (!selectedTranslationLanguage || !item.translations) {
+    // Use the stored translation language from when this item was created
+    const storedTranslationLanguage = item.selectedTranslationLanguage;
+
+    if (!storedTranslationLanguage || !item.translations) {
       return item.text; // no translation selected or no translations available, show original
     }
 
-    // find translation for selected language
+    // find translation for the stored language
     const currentTranslation = item.translations.find(
-      t => t.lang === selectedTranslationLanguage,
+      t => t.lang === storedTranslationLanguage,
     );
     if (currentTranslation?.text) {
       return currentTranslation.text;
     }
 
-    // if selected language not available, show original
+    // if stored language not available, show original
     return item.text;
   };
 

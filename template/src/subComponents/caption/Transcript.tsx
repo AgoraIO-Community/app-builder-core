@@ -135,6 +135,7 @@ const Transcript = (props: TranscriptProps) => {
         value={item.text}
         translations={item.translations}
         searchQuery={searchQuery}
+        selectedTranslationLanguage={item.selectedTranslationLanguage}
       />
     );
   };
