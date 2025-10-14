@@ -47,39 +47,56 @@ class RTMEngine {
   /** Sets UID and initializes the client if needed */
   setLocalUID(localUID: string | number) {
     if (localUID == null) {
-      throw new Error('setLocalUID: localUID cannot be null or undefined');
+      throw new Error(
+        '[RTMEngine] setLocalUID: localUID cannot be null or undefined',
+      );
     }
     const newUID = String(localUID).trim();
     if (!newUID) {
-      throw new Error('setLocalUID: localUID cannot be empty');
+      throw new Error('[RTMEngine] setLocalUID: localUID cannot be empty');
     }
     if (this._engine && this.localUID !== newUID) {
       throw new Error(
-        `Cannot change UID from '${this.localUID}' to '${newUID}'. Call destroy() first.`,
+        `[RTMEngine] setLocalUID: Cannot change UID from '${this.localUID}' to '${newUID}'. Call destroy() first.`,
       );
     }
     this.localUID = newUID;
     if (!this._engine) {
+      console.info(
+        `[RTMEngine] setLocalUID: Initializing client for UID: ${this.localUID}`,
+      );
       this.createClientInstance();
+    } else {
+      console.info(
+        `[RTMEngine] setLocalUID: UID already initialized: ${this.localUID}`,
+      );
     }
   }
 
   addChannel(name: string, channelID: string) {
     if (!name || typeof name !== 'string' || name.trim() === '') {
-      throw new Error('addChannel: name must be a non-empty string');
+      throw new Error(
+        '[RTMEngine] addChannel: name must be a non-empty string',
+      );
     }
     if (
       !channelID ||
       typeof channelID !== 'string' ||
       channelID.trim() === ''
     ) {
-      throw new Error('addChannel: channelID must be a non-empty string');
+      throw new Error(
+        '[RTMEngine] addChannel: channelID must be a non-empty string',
+      );
     }
+    console.info(
+      `[RTMEngine] addChannel: Added channel '${name}' → ${channelID}`,
+    );
     this.channelMap.set(name, channelID);
     this.setActiveChannelName(name);
   }
 
   removeChannel(name: string) {
+    console.info(`[RTMEngine] removeChannel: Removing channel '${name}'`);
     this.channelMap.delete(name);
   }
 
@@ -90,7 +107,6 @@ class RTMEngine {
   getChannelId(name?: string): string {
     // Default to active channel if no name provided
     const channelName = name || this.activeChannelName;
-    console.log('supriya channelName: ', this.channelMap.get(channelName));
     return this.channelMap.get(channelName) || '';
   }
 
@@ -111,16 +127,20 @@ class RTMEngine {
   /** Set the active channel for default operations */
   setActiveChannelName(name: string): void {
     if (!name || typeof name !== 'string' || name.trim() === '') {
-      throw new Error('setActiveChannel: name must be a non-empty string');
+      throw new Error(
+        '[RTMEngine] setActiveChannelName: name must be a non-empty string',
+      );
     }
     if (!this.hasChannel(name)) {
       throw new Error(
-        `setActiveChannel: Channel '${name}' not found. Add it first with addChannel().`,
+        `[RTMEngine] setActiveChannelName: Channel '${name}' not found. Add it first with addChannel().`,
       );
     }
     this.activeChannelName = name;
-    console.log(
-      `RTMEngine: Active channel set to '${name}' (${this.getChannelId(name)})`,
+    console.info(
+      `[RTMEngine] setActiveChannelName: Active channel set → '${name}' (${this.getChannelId(
+        name,
+      )})`,
     );
   }
 
@@ -152,7 +172,9 @@ class RTMEngine {
 
   private ensureEngineReady() {
     if (!this.isEngineReady) {
-      throw new Error('RTM Engine not ready. Call setLocalUID() first.');
+      throw new Error(
+        '[RTMEngine] ensureEngineReady: not ready. Call setLocalUID() first.',
+      );
     }
   }
 
@@ -160,23 +182,30 @@ class RTMEngine {
   private createClientInstance() {
     try {
       if (!this.localUID || this.localUID.trim() === '') {
-        throw new Error('Cannot create RTM client: localUID is not set');
+        throw new Error(
+          '[RTMEngine] createClientInstance: Cannot create RTM client: localUID is not set',
+        );
       }
       if (!$config.APP_ID) {
-        throw new Error('Cannot create RTM client: APP_ID is not configured');
+        throw new Error(
+          '[RTMEngine] createClientInstance: Cannot create RTM client: APP_ID is not configured',
+        );
       }
       const rtmConfig = new RtmConfig({
         appId: $config.APP_ID,
         userId: this.localUID,
       });
       this._engine = createAgoraRtmClient(rtmConfig);
+      console.info(
+        `[RTMEngine] createClientInstance: RTM client created for UID: ${this.localUID}`,
+      );
     } catch (error) {
       const contextError = new Error(
-        `Failed to create RTM client instance for userId: ${
+        `[RTMEngine] createClientInstance: Failed to create RTM client instance for userId: ${
           this.localUID
         }, appId: ${$config.APP_ID}. Error: ${error.message || error}`,
       );
-      console.error('RTMEngine createClientInstance error:', contextError);
+      console.error('[RTMEngine] createClientInstance: error:', contextError);
       throw contextError;
     }
   }
@@ -185,68 +214,97 @@ class RTMEngine {
     if (!this._engine) {
       return;
     }
-    console.log('supriya-rtm-lifecycle unsubscribing from all channel');
+    console.group(
+      `[RTMEngine] destroyClientInstance: Destroying client for UID: ${this.localUID}`,
+    );
+    console.info(
+      '[RTMEngine] destroyClientInstance: Unsubscribing from channels:',
+      this.allChannelIds,
+    );
 
     // 1. Unsubscribe from all tracked channels
     for (const channel of this.allChannelIds) {
-      console.log('supriya-stt channel: ', channel);
       try {
         await this._engine.unsubscribe(channel);
+        console.info(
+          `[RTMEngine] destroyClientInstance: Unsubscribed from ${channel}`,
+        );
       } catch (err) {
-        console.warn(`Failed to unsubscribe from '${channel}':`, err);
+        console.warn(
+          `[RTMEngine] destroyClientInstance: Unsubscribe failed: ${channel}`,
+          err,
+        );
       }
     }
     // 2. Remove user metadata
     try {
-      console.log('supriya-rtm-lifecycle removing user metadata');
       await this._engine?.storage.removeUserMetadata();
+      console.info('[RTMEngine] destroyClientInstance: User metadata removed');
     } catch (err) {
-      console.warn('Failed to remove user metadata:', err);
+      console.warn(
+        '[RTMEngine] destroyClientInstance: Failed to remove user metadata',
+        err,
+      );
     }
 
     // 3. Remove all listeners
     try {
-      console.log('supriya-rtm-lifecycle remove all listeners ');
       this._engine.removeAllListeners?.();
-    } catch {
-      console.warn('Failed to remove listeners:');
+      console.info('[RTMEngine] destroyClientInstance: All listeners removed');
+    } catch (err) {
+      console.warn(
+        '[RTMEngine] destroyClientInstance: Failed to remove listeners',
+        err,
+      );
     }
 
     // 4. Logout and release resources
     try {
       await this._engine.logout();
-      console.log('supriya-rtm-lifecycle logged out ');
+      console.info(
+        '[RTMEngine] destroyClientInstance: Logged out successfully',
+      );
       if (isAndroid() || isIOS()) {
         this._engine.release();
+        console.info(
+          '[RTMEngine] destroyClientInstance: Released native resources',
+        );
       }
     } catch (logoutErrorState) {
       // Logout of Signaling
       const {operation, reason, errorCode} = logoutErrorState;
       console.log(
-        `${operation} supriya-rtm-lifecycle logged out failed, the error code is ${errorCode}, because of: ${reason}.`,
+        `[RTMEngine] destroyClientInstance: ${operation}  logged out failed, the error code is ${errorCode}, because of: ${reason}.`,
       );
-      console.warn('RTM logout/release failed:', logoutErrorState);
+      console.warn(
+        '[RTMEngine] destroyClientInstance: Logout/release failed',
+        logoutErrorState,
+      );
     }
   }
 
   /** Fully destroy the singleton and cleanup */
   public async destroy() {
     try {
+      console.info(
+        `[RTMEngine] destroy:  Destroy called for UID: ${this.localUID}`,
+      );
       if (!this._engine) {
         return;
       }
       await this.destroyClientInstance();
-      console.log('supriya-rtm-lifecycle destruction completed ');
+      console.info('[RTMEngine] destroy: Cleanup complete');
 
+      console.info('[RTMEngine] destroy: clearing channels', this.channelMap);
       this.channelMap.clear();
       // Reset state
       this.localUID = '';
       this.activeChannelName = RTM_ROOMS.MAIN;
       this._engine = undefined;
       RTMEngine._instance = null;
-      console.log('supriya-rtm-lifecycle setting engine instance as null');
+      console.info('[RTMEngine] destroy: Singleton reset');
     } catch (error) {
-      console.error('Error destroying RTM instance:', error);
+      console.error('[RTMEngine] destroy: Error during destroy:', error);
       // Don't re-throw - destruction should be a best-effort cleanup
       // Re-throwing could prevent proper cleanup in calling code
     }
