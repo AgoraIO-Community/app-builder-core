@@ -13,6 +13,9 @@ export type TranscriptItem = {
   time: number;
   text: string;
   translations?: TranslationItem[];
+  // Stores which translation language was active when this transcript was created
+  // This preserves historical context when users switch translation languages mid-meeting
+  selectedTranslationLanguage?: string;
 };
 
 type CaptionObj = {
@@ -65,6 +68,8 @@ export const CaptionContext = React.createContext<{
 
   selectedTranslationLanguage: string;
   setSelectedTranslationLanguage: React.Dispatch<React.SetStateAction<string>>;
+  // Ref for translation language - prevents stale closures in callbacks
+  selectedTranslationLanguageRef: React.MutableRefObject<string>;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -88,6 +93,7 @@ export const CaptionContext = React.createContext<{
   prevSpeakerRef: {current: ''},
   selectedTranslationLanguage: '',
   setSelectedTranslationLanguage: () => {},
+  selectedTranslationLanguageRef: {current: ''},
 });
 
 interface CaptionProviderProps {
@@ -121,6 +127,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
+  const selectedTranslationLanguageRef = React.useRef('');
 
   return (
     <CaptionContext.Provider
@@ -147,6 +154,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         prevSpeakerRef,
         selectedTranslationLanguage,
         setSelectedTranslationLanguage,
+        selectedTranslationLanguageRef,
       }}>
       {children}
     </CaptionContext.Provider>

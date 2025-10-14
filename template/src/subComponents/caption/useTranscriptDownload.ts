@@ -6,7 +6,7 @@ import {LogSource, logger} from '../../logger/AppBuilderLogger';
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
 } => {
-  const {meetingTranscript, selectedTranslationLanguage} = useCaption();
+  const {meetingTranscript} = useCaption();
 
   const {defaultContent} = useContent();
   const {
@@ -20,7 +20,6 @@ const useTranscriptDownload = (): {
           meetingTranscript,
           meetingTitle,
           defaultContent,
-          selectedTranslationLanguage,
         );
 
         // blob with required content

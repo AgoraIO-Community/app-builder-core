@@ -52,6 +52,9 @@ const useSTTAPI = (): IuseSTTAPI => {
     setLanguage,
     setMeetingTranscript,
     setIsSTTError,
+    setSelectedTranslationLanguage,
+    // Ref to track translation language - updated synchronously to avoid race conditions
+    selectedTranslationLanguageRef,
   } = useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
@@ -379,10 +382,18 @@ const useSTTAPI = (): IuseSTTAPI => {
           res,
         );
         setIsSTTError(false);
-        
+
         // If language was updated, update local state
         if (params.lang) {
           setLanguage(params.lang);
+        }
+
+        // If translation language was updated, update local state and ref
+        if (params.isTranslationChange && params.userSelectedTranslation !== undefined) {
+          setSelectedTranslationLanguage(params.userSelectedTranslation);
+          // Update ref immediately to prevent race conditions
+          // This ensures callbacks see the updated value right away, before state updates
+          selectedTranslationLanguageRef.current = params.userSelectedTranslation;
         }
 
         // Send RTM message for translation config sync

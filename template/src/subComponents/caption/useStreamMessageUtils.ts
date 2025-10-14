@@ -25,6 +25,9 @@ const useStreamMessageUtils = (): {
     setMeetingTranscript,
     activeSpeakerRef,
     prevSpeakerRef,
+    // Use ref instead of state to avoid stale closure issues
+    // The ref always has the current value, even in callbacks created at mount time
+    selectedTranslationLanguageRef,
   } = useCaption();
 
   let captionStartTime: number = 0;
@@ -240,6 +243,8 @@ const useStreamMessageUtils = (): {
               //text: lastTranscript.text + ' ' + currentFinalText, // missing few updates with reading prev values
               text: finalTranscriptList[textstream.uid].join(' '),
               translations: finalTranslationsForTranscript,
+              // preserve the original translation language from when this transcript was created
+              selectedTranslationLanguage: lastTranscript.selectedTranslationLanguage,
             };
 
             return [
@@ -256,6 +261,9 @@ const useStreamMessageUtils = (): {
                 time: new Date().getTime(),
                 text: currentFinalText,
                 translations: finalTranslationsForTranscript,
+                // Store the current translation language with this transcript item
+                // This preserves which translation was active when this text was spoken
+                selectedTranslationLanguage: selectedTranslationLanguageRef.current,
               },
             ];
           }
