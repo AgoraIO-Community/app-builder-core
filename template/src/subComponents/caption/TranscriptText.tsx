@@ -4,7 +4,6 @@ import React from 'react';
 import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {formatTime} from './utils';
-import {useCaption} from './useCaption';
 
 type TranslationItem = {
   lang: string;
@@ -18,6 +17,7 @@ interface TranscriptTextProps {
   value: string;
   translations?: TranslationItem[];
   searchQuery?: string;
+  selectedTranslationLanguage?: string;
 }
 
 export const TranscriptText = ({
@@ -26,36 +26,30 @@ export const TranscriptText = ({
   value,
   translations = [],
   searchQuery = '',
+  selectedTranslationLanguage: storedTranslationLanguage,
 }: TranscriptTextProps) => {
-  const {selectedTranslationLanguage} = useCaption();
   const t = time ? formatTime(Number(time)) : '';
-  
-  //  text to display based on selected translation language
+
+  //  text to display based on stored translation language
   const getDisplayText = () => {
-    if (!selectedTranslationLanguage) {
+    if (!storedTranslationLanguage) {
       return value; // no translation selected, show original
     }
-    
-    // current selected language
-    const currentTranslation = translations.find(t => t.lang === selectedTranslationLanguage);
+
+    // find translation for the stored language
+    const currentTranslation = translations.find(
+      t => t.lang === storedTranslationLanguage,
+    );
     if (currentTranslation?.text) {
       return currentTranslation.text;
     }
-    
-    //  show the  recent translation available :TODO test
-    if (translations && translations.length > 0) {
-      const latestTranslation = translations.find(t => t.text && t.text.length > 0);
-      if (latestTranslation?.text) {
-        return latestTranslation.text;
-      }
-    }
-    
-    // if no translations exist
+
+    // if stored language not available, show original
     return value;
   };
-  
+
   const displayText = getDisplayText();
-    
+
   const regex = searchQuery ? new RegExp(`(${searchQuery})`, 'gi') : ' ';
   const parts = displayText.split(regex);
 

@@ -278,7 +278,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     language: prevLang,
     isLangChangeInProgress,
     setLanguage,
-    selectedTranslationLanguage
+    selectedTranslationLanguage,
   } = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -289,7 +289,8 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {restart} = useSTTAPI();
   const username = useGetName();
   const {
-    data: {isHost},sttLanguage
+    data: {isHost},
+    sttLanguage,
   } = useRoomInfo();
 
   const changeSpokenLangLabel = useString<boolean>(
@@ -301,7 +302,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   // only Host is authorized to start/stop stt
   isHost &&
     actionMenuitems.push({
-      icon: 'lang-select',
+      icon: 'globe',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: changeSpokenLangLabel + ' ',
@@ -328,7 +329,11 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     allLanguages: LanguageType[],
     userOwnLanguages?: LanguageType[],
   ) => {
-    console.log(`CaptionContainer - onLanguageChange - selectedTranslationLanguage, sttLanguage:`, selectedTranslationLanguage, sttLanguage);
+    console.log(
+      `CaptionContainer - onLanguageChange - selectedTranslationLanguage, sttLanguage:`,
+      selectedTranslationLanguage,
+      sttLanguage,
+    );
     setLanguagePopup(false);
     if (langChanged) {
       logger.log(
@@ -336,10 +341,10 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
         'STT',
         `Language changed to  ${allLanguages}. Restarting STT`,
       );
-      
+
       // If user has translation selected, we need to merge translation configs
       let translateConfigToPass = null;
-      
+
       if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
         // Get existing translate config from room state
         const existingTranslateConfig = sttLanguage?.translateConfig || [];
@@ -436,7 +441,6 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const {
     language: currentSpokenLanguages,
     selectedTranslationLanguage,
-    setSelectedTranslationLanguage,
     setMeetingTranscript,
   } = useCaption();
   const {update} = useSTTAPI();
@@ -464,8 +468,8 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
           translate_config: [],
           lang: currentSpokenLanguages,
           userSelectedTranslation: '', // Empty string for "off"
+          isTranslationChange: true,
         });
-        setSelectedTranslationLanguage('');
       } else {
         // Get existing translate config from room state
         const existingTranslateConfig = sttLanguage?.translateConfig || [];
@@ -481,8 +485,8 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
           translate_config: mergedTranslateConfig,
           lang: currentSpokenLanguages,
           userSelectedTranslation: targetLanguage,
+          isTranslationChange: true,
         });
-        setSelectedTranslationLanguage(targetLanguage);
       }
 
       // Add translation language change notification to transcript
@@ -533,19 +537,35 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
     onPress: () => handleTranslationToggle(''),
   });
 
-  // Add Translation language options
+  // Add selected translation language right after "Off" if one is selected
+  if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
+    const selectedLanguage = langData.find(
+      lang => lang.value === selectedTranslationLanguage,
+    );
+    if (selectedLanguage) {
+      actionMenuitems.push({
+        icon: 'tick-fill',
+        iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: selectedLanguage.label,
+        iconPosition: 'end',
+        onPress: () => handleTranslationToggle(selectedLanguage.value),
+      });
+    }
+  }
+
+  // Add remaining Translation language options (excluding the selected one)
   langData.forEach(language => {
-    actionMenuitems.push({
-      icon:
-        selectedTranslationLanguage === language.value
-          ? 'tick-fill'
-          : undefined,
-      iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: language.label,
-      iconPosition: 'end',
-      onPress: () => handleTranslationToggle(language.value),
-    });
+    if (language.value !== selectedTranslationLanguage) {
+      actionMenuitems.push({
+        icon: undefined,
+        iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: language.label,
+        iconPosition: 'end',
+        onPress: () => handleTranslationToggle(language.value),
+      });
+    }
   });
 
   React.useEffect(() => {

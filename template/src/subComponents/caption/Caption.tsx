@@ -8,7 +8,10 @@ import {isWebInternal} from '../../utils/common';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
-import {sttSettingSpokenLanguageText} from '../../language/default-labels/videoCallScreenLabels';
+import {
+  sttSettingSpokenLanguageText,
+  sttSettingTranslationLanguageText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export type WebStreamMessageArgs = [number, Uint8Array];
 export type NativeStreamMessageArgs = [
@@ -33,6 +36,7 @@ const Caption: React.FC<CaptionProps> = ({
   const {RtcEngineUnsafe} = useRtc();
   const {
     isLangChangeInProgress,
+    isTranslationChangeInProgress,
     captionObj, //state for current live caption for all users
     isSTTListenerAdded,
     setIsSTTListenerAdded,
@@ -40,6 +44,7 @@ const Caption: React.FC<CaptionProps> = ({
     prevSpeakerRef,
   } = useCaption();
   const ssLabel = useString(sttSettingSpokenLanguageText)();
+  const stLabel = useString(sttSettingTranslationLanguageText)();
   const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
 
@@ -70,6 +75,16 @@ const Caption: React.FC<CaptionProps> = ({
     return (
       <Loading
         text={ssLabel}
+        background="transparent"
+        indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+        textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+      />
+    );
+
+  if (isTranslationChangeInProgress)
+    return (
+      <Loading
+        text={stLabel}
         background="transparent"
         indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
         textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}

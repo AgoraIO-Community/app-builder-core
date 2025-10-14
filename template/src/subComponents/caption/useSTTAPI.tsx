@@ -34,6 +34,8 @@ interface UpdateParams {
   }[];
   // User's own selected translation language (for RTM message)
   userSelectedTranslation?: string;
+  // Flag to indicate if this is a translation-only change
+  isTranslationChange?: boolean;
 }
 
 const useSTTAPI = (): IuseSTTAPI => {
@@ -46,9 +48,13 @@ const useSTTAPI = (): IuseSTTAPI => {
     isSTTActive,
     setIsSTTActive,
     setIsLangChangeInProgress,
+    setIsTranslationChangeInProgress,
     setLanguage,
     setMeetingTranscript,
     setIsSTTError,
+    setSelectedTranslationLanguage,
+    // Ref to track translation language - updated synchronously to avoid race conditions
+    selectedTranslationLanguageRef,
   } = useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
@@ -80,7 +86,7 @@ const useSTTAPI = (): IuseSTTAPI => {
     try {
       
       let requestBody: any = {
-        passphrase: roomId?.host || '',
+        passphrase: roomId?.host || roomId?.attendee || '',
         dataStream_uid: 111111, // default bot ID
         encryption_mode: $config.ENCRYPTION_ENABLED
           ? rtcProps.encryption.mode
@@ -344,7 +350,12 @@ const useSTTAPI = (): IuseSTTAPI => {
  
   const update = async (params: UpdateParams) => {
     try {
-      setIsLangChangeInProgress(true);
+      // Use the appropriate progress state based on the type of change
+      if (params?.isTranslationChange) {
+        setIsTranslationChangeInProgress(true);
+      } else {
+        setIsLangChangeInProgress(true);
+      }
       
       logger.log(
         LogSource.NetworkRest,
@@ -371,10 +382,18 @@ const useSTTAPI = (): IuseSTTAPI => {
           res,
         );
         setIsSTTError(false);
-        
+
         // If language was updated, update local state
         if (params.lang) {
           setLanguage(params.lang);
+        }
+
+        // If translation language was updated, update local state and ref
+        if (params.isTranslationChange && params.userSelectedTranslation !== undefined) {
+          setSelectedTranslationLanguage(params.userSelectedTranslation);
+          // Update ref immediately to prevent race conditions
+          // This ensures callbacks see the updated value right away, before state updates
+          selectedTranslationLanguageRef.current = params.userSelectedTranslation;
         }
 
         // Send RTM message for translation config sync
@@ -407,7 +426,12 @@ const useSTTAPI = (): IuseSTTAPI => {
       );
       throw error;
     } finally {
-      setIsLangChangeInProgress(false);
+      // Reset the appropriate progress state based on the type of change
+      if (params?.isTranslationChange) {
+        setIsTranslationChangeInProgress(false);
+      } else {
+        setIsLangChangeInProgress(false);
+      }
     }
   };
 
