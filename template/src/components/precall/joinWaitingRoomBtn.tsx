@@ -45,6 +45,8 @@ import {
   waitingRoomHostNotJoined,
   waitingRoomUsersInCall,
 } from '../../language/default-labels/videoCallScreenLabels';
+import SDKEvents from '../../utils/SdkEvents';
+import isSDK from '../../utils/isSDK';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -150,6 +152,10 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
       });
 
       if (approved) {
+        if (isSDK()) {
+          //emit SDKEvent waiting-room-approval-granted
+          SDKEvents.emit('waiting-room-approval-granted');
+        }
         setRoomInfo(prev => {
           return {
             ...prev,
@@ -189,6 +195,10 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
           };
         });
       } else {
+        if (isSDK()) {
+          //emit SDKEvent waiting-room-approval-rejected
+          SDKEvents.emit('waiting-room-approval-rejected');
+        }
         setRoomInfo(prev => {
           return {
             ...prev,
@@ -257,7 +267,10 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
     // join request API to server, server will send RTM message to all hosts regarding request from this user,
     requestServerToJoinRoom();
-
+    if (isSDK()) {
+      //emit SDKEvent waiting for approval
+      SDKEvents.emit('waiting-room-approval-requested');
+    }
     // Play a sound to avoid autoblocking in safari
     if (isWebInternal() || isMobileOrTablet()) {
       audio.volume = 0;
