@@ -69,7 +69,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const waitingRoomUsersInCallText = useString(waitingRoomUsersInCall);
   let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
-  const {setCallActive, callActive} = usePreCall();
+  const {setCallActive, callActive, setIsNameIsEmpty} = usePreCall();
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
@@ -236,6 +236,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   };
 
   const onSubmit = () => {
+    if (!username || (username && username?.trim() === '')) {
+      setIsNameIsEmpty(true);
+      return;
+    }
+    setIsNameIsEmpty(false);
     shouldWaitingRoomPoll = true;
     setUsername(username.trim());
     //setCallActive(true);
@@ -281,8 +286,8 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const title = buttonText;
   const onPress = () => onSubmit();
   const disabled = $config.ENABLE_WAITING_ROOM_AUTO_REQUEST
-    ? !hasHostJoined || isInWaitingRoom ||  username?.trim() === ''
-    : isInWaitingRoom || username?.trim() === '';
+    ? !hasHostJoined || isInWaitingRoom
+    : isInWaitingRoom;
   return props?.render ? (
     props.render(onPress, title, disabled)
   ) : (
