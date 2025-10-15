@@ -18,18 +18,20 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({children}) => {
     handleHostOperationStart,
     handleHostOperationEnd,
   } = useBreakoutRoom();
-  // const {setCustomRTMMainRoomData} = useRTMGlobalState();
+
   const localUid = useLocalUid();
   const {
     data: {isHost},
   } = useRoomInfo();
-  const isHostRef = React.useRef(isHost);
-  const localUidRef = React.useRef(localUid);
+
+  const isHostRef = useRef(isHost);
+  const localUidRef = useRef(localUid);
   // const onMakeMePresenterRef = useRef(onMakeMePresenter);
   const handleBreakoutRoomSyncStateRef = useRef(handleBreakoutRoomSyncState);
   const handleHostOperationStartRef = useRef(handleHostOperationStart);
   const handleHostOperationEndRef = useRef(handleHostOperationEnd);
 
+  // keep refs updated
   useEffect(() => {
     isHostRef.current = isHost;
   }, [isHost]);
@@ -60,7 +62,6 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({children}) => {
     //   try {
     //     const {payload} = evtData;
     //     const data = JSON.parse(payload);
-    //     console.log('supriya-presenter handleMakePresenterEvent data: ', data);
     //     const {uid, action} = data;
 
     //     // Only process if it's for the local user
@@ -77,78 +78,130 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({children}) => {
     //   }
     // };
 
+    // ---------- BREAKOUT_ROOM_SYNC_STATE ----------
     const handleBreakoutRoomSyncStateEvent = (evtData: any) => {
-      console.log('BREAKOUT_ROOM_SYNC_STATE event recevied', evtData);
-      const {ts, payload} = evtData;
-      const data: BreakoutRoomSyncStateEventPayload = JSON.parse(payload);
-      if (data.data.act === 'SYNC_STATE') {
-        console.log(
-          'supriya-state-sync ********* BREAKOUT_ROOM_SYNC_STATE event triggered ***************',
-        );
-        handleBreakoutRoomSyncStateRef.current(data.data, ts);
-      }
-    };
-
-    const handleHostOperationStartEvent = (evtData: any) => {
       logger.log(
-        LogSource.Internals,
-        'BREAKOUT_ROOM',
-        'BREAKOUT_ROOM_HOST_OPERATION_START event received',
+        LogSource.Events,
+        'RTM_EVENTS',
+        '[EVENT] BREAKOUT_ROOM_SYNC_STATE received',
         evtData,
       );
       try {
-        const {sender, payload} = evtData;
-        // Ignore events from self
-        if (sender === `${localUidRef.current}`) {
+        const {ts, payload} = evtData || {};
+        if (!payload) {
+          logger.warn(
+            LogSource.Events,
+            'RTM_EVENTS',
+            '[EVENT] BREAKOUT_ROOM_SYNC_STATE missing payload',
+            {evtData},
+          );
           return;
         }
-        // // Only process if current user is also a host
-        // if (!isHostRef.current) {
-        //   return;
-        // }
+        const data: BreakoutRoomSyncStateEventPayload = JSON.parse(payload);
+        if (data?.data?.act === 'SYNC_STATE') {
+          handleBreakoutRoomSyncStateRef.current(data.data, ts);
+        } else {
+          logger.debug(
+            LogSource.Events,
+            'RTM_EVENTS',
+            '[EVENT] BREAKOUT_ROOM_SYNC_STATE Ignored event non-SYNC_STATE action received',
+            {action: data?.data?.act},
+          );
+        }
+      } catch (error: any) {
+        logger.error(
+          LogSource.Events,
+          'RTM_EVENTS',
+          '[ERROR] Failed to process event BREAKOUT_ROOM_SYNC_STATE',
+          {error: error?.message},
+        );
+      }
+    };
+
+    // ---------- BREAKOUT_ROOM_HOST_OPERATION_START ----------
+    const handleHostOperationStartEvent = (evtData: any) => {
+      logger.debug(
+        LogSource.Events,
+        'RTM_EVENTS',
+        '[EVENT] BREAKOUT_ROOM_HOST_OPERATION_START received',
+        evtData,
+      );
+      try {
+        const {sender, payload} = evtData || {};
+        if (!payload) {
+          logger.warn(
+            LogSource.Events,
+            'RTM_EVENTS',
+            '[EVENT] BREAKOUT_ROOM_HOST_OPERATION_START missing payload',
+            {evtData},
+          );
+          return;
+        }
+        // Ignore events from self
+        if (sender === `${localUidRef.current}`) {
+          logger.debug(
+            LogSource.Events,
+            'RTM_EVENTS',
+            '[EVENT] Ignored self-sent BREAKOUT_ROOM_HOST_OPERATION_START',
+            {sender, localUid: localUidRef.current},
+          );
+          return;
+        }
 
         const data = JSON.parse(payload);
         const {operationName, hostUid, hostName} = data;
 
         handleHostOperationStartRef.current(operationName, hostUid, hostName);
-      } catch (error) {
-        logger.log(
-          LogSource.Internals,
-          'BREAKOUT_ROOM',
-          'Error handling host operation start event',
-          {error: error.message},
+      } catch (error: any) {
+        logger.error(
+          LogSource.Events,
+          'RTM_EVENTS',
+          '[ERROR] Failed to process event BREAKOUT_ROOM_HOST_OPERATION_START',
+          {error: error?.message},
         );
       }
     };
 
+    // ---------- BREAKOUT_ROOM_HOST_OPERATION_END ----------
     const handleHostOperationEndEvent = (evtData: any) => {
       logger.log(
-        LogSource.Internals,
-        'BREAKOUT_ROOM',
-        'BREAKOUT_ROOM_HOST_OPERATION_END event received',
+        LogSource.Events,
+        'RTM_EVENTS',
+        '[EVENT] BREAKOUT_ROOM_HOST_OPERATION_END received',
         evtData,
       );
       try {
-        const {sender, payload} = evtData;
-        // Ignore events from self
-        if (sender === `${localUidRef.current}`) {
+        const {sender, payload} = evtData || {};
+        if (!payload) {
+          logger.warn(
+            LogSource.Events,
+            'RTM_EVENTS',
+            '[EVENT] BREAKOUT_ROOM_HOST_OPERATION_END missing payload',
+            {evtData},
+          );
           return;
         }
-        // // Only process if current user is also a host
-        // if (!isHostRef.current) {
-        //   return;
-        // }
+        // Ignore events from self
+        if (sender === `${localUidRef.current}`) {
+          logger.debug(
+            LogSource.Events,
+            'RTM_EVENTS',
+            '[EVENT] Ignored self-sent event BREAKOUT_ROOM_HOST_OPERATION_END',
+            {sender, localUid: localUidRef.current},
+          );
+          return;
+        }
 
         const data = JSON.parse(payload);
         const {operationName, hostUid, hostName} = data;
 
         handleHostOperationEndRef.current(operationName, hostUid, hostName);
-      } catch (error) {
-        logger.log(
-          LogSource.Internals,
-          'BREAKOUT_ROOM',
-          'Error handling host operation end event',
-          {error: error.message},
+      } catch (error: any) {
+        logger.error(
+          LogSource.Events,
+          'RTM_EVENTS',
+          '[ERROR] Failed to process event BREAKOUT_ROOM_HOST_OPERATION_END',
+          {error: error?.message},
         );
       }
     };
@@ -163,10 +216,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({children}) => {
     //   try {
     //     const {payload} = evtData;
     //     const data = JSON.parse(payload);
-    //     console.log('supriya-presenter handlePresenterAttributeEvent', data);
-
     //     const {uid, isPresenter, timestamp} = data;
-
     //     // If this is the local user's presenter attribute, restore their state
     //     // Pass shouldSendEvent: false to avoid sending the event again (infinite loop)
     //     if (uid === localUidRef.current && !isHostRef.current) {
