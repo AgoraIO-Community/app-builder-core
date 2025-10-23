@@ -30,28 +30,34 @@ export const TranscriptText = ({
 }: TranscriptTextProps) => {
   const t = time ? formatTime(Number(time)) : '';
 
+  // For search highlighting
   //  text to display based on stored translation language
-  const getDisplayText = () => {
-    if (!storedTranslationLanguage) {
-      return value; // no translation selected, show original
-    }
+  // const getDisplayText = () => {
+  //   if (!storedTranslationLanguage) {
+  //     return value; // no translation selected, show original
+  //   }
 
-    // find translation for the stored language
-    const currentTranslation = translations.find(
-      t => t.lang === storedTranslationLanguage,
-    );
-    if (currentTranslation?.text) {
-      return currentTranslation.text;
-    }
+  //   // find translation for the stored language
+  //   const currentTranslation = translations.find(
+  //     t => t.lang === storedTranslationLanguage,
+  //   );
+  //   if (currentTranslation?.text) {
+  //     return currentTranslation.text;
+  //   }
 
-    // if stored language not available, show original
-    return value;
-  };
+  //   // if stored language not available, show original
+  //   return value;
+  // };
 
-  const displayText = getDisplayText();
-
+  // const displayText = getDisplayText();
   const regex = searchQuery ? new RegExp(`(${searchQuery})`, 'gi') : ' ';
-  const parts = displayText.split(regex);
+  const originalParts = value.split(regex);
+
+  // Prepare all translations with their parts for search highlighting
+  const translationsParts = translations.map(trans => ({
+    lang: trans.lang,
+    parts: trans.text.split(regex),
+  }));
 
   return (
     <View key={user} style={styles.transcriptTextContainer}>
@@ -67,9 +73,10 @@ export const TranscriptText = ({
       </View>
 
       <View>
+        {/* Original Text */}
         <Text style={[styles.transciptText]}>
           {/* If substring matches search query then highlight it */}
-          {parts.map((part, index) =>
+          {originalParts.map((part, index) =>
             part.toLowerCase() === searchQuery.toLowerCase() &&
             searchQuery !== '' ? (
               <Text key={index} style={styles.highlightedText}>
@@ -80,6 +87,24 @@ export const TranscriptText = ({
             ),
           )}
         </Text>
+
+        {/* All Translations */}
+        {translationsParts.map((translation, translationIndex) => (
+          <Text
+            key={translation.lang}
+            style={[styles.transciptText, styles.translationText]}>
+            {translation.parts.map((part, index) =>
+              part.toLowerCase() === searchQuery.toLowerCase() &&
+              searchQuery !== '' ? (
+                <Text key={index} style={styles.highlightedText}>
+                  {searchQuery ? part : part + ' '}
+                </Text>
+              ) : (
+                <Text key={index}>{searchQuery ? part : part + ' '}</Text>
+              ),
+            )}
+          </Text>
+        ))}
       </View>
     </View>
   );
@@ -125,5 +150,10 @@ const styles = StyleSheet.create({
   },
   highlightedText: {
     backgroundColor: $config.SEMANTIC_NEUTRAL,
+  },
+  translationText: {
+    fontStyle: 'italic',
+    opacity: 0.8,
+    marginTop: 4,
   },
 });

@@ -63,6 +63,7 @@ const Transcript = (props: TranscriptProps) => {
     isLangChangeInProgress,
     isSTTListenerAdded,
     setIsSTTListenerAdded,
+    getBotOwnerUid,
   } = useCaption();
 
   const data = meetingTranscript; // Object.entries(transcript);
@@ -112,7 +113,7 @@ const Transcript = (props: TranscriptProps) => {
         />
 
         <Text style={styles.langChange}>
-          {defaultContent[item?.uid?.split('-')[1]].name + ' ' + item.text}
+          {defaultContent[item?.uid?.split('-')[1]]?.name + ' ' + item.text}
         </Text>
       </View>
     ) : item.uid.toString().indexOf('translationUpdate') !== -1 ? (
@@ -125,12 +126,12 @@ const Transcript = (props: TranscriptProps) => {
         />
 
         <Text style={styles.langChange}>
-          {defaultContent[item?.uid?.split('-')[1]].name + ' has ' + item.text}
+          {defaultContent[item?.uid?.split('-')[1]]?.name + ' has ' + item.text}
         </Text>
       </View>
     ) : (
       <TranscriptText
-        user={defaultContent[item.uid].name}
+        user={defaultContent[getBotOwnerUid(item.uid)]?.name || 'Speaker'}
         time={item?.time}
         value={item.text}
         translations={item.translations}
@@ -188,7 +189,7 @@ const Transcript = (props: TranscriptProps) => {
       // Search in translations if available
       if (item.translations) {
         return item.translations.some(translation =>
-          translation.text.toLowerCase().includes(searchText)
+          translation.text.toLowerCase().includes(searchText),
         );
       }
       return false;
@@ -206,6 +207,7 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
+    console.log('[STT_PER_USER_BOT] handleStreamMessageCallback', args);
     setIsSTTListenerAdded(true);
     if (isWebInternal()) {
       const [uid, data] = args as WebStreamMessageArgs;

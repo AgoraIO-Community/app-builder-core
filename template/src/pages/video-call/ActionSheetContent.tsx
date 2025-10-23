@@ -216,7 +216,7 @@ const ActionSheetContent = props => {
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
-  const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
+  const {setMeetingTranscript} = useCaption();
   const {defaultContent} = useContent();
   const {waitingRoomUids} = useWaitingRoomContext();
   const defaultContentRef = React.useRef(defaultContent);
@@ -228,9 +228,10 @@ const ActionSheetContent = props => {
 
   //STT events on mount
 
-  React.useEffect(() => {
-    setIsSTTActive(isSTTActive);
-  }, [isSTTActive]);
+  // Ask Bhupendra
+  // React.useEffect(() => {
+  //   setIsSTTActive(isSTTActive);
+  // }, [isSTTActive]);
 
   React.useEffect(() => {
     // for mobile events are set in ActionSheetContent
@@ -284,7 +285,7 @@ const ActionSheetContent = props => {
       };
     });
     // syncing local set language
-    newLang && setLanguage(newLang);
+    // newLang && setLanguage(newLang);
     // add spoken lang msg to transcript
     setMeetingTranscript(prev => {
       return [

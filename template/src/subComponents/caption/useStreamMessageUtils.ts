@@ -41,7 +41,7 @@ const useStreamMessageUtils = (): {
       /* uid - bot which sends stream message in channel
        payload - stream message in Uint8Array format
       */
-      const [, payload] = args1;
+      const [botUID, payload] = args1;
       let nonFinalText = ''; // holds intermediate results
       let finalText = ''; // holds final strings
       let currentFinalText = ''; // holds current caption
@@ -51,7 +51,7 @@ const useStreamMessageUtils = (): {
       const textstream = protoRoot
         .lookupType('agora.audio2text.Text')
         .decode(payload as Uint8Array) as any;
-      console.log('stt v7 textstream', textstream);
+      console.log('[STT_PER_USER_BOT] stt v7 textstream', botUID, textstream);
 
       //console.log('STT - Parsed Textstream : ', textstream);
       // console.log(
@@ -97,7 +97,9 @@ const useStreamMessageUtils = (): {
 
     */
 
-      const finalWord = textstream.words.filter((word: any) => word.isFinal === true);
+      const finalWord = textstream.words.filter(
+        (word: any) => word.isFinal === true,
+      );
       // when we only get final word for the previous speaker then don't flip previous speaker as active but update in place.
 
       if (
@@ -109,9 +111,11 @@ const useStreamMessageUtils = (): {
           finalList[prevSpeakerRef.current] = [];
           // Clear translations for previous speaker
           if (finalTranslationList[prevSpeakerRef.current]) {
-            Object.keys(finalTranslationList[prevSpeakerRef.current]).forEach(lang => {
-              finalTranslationList[prevSpeakerRef.current][lang] = [];
-            });
+            Object.keys(finalTranslationList[prevSpeakerRef.current]).forEach(
+              lang => {
+                finalTranslationList[prevSpeakerRef.current][lang] = [];
+              },
+            );
           }
           isInterjecting = true;
           // console.log(
@@ -139,7 +143,7 @@ const useStreamMessageUtils = (): {
           const lang = trans.lang;
           const texts = trans.texts || [];
           const isFinal = trans.isFinal || false;
-          
+
           if (!finalTranslationList[textstream.uid]) {
             finalTranslationList[textstream.uid] = {};
           }
@@ -150,18 +154,25 @@ const useStreamMessageUtils = (): {
           const currentTranslationText = texts.join(' ');
           if (currentTranslationText) {
             if (isFinal) {
-              finalTranslationList[textstream.uid][lang].push(currentTranslationText);
+              finalTranslationList[textstream.uid][lang].push(
+                currentTranslationText,
+              );
             }
-            
+
             // Build complete translation text (final + current non-final)
-            const existingTranslationBuffer = isInterjecting 
-              ? '' 
+            const existingTranslationBuffer = isInterjecting
+              ? ''
               : finalTranslationList[textstream.uid][lang]?.join(' ');
-            const latestTranslationString = isFinal ? '' : currentTranslationText;
-            const completeTranslationText = existingTranslationBuffer.length > 0
-              ? (latestTranslationString ? existingTranslationBuffer + ' ' + latestTranslationString : existingTranslationBuffer)
-              : latestTranslationString;
-              
+            const latestTranslationString = isFinal
+              ? ''
+              : currentTranslationText;
+            const completeTranslationText =
+              existingTranslationBuffer.length > 0
+                ? latestTranslationString
+                  ? existingTranslationBuffer + ' ' + latestTranslationString
+                  : existingTranslationBuffer
+                : latestTranslationString;
+
             if (completeTranslationText || isFinal) {
               translations.push({
                 lang,
@@ -214,7 +225,8 @@ const useStreamMessageUtils = (): {
         const finalTranslationsForTranscript: TranslationData[] = [];
         if (finalTranslationList[textstream.uid]) {
           Object.keys(finalTranslationList[textstream.uid]).forEach(lang => {
-            const translationText = finalTranslationList[textstream.uid][lang]?.join(' ') || '';
+            const translationText =
+              finalTranslationList[textstream.uid][lang]?.join(' ') || '';
             if (translationText) {
               finalTranslationsForTranscript.push({
                 lang: lang,
@@ -244,7 +256,8 @@ const useStreamMessageUtils = (): {
               text: finalTranscriptList[textstream.uid].join(' '),
               translations: finalTranslationsForTranscript,
               // preserve the original translation language from when this transcript was created
-              selectedTranslationLanguage: lastTranscript.selectedTranslationLanguage,
+              selectedTranslationLanguage:
+                lastTranscript.selectedTranslationLanguage,
             };
 
             return [
@@ -263,7 +276,8 @@ const useStreamMessageUtils = (): {
                 translations: finalTranslationsForTranscript,
                 // Store the current translation language with this transcript item
                 // This preserves which translation was active when this text was spoken
-                selectedTranslationLanguage: selectedTranslationLanguageRef.current,
+                selectedTranslationLanguage:
+                  selectedTranslationLanguageRef.current,
               },
             ];
           }
@@ -285,16 +299,17 @@ const useStreamMessageUtils = (): {
 
       // updating the captions with both transcription and translations
       setCaptionObj(prevState => {
-        const existingTranslations = prevState[textstream.uid]?.translations || [];
-        
+        const existingTranslations =
+          prevState[textstream.uid]?.translations || [];
+
         // Update existing translations or add new ones
         const updatedTranslations = [...existingTranslations];
-        
+
         for (const newTrans of translations) {
           const existingIndex = updatedTranslations.findIndex(
-            t => t.lang === newTrans.lang
+            t => t.lang === newTrans.lang,
           );
-          
+
           if (existingIndex >= 0) {
             updatedTranslations[existingIndex] = newTrans;
           } else {
@@ -321,7 +336,7 @@ const useStreamMessageUtils = (): {
     };
     (async () => {
       await queue.add(() => queueCallback(args));
-      console.log('stt- using pq queue');
+      console.log('[STT_PER_USER_BOT] stt- using pq queue');
     })();
   };
 

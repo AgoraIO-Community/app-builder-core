@@ -50,7 +50,7 @@ const CaptionText = ({
   captionTextStyle = {},
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const {selectedTranslationLanguage} = useCaption();
+  const {viewMode, selectedTranslationLanguage} = useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -135,7 +135,7 @@ const CaptionText = ({
                   )) * LINE_HEIGHT,
           },
         ]}>
-        {/* Transcription */}
+        {/* Original Transcription */}
         <Text
           onLayout={handleTextLayout}
           style={[
@@ -147,10 +147,22 @@ const CaptionText = ({
             isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
             captionTextStyle,
           ]}>
-          {selectedTranslationLanguage
-            ? translations.find(t => t.lang === selectedTranslationLanguage)
-                ?.text || value
-            : value}
+          {/* original text */}
+          {value}
+          {/* Show translation only if viewMode allows */}
+          {viewMode === 'original-and-translated' &&
+            selectedTranslationLanguage &&
+            translations.length > 0 && (
+              <>
+                {'\n'}
+                <Text style={styles.translationText}>
+                  ({selectedTranslationLanguage}):{' '}
+                  {translations.find(
+                    t => t.lang === selectedTranslationLanguage,
+                  )?.text || ''}
+                </Text>
+              </>
+            )}
         </Text>
       </View>
     </View>

@@ -9,7 +9,7 @@ import {
 import React from 'react';
 
 import Caption from './Caption';
-import {useCaption} from './useCaption';
+import {useCaption, LanguageTranslationConfig} from './useCaption';
 import ThemeConfig from '../../../src/theme';
 import {
   calculatePosition,
@@ -275,10 +275,11 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {
     setIsCaptionON,
-    language: prevLang,
     isLangChangeInProgress,
-    setLanguage,
-    selectedTranslationLanguage,
+    stopSTTBotSession,
+    setViewMode,
+    viewMode,
+    handleTranslateConfigChange,
   } = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -286,12 +287,6 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
-  const {restart} = useSTTAPI();
-  const username = useGetName();
-  const {
-    data: {isHost},
-    sttLanguage,
-  } = useRoomInfo();
 
   const changeSpokenLangLabel = useString<boolean>(
     sttChangeSpokenLanguageText,
@@ -300,19 +295,47 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const hideCaptionLabel = useString<boolean>(toolbarItemCaptionText)(true);
 
   // only Host is authorized to start/stop stt
-  isHost &&
-    actionMenuitems.push({
-      icon: 'globe',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: changeSpokenLangLabel + ' ',
-      disabled: isLangChangeInProgress,
-      onPress: () => {
-        setActionMenuVisible(false);
-        setLanguagePopup(true);
-      },
-    });
+  actionMenuitems.push({
+    icon: 'globe',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: changeSpokenLangLabel + ' ',
+    disabled: isLangChangeInProgress,
+    onPress: () => {
+      setActionMenuVisible(false);
+      setLanguagePopup(true);
+    },
+  });
 
+  // Toggle translation view
+  actionMenuitems.push({
+    icon: 'globe',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Show Original and translated',
+    disabled: isLangChangeInProgress,
+    onPress: () => {
+      setViewMode(
+        viewMode === 'original' ? 'original-and-translated' : 'original',
+      );
+      setActionMenuVisible(false);
+    },
+  });
+
+  // Stop STT
+  actionMenuitems.push({
+    icon: 'globe',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Stop Translation',
+    disabled: isLangChangeInProgress,
+    onPress: () => {
+      setActionMenuVisible(false);
+      stopSTTBotSession();
+    },
+  });
+
+  // Hide Caption Panel
   actionMenuitems.push({
     icon: 'captions-off',
     iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -325,62 +348,10 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   });
 
   const onLanguageChange = (
-    langChanged = false,
-    allLanguages: LanguageType[],
-    userOwnLanguages?: LanguageType[],
+    inputTranslateConfig: LanguageTranslationConfig,
   ) => {
-    console.log(
-      `CaptionContainer - onLanguageChange - selectedTranslationLanguage, sttLanguage:`,
-      selectedTranslationLanguage,
-      sttLanguage,
-    );
     setLanguagePopup(false);
-    if (langChanged) {
-      logger.log(
-        LogSource.Internals,
-        'STT',
-        `Language changed to  ${allLanguages}. Restarting STT`,
-      );
-
-      // If user has translation selected, we need to merge translation configs
-      let translateConfigToPass = null;
-
-      if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
-        // Get existing translate config from room state
-        const existingTranslateConfig = sttLanguage?.translateConfig || [];
-
-        // Use utility function to merge translation configs
-        const mergedTranslateConfig = mergeTranslationConfigs(
-          existingTranslateConfig,
-          userOwnLanguages || [],
-          selectedTranslationLanguage,
-        );
-
-        translateConfigToPass = {
-          translate_config: mergedTranslateConfig,
-          userSelectedTranslation: selectedTranslationLanguage,
-        };
-      }
-
-      // Pass translation config to restart if available
-      restart(allLanguages, userOwnLanguages, translateConfigToPass)
-        .then(() => {
-          logger.debug(
-            LogSource.Internals,
-            'STT',
-            'stt restarted successfully',
-          );
-        })
-        .catch(error => {
-          logger.error(
-            LogSource.Internals,
-            'STT',
-            'Error in restarting',
-            error,
-          );
-          // Handle the error case
-        });
-    }
+    handleTranslateConfigChange(inputTranslateConfig);
   };
 
   React.useEffect(() => {
@@ -409,6 +380,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
       );
     }
   }, [actionMenuVisible]);
+
   return (
     <>
       <ActionMenu

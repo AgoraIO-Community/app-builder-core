@@ -58,13 +58,19 @@ import {
 import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
-import {useCaption} from '../../src/subComponents/caption/useCaption';
+import {
+  LanguageTranslationConfig,
+  useCaption,
+} from '../../src/subComponents/caption/useCaption';
 import LanguageSelectorPopup from '../../src/subComponents/caption/LanguageSelectorPopup';
-import useSTTAPI from '../../src/subComponents/caption/useSTTAPI';
 import {EventNames} from '../rtm-events';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import Toast from '../../react-native-toast-message';
-import {getLanguageLabel} from '../../src/subComponents/caption/utils';
+import {
+  getLanguageLabel,
+  LanguageType,
+  TranslateConfig,
+} from '../../src/subComponents/caption/utils';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem, {useToolbarProps} from '../atoms/ToolbarItem';
 import {
@@ -312,10 +318,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const {
     isCaptionON,
     setIsCaptionON,
-    language: prevLang,
     isSTTActive,
-    setIsSTTActive,
     isSTTError,
+    handleTranslateConfigChange,
   } = useCaption();
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
@@ -324,8 +329,6 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     React.useState<boolean>(false);
   const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
-
-  const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -845,16 +848,17 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     setActionMenuVisible(false);
   }, [currentLayout]);
 
-  const onConfirm = async (langChanged, language) => {
+  const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
+    console.log(
+      '[STT_PER_USER_BOT] Controls onConfirm called',
+      inputTranslateConfig,
+    );
     const isCaptionClicked = STT_clicked.current === 'caption';
     const isTranscriptClicked = STT_clicked.current === 'transcript';
     setLanguagePopup(false);
     isFirstTimePopupOpen.current = false;
-    const method = isCaptionClicked
-      ? isCaptionON
-      : isTranscriptON
-      ? 'stop'
-      : 'start';
+
+    // Handle transcript panel toggling
     if (isTranscriptClicked) {
       if (!isTranscriptON) {
         setSidePanel(SidePanelType.Transcript);
@@ -862,22 +866,20 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         setSidePanel(SidePanelType.None);
       }
     }
-    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
 
     if (isCaptionClicked) {
       setIsCaptionON(prev => !prev);
     } else {
     }
-
     try {
-      const res = await start(language, language);
-      if (res?.message.includes('STARTED')) {
-        // channel is already started now restart
-        await restart(language, language);
-      }
+      handleTranslateConfigChange(inputTranslateConfig);
     } catch (error) {
-      logger.error(LogSource.Internals, 'STT', 'error in starting stt', error);
+      logger.error(
+        LogSource.Internals,
+        'STT',
+        'error in starting caption',
+        error,
+      );
     }
   };
 
@@ -952,12 +954,13 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
 
   return (
     <>
-      <LanguageSelectorPopup
-        modalVisible={isLanguagePopupOpen}
-        setModalVisible={setLanguagePopup}
-        onConfirm={onConfirm}
-        isFirstTimePopupOpen={isFirstTimePopupOpen.current}
-      />
+      {isLanguagePopupOpen && (
+        <LanguageSelectorPopup
+          modalVisible={isLanguagePopupOpen}
+          setModalVisible={setLanguagePopup}
+          onConfirm={onConfirm}
+        />
+      )}
       {$config.CLOUD_RECORDING && isHost && isWeb() && (
         <>
           <RecordingDeletePopup
@@ -1179,7 +1182,7 @@ const Controls = (props: ControlsProps) => {
   const {items = {}, includeDefaultItems = true} = props;
   const {width, height} = useWindowDimensions();
   const {defaultContent} = useContent();
-  const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
+  const {setMeetingTranscript} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
   const {setRoomInfo} = useSetRoomInfo();
   const heading = useString<'Set' | 'Changed'>(sttSpokenLanguageToastHeading);
@@ -1250,7 +1253,7 @@ const Controls = (props: ControlsProps) => {
       };
     });
     // syncing local set language
-    newLang && setLanguage(newLang);
+    // newLang && setLanguage(newLang);
     // add spoken lang msg to transcript
     setMeetingTranscript(prev => {
       return [
@@ -1267,9 +1270,10 @@ const Controls = (props: ControlsProps) => {
     addStreamMessageListener();
   }, [sttLanguage]);
 
-  React.useEffect(() => {
-    setIsSTTActive(isSTTActive);
-  }, [isSTTActive]);
+  // Ask bhupendra
+  // React.useEffect(() => {
+  //   setIsSTTActive(isSTTActive);
+  // }, [isSTTActive]);
 
   const isHidden = (hide: ToolbarItemHide = false) => {
     try {

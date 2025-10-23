@@ -20,13 +20,20 @@ import {
 } from '../../components/chat-ui/useChatUIControls';
 import {numFormatter} from '../../utils';
 import ChatContext from '../../components/ChatContext';
-import {useCaption} from '../../subComponents/caption/useCaption';
+import {
+  LanguageTranslationConfig,
+  useCaption,
+} from '../../subComponents/caption/useCaption';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
 import {calculatePosition, isMobileUA} from '../../utils/common';
 import LanguageSelectorPopup from '../../subComponents/caption/LanguageSelectorPopup';
 import useSTTAPI from '../../subComponents/caption/useSTTAPI';
 import useGetName from '../../utils/useGetName';
-import {LanguageType, mergeTranslationConfigs, TranslateConfig} from '../../subComponents/caption/utils';
+import {
+  LanguageType,
+  mergeTranslationConfigs,
+  TranslateConfig,
+} from '../../subComponents/caption/utils';
 import {useRoomInfo, usePreCall} from 'customization-api';
 import useTranscriptDownload from '../../subComponents/caption/useTranscriptDownload';
 import {useVB} from '../../components/virtual-background/useVB';
@@ -264,8 +271,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     language: prevLang,
     meetingTranscript,
     isLangChangeInProgress,
-    setLanguage,
-    selectedTranslationLanguage
+    selectedTranslationLanguage,
   } = useCaption();
   const {downloadTranscript} = useTranscriptDownload();
   const [modalPosition, setModalPosition] = React.useState({});
@@ -279,9 +285,10 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const username = useGetName();
   const actionMenuitems: ActionMenuItem[] = [];
   const {
-    data: {isHost},sttLanguage
+    data: {isHost},
+    sttLanguage,
   } = useRoomInfo();
-
+  const {handleTranslateConfigChange, stopSTTBotSession} = useCaption();
   const downloadTranscriptLabel = useString(sttDownloadTranscriptBtnText)();
   const changeSpokenLanguage = useString<boolean>(
     sttChangeSpokenLanguageText,
@@ -306,11 +313,11 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: changeTranslationLanguage,
+    title: 'Stop Translation',
     disabled: false,
     onPress: () => {
       setActionMenuVisible(false);
-      setTranslateMenuOpen(true);
+      stopSTTBotSession();
     },
   });
 
@@ -326,50 +333,27 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     },
   });
 
-  const onLanguageChange = (langChanged = false,  allLanguages: LanguageType[],
-    userOwnLanguages?: LanguageType[]) => {
-      console.log('TranscriptHeaderActionMenu - onLanguageChange - selectedTranslationLanguage, sttLanguage:', selectedTranslationLanguage, sttLanguage);
+  actionMenuitems.push({
+    icon: 'transcript-stop',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Stop generating transcript',
+    disabled: meetingTranscript.length === 0,
+    onPress: () => {
+      setActionMenuVisible(false);
+    },
+  });
+
+  const onLanguageChange = (
+    inputTranslateConfig: LanguageTranslationConfig,
+  ) => {
+    console.log(
+      '[STT_PER_USER_BOT] SidePanelHeader TranscriptHeaderActionMenu - onLanguageChange - sourceLanguage , targetLanguage:',
+      inputTranslateConfig,
+    );
     setLanguagePopup(false);
-    if (langChanged) {
-      // If user has translation selected, we need to merge translation configs
-      let translateConfigToPass = null;
-      
-      if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
-        // Get existing translate config from room state
-        const existingTranslateConfig = sttLanguage?.translateConfig || [];
-
-        // Use utility function to merge translation configs
-        const mergedTranslateConfig = mergeTranslationConfigs(
-          existingTranslateConfig,
-          userOwnLanguages || [],
-          selectedTranslationLanguage,
-        );
-
-        translateConfigToPass = {
-          translate_config: mergedTranslateConfig,
-          userSelectedTranslation: selectedTranslationLanguage,
-        };
-      }
-
-      // Pass translation config to restart if available
-      restart(allLanguages, userOwnLanguages, translateConfigToPass)
-        .then(() => {
-          logger.debug(
-            LogSource.Internals,
-            'STT',
-            'stt restarted successfully',
-          );
-        })
-        .catch(error => {
-          logger.error(
-            LogSource.Internals,
-            'STT',
-            'Error in restarting',
-            error,
-          );
-          // Handle the error case
-        });
-    }
+    // Update caption with new language configuration
+    handleTranslateConfigChange(inputTranslateConfig);
   };
 
   React.useEffect(() => {

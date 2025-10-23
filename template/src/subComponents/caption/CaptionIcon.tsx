@@ -1,7 +1,7 @@
 import {View} from 'react-native';
 import React from 'react';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
-import {useCaption} from './useCaption';
+import {LanguageTranslationConfig, useCaption} from './useCaption';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import {useString} from '../../utils/useString';
@@ -26,7 +26,13 @@ const CaptionIcon = (props: CaptionIconProps) => {
     isOnActionSheet = false,
     closeActionSheet,
   } = props;
-  const {isCaptionON, setIsCaptionON, isSTTActive, isSTTError} = useCaption();
+  const {
+    isCaptionON,
+    setIsCaptionON,
+    isSTTActive,
+    isSTTError,
+    handleTranslateConfigChange,
+  } = useCaption();
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -80,20 +86,20 @@ const CaptionIcon = (props: CaptionIconProps) => {
     iconButtonProps.toolTipMessage = label;
   }
 
-  const onConfirm = async (langChanged, language, userOwnLanguages) => {
+  const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
     setLanguagePopup(false);
     closeActionSheet();
-    isFirstTimePopupOpen.current = false;
-    const method = isCaptionON ? 'stop' : 'start';
-    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    // isFirstTimePopupOpen.current = false;
+    // const method = isCaptionON ? 'stop' : 'start';
+    // if (method === 'stop') {
+    //   return;
+    // } // not closing the stt service as it will stop for whole channel
+    // if (method === 'start' && isSTTActive === true) {
+    //   return;
+    // } // not triggering the start service if STT Service already started by anyone else in the channel
     setIsCaptionON(prev => !prev);
     try {
-      const res = await start(language, userOwnLanguages);
-      if (res?.message.includes('STARTED')) {
-        // channel is already started now restart
-        await restart(language, userOwnLanguages);
-      }
+      handleTranslateConfigChange(inputTranslateConfig);
     } catch (error) {
       console.log('eror in starting stt', error);
     }
@@ -106,7 +112,6 @@ const CaptionIcon = (props: CaptionIconProps) => {
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}
         onConfirm={onConfirm}
-        isFirstTimePopupOpen={isFirstTimePopupOpen.current}
       />
     </View>
   );
