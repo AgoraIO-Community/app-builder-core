@@ -38,8 +38,10 @@ const useSpeechToText = () => {
   } = useCaption();
   const {setSidePanel} = useSidePanel();
 
+  // const {start, restart, stop, isAuthorizedSTTUser} = useSTTAPI();
   const {defaultContent} = useContent();
 
+  // const isAuthorizedSTTUserRef = useRef(isAuthorizedSTTUser);
   const defaultContentRef = useRef(defaultContent);
   const {RtcEngineUnsafe} = useRtc();
   const {streamMessageCallback} = useStreamMessageUtils();
@@ -82,10 +84,17 @@ const useSpeechToText = () => {
   const startSpeechToText = async (
     translateConfig: LanguageTranslationConfig,
   ) => {
+    //  if (!isAuthorizedSTTUserRef.current) {
+    //   throw new Error('Invalid user');
+    // }
     return await startSTTBotSession(translateConfig);
   };
 
   const stopSpeechToText = async () => {
+    // Ask-bhupendra
+    // if (!isAuthorizedSTTUserRef.current) {
+    //   throw new Error('Invalid user');
+    // }
     return await stopSTTBotSession();
   };
 
@@ -110,6 +119,9 @@ const useSpeechToText = () => {
   const changeSpeakingLanguage = async (
     translateConfig: LanguageTranslationConfig,
   ) => {
+    // if (!isAuthorizedSTTUserRef.current) {
+    //   throw new Error('Invalid user');
+    // }
     return await updateSTTBotSession(translateConfig);
   };
 
