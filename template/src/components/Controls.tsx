@@ -327,7 +327,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
-  const isFirstTimePopupOpen = React.useRef(false);
+  // const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
   const {
     data: {isHost},
@@ -551,7 +551,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           setIsCaptionON(prev => !prev);
           // is lang popup has been shown once for any user in meeting
         } else {
-          isFirstTimePopupOpen.current = true;
+          // isFirstTimePopupOpen.current = true;
           setLanguagePopup(true);
         }
       },
@@ -585,7 +585,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
               ? setSidePanel(SidePanelType.Transcript)
               : setSidePanel(SidePanelType.None);
           } else {
-            isFirstTimePopupOpen.current = true;
+            // isFirstTimePopupOpen.current = true;
             setLanguagePopup(true);
           }
         },
@@ -856,7 +856,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     const isCaptionClicked = STT_clicked.current === 'caption';
     const isTranscriptClicked = STT_clicked.current === 'transcript';
     setLanguagePopup(false);
-    isFirstTimePopupOpen.current = false;
+    // isFirstTimePopupOpen.current = false;
 
     // Handle transcript panel toggling
     if (isTranscriptClicked) {
@@ -866,12 +866,18 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         setSidePanel(SidePanelType.None);
       }
     }
-
+    // if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    // if (method === 'start' && isSTTActive === true) return;
     if (isCaptionClicked) {
       setIsCaptionON(prev => !prev);
     } else {
     }
     try {
+      // const res = await start(language, language);
+      // if (res?.message.includes('STARTED')) {
+      //   // channel is already started now restart
+      //   await restart(language, language);
+      // }
       handleTranslateConfigChange(inputTranslateConfig);
     } catch (error) {
       logger.error(
