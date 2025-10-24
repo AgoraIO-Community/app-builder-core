@@ -30,7 +30,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     isMobileView = false,
   } = props;
 
-  const {start} = useSTTAPI();
+  // const {start} = useSTTAPI();
   const {isSTTActive, isSTTError, handleTranslateConfigChange} = useCaption();
   const isDisabled = false;
   const [isLanguagePopupOpen, setLanguagePopup] =
@@ -88,10 +88,6 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
     setLanguagePopup(false);
 
-    isFirstTimePopupOpen.current = false;
-    const method = isTranscriptON ? 'stop' : 'start';
-    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
     if (!isTranscriptON) {
       setSidePanel(SidePanelType.Transcript);
     } else {

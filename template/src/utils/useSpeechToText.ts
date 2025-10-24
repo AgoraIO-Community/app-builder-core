@@ -8,7 +8,10 @@ import {
   useSidePanel,
 } from 'customization-api';
 import useTranscriptDownload from '../subComponents/caption/useTranscriptDownload';
-import {useCaption} from '../subComponents/caption/useCaption';
+import {
+  LanguageTranslationConfig,
+  useCaption,
+} from '../subComponents/caption/useCaption';
 import {LanguageType} from '../subComponents/caption/utils';
 import useStreamMessageUtils from '../subComponents/caption/useStreamMessageUtils';
 import {
@@ -28,13 +31,15 @@ const useSpeechToText = () => {
     activeSpeakerRef,
     isSTTListenerAdded,
     setIsSTTListenerAdded,
+    localBotUid,
+    startSTTBotSession,
+    updateSTTBotSession,
+    stopSTTBotSession,
   } = useCaption();
   const {setSidePanel} = useSidePanel();
 
-  const {start, restart, stop, isAuthorizedSTTUser} = useSTTAPI();
   const {defaultContent} = useContent();
 
-  const isAuthorizedSTTUserRef = useRef(isAuthorizedSTTUser);
   const defaultContentRef = useRef(defaultContent);
   const {RtcEngineUnsafe} = useRtc();
   const {streamMessageCallback} = useStreamMessageUtils();
@@ -56,9 +61,9 @@ const useSpeechToText = () => {
     }
   }, []);
 
-  useEffect(() => {
-    isAuthorizedSTTUserRef.current = isAuthorizedSTTUser;
-  }, [isAuthorizedSTTUser]);
+  // useEffect(() => {
+  //   isAuthorizedSTTUserRef.current = isAuthorizedSTTUser;
+  // }, [isAuthorizedSTTUser]);
 
   useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -74,18 +79,14 @@ const useSpeechToText = () => {
     return defaultContentRef.current[prevSpeakerRef.current]?.name || '';
   };
 
-  const startSpeechToText = async (language: LanguageType[]) => {
-    if (!isAuthorizedSTTUserRef.current) {
-      throw new Error('Invalid user');
-    }
-    return await start(language);
+  const startSpeechToText = async (
+    translateConfig: LanguageTranslationConfig,
+  ) => {
+    return await startSTTBotSession(translateConfig);
   };
 
   const stopSpeechToText = async () => {
-    if (!isAuthorizedSTTUserRef.current) {
-      throw new Error('Invalid user');
-    }
-    return await stop();
+    return await stopSTTBotSession();
   };
 
   const addStreamMessageListener = () => {
@@ -106,11 +107,10 @@ const useSpeechToText = () => {
     }
   };
 
-  const changeSpeakingLanguage = async (language: LanguageType[]) => {
-    if (!isAuthorizedSTTUserRef.current) {
-      throw new Error('Invalid user');
-    }
-    return await restart(language);
+  const changeSpeakingLanguage = async (
+    translateConfig: LanguageTranslationConfig,
+  ) => {
+    return await updateSTTBotSession(translateConfig);
   };
 
   return $config.ENABLE_STT

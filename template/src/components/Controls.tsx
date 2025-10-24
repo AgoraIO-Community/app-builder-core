@@ -1193,82 +1193,82 @@ const Controls = (props: ControlsProps) => {
     username: string;
   }>(sttSpokenLanguageToastSubHeading);
 
-  const {sttLanguage, isSTTActive} = useRoomInfo();
-  const {addStreamMessageListener} = useSpeechToText();
+  // const {sttLanguage} = useRoomInfo();
+  // const {addStreamMessageListener} = useSpeechToText();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
-  React.useEffect(() => {
-    // for mobile events are set in ActionSheetContent
-    if (!sttLanguage) return;
-    const {
-      username,
-      prevLang,
-      newLang,
-      uid,
-      langChanged,
-    }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
-    if (!langChanged) return;
-    const actionText =
-      prevLang.indexOf('') !== -1
-        ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
-        : `changed the spoken language from "${getLanguageLabel(
-            prevLang,
-          )}" to "${getLanguageLabel(newLang)}" `;
-    // const msg = `${
-    //   //@ts-ignore
-    //   defaultContentRef.current[uid]?.name || username
-    // } ${actionText} `;
-    let subheadingObj: any = {};
-    if (prevLang.indexOf('') !== -1) {
-      subheadingObj = {
-        username: defaultContentRef.current[uid]?.name || username,
-        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
-        newLanguage: getLanguageLabel(newLang),
-      };
-    } else {
-      subheadingObj = {
-        username: defaultContentRef.current[uid]?.name || username,
-        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
-        newLanguage: getLanguageLabel(newLang),
-        oldLanguage: getLanguageLabel(prevLang),
-      };
-    }
+  // React.useEffect(() => {
+  //   // for mobile events are set in ActionSheetContent
+  //   if (!sttLanguage) return;
+  //   const {
+  //     username,
+  //     prevLang,
+  //     newLang,
+  //     uid,
+  //     langChanged,
+  //   }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+  //   if (!langChanged) return;
+  //   const actionText =
+  //     prevLang.indexOf('') !== -1
+  //       ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+  //       : `changed the spoken language from "${getLanguageLabel(
+  //           prevLang,
+  //         )}" to "${getLanguageLabel(newLang)}" `;
+  //   // const msg = `${
+  //   //   //@ts-ignore
+  //   //   defaultContentRef.current[uid]?.name || username
+  //   // } ${actionText} `;
+  //   let subheadingObj: any = {};
+  //   if (prevLang.indexOf('') !== -1) {
+  //     subheadingObj = {
+  //       username: defaultContentRef.current[uid]?.name || username,
+  //       action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+  //       newLanguage: getLanguageLabel(newLang),
+  //     };
+  //   } else {
+  //     subheadingObj = {
+  //       username: defaultContentRef.current[uid]?.name || username,
+  //       action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+  //       newLanguage: getLanguageLabel(newLang),
+  //       oldLanguage: getLanguageLabel(prevLang),
+  //     };
+  //   }
 
-    // Toast.show({
-    //   leadingIconName: 'lang-select',
-    //   type: 'info',
-    //   text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
-    //   visibilityTime: 3000,
-    //   primaryBtn: null,
-    //   secondaryBtn: null,
-    //   text2: subheading(subheadingObj),
-    // });
-    setRoomInfo(prev => {
-      return {
-        ...prev,
-        sttLanguage: {...sttLanguage, langChanged: false},
-      };
-    });
-    // syncing local set language
-    // newLang && setLanguage(newLang);
-    // add spoken lang msg to transcript
-    setMeetingTranscript(prev => {
-      return [
-        ...prev,
-        {
-          name: 'langUpdate',
-          time: new Date().getTime(),
-          uid: `langUpdate-${uid}`,
-          text: actionText,
-        },
-      ];
-    });
-    // start listening to stream Message callback
-    addStreamMessageListener();
-  }, [sttLanguage]);
+  //   // Toast.show({
+  //   //   leadingIconName: 'lang-select',
+  //   //   type: 'info',
+  //   //   text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
+  //   //   visibilityTime: 3000,
+  //   //   primaryBtn: null,
+  //   //   secondaryBtn: null,
+  //   //   text2: subheading(subheadingObj),
+  //   // });
+  //   setRoomInfo(prev => {
+  //     return {
+  //       ...prev,
+  //       sttLanguage: {...sttLanguage, langChanged: false},
+  //     };
+  //   });
+  //   // syncing local set language
+  //   // newLang && setLanguage(newLang);
+  //   // add spoken lang msg to transcript
+  //   setMeetingTranscript(prev => {
+  //     return [
+  //       ...prev,
+  //       {
+  //         name: 'langUpdate',
+  //         time: new Date().getTime(),
+  //         uid: `langUpdate-${uid}`,
+  //         text: actionText,
+  //       },
+  //     ];
+  //   });
+  //   // start listening to stream Message callback
+  //   addStreamMessageListener();
+  // }, [sttLanguage]);
 
   // Ask bhupendra
   // React.useEffect(() => {

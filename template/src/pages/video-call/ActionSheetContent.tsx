@@ -207,7 +207,7 @@ const ActionSheetContent = props => {
 
   const {localUid} = useContext(ChatContext);
   const {rtcProps} = useContext(PropsContext);
-  const {setRoomInfo} = useSetRoomInfo();
+  // const {setRoomInfo} = useSetRoomInfo();
   const {
     data: {isHost},
     sttLanguage,
@@ -216,91 +216,84 @@ const ActionSheetContent = props => {
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
-  const {setMeetingTranscript} = useCaption();
+  // const {setMeetingTranscript} = useCaption();
   const {defaultContent} = useContent();
   const {waitingRoomUids} = useWaitingRoomContext();
   const defaultContentRef = React.useRef(defaultContent);
-  const {addStreamMessageListener} = useSpeechToText();
+  // const {addStreamMessageListener} = useSpeechToText();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
-  //STT events on mount
-
-  // Ask Bhupendra
   // React.useEffect(() => {
-  //   setIsSTTActive(isSTTActive);
-  // }, [isSTTActive]);
+  //   // for mobile events are set in ActionSheetContent
+  //   if (!sttLanguage) return;
+  //   const {
+  //     username,
+  //     prevLang,
+  //     newLang,
+  //     uid,
+  //     langChanged,
+  //   }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+  //   if (!langChanged) return;
+  //   const actionText =
+  //     prevLang.indexOf('') !== -1
+  //       ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+  //       : `changed the spoken language from "${getLanguageLabel(
+  //           prevLang,
+  //         )}" to "${getLanguageLabel(newLang)}" `;
+  //   const msg = `${
+  //     defaultContentRef.current[uid]?.name || username
+  //   } ${actionText} `;
 
-  React.useEffect(() => {
-    // for mobile events are set in ActionSheetContent
-    if (!sttLanguage) return;
-    const {
-      username,
-      prevLang,
-      newLang,
-      uid,
-      langChanged,
-    }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
-    if (!langChanged) return;
-    const actionText =
-      prevLang.indexOf('') !== -1
-        ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
-        : `changed the spoken language from "${getLanguageLabel(
-            prevLang,
-          )}" to "${getLanguageLabel(newLang)}" `;
-    const msg = `${
-      defaultContentRef.current[uid]?.name || username
-    } ${actionText} `;
-
-    let subheadingObj: any = {};
-    if (prevLang.indexOf('') !== -1) {
-      subheadingObj = {
-        username: defaultContentRef.current[uid]?.name || username,
-        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
-        newLanguage: getLanguageLabel(newLang),
-      };
-    } else {
-      subheadingObj = {
-        username: defaultContentRef.current[uid]?.name || username,
-        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
-        newLanguage: getLanguageLabel(newLang),
-        oldLanguage: getLanguageLabel(prevLang),
-      };
-    }
-    Toast.show({
-      leadingIconName: 'lang-select',
-      type: 'info',
-      text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
-      visibilityTime: 3000,
-      primaryBtn: null,
-      secondaryBtn: null,
-      text2: subheading(subheadingObj),
-    });
-    setRoomInfo(prev => {
-      return {
-        ...prev,
-        sttLanguage: {...sttLanguage, langChanged: false},
-      };
-    });
-    // syncing local set language
-    // newLang && setLanguage(newLang);
-    // add spoken lang msg to transcript
-    setMeetingTranscript(prev => {
-      return [
-        ...prev,
-        {
-          name: 'langUpdate',
-          time: new Date().getTime(),
-          uid: `langUpdate-${uid}`,
-          text: actionText,
-        },
-      ];
-    });
-    // start listening to stream Message callback
-    addStreamMessageListener();
-  }, [sttLanguage]);
+  //   let subheadingObj: any = {};
+  //   if (prevLang.indexOf('') !== -1) {
+  //     subheadingObj = {
+  //       username: defaultContentRef.current[uid]?.name || username,
+  //       action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+  //       newLanguage: getLanguageLabel(newLang),
+  //     };
+  //   } else {
+  //     subheadingObj = {
+  //       username: defaultContentRef.current[uid]?.name || username,
+  //       action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+  //       newLanguage: getLanguageLabel(newLang),
+  //       oldLanguage: getLanguageLabel(prevLang),
+  //     };
+  //   }
+  //   Toast.show({
+  //     leadingIconName: 'lang-select',
+  //     type: 'info',
+  //     text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
+  //     visibilityTime: 3000,
+  //     primaryBtn: null,
+  //     secondaryBtn: null,
+  //     text2: subheading(subheadingObj),
+  //   });
+  //   setRoomInfo(prev => {
+  //     return {
+  //       ...prev,
+  //       sttLanguage: {...sttLanguage, langChanged: false},
+  //     };
+  //   });
+  //   // syncing local set language
+  //   // newLang && setLanguage(newLang);
+  //   // add spoken lang msg to transcript
+  //   setMeetingTranscript(prev => {
+  //     return [
+  //       ...prev,
+  //       {
+  //         name: 'langUpdate',
+  //         time: new Date().getTime(),
+  //         uid: `langUpdate-${uid}`,
+  //         text: actionText,
+  //       },
+  //     ];
+  //   });
+  //   // start listening to stream Message callback
+  //   addStreamMessageListener();
+  // }, [sttLanguage]);
 
   const isLiveStream = $config.EVENT_MODE && !$config.AUDIO_ROOM;
   const isAudience = rtcProps?.role === ClientRoleType.ClientRoleAudience;

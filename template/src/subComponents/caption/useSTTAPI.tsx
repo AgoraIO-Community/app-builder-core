@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import StorageContext from '../../components/StorageContext';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {LanguageTranslationConfig} from './useCaption';
-import {PropsContext} from '../../../agora-rn-uikit';
+import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
 
@@ -34,22 +34,19 @@ const useSTTAPI = (): IuseSTTAPI => {
   } = useRoomInfo();
   const {rtcProps} = useContext(PropsContext);
   const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
-
+  const localUid = useLocalUid();
   const apiCall = async (
     method: string,
     botUid: number,
     translationConfig?: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
-    console.log(
-      '[STT_PER_USER_BOT] apiCall: ',
-      method,
-      botUid,
-      translationConfig,
-    );
     const requestId = getUniqueID();
     const startReqTs = Date.now();
 
     try {
+      // Calculate which user this bot belongs to
+      const ownerUid = botUid - 900000000;
+
       let requestBody: any = {
         passphrase: roomId?.host || roomId?.attendee || '',
         dataStream_uid: botUid,
@@ -57,6 +54,16 @@ const useSTTAPI = (): IuseSTTAPI => {
           ? rtcProps.encryption.mode
           : null,
       };
+
+      console.log(
+        `[STT_BOT_SUBSCRIPTION] ${method.toUpperCase()} - Bot UID: ${botUid} will subscribe to User UID: ${ownerUid}`,
+        {
+          method,
+          botUid,
+          ownerUid,
+          translationConfig,
+        },
+      );
 
       // Add translate_config only for start/update methods
       if (translationConfig?.source && translationConfig?.targets) {
@@ -66,6 +73,8 @@ const useSTTAPI = (): IuseSTTAPI => {
             target_lang: translationConfig.targets,
           },
         ];
+        requestBody.lang = translationConfig.source;
+        requestBody.subscribeAudioUids = [`${localUid}`];
       }
 
       const response = await fetch(`${STT_API_URL}/${method}`, {
@@ -142,7 +151,6 @@ const useSTTAPI = (): IuseSTTAPI => {
     botUid: number,
     translationConfig: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
-    console.log('[STT_PER_USER_BOT] start called', translationConfig, botUid);
     return await apiCall('startv7', botUid, translationConfig);
   };
 
@@ -150,12 +158,10 @@ const useSTTAPI = (): IuseSTTAPI => {
     botUid: number,
     translationConfig: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
-    console.log('[STT_PER_USER_BOT] update called', botUid, translationConfig);
     return await apiCall('update', botUid, translationConfig);
   };
 
   const stop = async (botUid: number): Promise<STTAPIResponse> => {
-    console.log('[STT_PER_USER_BOT] stop called', botUid);
     return await apiCall('stopv7', botUid);
   };
 

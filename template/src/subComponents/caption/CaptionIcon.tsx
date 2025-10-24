@@ -38,8 +38,8 @@ const CaptionIcon = (props: CaptionIconProps) => {
     React.useState<boolean>(false);
 
   const isFirstTimePopupOpen = React.useRef(false);
-  const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
-  const isDisabled = !isAuthorizedSTTUser();
+  // const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
+  const isDisabled = false;
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
   const label = captionLabel(isCaptionON);
   const onPress = () => {
@@ -89,7 +89,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
     setLanguagePopup(false);
     closeActionSheet();
-    // isFirstTimePopupOpen.current = false;
+    isFirstTimePopupOpen.current = false;
     // const method = isCaptionON ? 'stop' : 'start';
     // if (method === 'stop') {
     //   return;

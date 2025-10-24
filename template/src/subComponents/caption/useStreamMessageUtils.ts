@@ -28,12 +28,14 @@ const useStreamMessageUtils = (): {
     // Use ref instead of state to avoid stale closure issues
     // The ref always has the current value, even in callbacks created at mount time
     selectedTranslationLanguageRef,
+    localBotUid,
   } = useCaption();
 
   let captionStartTime: number = 0;
   const finalList: FinalListType = {};
   const finalTranscriptList: FinalListType = {};
   const finalTranslationList: FinalTranslationListType = {};
+  const finalTranscriptTranslationList: FinalTranslationListType = {}; // Separate for transcript - never cleared
   const queue = new PQueue({concurrency: 1});
 
   const streamMessageCallback: StreamMessageCallback = args => {
@@ -42,6 +44,20 @@ const useStreamMessageUtils = (): {
        payload - stream message in Uint8Array format
       */
       const [botUID, payload] = args1;
+
+      // Calculate which user this bot belongs to (for logging/debugging)
+      const ownerUid = botUID - 900000000;
+      const isLocalBot = botUID === localBotUid;
+
+      console.log(
+        `[STT_STREAM_MESSAGE] Received from Bot UID: ${botUID} (User: ${ownerUid}, ${isLocalBot ? 'LOCAL' : 'REMOTE'})`,
+      );
+
+      // IMPORTANT: We process ALL bot messages (local + remote)
+      // - Local bot messages: Show your own transcriptions
+      // - Remote bot messages: Show other users' transcriptions
+      // DO NOT filter by botUID - we want to see everyone's transcriptions!
+
       let nonFinalText = ''; // holds intermediate results
       let finalText = ''; // holds final strings
       let currentFinalText = ''; // holds current caption
@@ -151,10 +167,22 @@ const useStreamMessageUtils = (): {
             finalTranslationList[textstream.uid][lang] = [];
           }
 
+          // Also maintain separate list for transcript (never cleared)
+          if (!finalTranscriptTranslationList[textstream.uid]) {
+            finalTranscriptTranslationList[textstream.uid] = {};
+          }
+          if (!finalTranscriptTranslationList[textstream.uid][lang]) {
+            finalTranscriptTranslationList[textstream.uid][lang] = [];
+          }
+
           const currentTranslationText = texts.join(' ');
           if (currentTranslationText) {
             if (isFinal) {
               finalTranslationList[textstream.uid][lang].push(
+                currentTranslationText,
+              );
+              // Also add to transcript list
+              finalTranscriptTranslationList[textstream.uid][lang].push(
                 currentTranslationText,
               );
             }
@@ -220,29 +248,36 @@ const useStreamMessageUtils = (): {
       }
 
       /* Updating Meeting Transcript */
-      if (currentFinalText.length) {
-        //  final translations for transcript - include ALL available final translations for this user
-        const finalTranslationsForTranscript: TranslationData[] = [];
-        if (finalTranslationList[textstream.uid]) {
-          Object.keys(finalTranslationList[textstream.uid]).forEach(lang => {
-            const translationText =
-              finalTranslationList[textstream.uid][lang]?.join(' ') || '';
-            if (translationText) {
-              finalTranslationsForTranscript.push({
-                lang: lang,
-                text: translationText,
-                isFinal: true,
-              });
-            }
-          });
-        }
+      // Check if we have final translations to add (even if no new final text)
+      const hasFinalTranslations = translations.some(t => t.isFinal);
 
+      if (currentFinalText.length || hasFinalTranslations) {
         setMeetingTranscript(prevTranscript => {
           const lastTranscriptIndex = prevTranscript.length - 1;
           const lastTranscript =
             lastTranscriptIndex >= 0
               ? prevTranscript[lastTranscriptIndex]
               : null;
+
+          // Build final translations INSIDE setState to ensure we have the latest data
+          const finalTranslationsForTranscript: TranslationData[] = [];
+          if (finalTranscriptTranslationList[textstream.uid]) {
+            Object.keys(finalTranscriptTranslationList[textstream.uid]).forEach(
+              lang => {
+                const translationText =
+                  finalTranscriptTranslationList[textstream.uid][lang]?.join(
+                    ' ',
+                  ) || '';
+                if (translationText) {
+                  finalTranslationsForTranscript.push({
+                    lang: lang,
+                    text: translationText,
+                    isFinal: true,
+                  });
+                }
+              },
+            );
+          }
 
           /*
             checking if the last item transcript matches with current uid
@@ -252,7 +287,6 @@ const useStreamMessageUtils = (): {
           if (lastTranscript && lastTranscript.uid === textstream.uid) {
             const updatedTranscript = {
               ...lastTranscript,
-              //text: lastTranscript.text + ' ' + currentFinalText, // missing few updates with reading prev values
               text: finalTranscriptList[textstream.uid].join(' '),
               translations: finalTranslationsForTranscript,
               // preserve the original translation language from when this transcript was created
@@ -264,15 +298,21 @@ const useStreamMessageUtils = (): {
               ...prevTranscript.slice(0, lastTranscriptIndex),
               updatedTranscript,
             ];
-          } else {
-            finalTranscriptList[textstream.uid] = [currentFinalText];
+          } else if (currentFinalText.length) {
+            // Only create new transcript entry if we have actual new final text
+            // Don't reset finalTranscriptList - keep appending to maintain full history
+            // Only initialize if it doesn't exist
+            if (!finalTranscriptList[textstream.uid]) {
+              finalTranscriptList[textstream.uid] = [];
+            }
+            finalTranscriptList[textstream.uid].push(currentFinalText);
 
             return [
               ...prevTranscript,
               {
                 uid: textstream.uid,
                 time: new Date().getTime(),
-                text: currentFinalText,
+                text: finalTranscriptList[textstream.uid].join(' '),
                 translations: finalTranslationsForTranscript,
                 // Store the current translation language with this transcript item
                 // This preserves which translation was active when this text was spoken
@@ -280,6 +320,33 @@ const useStreamMessageUtils = (): {
                   selectedTranslationLanguageRef.current,
               },
             ];
+          } else {
+            // We have final translations but no new final text
+            // This means we need to find and update the transcript entry for this user
+            // Find the last transcript entry for this user (not just the last overall entry)
+            let userTranscriptIndex = -1;
+            for (let i = prevTranscript.length - 1; i >= 0; i--) {
+              if (prevTranscript[i].uid === textstream.uid) {
+                userTranscriptIndex = i;
+                break;
+              }
+            }
+
+            if (userTranscriptIndex >= 0) {
+              const userTranscript = prevTranscript[userTranscriptIndex];
+              const updatedTranscript = {
+                ...userTranscript,
+                translations: finalTranslationsForTranscript,
+              };
+
+              return [
+                ...prevTranscript.slice(0, userTranscriptIndex),
+                updatedTranscript,
+                ...prevTranscript.slice(userTranscriptIndex + 1),
+              ];
+            } else {
+              return prevTranscript;
+            }
           }
         });
       }
@@ -336,7 +403,6 @@ const useStreamMessageUtils = (): {
     };
     (async () => {
       await queue.add(() => queueCallback(args));
-      console.log('[STT_PER_USER_BOT] stt- using pq queue');
     })();
   };
 

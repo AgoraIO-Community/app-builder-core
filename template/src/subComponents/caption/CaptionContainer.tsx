@@ -413,11 +413,25 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const {
     language: currentSpokenLanguages,
     selectedTranslationLanguage,
+    setSelectedTranslationLanguage,
     setMeetingTranscript,
+    translationConfig,
   } = useCaption();
   const {update} = useSTTAPI();
   const localUid = useLocalUid();
   const {sttLanguage} = useRoomInfo();
+
+  // Reset selected translation language if there are no targets configured
+  const targetLanguages = translationConfig?.targets || [];
+  React.useEffect(() => {
+    if (targetLanguages.length === 0 && selectedTranslationLanguage !== '') {
+      setSelectedTranslationLanguage('');
+    }
+  }, [
+    targetLanguages.length,
+    selectedTranslationLanguage,
+    setSelectedTranslationLanguage,
+  ]);
 
   const actionMenuitems: ActionMenuItem[] = [];
 
@@ -430,115 +444,98 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
     onPress: () => {},
   });
 
-  const handleTranslationToggle = async (targetLanguage: string) => {
-    try {
-      const prevTranslationLanguage = selectedTranslationLanguage;
+  const handleTranslationToggle = (targetLanguage: string) => {
+    // Simply update the selected translation language locally
+    // No API call needed - we're just switching between already-configured target languages
+    const prevTranslationLanguage = selectedTranslationLanguage;
+    setSelectedTranslationLanguage(targetLanguage);
 
-      if (targetLanguage === '') {
-        // turn off translation - todo test
-        await update({
-          translate_config: [],
-          lang: currentSpokenLanguages,
-          userSelectedTranslation: '', // Empty string for "off"
-          isTranslationChange: true,
-        });
-      } else {
-        // Get existing translate config from room state
-        const existingTranslateConfig = sttLanguage?.translateConfig || [];
+    // Add translation language change notification to transcript
+    const getLanguageName = (langCode: string) => {
+      if (!langCode) return '';
+      const lang = langData.find(data => data.value === langCode);
+      return lang ? lang.label : langCode;
+    };
 
-        // Use utility function to merge translation configs
-        const mergedTranslateConfig = mergeTranslationConfigs(
-          existingTranslateConfig,
-          currentSpokenLanguages,
-          targetLanguage,
-        );
+    const actionText =
+      targetLanguage === ''
+        ? 'turned off translation'
+        : prevTranslationLanguage === ''
+        ? `set the translation language to "${getLanguageName(targetLanguage)}"`
+        : `changed the translation language from "${getLanguageName(
+            prevTranslationLanguage,
+          )}" to "${getLanguageName(targetLanguage)}"`;
 
-        await update({
-          translate_config: mergedTranslateConfig,
-          lang: currentSpokenLanguages,
-          userSelectedTranslation: targetLanguage,
-          isTranslationChange: true,
-        });
-      }
+    setMeetingTranscript(prev => [
+      ...prev,
+      {
+        name: 'translationUpdate',
+        time: new Date().getTime(),
+        uid: `translationUpdate-${localUid}`,
+        text: actionText,
+      },
+    ]);
 
-      // Add translation language change notification to transcript
-      const getLanguageName = (langCode: string) => {
-        if (!langCode) return '';
-        const lang = langData.find(data => data.value === langCode);
-        return lang ? lang.label : langCode;
-      };
-
-      const actionText =
-        targetLanguage === ''
-          ? 'turned off translation'
-          : prevTranslationLanguage === ''
-          ? `set the translation language to "${getLanguageName(
-              targetLanguage,
-            )}"`
-          : `changed the translation language from "${getLanguageName(
-              prevTranslationLanguage,
-            )}" to "${getLanguageName(targetLanguage)}"`;
-
-      setMeetingTranscript(prev => [
-        ...prev,
-        {
-          name: 'translationUpdate',
-          time: new Date().getTime(),
-          uid: `translationUpdate-${localUid}`,
-          text: actionText,
-        },
-      ]);
-
-      setActionMenuVisible(false);
-    } catch (error) {
-      logger.error(
-        LogSource.Internals,
-        'STT',
-        'Failed to update translation configuration',
-        error,
-      );
-    }
+    setActionMenuVisible(false);
   };
 
-  actionMenuitems.push({
-    icon: selectedTranslationLanguage === '' ? 'tick-fill' : undefined,
-    iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Off',
-    iconPosition: 'end',
-    onPress: () => handleTranslationToggle(''),
-  });
+  // Check if there are any target languages configured
+  if (targetLanguages.length === 0) {
+    // No target languages - show a disabled message
+    actionMenuitems.push({
+      icon: undefined,
+      iconColor: $config.FONT_COLOR,
+      textColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
+      title: 'No languages configured',
+      iconPosition: 'end',
+      disabled: true,
+      onPress: () => {},
+    });
+  } else {
+    // Show "Off" option and target languages
+    actionMenuitems.push({
+      icon: selectedTranslationLanguage === '' ? 'tick-fill' : undefined,
+      iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Off',
+      iconPosition: 'end',
+      onPress: () => handleTranslationToggle(''),
+    });
 
-  // Add selected translation language right after "Off" if one is selected
-  if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
-    const selectedLanguage = langData.find(
-      lang => lang.value === selectedTranslationLanguage,
-    );
-    if (selectedLanguage) {
-      actionMenuitems.push({
-        icon: 'tick-fill',
-        iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-        textColor: $config.FONT_COLOR,
-        title: selectedLanguage.label,
-        iconPosition: 'end',
-        onPress: () => handleTranslationToggle(selectedLanguage.value),
-      });
+    // Add selected translation language right after "Off" if one is selected
+    if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
+      const selectedLanguage = langData.find(
+        lang => lang.value === selectedTranslationLanguage,
+      );
+      if (selectedLanguage) {
+        actionMenuitems.push({
+          icon: 'tick-fill',
+          iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+          textColor: $config.FONT_COLOR,
+          title: selectedLanguage.label,
+          iconPosition: 'end',
+          onPress: () => handleTranslationToggle(selectedLanguage.value),
+        });
+      }
     }
+
+    // Add remaining Translation language options from translationConfig.targets (excluding the selected one)
+    targetLanguages.forEach(targetLangCode => {
+      if (targetLangCode !== selectedTranslationLanguage) {
+        const language = langData.find(lang => lang.value === targetLangCode);
+        if (language) {
+          actionMenuitems.push({
+            icon: undefined,
+            iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+            textColor: $config.FONT_COLOR,
+            title: language.label,
+            iconPosition: 'end',
+            onPress: () => handleTranslationToggle(language.value),
+          });
+        }
+      }
+    });
   }
-
-  // Add remaining Translation language options (excluding the selected one)
-  langData.forEach(language => {
-    if (language.value !== selectedTranslationLanguage) {
-      actionMenuitems.push({
-        icon: undefined,
-        iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-        textColor: $config.FONT_COLOR,
-        title: language.label,
-        iconPosition: 'end',
-        onPress: () => handleTranslationToggle(language.value),
-      });
-    }
-  });
 
   React.useEffect(() => {
     if (actionMenuVisible) {

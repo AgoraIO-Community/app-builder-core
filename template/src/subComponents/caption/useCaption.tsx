@@ -122,10 +122,17 @@ export const CaptionContext = React.createContext<{
   handleTranslateConfigChange: (
     inputTranslationConfig: LanguageTranslationConfig,
   ) => Promise<void>;
+  startSTTBotSession: (
+    newConfig: LanguageTranslationConfig,
+  ) => Promise<STTAPIResponse>;
+  updateSTTBotSession: (
+    newConfig: LanguageTranslationConfig,
+  ) => Promise<STTAPIResponse>;
   stopSTTBotSession: () => Promise<void>;
 
   // Helper function to get user UID from bot UID
   getBotOwnerUid: (botUid: string | number) => string | number;
+  localBotUid: string | number;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -162,8 +169,11 @@ export const CaptionContext = React.createContext<{
   remoteSpokenLanguages: {},
   setRemoteSpokenLanguages: () => {},
   handleTranslateConfigChange: async () => {},
+  startSTTBotSession: async () => ({success: false}),
+  updateSTTBotSession: async () => ({success: false}),
   stopSTTBotSession: async () => {},
   getBotOwnerUid: (botUid: string | number) => botUid,
+  localBotUid: null,
 });
 
 interface CaptionProviderProps {
@@ -220,6 +230,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const prevSpeakerRef = React.useRef('');
   const selectedTranslationLanguageRef = React.useRef('');
 
+  // Sync ref with state for selectedTranslationLanguage
+  React.useEffect(() => {
+    selectedTranslationLanguageRef.current = selectedTranslationLanguage;
+  }, [selectedTranslationLanguage]);
+
   // Import STT API methods
   const {start, stop, update} = useSTTAPI();
 
@@ -233,6 +248,13 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     } // wait for room info to be ready
     const uid = generateBotUidForUser(localUid);
     setLocalBotUid(uid);
+
+    console.log(
+      `[STT_BOT_INIT] Local user UID: ${localUid}, Generated bot UID: ${uid}`,
+      '\n  → This bot will ONLY subscribe to local user audio (UID: ' +
+        localUid +
+        ')',
+    );
 
     // Also set the initial entry in userBotMap (inactive by default)
     setUserBotMap(prev => ({
@@ -252,12 +274,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         username: username,
       }),
       PersistanceLevel.Session,
-    );
-
-    console.log(
-      '[STT_PER_USER_BOT] Generated botUid for user:',
-      uid,
-      'and broadcasted to others',
     );
   }, [localUid, username]);
 
@@ -352,6 +368,157 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     );
   };
 
+  const startSTTBotSession = async (
+    newConfig: LanguageTranslationConfig,
+  ): Promise<STTAPIResponse> => {
+    if (!localBotUid || !localUid) {
+      console.warn('[STT] Missing localUid or botUid');
+      return {
+        success: false,
+        error: {message: 'Missing localUid or botUid'},
+      };
+    }
+
+    try {
+      setIsLangChangeInProgress(true);
+      const result = await start(localBotUid, newConfig);
+      console.log('STT start result: ', result);
+
+      if (result.success || result.error?.code === 610) {
+        // Success or already started
+        setIsSTTActive(true);
+        setUserBotMap(prev => ({
+          ...prev,
+          [localUid]: {
+            ...prev[localUid],
+            translationConfig: newConfig,
+          },
+        }));
+        setIsSTTError(false);
+
+        // Add transcript entry for language change
+        const actionText =
+          translationConfig?.source.indexOf('') !== -1 ||
+          translationConfig?.source.length === 0
+            ? `has set the spoken language to "${newConfig.source[0]}"`
+            : `changed the spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}"`;
+
+        setTranslationConfig(newConfig);
+        setMeetingTranscript(prev => [
+          ...prev,
+          {
+            name: 'langUpdate',
+            time: new Date().getTime(),
+            uid: `langUpdate-${localUid}`,
+            text: actionText,
+          },
+        ]);
+
+        // Broadcast spoken language to all users
+        events.send(
+          EventNames.STT_SPOKEN_LANGUAGE,
+          JSON.stringify({
+            userUid: localUid,
+            spokenLanguage: newConfig.source[0],
+            username: username,
+          }),
+          PersistanceLevel.Session,
+        );
+
+        logger.log(
+          LogSource.NetworkRest,
+          'stt',
+          'STT started successfully',
+          result.data,
+        );
+      } else {
+        setIsCaptionON(false);
+        setIsSTTError(true);
+        logger.error(
+          LogSource.NetworkRest,
+          'stt',
+          'Failed to start STT',
+          result.error,
+        );
+      }
+      setIsLangChangeInProgress(false);
+      return result;
+    } catch (error) {
+      setIsLangChangeInProgress(false);
+      setIsSTTError(true);
+      logger.error(LogSource.NetworkRest, 'stt', 'STT start error', error);
+      return {
+        success: false,
+        error: {message: error?.message || 'Unknown error'},
+      };
+    }
+  };
+
+  const updateSTTBotSession = async (
+    newConfig: LanguageTranslationConfig,
+  ): Promise<STTAPIResponse> => {
+    if (!localBotUid || !localUid) {
+      console.warn('[STT] Missing localUid or botUid');
+      return {
+        success: false,
+        error: {message: 'Missing localUid or botUid'},
+      };
+    }
+
+    try {
+      setIsLangChangeInProgress(true);
+      const result = await update(localBotUid, newConfig);
+
+      if (result.success) {
+        setTranslationConfig(newConfig);
+        setUserBotMap(prev => ({
+          ...prev,
+          [localUid]: {
+            ...prev[localUid],
+            translationConfig: newConfig,
+          },
+        }));
+        setIsSTTError(false);
+
+        // Broadcast updated spoken language to all users
+        events.send(
+          EventNames.STT_SPOKEN_LANGUAGE,
+          JSON.stringify({
+            userUid: localUid,
+            spokenLanguage: newConfig.source[0],
+            username: username,
+          }),
+          PersistanceLevel.Session,
+        );
+
+        logger.log(
+          LogSource.NetworkRest,
+          'stt',
+          'STT updated successfully',
+          result.data,
+        );
+      } else {
+        setIsSTTError(true);
+        logger.error(
+          LogSource.NetworkRest,
+          'stt',
+          'Failed to update STT',
+          result.error,
+        );
+      }
+      setIsLangChangeInProgress(false);
+      return result;
+    } catch (error) {
+      setIsLangChangeInProgress(false);
+      setIsSTTError(true);
+      logger.error(LogSource.NetworkRest, 'stt', 'STT update error', error);
+      return {
+        success: false,
+        error: {message: error?.message || 'Unknown error'},
+      };
+    }
+  };
+
   const handleTranslateConfigChange = async (
     inputTranslateConfig: LanguageTranslationConfig,
   ) => {
@@ -375,116 +542,13 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     console.log('[STT_HANDLE_CONFIRM]', {action, localBotUid, newConfig});
 
     try {
-      let result: STTAPIResponse;
-
       switch (action) {
         case 'start':
-          setIsLangChangeInProgress(true);
-          result = await start(localBotUid, newConfig);
-          console.log('supriya result: ', result);
-
-          if (result.success || result.error?.code === 610) {
-            // Success or already started
-            setIsSTTActive(true);
-            setUserBotMap(prev => ({
-              ...prev,
-              [localUid]: {
-                ...prev[localUid],
-                translationConfig: newConfig,
-              },
-            }));
-            setIsSTTError(false);
-
-            // Add transcript entry for language change
-            const actionText =
-              translationConfig?.source.indexOf('') !== -1 ||
-              translationConfig?.source.length === 0
-                ? `has set the spoken language to "${newConfig.source[0]}"`
-                : `changed the spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}"`;
-
-            setTranslationConfig(newConfig);
-            setMeetingTranscript(prev => [
-              ...prev,
-              {
-                name: 'langUpdate',
-                time: new Date().getTime(),
-                uid: `langUpdate-${localUid}`,
-                text: actionText,
-              },
-            ]);
-
-            // Broadcast spoken language to all users
-            events.send(
-              EventNames.STT_SPOKEN_LANGUAGE,
-              JSON.stringify({
-                userUid: localUid,
-                spokenLanguage: newConfig.source[0],
-                username: username,
-              }),
-              PersistanceLevel.Session,
-            );
-
-            logger.log(
-              LogSource.NetworkRest,
-              'stt',
-              'STT started successfully',
-              result.data,
-            );
-          } else {
-            setIsCaptionON(false);
-            setIsSTTError(true);
-            logger.error(
-              LogSource.NetworkRest,
-              'stt',
-              'Failed to start STT',
-              result.error,
-            );
-          }
-          setIsLangChangeInProgress(false);
+          await startSTTBotSession(newConfig);
           break;
 
         case 'update':
-          setIsLangChangeInProgress(true);
-          result = await update(localBotUid, newConfig);
-
-          if (result.success) {
-            setTranslationConfig(newConfig);
-            setUserBotMap(prev => ({
-              ...prev,
-              [localUid]: {
-                ...prev[localUid],
-                translationConfig: newConfig,
-              },
-            }));
-            setIsSTTError(false);
-
-            // Broadcast updated spoken language to all users
-            events.send(
-              EventNames.STT_SPOKEN_LANGUAGE,
-              JSON.stringify({
-                userUid: localUid,
-                spokenLanguage: newConfig.source[0],
-                username: username,
-              }),
-              PersistanceLevel.Session,
-            );
-
-            logger.log(
-              LogSource.NetworkRest,
-              'stt',
-              'STT updated successfully',
-              result.data,
-            );
-          } else {
-            setIsSTTError(true);
-            logger.error(
-              LogSource.NetworkRest,
-              'stt',
-              'Failed to update STT',
-              result.error,
-            );
-          }
-          setIsLangChangeInProgress(false);
+          await updateSTTBotSession(newConfig);
           break;
 
         default:
@@ -609,8 +673,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         remoteSpokenLanguages,
         setRemoteSpokenLanguages,
         handleTranslateConfigChange,
+        startSTTBotSession,
+        updateSTTBotSession,
         stopSTTBotSession,
         getBotOwnerUid,
+        localBotUid,
       }}>
       {children}
     </CaptionContext.Provider>
