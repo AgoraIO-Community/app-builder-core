@@ -43,9 +43,12 @@ const Caption: React.FC<CaptionProps> = ({
     activeSpeakerRef,
     prevSpeakerRef,
     getBotOwnerUid,
+    isSTTActive,
   } = useCaption();
   const ssLabel = useString(sttSettingSpokenLanguageText)();
-  const stLabel = useString(sttSettingTranslationLanguageText)();
+  const stLabel = useString<boolean>(sttSettingTranslationLanguageText)(
+    isSTTActive,
+  );
   const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
 

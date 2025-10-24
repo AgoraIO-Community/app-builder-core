@@ -36,6 +36,7 @@ import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 import {useString} from '../../../src/utils/useString';
 import {
   sttSettingSpokenLanguageText,
+  sttSettingTranslationLanguageText,
   sttTranscriptPanelNoSearchResultsFoundText,
   sttTranscriptPanelSearchText,
   sttTranscriptPanelViewLatestText,
@@ -50,11 +51,6 @@ type NativeStreamMessageArgs = [{}, number, number, Uint8Array, number, number];
 type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
 
 const Transcript = (props: TranscriptProps) => {
-  const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
-  const searchText = useString(sttTranscriptPanelSearchText)();
-  const noresults = useString(sttTranscriptPanelNoSearchResultsFoundText)();
-  const viewlatest = useString(sttTranscriptPanelViewLatestText)();
-
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
@@ -64,7 +60,16 @@ const Transcript = (props: TranscriptProps) => {
     isSTTListenerAdded,
     setIsSTTListenerAdded,
     getBotOwnerUid,
+    isSTTActive,
   } = useCaption();
+
+  const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
+  const settingTranslationLanguageLabel = useString<boolean>(
+    sttSettingTranslationLanguageText,
+  )(isSTTActive);
+  const searchText = useString(sttTranscriptPanelSearchText)();
+  const noresults = useString(sttTranscriptPanelNoSearchResultsFoundText)();
+  const viewlatest = useString(sttTranscriptPanelViewLatestText)();
 
   const data = meetingTranscript; // Object.entries(transcript);
 
@@ -288,7 +293,7 @@ const Transcript = (props: TranscriptProps) => {
       {isLangChangeInProgress ? (
         <View style={{flex: 1}}>
           <Loading
-            text={settingSpokenLanguageLabel}
+            text={settingTranslationLanguageLabel}
             background="transparent"
             indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
             textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}

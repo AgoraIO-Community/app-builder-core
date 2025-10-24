@@ -276,9 +276,10 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {
     setIsCaptionON,
     isLangChangeInProgress,
-    stopSTTBotSession,
+    updateSTTBotSession,
     setViewMode,
     viewMode,
+    translationConfig,
     handleTranslateConfigChange,
   } = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
@@ -322,16 +323,21 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  // Stop STT
+  // Stop Translation (not STT - just disable translation by clearing targets)
   actionMenuitems.push({
     icon: 'globe',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Stop Translation',
     disabled: isLangChangeInProgress,
-    onPress: () => {
+    onPress: async () => {
       setActionMenuVisible(false);
-      stopSTTBotSession();
+      // Keep source language same, just clear target languages
+      // This stops translation but keeps transcription running
+      await updateSTTBotSession({
+        source: translationConfig.source, // Keep current source
+        targets: [], // Empty targets = no translation
+      });
     },
   });
 

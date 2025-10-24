@@ -642,7 +642,7 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [sttChangeSpokenLanguageText]?: I18nBaseType;
   [sttSettingSpokenLanguageText]?: I18nBaseType;
-  [sttSettingTranslationLanguageText]?: I18nBaseType;
+  [sttSettingTranslationLanguageText]?: I18nConditionalType;
   [sttChangeTranslationLanguageText]?: I18nBaseType;
   [sttTranscriptPanelHeaderText]?: I18nBaseType;
   [sttDownloadBtnText]?: I18nBaseType;
@@ -1047,7 +1047,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [sttDownloadBtnText]: 'Download',
   [sttDownloadTranscriptBtnText]: 'Download Transcript',
   [sttSettingSpokenLanguageText]: 'Setting Spoken Language',
-  [sttSettingTranslationLanguageText]: 'Setting Translation Language',
+  [sttSettingTranslationLanguageText]: (isUpdate: boolean) =>
+    isUpdate ? 'Updating Translation Language' : 'Setting Translation Language',
   [sttChangeTranslationLanguageText]: 'Change Translation Language',
   [sttLanguageChangeInProgress]: 'Language Change is in progress...',
 
