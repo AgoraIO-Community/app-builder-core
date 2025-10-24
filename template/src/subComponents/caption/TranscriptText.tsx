@@ -30,7 +30,6 @@ export const TranscriptText = ({
 }: TranscriptTextProps) => {
   const t = time ? formatTime(Number(time)) : '';
 
-  // For search highlighting
   //  text to display based on stored translation language
   // const getDisplayText = () => {
   //   if (!storedTranslationLanguage) {
@@ -153,7 +152,10 @@ const styles = StyleSheet.create({
   },
   translationText: {
     fontStyle: 'italic',
-    opacity: 0.8,
-    marginTop: 4,
+    marginTop: 8,
+    fontWeight: '400',
+    lineHeight: 24,
+    fontSize: ThemeConfig.FontSize.normal,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
   },
 });

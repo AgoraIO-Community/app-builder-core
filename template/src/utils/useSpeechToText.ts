@@ -31,7 +31,6 @@ const useSpeechToText = () => {
     activeSpeakerRef,
     isSTTListenerAdded,
     setIsSTTListenerAdded,
-    localBotUid,
     startSTTBotSession,
     updateSTTBotSession,
     stopSTTBotSession,
