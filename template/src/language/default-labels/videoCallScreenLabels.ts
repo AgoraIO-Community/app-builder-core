@@ -197,6 +197,7 @@ export const sttChangeLanguagePopupPrimaryBtnText =
 
 export const sttChangeSpokenLanguageText =
   `${stt}ChangeSpokenLanguageText` as const;
+export const sttStopTranslationText = `${stt}StopTranslationText` as const;
 export const sttSettingSpokenLanguageText =
   `${stt}SettingSpokenLanguageText` as const;
 export const sttSettingTranslationLanguageText =
@@ -641,6 +642,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [sttChangeLanguagePopupPrimaryBtnText]?: I18nBaseType;
 
   [sttChangeSpokenLanguageText]?: I18nBaseType;
+  [sttStopTranslationText]?: I18nBaseType;
   [sttSettingSpokenLanguageText]?: I18nBaseType;
   [sttSettingTranslationLanguageText]?: I18nConditionalType;
   [sttChangeTranslationLanguageText]?: I18nBaseType;
@@ -1042,6 +1044,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [sttChangeLanguagePopupDropdownError]:
     'Choose at least one language to proceed',
   [sttChangeSpokenLanguageText]: 'Change Spoken Language',
+  [sttStopTranslationText]: 'Stop Translation',
 
   [sttTranscriptPanelHeaderText]: 'Meeting Transcript',
   [sttDownloadBtnText]: 'Download',

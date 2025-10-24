@@ -51,6 +51,7 @@ import {
   sttChangeSpokenLanguageText,
   sttChangeTranslationLanguageText,
   sttDownloadTranscriptBtnText,
+  sttStopTranslationText,
   sttTranscriptPanelHeaderText,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
@@ -288,11 +289,13 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     data: {isHost},
     sttLanguage,
   } = useRoomInfo();
-  const {handleTranslateConfigChange, stopSTTBotSession} = useCaption();
+  const {handleTranslateConfigChange, updateSTTBotSession, translationConfig} =
+    useCaption();
   const downloadTranscriptLabel = useString(sttDownloadTranscriptBtnText)();
   const changeSpokenLanguage = useString<boolean>(
     sttChangeSpokenLanguageText,
   )();
+  const sttStopTranslationLabel = useString<boolean>(sttStopTranslationText)();
   const changeTranslationLanguage = useString<boolean>(
     sttChangeTranslationLanguageText,
   )();
@@ -313,11 +316,16 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Stop Translation',
+    title: sttStopTranslationLabel,
     disabled: false,
-    onPress: () => {
+    onPress: async () => {
       setActionMenuVisible(false);
-      stopSTTBotSession();
+      // Keep source language same, just clear target languages
+      // This stops translation but keeps transcription running
+      await updateSTTBotSession({
+        source: translationConfig.source, // Keep current source
+        targets: [], // Empty targets = no translation
+      });
     },
   });
 

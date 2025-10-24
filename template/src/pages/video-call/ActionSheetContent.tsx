@@ -226,6 +226,12 @@ const ActionSheetContent = props => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
+  // STT events on mount
+
+  //  React.useEffect(() => {
+  //   setIsSTTActive(isSTTActive);
+  // }, [isSTTActive]);
+
   // React.useEffect(() => {
   //   // for mobile events are set in ActionSheetContent
   //   if (!sttLanguage) return;

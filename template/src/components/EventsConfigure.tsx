@@ -268,9 +268,9 @@ const EventsConfigure: React.FC<Props> = ({
     permissionStatusRef.current = permissionStatus;
   }, [permissionStatus]);
 
-  const {hasUserJoinedRTM, isInitialQueueCompleted} = useContext(ChatContext);
+  // const {hasUserJoinedRTM, isInitialQueueCompleted} = useContext(ChatContext);
 
-  // //TODOSUP auto start stt
+  // auto start stt
   // useEffect(() => {
   //   if (
   //     !isRecordingBot &&
@@ -568,6 +568,21 @@ const EventsConfigure: React.FC<Props> = ({
         );
       }
     });
+
+    //  events.on(EventNames.STT_ACTIVE, data => {
+    //   const payload = JSON.parse(data?.payload);
+    //   if (payload.active) {
+    //     isSTTAlreadyActiveRef.current = true;
+    //   } else {
+    //     isSTTAlreadyActiveRef.current = false;
+    //   }
+    //   setRoomInfo(prev => {
+    //     return {
+    //       ...prev,
+    //       isSTTActive: payload.active,
+    //     };
+    //   });
+    // });
 
     // events.on(EventNames.STT_LANGUAGE, data => {
     //   const {

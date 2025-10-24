@@ -42,6 +42,7 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
 import {
   sttChangeSpokenLanguageText,
+  sttStopTranslationText,
   toolbarItemCaptionText,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
@@ -292,6 +293,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const changeSpokenLangLabel = useString<boolean>(
     sttChangeSpokenLanguageText,
   )();
+  const sttStopTranslationLabel = useString<boolean>(sttStopTranslationText)();
 
   const hideCaptionLabel = useString<boolean>(toolbarItemCaptionText)(true);
 
@@ -310,10 +312,10 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
 
   // Stop Translation (not STT - just disable translation by clearing targets)
   actionMenuitems.push({
-    icon: 'globe',
+    icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Stop Translation',
+    title: sttStopTranslationLabel,
     disabled: isLangChangeInProgress,
     onPress: async () => {
       setActionMenuVisible(false);
