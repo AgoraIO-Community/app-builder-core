@@ -308,21 +308,6 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  // Toggle translation view
-  actionMenuitems.push({
-    icon: 'globe',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Show Original and translated',
-    disabled: isLangChangeInProgress,
-    onPress: () => {
-      setViewMode(
-        viewMode === 'original' ? 'original-and-translated' : 'original',
-      );
-      setActionMenuVisible(false);
-    },
-  });
-
   // Stop Translation (not STT - just disable translation by clearing targets)
   actionMenuitems.push({
     icon: 'globe',

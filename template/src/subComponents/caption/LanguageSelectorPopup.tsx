@@ -65,8 +65,12 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
     return remote.filter(lang => lang);
   }, [sttLanguage]);
 
-  // Initialize or update source/targets dynamically
+  // Initialize or update source/targets dynamically when modal opens
   React.useEffect(() => {
+    if (!props.modalVisible) {
+      return;
+    }
+
     const mySourceLang = translationConfig.source[0] || 'en-US';
 
     const mergedTargets = Array.from(
@@ -83,7 +87,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
 
     console.log('[STT_PER_USER_BOT] mergedTargets —', mergedTargets);
     console.log('[STT_PER_USER_BOT] source —', mySourceLang);
-  }, [translationConfig, autoSuggestedTargetLangs]);
+  }, [props.modalVisible, translationConfig, autoSuggestedTargetLangs]);
 
   // Clean target if user picks it as source
   React.useEffect(() => {

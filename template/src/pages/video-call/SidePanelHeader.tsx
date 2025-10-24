@@ -333,17 +333,6 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     },
   });
 
-  actionMenuitems.push({
-    icon: 'transcript-stop',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Stop generating transcript',
-    disabled: meetingTranscript.length === 0,
-    onPress: () => {
-      setActionMenuVisible(false);
-    },
-  });
-
   const onLanguageChange = (
     inputTranslateConfig: LanguageTranslationConfig,
   ) => {

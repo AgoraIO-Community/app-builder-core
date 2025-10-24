@@ -471,6 +471,7 @@ export const styles = StyleSheet.create({
   langChangeContainer: {
     marginBottom: 20,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   footer: {
     borderWidth: 1,
