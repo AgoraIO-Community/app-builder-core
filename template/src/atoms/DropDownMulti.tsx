@@ -126,9 +126,7 @@ const DropdownMulti: FC<Props> = ({
             <Checkbox
               disabled={isDisabled}
               checked={isSelected}
-              label={
-                item.label + (isProtected ? ' (Selected by another user)' : '')
-              }
+              label={item.label + (isProtected ? ' (Selected already)' : '')}
               labelStye={
                 isProtected
                   ? {...styles.itemText, ...styles.protectedItemText}

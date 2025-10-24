@@ -3,7 +3,7 @@ import React from 'react';
 import {SidePanelType, useSidePanel} from 'customization-api';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
-import {useCaption} from './useCaption';
+import {LanguageTranslationConfig, useCaption} from './useCaption';
 import useSTTAPI from './useSTTAPI';
 import {useString} from '../../utils/useString';
 import {toolbarItemTranscriptText} from '../../language/default-labels/videoCallScreenLabels';
@@ -30,9 +30,9 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     isMobileView = false,
   } = props;
 
-  const {start, restart, isAuthorizedTranscriptUser} = useSTTAPI();
-  const {isSTTActive, language: prevLang, isSTTError} = useCaption();
-  const isDisabled = !isAuthorizedTranscriptUser();
+  // const {start, restart, isAuthorizedTranscriptUser} = useSTTAPI();
+  const {isSTTActive, isSTTError, handleTranslateConfigChange} = useCaption();
+  // const isDisabled = !isAuthorizedTranscriptUser();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
   const isFirstTimePopupOpen = React.useRef(false);
@@ -63,13 +63,11 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
       iconBackgroundColor: isTranscriptON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: isDisabled
-        ? $config.SEMANTIC_NEUTRAL
-        : isTranscriptON
+      tintColor: isTranscriptON
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
-    disabled: isDisabled,
+    disabled: false,
     btnTextProps: {
       text: showLabel
         ? isOnActionSheet
@@ -85,24 +83,25 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     iconButtonProps.toolTipMessage = label(isTranscriptON);
   }
 
-  const onConfirm = async (langChanged, language, userOwnLanguages) => {
+  const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
     setLanguagePopup(false);
 
-    isFirstTimePopupOpen.current = false;
-    const method = isTranscriptON ? 'stop' : 'start';
-    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    // isFirstTimePopupOpen.current = false;
+    // const method = isTranscriptON ? 'stop' : 'start';
+    // if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    // if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
     if (!isTranscriptON) {
       setSidePanel(SidePanelType.Transcript);
     } else {
       setSidePanel(SidePanelType.None);
     }
     try {
-      const res = await start(language, userOwnLanguages);
-      if (res?.message.includes('STARTED')) {
-        // channel is already started now restart
-        await restart(language, userOwnLanguages);
-      }
+      // const res = await start(language, userOwnLanguages);
+      // if (res?.message.includes('STARTED')) {
+      //   // channel is already started now restart
+      //   await restart(language, userOwnLanguages);
+      // }
+      handleTranslateConfigChange(inputTranslateConfig);
     } catch (error) {
       console.log('eror in starting stt', error);
     }
@@ -115,7 +114,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}
         onConfirm={onConfirm}
-        isFirstTimePopupOpen={isFirstTimePopupOpen.current}
+        //  isFirstTimePopupOpen={isFirstTimePopupOpen.current}
       />
     </View>
   );
