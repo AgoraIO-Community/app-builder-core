@@ -318,7 +318,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const {
     isCaptionON,
     setIsCaptionON,
+    // language: prevLang,
     isSTTActive,
+    // setIsSTTActive,
     isSTTError,
     handleTranslateConfigChange,
   } = useCaption();
@@ -329,6 +331,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     React.useState<boolean>(false);
   // const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
+
+  // const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -857,8 +861,11 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     const isTranscriptClicked = STT_clicked.current === 'transcript';
     setLanguagePopup(false);
     // isFirstTimePopupOpen.current = false;
-
-    // Handle transcript panel toggling
+    // const method = isCaptionClicked
+    //   ? isCaptionON
+    //   : isTranscriptON
+    //   ? 'stop'
+    //   : 'start';
     if (isTranscriptClicked) {
       if (!isTranscriptON) {
         setSidePanel(SidePanelType.Transcript);
@@ -867,7 +874,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       }
     }
     // if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    // if (method === 'start' && isSTTActive === true) return;
+    // if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
     if (isCaptionClicked) {
       setIsCaptionON(prev => !prev);
     } else {
@@ -965,6 +972,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           modalVisible={isLanguagePopupOpen}
           setModalVisible={setLanguagePopup}
           onConfirm={onConfirm}
+          // isFirstTimePopupOpen={isFirstTimePopupOpen.current}
         />
       )}
       {$config.CLOUD_RECORDING && isHost && isWeb() && (

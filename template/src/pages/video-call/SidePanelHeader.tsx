@@ -312,6 +312,18 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
       },
     });
 
+  // actionMenuitems.push({
+  //   icon: 'lang-select',
+  //   iconColor: $config.SECONDARY_ACTION_COLOR,
+  //   textColor: $config.FONT_COLOR,
+  //   title: changeTranslationLanguage,
+  //   disabled: false,
+  //   onPress: () => {
+  //     setActionMenuVisible(false);
+  //     setTranslateMenuOpen(true);
+  //   },
+  // });
+
   actionMenuitems.push({
     icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,

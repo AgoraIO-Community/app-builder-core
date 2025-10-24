@@ -269,6 +269,7 @@ const EventsConfigure: React.FC<Props> = ({
   }, [permissionStatus]);
 
   // const {hasUserJoinedRTM, isInitialQueueCompleted} = useContext(ChatContext);
+  // const {startSpeechToText, addStreamMessageListener} = useSpeechToText();
 
   // auto start stt
   // useEffect(() => {

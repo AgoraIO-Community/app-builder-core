@@ -276,10 +276,11 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {
     setIsCaptionON,
+    // language: prevLang,
     isLangChangeInProgress,
+    // setLanguage,
+    // selectedTranslationLanguage,
     updateSTTBotSession,
-    setViewMode,
-    viewMode,
     translationConfig,
     handleTranslateConfigChange,
   } = useCaption();
@@ -289,6 +290,12 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
+  // const {restart} = useSTTAPI();
+  // const username = useGetName();
+  // const {
+  //   data: {isHost},
+  //   sttLanguage,
+  // } = useRoomInfo();
 
   const changeSpokenLangLabel = useString<boolean>(
     sttChangeSpokenLanguageText,
@@ -297,7 +304,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
 
   const hideCaptionLabel = useString<boolean>(toolbarItemCaptionText)(true);
 
-  // only Host is authorized to start/stop stt
+  // Anyone can start/stop stt
   actionMenuitems.push({
     icon: 'globe',
     iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -310,7 +317,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  // Stop Translation (not STT - just disable translation by clearing targets)
+  // Stop Translation (not STT bot, pass empty targets)
   actionMenuitems.push({
     icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -319,10 +326,8 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     disabled: isLangChangeInProgress,
     onPress: async () => {
       setActionMenuVisible(false);
-      // Keep source language same, just clear target languages
-      // This stops translation but keeps transcription running
       await updateSTTBotSession({
-        source: translationConfig.source, // Keep current source
+        source: translationConfig.source,
         targets: [], // Empty targets = no translation
       });
     },

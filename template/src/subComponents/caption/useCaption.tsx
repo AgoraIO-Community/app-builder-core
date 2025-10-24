@@ -7,6 +7,12 @@ import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import useGetName from '../../utils/useGetName';
+import Toast from '../../../react-native-toast-message';
+import {useString} from '../../utils/useString';
+import {
+  sttStartError,
+  sttUpdateError,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const generateBotUidForUser = (localUid: number): number => {
   return 900000000 + (localUid % 100000000);
@@ -242,6 +248,10 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const username = useGetName();
   const [localBotUid, setLocalBotUid] = React.useState<number | null>(null);
 
+  // i18n labels for error toasts
+  const startErrorLabel = useString(sttStartError)();
+  const updateErrorLabel = useString(sttUpdateError)();
+
   React.useEffect(() => {
     if (!localUid || !username) {
       return;
@@ -440,6 +450,14 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           'Failed to start STT',
           result.error,
         );
+        // Show error toast: text1 = translated label, text2 = API error
+        Toast.show({
+          leadingIconName: 'alert',
+          type: 'error',
+          text1: startErrorLabel,
+          text2: result.error?.message || 'Unknown error occurred',
+          visibilityTime: 4000,
+        });
       }
       setIsLangChangeInProgress(false);
       return result;
@@ -447,6 +465,14 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       setIsLangChangeInProgress(false);
       setIsSTTError(true);
       logger.error(LogSource.NetworkRest, 'stt', 'STT start error', error);
+      // Show error toast: text1 = translated label, text2 = exception error
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: startErrorLabel,
+        text2: error?.message || 'Unknown error occurred',
+        visibilityTime: 4000,
+      });
       return {
         success: false,
         error: {message: error?.message || 'Unknown error'},
@@ -505,6 +531,14 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           'Failed to update STT',
           result.error,
         );
+        // Show error toast: text1 = translated label, text2 = API error
+        Toast.show({
+          leadingIconName: 'alert',
+          type: 'error',
+          text1: updateErrorLabel,
+          text2: result.error?.message || 'Unknown error occurred',
+          visibilityTime: 4000,
+        });
       }
       setIsLangChangeInProgress(false);
       return result;
@@ -512,6 +546,14 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       setIsLangChangeInProgress(false);
       setIsSTTError(true);
       logger.error(LogSource.NetworkRest, 'stt', 'STT update error', error);
+      // Show error toast: text1 = translated label, text2 = exception error
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: updateErrorLabel,
+        text2: error?.message || 'Unknown error occurred',
+        visibilityTime: 4000,
+      });
       return {
         success: false,
         error: {message: error?.message || 'Unknown error'},

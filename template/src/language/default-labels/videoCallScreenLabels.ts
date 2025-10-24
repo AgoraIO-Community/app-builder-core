@@ -211,6 +211,8 @@ export const sttDownloadTranscriptBtnText =
   `${stt}DownloadTranscriptBtnText` as const;
 export const sttLanguageChangeInProgress =
   `${stt}LanguageChangeInProgress` as const;
+export const sttStartError = `${stt}StartError` as const;
+export const sttUpdateError = `${stt}UpdateError` as const;
 
 export const chatPanelGroupTabText = 'chatPanelGroupTabText';
 export const chatPanelPrivateTabText = 'chatPanelPrivateTabText';
@@ -650,6 +652,8 @@ export interface I18nVideoCallScreenLabelsInterface {
   [sttDownloadBtnText]?: I18nBaseType;
   [sttDownloadTranscriptBtnText]?: I18nBaseType;
   [sttLanguageChangeInProgress]?: I18nBaseType;
+  [sttStartError]?: I18nBaseType;
+  [sttUpdateError]?: I18nBaseType;
 
   [peoplePanelHeaderText]?: I18nBaseType;
 
@@ -1054,6 +1058,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     isUpdate ? 'Updating Translation Language' : 'Setting Translation Language',
   [sttChangeTranslationLanguageText]: 'Change Translation Language',
   [sttLanguageChangeInProgress]: 'Language Change is in progress...',
+  [sttStartError]: 'Failed to start captions',
+  [sttUpdateError]: 'Failed to update caption settings',
 
   [peoplePanelHeaderText]: 'People',
 
