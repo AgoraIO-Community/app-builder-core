@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     // height: 60, //causes text cut off in android
     width: '100%',
     borderWidth: 1,
-    paddingVertical: 21,
+    paddingVertical: 12,
     paddingHorizontal: 16,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     color: $config.FONT_COLOR,
@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         outlineStyle: 'none',
+        lineHeight: '26px',
       },
     }),
   },

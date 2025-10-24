@@ -51,6 +51,9 @@ export interface userEventsMapInterface {
   'token-refreshed': () => void;
   'rtc-user-removed': (uid: UidType, channel: string) => void;
   unauthorized: (errorMessage) => void;
+  'waiting-room-approval-requested': () => void;
+  'waiting-room-approval-granted': () => void;
+  'waiting-room-approval-rejected': () => void;
 }
 
 const SDKEvents = createNanoEvents<userEventsMapInterface>();
