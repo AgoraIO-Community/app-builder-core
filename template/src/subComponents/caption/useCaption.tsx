@@ -416,16 +416,55 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setTranslationConfig(newConfig);
         setIsSTTError(false);
 
-        // Broadcast updated spoken language to all users
-        events.send(
-          EventNames.STT_SPOKEN_LANGUAGE,
-          JSON.stringify({
-            userUid: localUid,
-            spokenLanguage: newConfig.source[0],
-            username: username,
-          }),
-          PersistanceLevel.Session,
-        );
+        // Add transcript entry for language change
+        // Determine what actually changed
+        const spokenLanguageChanged =
+          translationConfig?.source[0] !== newConfig.source[0];
+        const oldTargetsSorted = (translationConfig?.targets || [])
+          .sort()
+          .join(', ');
+        const newTargetsSorted = (newConfig.targets || []).sort().join(', ');
+        const targetsChanged = oldTargetsSorted !== newTargetsSorted;
+
+        let actionText = '';
+        if (spokenLanguageChanged && targetsChanged) {
+          // Both spoken language and targets changed
+          const targetLangsText =
+            newConfig.targets.length > 0 ? newTargetsSorted : 'none';
+          actionText = `changed spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}" and target translation languages to "${targetLangsText}"`;
+        } else if (spokenLanguageChanged) {
+          // Only spoken language changed
+          actionText = `changed the spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}"`;
+        } else if (targetsChanged) {
+          // Only target languages changed
+          const targetLangsText =
+            newConfig.targets.length > 0 ? newTargetsSorted : 'none';
+          actionText = `changed target translation languages to "${targetLangsText}"`;
+        }
+
+        if (actionText) {
+          setMeetingTranscript(prev => [
+            ...prev,
+            {
+              uid: `langUpdate-${localUid}`,
+              time: new Date().getTime(),
+              text: actionText,
+            },
+          ]);
+        }
+
+        // Broadcast updated spoken language to all users (only if it changed)
+        if (spokenLanguageChanged) {
+          events.send(
+            EventNames.STT_SPOKEN_LANGUAGE,
+            JSON.stringify({
+              userUid: localUid,
+              spokenLanguage: newConfig.source[0],
+              username: username,
+            }),
+            PersistanceLevel.Session,
+          );
+        }
 
         logger.log(
           LogSource.NetworkRest,

@@ -45,6 +45,8 @@ const Caption: React.FC<CaptionProps> = ({
     prevSpeakerRef,
     getBotOwnerUid,
     isSTTActive,
+    translationConfig,
+    remoteSpokenLanguages,
   } = useCaption();
   const currentUserUid = useLocalUid();
   const ssLabel = useString(sttSettingSpokenLanguageText)();
@@ -134,6 +136,13 @@ const Caption: React.FC<CaptionProps> = ({
               captionTextStyle={captionTextStyle}
               speakerUid={getBotOwnerUid(prevSpeakerRef.current)}
               userLocalUid={currentUserUid}
+              spokenLanguageCode={
+                getBotOwnerUid(prevSpeakerRef.current) === currentUserUid
+                  ? translationConfig.source[0]
+                  : remoteSpokenLanguages[
+                      getBotOwnerUid(prevSpeakerRef.current)
+                    ]
+              }
             />
           ) : (
             <></>
@@ -157,6 +166,13 @@ const Caption: React.FC<CaptionProps> = ({
               captionTextStyle={captionTextStyle}
               speakerUid={getBotOwnerUid(activeSpeakerRef.current)}
               userLocalUid={currentUserUid}
+              spokenLanguageCode={
+                getBotOwnerUid(activeSpeakerRef.current) === currentUserUid
+                  ? translationConfig.source[0]
+                  : remoteSpokenLanguages[
+                      getBotOwnerUid(activeSpeakerRef.current)
+                    ]
+              }
             />
           ) : (
             <></>

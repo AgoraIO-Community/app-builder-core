@@ -11,7 +11,7 @@ import ThemeConfig from '../../../src/theme';
 import {useCaption} from './useCaption';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {isAndroid, isMobileUA} from '../../utils/common';
-import {getCaptionDisplayText} from './utils';
+import {getCaptionDisplayText, getLanguageLabel, LanguageType} from './utils';
 
 type TranslationItem = {
   lang: string;
@@ -33,6 +33,7 @@ interface CaptionTextProps {
   captionTextStyle?: TextStyle;
   speakerUid?: string | number;
   userLocalUid?: string | number;
+  spokenLanguageCode?: LanguageType;
 }
 
 const DESKTOP_LINE_HEIGHT = 28;
@@ -53,6 +54,7 @@ const CaptionText = ({
   captionTextStyle = {},
   speakerUid,
   userLocalUid,
+  spokenLanguageCode,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
   const {selectedTranslationLanguage, translationConfig} = useCaption();
@@ -210,14 +212,16 @@ const CaptionText = ({
             captionTextStyle,
           ]}>
           {/* Source text with language label */}
-          <Text style={styles.languageLabel}>{'TBD'}: </Text>
+          <Text style={styles.languageLabel}>
+            ({getLanguageLabel([spokenLanguageCode || viewerSourceLanguage])}):{' '}
+          </Text>
           {displaySourceText}
           {/* Translation text on new line if available */}
           {displayTranslationText && (
             <>
               {'\n'}
               <Text style={styles.languageLabel}>
-                ({selectedTranslationLanguage}):{' '}
+                ({getLanguageLabel([selectedTranslationLanguage])}):{' '}
               </Text>
               {displayTranslationText}
             </>
