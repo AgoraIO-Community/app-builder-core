@@ -426,20 +426,36 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         const newTargetsSorted = (newConfig.targets || []).sort().join(', ');
         const targetsChanged = oldTargetsSorted !== newTargetsSorted;
 
+        const oldTargetsLength = translationConfig?.targets?.length || 0;
+        const newTargetsLength = newConfig.targets?.length || 0;
+        const targetsWereDisabled =
+          oldTargetsLength > 0 && newTargetsLength === 0;
+        const targetsWereEnabled =
+          oldTargetsLength === 0 && newTargetsLength > 0;
+
+        // Build target message once
+        let targetMessage = '';
+        if (targetsChanged) {
+          if (targetsWereDisabled) {
+            targetMessage = 'stopped translations';
+          } else if (targetsWereEnabled) {
+            targetMessage = `enabled translations to "${newTargetsSorted}"`;
+          } else {
+            targetMessage = `changed target translation languages to "${newTargetsSorted}"`;
+          }
+        }
+
+        // Build action text
         let actionText = '';
         if (spokenLanguageChanged && targetsChanged) {
           // Both spoken language and targets changed
-          const targetLangsText =
-            newConfig.targets.length > 0 ? newTargetsSorted : 'none';
-          actionText = `changed spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}" and target translation languages to "${targetLangsText}"`;
+          actionText = `changed spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}" and ${targetMessage}`;
         } else if (spokenLanguageChanged) {
           // Only spoken language changed
           actionText = `changed the spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}"`;
         } else if (targetsChanged) {
           // Only target languages changed
-          const targetLangsText =
-            newConfig.targets.length > 0 ? newTargetsSorted : 'none';
-          actionText = `changed target translation languages to "${targetLangsText}"`;
+          actionText = targetMessage;
         }
 
         if (actionText) {
