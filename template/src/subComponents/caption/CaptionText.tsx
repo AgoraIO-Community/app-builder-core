@@ -181,32 +181,48 @@ const CaptionText = ({
                   )) * LINE_HEIGHT,
           },
         ]}>
-        {/* Combined source and translation text */}
-        <Text
-          onLayout={handleTextLayout}
+        {/* Source text - always takes 2 lines when translation is present */}
+        <View
           style={[
-            styles.captionText,
-            styles.transcriptionText,
-            isMobile
-              ? styles.mobileCaptionFontSize
-              : styles.desktopCaptionFontSize,
-            isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
-            captionTextStyle,
+            styles.sourceTextWrapper,
+            displayTranslationText && {height: 2 * LINE_HEIGHT},
           ]}>
-          {/* Source text with language label - show latest portion only */}
-          <Text style={styles.languageLabel}>{'TBD'}: </Text>
-          {displaySourceText}
-          {/* Translation text on new line if available - show latest portion only */}
-          {displayTranslationText && (
-            <>
-              {'\n'}
+          <Text
+            onLayout={handleTextLayout}
+            style={[
+              styles.captionText,
+              styles.transcriptionText,
+              isMobile
+                ? styles.mobileCaptionFontSize
+                : styles.desktopCaptionFontSize,
+              isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
+              captionTextStyle,
+            ]}>
+            <Text style={styles.languageLabel}>{'TBD'}: </Text>
+            {displaySourceText}
+          </Text>
+        </View>
+
+        {/* Translation text - takes 1 line when available */}
+        {displayTranslationText && (
+          <View style={[styles.translationTextWrapper, {height: LINE_HEIGHT}]}>
+            <Text
+              style={[
+                styles.captionText,
+                styles.transcriptionText,
+                isMobile
+                  ? styles.mobileCaptionFontSize
+                  : styles.desktopCaptionFontSize,
+                isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
+                captionTextStyle,
+              ]}>
               <Text style={styles.languageLabel}>
                 ({selectedTranslationLanguage}):{' '}
               </Text>
               {displayTranslationText}
-            </>
-          )}
-        </Text>
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -225,6 +241,18 @@ const styles = StyleSheet.create({
   },
 
   captionTextContainerStyle: {
+    width: '100%',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+
+  sourceTextWrapper: {
+    width: '100%',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+
+  translationTextWrapper: {
     width: '100%',
     overflow: 'hidden',
     position: 'relative',
