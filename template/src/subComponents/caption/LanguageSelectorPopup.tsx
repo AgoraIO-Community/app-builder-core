@@ -67,18 +67,32 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
 
   const autoSuggestedTargetLangs = React.useMemo(() => {
     // Get all spoken languages from remote users (excluding empty values)
-    const remoteLangs = Object.values(remoteSpokenLanguages).filter(
-      lang => lang,
+    const remoteLangs = Object.values(remoteSpokenLanguages).filter(Boolean);
+
+    const mySourceLang = translationConfig.source[0] || 'en-US';
+
+    // If any remote user speaks a different language than mine,
+    // add my source language to targets so I can see translations
+    const hasRemoteWithDifferentLang = remoteLangs.some(
+      lang => lang !== mySourceLang,
     );
-    return remoteLangs;
-  }, [remoteSpokenLanguages]);
+
+    const suggestedLangs = [...remoteLangs];
+
+    // Auto-add my source language if someone speaks differently
+    if (hasRemoteWithDifferentLang && !suggestedLangs.includes(mySourceLang)) {
+      suggestedLangs.push(mySourceLang);
+    }
+
+    return Array.from(new Set(suggestedLangs)); // unique list
+  }, [remoteSpokenLanguages, translationConfig.source]);
 
   // Initialize or update source/targets dynamically when modal opens
   React.useEffect(() => {
     if (!props.modalVisible) {
       return;
     }
-
+    console.log('[STT_PER_USER_BOT] changed');
     const mySourceLang = translationConfig.source[0] || 'en-US';
 
     const mergedTargets = Array.from(
@@ -95,21 +109,33 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
 
     console.log('[STT_PER_USER_BOT] mergedTargets —', mergedTargets);
     console.log('[STT_PER_USER_BOT] source —', mySourceLang);
+    console.log(
+      '[STT_PER_USER_BOT] all target langs —',
+      autoSuggestedTargetLangs,
+    );
   }, [props.modalVisible, translationConfig, autoSuggestedTargetLangs]);
 
-  // Clean target if user picks it as source
+  // When source changes, recalculate targets:
+  // 1. Remove new source from targets
+  // 2. Re-merge with auto-suggested languages
   React.useEffect(() => {
     const src = inputTranslationConfig?.source[0];
-    if (!src) {
-      return;
+
+    // Merge current targets with auto-suggested langs
+    let mergedTargets = Array.from(
+      new Set([...inputTranslationConfig.targets, ...autoSuggestedTargetLangs]),
+    );
+
+    // If source is selected, filter it out from targets
+    if (src) {
+      mergedTargets = mergedTargets.filter(lang => lang !== src);
     }
+
     setInputTranslationConfig(prev => ({
       ...prev,
-      targets: prev.targets.includes(src)
-        ? prev.targets.filter(lang => lang !== src)
-        : prev.targets,
+      targets: mergedTargets,
     }));
-  }, [inputTranslationConfig?.source]);
+  }, [inputTranslationConfig?.source, autoSuggestedTargetLangs]);
 
   const onConfirmPress = async () => {
     if (isNotValidated) {

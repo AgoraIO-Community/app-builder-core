@@ -52,6 +52,7 @@ const useStreamMessageUtils = (): {
         .lookupType('agora.audio2text.Text')
         .decode(payload as Uint8Array) as any;
       console.log('stt v7 textstream', textstream);
+      console.log('[STT_PER_USER_BOT] textstream.trans:', textstream.trans);
 
       //console.log('STT - Parsed Textstream : ', textstream);
       // console.log(
@@ -223,19 +224,45 @@ const useStreamMessageUtils = (): {
       if (currentFinalText.length) {
         //  final translations for transcript - include ALL available final translations for this user
         const finalTranslationsForTranscript: TranslationData[] = [];
+        console.log('[TRANSCRIPT_DEBUG] Before loop:', {
+          'finalTranslationList[textstream.uid]':
+            finalTranslationList[textstream.uid],
+          keys: finalTranslationList[textstream.uid]
+            ? Object.keys(finalTranslationList[textstream.uid])
+            : [],
+        });
+
         if (finalTranslationList[textstream.uid]) {
           Object.keys(finalTranslationList[textstream.uid]).forEach(lang => {
             const translationText =
               finalTranslationList[textstream.uid][lang]?.join(' ') || '';
+            console.log(
+              '[TRANSCRIPT_DEBUG] Processing lang:',
+              lang,
+              'text:',
+              translationText,
+            );
             if (translationText) {
               finalTranslationsForTranscript.push({
                 lang: lang,
                 text: translationText,
                 isFinal: true,
               });
+              console.log('[TRANSCRIPT_DEBUG] Added translation for:', lang);
             }
           });
         }
+
+        console.log(
+          '[STT_PER_USER_BOT] [TRANSCRIPT_DEBUG] Adding to transcript:',
+          {
+            uid: textstream.uid,
+            text: currentFinalText,
+            translationsCount: finalTranslationsForTranscript.length,
+            translations: finalTranslationsForTranscript,
+            finalTranslationList: finalTranslationList[textstream.uid],
+          },
+        );
 
         setMeetingTranscript(prevTranscript => {
           const lastTranscriptIndex = prevTranscript.length - 1;
