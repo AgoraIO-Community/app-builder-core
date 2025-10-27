@@ -407,11 +407,10 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setIsSTTError(false);
 
         // Add transcript entry for language change
-        const actionText =
-          translationConfig?.source.indexOf('') !== -1 ||
-          translationConfig?.source.length === 0
-            ? `has set the spoken language to "${newConfig.source[0]}"`
-            : `changed the spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}"`;
+        // If STT was not active before, this is the first time setting the language
+        const actionText = !isSTTActive
+          ? `has set the spoken language to "${newConfig.source[0]}"`
+          : `changed the spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}"`;
 
         setTranslationConfig(newConfig);
         setMeetingTranscript(prev => [
