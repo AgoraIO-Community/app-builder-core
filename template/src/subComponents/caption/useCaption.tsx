@@ -15,10 +15,6 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import chatContext from '../../components/ChatContext';
 
-const generateBotUidForUser = (localUid: number): number => {
-  return 900000000 + (localUid % 100000000);
-};
-
 type TranslationItem = {
   lang: string;
   text: string;
@@ -82,12 +78,6 @@ export const CaptionContext = React.createContext<{
 
   viewMode: CaptionViewMode;
   setViewMode: React.Dispatch<React.SetStateAction<CaptionViewMode>>;
-
-  // Map of user → bot metadata
-  userBotMap: Record<string, UserSTTBot>;
-  setUserBotMap: React.Dispatch<
-    React.SetStateAction<Record<string, UserSTTBot>>
-  >;
 
   // holds meeting transcript
   meetingTranscript: TranscriptItem[];
@@ -156,8 +146,6 @@ export const CaptionContext = React.createContext<{
   setTranslationConfig: () => {},
   viewMode: 'original-and-translated',
   setViewMode: () => {},
-  userBotMap: {},
-  setUserBotMap: () => {},
   meetingTranscript: [],
   setMeetingTranscript: () => {},
   isLangChangeInProgress: false,
@@ -204,10 +192,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       source: ['en-US'],
       targets: [],
     });
-
-  const [userBotMap, setUserBotMap] = React.useState<
-    Record<string, UserSTTBot>
-  >({});
 
   const [viewMode, setViewMode] = React.useState<CaptionViewMode>(
     'original-and-translated',
@@ -268,69 +252,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         localUid +
         ')',
     );
-
-    // Also set the initial entry in userBotMap (inactive by default)
-    setUserBotMap(prev => ({
-      ...prev,
-      [localUid]: {
-        botUid: uid,
-        ownerUid: localUid,
-      },
-    }));
-
-    // Broadcast bot UID mapping to all users in the call
-    events.send(
-      EventNames.STT_BOT_UID_MAPPING,
-      JSON.stringify({
-        userUid: localUid,
-        botUid: uid,
-        username: username,
-      }),
-      PersistanceLevel.Session,
-    );
   }, [localUid, username, hasUserJoinedRTM]);
-
-  // Listen for bot UID mappings from other users
-  React.useEffect(() => {
-    const handleBotUidMapping = (data: any) => {
-      try {
-        const payload = JSON.parse(data.payload);
-        const {userUid, botUid, username} = payload;
-
-        console.log(
-          '[STT_PER_USER_BOT] Received bot mapping from user:',
-          username,
-          'userUid:',
-          userUid,
-          'botUid:',
-          botUid,
-        );
-
-        // Update userBotMap with the received mapping
-        setUserBotMap(prev => ({
-          ...prev,
-          [userUid]: {
-            botUid: botUid,
-            ownerUid: userUid,
-          },
-        }));
-      } catch (error) {
-        logger.error(
-          LogSource.Internals,
-          'STT',
-          'Failed to parse STT_BOT_UID_MAPPING event',
-          error,
-        );
-      }
-    };
-
-    events.on(EventNames.STT_BOT_UID_MAPPING, handleBotUidMapping);
-
-    // Cleanup listener on unmount
-    return () => {
-      events.off(EventNames.STT_BOT_UID_MAPPING, handleBotUidMapping);
-    };
-  }, []);
 
   // Listen for spoken language updates from other users
   React.useEffect(() => {
@@ -400,13 +322,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       if (result.success || result.error?.code === 610) {
         // Success or already started
         setIsSTTActive(true);
-        setUserBotMap(prev => ({
-          ...prev,
-          [localUid]: {
-            ...prev[localUid],
-            translationConfig: newConfig,
-          },
-        }));
         setIsSTTError(false);
 
         // Add transcript entry for language change
@@ -499,13 +414,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
       if (result.success) {
         setTranslationConfig(newConfig);
-        setUserBotMap(prev => ({
-          ...prev,
-          [localUid]: {
-            ...prev[localUid],
-            translationConfig: newConfig,
-          },
-        }));
         setIsSTTError(false);
 
         // Broadcast updated spoken language to all users
@@ -659,9 +567,14 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     }
   }, [stop, localBotUid]);
 
+  // Helper function to convert user UID to stt bot UID
+  const generateBotUidForUser = (userLocalUid: number): number => {
+    return 900000000 + (userLocalUid % 100000000);
+  };
+
   // Helper function to convert bot UID to user UID
   // Bot UIDs are in format: 900000000 + userUid
-  // This function reverse-maps botUid → userUid using userBotMap
+  // This function reverse-maps botUid → userUid using mathematical calculation
   const getBotOwnerUid = React.useCallback(
     (botUid: string | number): string | number => {
       const botUidStr = String(botUid);
@@ -671,17 +584,16 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         return botUid;
       }
 
-      // Find the user that owns this bot
-      for (const [userUid, botInfo] of Object.entries(userBotMap)) {
-        if (String(botInfo.botUid) === botUidStr) {
-          return userUid;
-        }
+      // If it's a bot UID (starts with 900000000), extract the user UID
+      const botUidNum = Number(botUid);
+      if (!isNaN(botUidNum) && botUidNum >= 900000000) {
+        return botUidNum - 900000000;
       }
 
-      // If not found in map, return the original (might be a regular user UID)
+      // Otherwise it's already a user UID, return as is
       return botUid;
     },
-    [userBotMap],
+    [],
   );
 
   return (
@@ -695,8 +607,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setIsSTTActive,
         translationConfig,
         setTranslationConfig,
-        userBotMap,
-        setUserBotMap,
         viewMode,
         setViewMode,
         meetingTranscript,

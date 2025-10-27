@@ -11,6 +11,7 @@ import ThemeConfig from '../../../src/theme';
 import {useCaption} from './useCaption';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {isAndroid, isMobileUA} from '../../utils/common';
+import {getCaptionDisplayText} from './utils';
 
 type TranslationItem = {
   lang: string;
@@ -30,6 +31,8 @@ interface CaptionTextProps {
   setInActiveLinesAvaialble?: React.Dispatch<React.SetStateAction<number>>;
   captionUserStyle?: TextStyle;
   captionTextStyle?: TextStyle;
+  speakerUid?: string | number;
+  userLocalUid?: string | number;
 }
 
 const DESKTOP_LINE_HEIGHT = 28;
@@ -48,9 +51,11 @@ const CaptionText = ({
   setInActiveLinesAvaialble,
   captionUserStyle = {},
   captionTextStyle = {},
+  speakerUid,
+  userLocalUid,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const {selectedTranslationLanguage} = useCaption();
+  const {selectedTranslationLanguage, translationConfig} = useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -92,6 +97,17 @@ const CaptionText = ({
    *
    */
 
+  // Get the appropriate source text for display based on viewer's language preferences
+  const viewerSourceLanguage = translationConfig.source[0];
+  const displayValue = getCaptionDisplayText(
+    value,
+    translations,
+    viewerSourceLanguage,
+    speakerUid,
+    userLocalUid,
+  );
+
+  // Get translation text based on selected translation language
   const translationText = selectedTranslationLanguage
     ? translations.find(t => t.lang === selectedTranslationLanguage)?.text
     : '';
@@ -133,7 +149,7 @@ const CaptionText = ({
 
   const translationCharLimit = isMobile ? 50 : 65; // 1 line worth
 
-  const displaySourceText = getLatestTextPortion(value, sourceCharLimit);
+  const displaySourceText = getLatestTextPortion(displayValue, sourceCharLimit);
   const displayTranslationText = hasTranslation
     ? getLatestTextPortion(translationText, translationCharLimit)
     : '';

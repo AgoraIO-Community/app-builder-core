@@ -8,6 +8,7 @@ import {isWebInternal} from '../../utils/common';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
+import {useLocalUid} from '../../../agora-rn-uikit';
 import {
   sttSettingSpokenLanguageText,
   sttSettingTranslationLanguageText,
@@ -45,6 +46,7 @@ const Caption: React.FC<CaptionProps> = ({
     getBotOwnerUid,
     isSTTActive,
   } = useCaption();
+  const currentUserUid = useLocalUid();
   const ssLabel = useString(sttSettingSpokenLanguageText)();
   const stLabel = useString<boolean>(sttSettingTranslationLanguageText)(
     isSTTActive,
@@ -130,6 +132,8 @@ const Caption: React.FC<CaptionProps> = ({
               setInActiveLinesAvaialble={setInActiveLinesAvaialble}
               captionUserStyle={captionUserStyle}
               captionTextStyle={captionTextStyle}
+              speakerUid={getBotOwnerUid(prevSpeakerRef.current)}
+              userLocalUid={currentUserUid}
             />
           ) : (
             <></>
@@ -151,6 +155,8 @@ const Caption: React.FC<CaptionProps> = ({
               setInActiveLinesAvaialble={setInActiveLinesAvaialble}
               captionUserStyle={captionUserStyle}
               captionTextStyle={captionTextStyle}
+              speakerUid={getBotOwnerUid(activeSpeakerRef.current)}
+              userLocalUid={currentUserUid}
             />
           ) : (
             <></>

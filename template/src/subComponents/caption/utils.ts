@@ -129,7 +129,9 @@ export const formatTranscriptContent = (
     }
 
     // find translation for the stored language
-    const currentTranslation = item.translations.find(t => t.lang === storedTranslationLanguage);
+    const currentTranslation = item.translations.find(
+      t => t.lang === storedTranslationLanguage,
+    );
     if (currentTranslation?.text) {
       return currentTranslation.text;
     }
@@ -140,7 +142,10 @@ export const formatTranscriptContent = (
 
   const formattedContent = meetingTranscript
     .map(item => {
-      if (item.uid.toString().indexOf('langUpdate') !== -1|| item.uid.toString().indexOf('translationUpdate')!== -1) {
+      if (
+        item.uid.toString().indexOf('langUpdate') !== -1 ||
+        item.uid.toString().indexOf('translationUpdate') !== -1
+      ) {
         return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
       }
       const displayText = getDisplayText(item);
@@ -180,6 +185,45 @@ export const formatTranscriptContent = (
   const fileName = `MeetingTranscript_${formattedDate}_${formattedTime}.txt`;
 
   return [finalContent, fileName];
+};
+
+/**
+ * Get the appropriate caption text to display based on the user's source/spoken language
+ * For other users' captions: shows translation matching user's source/spoken language
+ * For current user's captions: shows original text
+ * Falls back to original text if translation is not available
+ *
+ * @param captionText - The original caption text
+ * @param translations - Array of available translations
+ * @param viewerSourceLanguage - The user's source (spoken) language
+ * @param speakerUid - The UID of the person speaking
+ * @param currentUserUid - The UID of the current user
+ * @returns The appropriate caption text to display
+ */
+export const getCaptionDisplayText = (
+  captionText: string,
+  translations: Array<{lang: string; text: string; isFinal: boolean}> = [],
+  viewerSourceLanguage: LanguageType,
+  speakerUid: string | number,
+  currentUserUid: string | number,
+): string => {
+  // If this is the current user's caption, always show original text
+  if (speakerUid === currentUserUid) {
+    return captionText;
+  }
+
+  // For other users' captions, try to find translation matching viewer's source language
+  if (viewerSourceLanguage && translations && translations.length > 0) {
+    const matchingTranslation = translations.find(
+      t => t.lang === viewerSourceLanguage,
+    );
+    if (matchingTranslation?.text) {
+      return matchingTranslation.text;
+    }
+  }
+
+  // Fallback to original text if no translation found
+  return captionText;
 };
 
 export interface TranslateConfig {
