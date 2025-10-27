@@ -1,5 +1,5 @@
 import {createHook} from 'customization-implementation';
-import React from 'react';
+import React, {useContext} from 'react';
 import {LanguageType} from './utils';
 import useSTTAPI, {STTAPIResponse} from './useSTTAPI';
 import {useLocalUid} from '../../../agora-rn-uikit';
@@ -13,6 +13,7 @@ import {
   sttStartError,
   sttUpdateError,
 } from '../../language/default-labels/videoCallScreenLabels';
+import chatContext from '../../components/ChatContext';
 
 const generateBotUidForUser = (localUid: number): number => {
   return 900000000 + (localUid % 100000000);
@@ -246,6 +247,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
   const localUid = useLocalUid();
   const username = useGetName();
+  const {hasUserJoinedRTM} = useContext(chatContext);
+
   const [localBotUid, setLocalBotUid] = React.useState<number | null>(null);
 
   // i18n labels for error toasts
@@ -253,7 +256,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const updateErrorLabel = useString(sttUpdateError)();
 
   React.useEffect(() => {
-    if (!localUid || !username) {
+    if (!localUid || !username || !hasUserJoinedRTM) {
       return;
     } // wait for room info to be ready
     const uid = generateBotUidForUser(localUid);
@@ -285,7 +288,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       }),
       PersistanceLevel.Session,
     );
-  }, [localUid, username]);
+  }, [localUid, username, hasUserJoinedRTM]);
 
   // Listen for bot UID mappings from other users
   React.useEffect(() => {
