@@ -50,13 +50,18 @@ const CaptionText = ({
   captionTextStyle = {},
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const {viewMode, selectedTranslationLanguage} = useCaption();
+  const {selectedTranslationLanguage} = useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
-  // callback triggers whenevere captions reaches next line
-  const handleTextLayout = (event: LayoutChangeEvent) => {
-    let textHeight = event.nativeEvent.layout.height; // height of the <Text>
+  // Check if translation is being shown
+  const hasTranslation =
+    selectedTranslationLanguage && translations?.length > 0;
+  const MAX_SOURCE_LINES = hasTranslation ? 2 : MAX_CAPTIONS_LINES_ALLOWED;
+
+  // callback triggers whenever source text reaches next line
+  const handleSourceTextLayout = (event: LayoutChangeEvent) => {
+    let textHeight = event.nativeEvent.layout.height; // height of source text only
 
     /* safari at only zoom level 85% gives value as 27,54,81... for lineHeight instead of 28,56,84... */
     /* IOS,Androis gives 21.33 instead of 21 */
@@ -71,11 +76,13 @@ const CaptionText = ({
         : LINE_HEIGHT - lineHeightOffset
       : 0;
 
-    const currentLines = Math.floor((textHeight + delta) / LINE_HEIGHT); // calculate numberOfLines
-    const currentAllowedLines = Math.min(
-      currentLines,
-      MAX_CAPTIONS_LINES_ALLOWED,
-    );
+    const currentLines = Math.floor((textHeight + delta) / LINE_HEIGHT); // calculate numberOfLines for source
+    const currentSourceLines = Math.min(currentLines, MAX_SOURCE_LINES);
+
+    // Total lines = source lines + (1 if translation shown, 0 otherwise)
+    const currentAllowedLines = hasTranslation
+      ? currentSourceLines + 1
+      : currentSourceLines;
 
     if (isActiveSpeaker) {
       setActiveLinesAvailable(currentAllowedLines);
@@ -85,11 +92,14 @@ const CaptionText = ({
   };
 
   /**
-   * Total 5 lines (2-nameTags, MAX_CAPTIONS_LINES_ALLOWED-captions) => 1/5 = 0.2 flex for 1 line
-   * activeSpeaker Container will take flex depending on number of lines taken + 1 (name tag)
-   * prevSpeaker Conatiner will take 1 - flex , calculated in prev step
-   * If activeSpaker has three lines , then it will take entire space with flex:1 and preSpeaker flex:0
+   * Line allocation:
+   * - When translation is OFF: up to 3 lines for source text
+   * - When translation is ON: 2 lines for source + 1 line for translation = 3 total
    *
+   * Total 5 lines (2-nameTags, 3-captions) => 1/5 = 0.2 flex for 1 line
+   * activeSpeaker Container will take flex depending on number of lines taken + 1 (name tag)
+   * prevSpeaker Container will take 1 - flex, calculated in prev step
+   * If activeSpeaker has three lines, then it will take entire space with flex:1 and prevSpeaker flex:0
    */
 
   return (
@@ -135,35 +145,47 @@ const CaptionText = ({
                   )) * LINE_HEIGHT,
           },
         ]}>
-        {/* Original Transcription */}
-        <Text
-          onLayout={handleTextLayout}
-          style={[
-            styles.captionText,
-            styles.transcriptionText,
-            isMobile
-              ? styles.mobileCaptionFontSize
-              : styles.desktopCaptionFontSize,
-            isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
-            captionTextStyle,
-          ]}>
-          {/* original text */}
-          {value}
-          {/* Show translation only if viewMode allows */}
-          {viewMode === 'original-and-translated' &&
-            selectedTranslationLanguage &&
-            translations.length > 0 && (
-              <>
-                {'\n'}
-                <Text style={styles.translationText}>
-                  ({selectedTranslationLanguage}):{' '}
-                  {translations.find(
-                    t => t.lang === selectedTranslationLanguage,
-                  )?.text || ''}
-                </Text>
-              </>
-            )}
-        </Text>
+        {/* Wrapper for both source and translation - positioned at bottom */}
+        <View style={styles.textWrapper}>
+          {/* Original Transcription */}
+          <Text
+            onLayout={handleSourceTextLayout}
+            numberOfLines={MAX_SOURCE_LINES}
+            ellipsizeMode="tail"
+            style={[
+              styles.captionText,
+              styles.transcriptionText,
+              isMobile
+                ? styles.mobileCaptionFontSize
+                : styles.desktopCaptionFontSize,
+              isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
+              captionTextStyle,
+            ]}>
+            <Text style={styles.languageLabel}>("English"): </Text>
+            {/* original text */}
+            {value}
+          </Text>
+          {/* Translation line - shown right below */}
+          {selectedTranslationLanguage && translations?.length > 0 && (
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={[
+                styles.translationText,
+                isMobile
+                  ? styles.mobileCaptionFontSize
+                  : styles.desktopCaptionFontSize,
+                captionTextStyle,
+                {marginTop: 2},
+              ]}>
+              <Text style={styles.languageLabel}>
+                ({selectedTranslationLanguage}):{' '}
+              </Text>
+              {translations.find(t => t.lang === selectedTranslationLanguage)
+                ?.text || ''}
+            </Text>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -183,18 +205,20 @@ const styles = StyleSheet.create({
 
   captionTextContainerStyle: {
     width: '100%',
-    // flexDirection: 'column',
-    // justifyContent: 'flex-end',
     overflow: 'hidden',
     position: 'relative',
+  },
+
+  textWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
   },
 
   captionText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     color: $config.FONT_COLOR,
-    position: 'absolute',
-    bottom: 0,
   },
 
   transcriptionText: {
@@ -206,6 +230,10 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: $config.FONT_COLOR,
     marginTop: 1,
+  },
+
+  languageLabel: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
 
   captionUserName: {

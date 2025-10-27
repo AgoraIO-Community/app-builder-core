@@ -436,7 +436,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   actionMenuitems.push({
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Translate to',
+    title: 'Add Another Translation',
     iconPosition: 'end',
     disabled: true,
     onPress: () => {},
@@ -445,34 +445,34 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const handleTranslationToggle = (targetLanguage: string) => {
     // Simply update the selected translation language locally
     // No API call needed - we're just switching between already-configured target languages
-    const prevTranslationLanguage = selectedTranslationLanguage;
+    // const prevTranslationLanguage = selectedTranslationLanguage;
     setSelectedTranslationLanguage(targetLanguage);
 
-    // Add translation language change notification to transcript
-    const getLanguageName = (langCode: string) => {
-      if (!langCode) return '';
-      const lang = langData.find(data => data.value === langCode);
-      return lang ? lang.label : langCode;
-    };
+    // // Add translation language change notification to transcript
+    // const getLanguageName = (langCode: string) => {
+    //   if (!langCode) return '';
+    //   const lang = langData.find(data => data.value === langCode);
+    //   return lang ? lang.label : langCode;
+    // };
 
-    const actionText =
-      targetLanguage === ''
-        ? 'turned off translation'
-        : prevTranslationLanguage === ''
-        ? `set the translation language to "${getLanguageName(targetLanguage)}"`
-        : `changed the translation language from "${getLanguageName(
-            prevTranslationLanguage,
-          )}" to "${getLanguageName(targetLanguage)}"`;
+    // const actionText =
+    //   targetLanguage === ''
+    //     ? 'turned off translation'
+    //     : prevTranslationLanguage === ''
+    //     ? `set the translation language to "${getLanguageName(targetLanguage)}"`
+    //     : `changed the translation language from "${getLanguageName(
+    //         prevTranslationLanguage,
+    //       )}" to "${getLanguageName(targetLanguage)}"`;
 
-    setMeetingTranscript(prev => [
-      ...prev,
-      {
-        name: 'translationUpdate',
-        time: new Date().getTime(),
-        uid: `translationUpdate-${localUid}`,
-        text: actionText,
-      },
-    ]);
+    // setMeetingTranscript(prev => [
+    //   ...prev,
+    //   {
+    //     name: 'translationUpdate',
+    //     time: new Date().getTime(),
+    //     uid: `translationUpdate-${localUid}`,
+    //     text: actionText,
+    //   },
+    // ]);
 
     setActionMenuVisible(false);
   };

@@ -12,7 +12,7 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Loading from '../Loading';
 import {LanguageType} from './utils';
 import {useString} from '../../utils/useString';
-import {useRoomInfo} from '../../components/room-info/useRoomInfo';
+// import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {
   sttChangeLanguagePopupHeading,
   sttChangeLanguagePopupPrimaryBtnText,
@@ -44,7 +44,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
     remoteSpokenLanguages,
   );
 
-  const {sttLanguage} = useRoomInfo();
+  // const {sttLanguage} = useRoomInfo();
   const [error, setError] = React.useState<boolean>(false);
   const [isSourceOpen, setIsSourceOpen] = React.useState(false);
   const [isTargetOpen, setIsTargetOpen] = React.useState(false);
@@ -60,10 +60,18 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
     inputTranslationConfig?.targets.length === 0 ||
     inputTranslationConfig?.targets.length > 10;
 
+  // const autoSuggestedTargetLangs = React.useMemo(() => {
+  // const remote = sttLanguage?.remoteLang || [];
+  //   return remote.filter(lang => lang);
+  // }, [sttLanguage]);
+
   const autoSuggestedTargetLangs = React.useMemo(() => {
-    const remote = sttLanguage?.remoteLang || [];
-    return remote.filter(lang => lang);
-  }, [sttLanguage]);
+    // Get all spoken languages from remote users (excluding empty values)
+    const remoteLangs = Object.values(remoteSpokenLanguages).filter(
+      lang => lang,
+    );
+    return remoteLangs;
+  }, [remoteSpokenLanguages]);
 
   // Initialize or update source/targets dynamically when modal opens
   React.useEffect(() => {
