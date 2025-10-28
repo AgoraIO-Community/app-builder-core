@@ -74,12 +74,14 @@ const useSTTAPI = (): IuseSTTAPI => {
           const sanitizedTargets = translationConfig?.targets.filter(
             target => target !== translationConfig?.source[0],
           );
-          requestBody.translate_config = [
-            {
-              source_lang: translationConfig.source[0],
-              target_lang: sanitizedTargets,
-            },
-          ];
+          if (sanitizedTargets?.length > 0) {
+            requestBody.translate_config = [
+              {
+                source_lang: translationConfig.source[0],
+                target_lang: sanitizedTargets,
+              },
+            ];
+          }
         }
         requestBody.subscribeAudioUids = [`${localUid}`];
       }
