@@ -1,5 +1,5 @@
 import {ContentObjects} from '../../../agora-rn-uikit/src/Contexts/RtcContext';
-import {TranscriptItem} from './useCaption';
+import {TranscriptItem, LanguageTranslationConfig} from './useCaption';
 
 export function formatTime(timestamp: number): string {
   const d = new Date(timestamp);
@@ -10,6 +10,26 @@ export function formatTime(timestamp: number): string {
   const H = h % 12 || 12;
   return `${H}:${m} ${suffix}`;
 }
+
+/**
+ * Check if translation configuration has changed
+ * Compares source language and target languages between two configs
+ * @param prev - Previous translation configuration
+ * @param next - New translation configuration
+ * @returns true if config has changed, false otherwise
+ */
+export const hasConfigChanged = (
+  prev: LanguageTranslationConfig,
+  next: LanguageTranslationConfig,
+): boolean => {
+  const sourceChanged =
+    (prev.source || []).sort().join(',') !==
+    (next.source || []).sort().join(',');
+  const targetsChanged =
+    (prev.targets || []).sort().join(',') !==
+    (next.targets || []).sort().join(',');
+  return sourceChanged || targetsChanged;
+};
 
 export type LanguageType =
   | 'ar-EG'

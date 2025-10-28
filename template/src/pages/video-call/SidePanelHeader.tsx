@@ -353,7 +353,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     },
   });
 
-  const onLanguageChange = (
+  const onLanguageChange = async (
     inputTranslateConfig: LanguageTranslationConfig,
   ) => {
     console.log(
@@ -361,8 +361,10 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
       inputTranslateConfig,
     );
     setLanguagePopup(false);
-    // Update caption with new language configuration
-    handleTranslateConfigChange(inputTranslateConfig);
+    // Update caption with new language configuration\
+    try {
+      await handleTranslateConfigChange(inputTranslateConfig);
+    } catch (error) {}
   };
 
   React.useEffect(() => {

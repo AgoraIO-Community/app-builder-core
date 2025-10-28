@@ -35,6 +35,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   const {rtcProps} = useContext(PropsContext);
   const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
   const localUid = useLocalUid();
+
   const apiCall = async (
     method: string,
     botUid: number,
@@ -64,16 +65,18 @@ const useSTTAPI = (): IuseSTTAPI => {
           translationConfig,
         },
       );
-
       // Add translate_config only for start/update methods
       if (translationConfig?.source && translationConfig?.targets) {
-        requestBody.translate_config = [
-          {
-            source_lang: translationConfig.source[0],
-            target_lang: translationConfig.targets,
-          },
-        ];
         requestBody.lang = translationConfig.source;
+        // Add translate_config payload only if targets exist
+        if (translationConfig?.targets?.length > 0) {
+          requestBody.translate_config = [
+            {
+              source_lang: translationConfig.source[0],
+              target_lang: translationConfig.targets,
+            },
+          ];
+        }
         requestBody.subscribeAudioUids = [`${localUid}`];
       }
 

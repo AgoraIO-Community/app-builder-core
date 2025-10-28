@@ -365,11 +365,13 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  const onLanguageChange = (
+  const onLanguageChange = async (
     inputTranslateConfig: LanguageTranslationConfig,
   ) => {
     setLanguagePopup(false);
-    handleTranslateConfigChange(inputTranslateConfig);
+    try {
+      await handleTranslateConfigChange(inputTranslateConfig);
+    } catch (error) {}
   };
 
   React.useEffect(() => {

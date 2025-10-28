@@ -7,11 +7,13 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 import {useIsDesktop} from '../../utils/common';
 import {LanguageTranslationConfig, useCaption} from './useCaption';
+import Dropdown from '../../atoms/Dropdown';
 import DropdownMulti from '../../atoms/DropDownMulti';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Loading from '../Loading';
-import {LanguageType} from './utils';
+import {LanguageType, langData, hasConfigChanged} from './utils';
 import {useString} from '../../utils/useString';
+import {useLocalUid} from '../../../agora-rn-uikit';
 // import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {
   sttChangeLanguagePopupHeading,
@@ -39,6 +41,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
     isSTTActive,
     remoteSpokenLanguages,
   } = useCaption();
+  const localUid = useLocalUid();
   console.log(
     '[STT_PER_USER_BOT] remoteSpokenLanguages',
     remoteSpokenLanguages,
@@ -46,13 +49,12 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
 
   // const {sttLanguage} = useRoomInfo();
   const [error, setError] = React.useState<boolean>(false);
-  const [isSourceOpen, setIsSourceOpen] = React.useState(false);
   const [isTargetOpen, setIsTargetOpen] = React.useState(false);
 
   const [inputTranslationConfig, setInputTranslationConfig] =
     React.useState<LanguageTranslationConfig>({
-      source: translationConfig.source || ['en-US'],
-      targets: translationConfig.targets || [],
+      source: [],
+      targets: [],
     });
 
   const isNotValidated =
@@ -60,82 +62,49 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
     inputTranslationConfig?.targets.length === 0 ||
     inputTranslationConfig?.targets.length > 10;
 
-  // const autoSuggestedTargetLangs = React.useMemo(() => {
-  // const remote = sttLanguage?.remoteLang || [];
-  //   return remote.filter(lang => lang);
-  // }, [sttLanguage]);
+  // Create source language options with "None" prepended
+  const sourceLanguageOptions = React.useMemo(() => {
+    // return [{label: 'None', value: 'none'}, ...langData];
+    return [...langData];
+  }, []);
 
-  const autoSuggestedTargetLangs = React.useMemo(() => {
-    // Get all spoken languages from remote users (excluding empty values)
-    const remoteLangs = Object.values(remoteSpokenLanguages).filter(Boolean);
+  // All remote languages except for own user
+  const suggestedRemoteTargetLangs = React.useMemo(() => {
+    const remoteLangs = Object.entries(remoteSpokenLanguages)
+      .filter(([uid, lang]) => uid !== String(localUid) && lang)
+      .map(([, lang]) => lang);
 
-    const mySourceLang = translationConfig.source[0] || 'en-US';
-
-    // If any remote user speaks a different language than mine,
-    // add my source language to targets so I can see translations
-    const hasRemoteWithDifferentLang = remoteLangs.some(
-      lang => lang !== mySourceLang,
-    );
-
-    const suggestedLangs = [...remoteLangs];
-
-    // Auto-add my source language if someone speaks differently
-    if (hasRemoteWithDifferentLang && !suggestedLangs.includes(mySourceLang)) {
-      suggestedLangs.push(mySourceLang);
-    }
-
-    return Array.from(new Set(suggestedLangs)); // unique list
-  }, [remoteSpokenLanguages, translationConfig.source]);
+    return Array.from(new Set(remoteLangs));
+  }, [remoteSpokenLanguages, localUid]);
 
   // Initialize or update source/targets dynamically when modal opens
   React.useEffect(() => {
     if (!props.modalVisible) {
       return;
     }
-    console.log('[STT_PER_USER_BOT] changed');
-    const mySourceLang = translationConfig.source[0] || 'en-US';
+    console.log(
+      '[STT_PER_USER_BOT] language selecter popup opened',
+      translationConfig,
+    );
 
     const mergedTargets = Array.from(
       new Set([
         ...(translationConfig.targets || []),
-        ...autoSuggestedTargetLangs,
+        ...suggestedRemoteTargetLangs,
       ]),
-    ).filter(lang => lang !== mySourceLang);
+    );
 
     setInputTranslationConfig({
-      source: [mySourceLang],
+      source: translationConfig.source,
       targets: mergedTargets,
     });
 
     console.log('[STT_PER_USER_BOT] mergedTargets —', mergedTargets);
-    console.log('[STT_PER_USER_BOT] source —', mySourceLang);
     console.log(
       '[STT_PER_USER_BOT] all target langs —',
-      autoSuggestedTargetLangs,
+      suggestedRemoteTargetLangs,
     );
-  }, [props.modalVisible, translationConfig, autoSuggestedTargetLangs]);
-
-  // When source changes, recalculate targets:
-  // 1. Remove new source from targets
-  // 2. Re-merge with auto-suggested languages
-  React.useEffect(() => {
-    const src = inputTranslationConfig?.source[0];
-
-    // Merge current targets with auto-suggested langs
-    let mergedTargets = Array.from(
-      new Set([...inputTranslationConfig.targets, ...autoSuggestedTargetLangs]),
-    );
-
-    // If source is selected, filter it out from targets
-    if (src) {
-      mergedTargets = mergedTargets.filter(lang => lang !== src);
-    }
-
-    setInputTranslationConfig(prev => ({
-      ...prev,
-      targets: mergedTargets,
-    }));
-  }, [inputTranslationConfig?.source, autoSuggestedTargetLangs]);
+  }, [props.modalVisible, translationConfig, suggestedRemoteTargetLangs]);
 
   const onConfirmPress = async () => {
     if (isNotValidated) {
@@ -148,7 +117,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
 
     try {
       props?.onConfirm(inputTranslationConfig);
-      props.setModalVisible(false);
+      // props.setModalVisible(false);
     } catch (err) {
       console.error('[LANG_SELECTOR] Error confirming STT config:', err);
     }
@@ -178,18 +147,17 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
               What language will you speak in this meeting?
             </Text>
             <Spacer size={8} />
-            <DropdownMulti
-              selectedValues={inputTranslationConfig.source}
-              setSelectedValues={(val: LanguageType[]) =>
-                setInputTranslationConfig(prev => ({...prev, source: val}))
+            <Dropdown
+              label="Select language"
+              data={sourceLanguageOptions}
+              selectedValue={inputTranslationConfig.source[0] || ''}
+              onSelect={item =>
+                setInputTranslationConfig(prev => ({
+                  ...prev,
+                  source: [item.value as LanguageType],
+                }))
               }
-              defaultSelectedValues={inputTranslationConfig.source}
-              error={error}
-              setError={setError}
-              isOpen={isSourceOpen}
-              setIsOpen={setIsSourceOpen}
-              maxAllowedSelection={1}
-              protectedLanguages={[]}
+              enabled={true}
             />
             <Spacer size={2} />
             <Text style={styles.infoText}>
@@ -219,10 +187,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
               setIsOpen={setIsTargetOpen}
               maxAllowedSelection={10}
               protectedLanguages={Array.from(
-                new Set([
-                  ...autoSuggestedTargetLangs,
-                  ...inputTranslationConfig.source,
-                ]),
+                new Set([...suggestedRemoteTargetLangs]),
               )}
             />
             <Spacer size={2} />
@@ -257,7 +222,10 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             <View style={isDesktop && {flex: 1}}>
               <PrimaryButton
                 containerStyle={styles.button}
-                disabled={isNotValidated}
+                disabled={
+                  isNotValidated ||
+                  !hasConfigChanged(translationConfig, inputTranslationConfig)
+                }
                 text={ConfirmBtnLabel}
                 textStyle={styles.btnText}
                 onPress={onConfirmPress}

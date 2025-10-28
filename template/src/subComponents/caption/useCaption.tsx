@@ -1,6 +1,6 @@
 import {createHook} from 'customization-implementation';
 import React, {useContext} from 'react';
-import {LanguageType} from './utils';
+import {LanguageType, hasConfigChanged} from './utils';
 import useSTTAPI, {STTAPIResponse} from './useSTTAPI';
 import {useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
@@ -133,7 +133,7 @@ export const CaptionContext = React.createContext<{
   // language: ['en-US'],
   // setLanguage: () => {},
   translationConfig: {
-    source: ['en-US'],
+    source: [],
     targets: [],
   },
   setTranslationConfig: () => {},
@@ -182,7 +182,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   // STT Form state - contains agentId, source, and target languages
   const [translationConfig, setTranslationConfig] =
     React.useState<LanguageTranslationConfig>({
-      source: ['en-US'],
+      source: [],
       targets: [],
     });
 
@@ -284,16 +284,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     };
   }, []);
 
-  const hasConfigChanged = (
-    prev: LanguageTranslationConfig,
-    next: LanguageTranslationConfig,
-  ) => {
-    return (
-      prev.source !== next.source ||
-      prev.targets.sort().join(',') !== next.targets.sort().join(',')
-    );
-  };
-
   const startSTTBotSession = async (
     newConfig: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
@@ -350,7 +340,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           result.data,
         );
       } else {
-        setIsCaptionON(false);
+        // setIsCaptionON(false);
         setIsSTTError(true);
         logger.error(
           LogSource.NetworkRest,
@@ -525,9 +515,14 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       return;
     }
 
+    // Sanitize payload: remove source language from targets to avoid API errors
+    const sanitizedTargets = inputTranslateConfig?.targets.filter(
+      target => target !== inputTranslateConfig?.source[0],
+    );
+
     const newConfig: LanguageTranslationConfig = {
       source: inputTranslateConfig?.source,
-      targets: inputTranslateConfig?.targets,
+      targets: sanitizedTargets,
     };
 
     let action: 'start' | 'update' = 'start';
@@ -537,16 +532,31 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       action = 'update';
     }
 
-    console.log('[STT_HANDLE_CONFIRM]', {action, localBotUid, newConfig});
+    console.log('[STT_HANDLE_CONFIRM]', {
+      action,
+      localBotUid,
+      inputConfig: inputTranslateConfig,
+      sanitizedConfig: newConfig,
+    });
 
     try {
       switch (action) {
         case 'start':
-          await startSTTBotSession(newConfig);
+          const startResult = await startSTTBotSession(newConfig);
+          if (!startResult.success) {
+            throw new Error(
+              startResult.error?.message || 'Failed to start STT',
+            );
+          }
           break;
 
         case 'update':
-          await updateSTTBotSession(newConfig);
+          const updateResult = await updateSTTBotSession(newConfig);
+          if (!updateResult.success) {
+            throw new Error(
+              updateResult.error?.message || 'Failed to update STT config',
+            );
+          }
           break;
 
         default:
@@ -561,6 +571,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         'Error in handleTranslateConfigChange',
         error,
       );
+      throw error;
     }
   };
 
@@ -580,10 +591,10 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setIsSTTActive(false);
         // Clear user's source language when stopping
         setTranslationConfig({
-          source: ['en-US'],
+          source: [],
           targets: [],
         });
-        setIsCaptionON(false);
+        // setIsCaptionON(false);
         setIsSTTError(false);
 
         logger.log(

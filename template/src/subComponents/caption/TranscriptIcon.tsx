@@ -35,23 +35,17 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   // const isDisabled = !isAuthorizedTranscriptUser();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
-  const isFirstTimePopupOpen = React.useRef(false);
+  // const isFirstTimePopupOpen = React.useRef(false);
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const onPress = () => {
-    if (isSTTError) {
-      setSidePanel(
-        isTranscriptON ? SidePanelType.None : SidePanelType.Transcript,
-      );
-      return;
-    }
-    if (isSTTActive) {
-      setSidePanel(
-        isTranscriptON ? SidePanelType.None : SidePanelType.Transcript,
-      );
-    } else {
-      isFirstTimePopupOpen.current = true;
+    if (isSTTError || !isSTTActive) {
       setLanguagePopup(true);
+    } else {
+      // isFirstTimePopupOpen.current = true;
+      setSidePanel(
+        isTranscriptON ? SidePanelType.None : SidePanelType.Transcript,
+      );
     }
   };
 
@@ -84,24 +78,23 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   }
 
   const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
-    setLanguagePopup(false);
-
     // isFirstTimePopupOpen.current = false;
     // const method = isTranscriptON ? 'stop' : 'start';
     // if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     // if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-    if (!isTranscriptON) {
-      setSidePanel(SidePanelType.Transcript);
-    } else {
-      setSidePanel(SidePanelType.None);
-    }
+    setLanguagePopup(false);
     try {
       // const res = await start(language, userOwnLanguages);
       // if (res?.message.includes('STARTED')) {
       //   // channel is already started now restart
       //   await restart(language, userOwnLanguages);
       // }
-      handleTranslateConfigChange(inputTranslateConfig);
+      await handleTranslateConfigChange(inputTranslateConfig);
+      if (!isTranscriptON) {
+        setSidePanel(SidePanelType.Transcript);
+      } else {
+        setSidePanel(SidePanelType.None);
+      }
     } catch (error) {
       console.log('eror in starting stt', error);
     }

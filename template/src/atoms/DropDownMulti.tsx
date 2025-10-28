@@ -159,7 +159,14 @@ const DropdownMulti: FC<Props> = ({
     const selectedLanguage = data.find(item => item.value === value);
     const isProtected = protectedLanguages.includes(value);
     return selectedLanguage ? (
-      <View style={styles.selectedLang}>
+      <View style={[styles.selectedLang, isProtected && styles.protectedPill]}>
+        <Text
+          style={[
+            styles.dropdownOptionText,
+            isProtected && styles.protectedPillText,
+          ]}>
+          {selectedLanguage.label}
+        </Text>
         <TouchableOpacity
           disabled={isProtected}
           onPress={() => {
@@ -181,14 +188,6 @@ const DropdownMulti: FC<Props> = ({
             }
           />
         </TouchableOpacity>
-
-        <Text
-          style={[
-            styles.dropdownOptionText,
-            isProtected && {fontStyle: 'italic', opacity: 0.7},
-          ]}>
-          {selectedLanguage.label}
-        </Text>
       </View>
     ) : (
       <></>
@@ -310,7 +309,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
-    marginLeft: 4,
+    marginRight: 4,
   },
   dropdownIconContainer: {
     alignSelf: 'center',
@@ -377,6 +376,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     opacity: 0.6,
     fontStyle: 'italic',
+  },
+  protectedPill: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+  },
+  protectedPillText: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
 });
 

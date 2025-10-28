@@ -547,16 +547,12 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       onPress: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isCaptionON ? 'caption' : null;
-        if (isSTTError) {
-          setIsCaptionON(prev => !prev);
-          return;
-        }
-        if (isSTTActive) {
-          setIsCaptionON(prev => !prev);
-          // is lang popup has been shown once for any user in meeting
-        } else {
-          // isFirstTimePopupOpen.current = true;
+        if (isSTTError || !isSTTActive) {
+          // Show popup when error or STT not active
           setLanguagePopup(true);
+        } else {
+          // STT is active and no error
+          setIsCaptionON(prev => !prev);
         }
       },
     });
@@ -578,19 +574,13 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         onPress: () => {
           setActionMenuVisible(false);
           STT_clicked.current = !isTranscriptON ? 'transcript' : null;
-          if (isSTTError) {
-            !isTranscriptON
-              ? setSidePanel(SidePanelType.Transcript)
-              : setSidePanel(SidePanelType.None);
-            return;
-          }
-          if (isSTTActive) {
-            !isTranscriptON
-              ? setSidePanel(SidePanelType.Transcript)
-              : setSidePanel(SidePanelType.None);
-          } else {
-            // isFirstTimePopupOpen.current = true;
+          if (isSTTError || !isSTTActive) {
             setLanguagePopup(true);
+          } else {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+            // isFirstTimePopupOpen.current = true;
           }
         },
       });
@@ -866,27 +856,31 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     //   : isTranscriptON
     //   ? 'stop'
     //   : 'start';
-    if (isTranscriptClicked) {
-      if (!isTranscriptON) {
-        setSidePanel(SidePanelType.Transcript);
-      } else {
-        setSidePanel(SidePanelType.None);
-      }
-    }
+
     // if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     // if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-    if (isCaptionClicked) {
-      setIsCaptionON(prev => !prev);
-    } else {
-    }
+
     try {
       // const res = await start(language, language);
       // if (res?.message.includes('STARTED')) {
       //   // channel is already started now restart
       //   await restart(language, language);
       // }
-      handleTranslateConfigChange(inputTranslateConfig);
+      if (isTranscriptClicked) {
+        if (!isTranscriptON) {
+          setSidePanel(SidePanelType.Transcript);
+        } else {
+          setSidePanel(SidePanelType.None);
+        }
+      }
+      if (isCaptionClicked) {
+        setIsCaptionON(prev => !prev);
+      } else {
+      }
+      await handleTranslateConfigChange(inputTranslateConfig);
     } catch (error) {
+      setIsCaptionON(false);
+      setSidePanel(SidePanelType.None);
       logger.error(
         LogSource.Internals,
         'STT',
