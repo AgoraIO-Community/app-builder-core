@@ -70,10 +70,14 @@ const useSTTAPI = (): IuseSTTAPI => {
         requestBody.lang = translationConfig.source;
         // Add translate_config payload only if targets exist
         if (translationConfig?.targets?.length > 0) {
+          // Sanitize payload: remove source language from targets to avoid API errors
+          const sanitizedTargets = translationConfig?.targets.filter(
+            target => target !== translationConfig?.source[0],
+          );
           requestBody.translate_config = [
             {
               source_lang: translationConfig.source[0],
-              target_lang: translationConfig.targets,
+              target_lang: sanitizedTargets,
             },
           ];
         }

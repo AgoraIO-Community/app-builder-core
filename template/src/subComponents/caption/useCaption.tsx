@@ -515,14 +515,9 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       return;
     }
 
-    // Sanitize payload: remove source language from targets to avoid API errors
-    const sanitizedTargets = inputTranslateConfig?.targets.filter(
-      target => target !== inputTranslateConfig?.source[0],
-    );
-
     const newConfig: LanguageTranslationConfig = {
       source: inputTranslateConfig?.source,
-      targets: sanitizedTargets,
+      targets: inputTranslateConfig?.targets,
     };
 
     let action: 'start' | 'update' = 'start';
