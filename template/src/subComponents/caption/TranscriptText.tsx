@@ -3,7 +3,7 @@ import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
-import {formatTime} from './utils';
+import {formatTime, getLanguageLabel} from './utils';
 
 type TranslationItem = {
   lang: string;
@@ -92,6 +92,11 @@ export const TranscriptText = ({
           <Text
             key={translation.lang}
             style={[styles.transciptText, styles.translationText]}>
+            {/* lang code */}
+            <Text style={styles.languageLabel}>
+              ({getLanguageLabel([translation.lang])}):{' '}
+            </Text>
+            {/* lang */}
             {translation.parts.map((part, index) =>
               part.toLowerCase() === searchQuery.toLowerCase() &&
               searchQuery !== '' ? (
@@ -157,5 +162,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+  },
+  languageLabel: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
 });
