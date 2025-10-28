@@ -121,18 +121,18 @@ const CaptionContainer: React.FC<CaptionContainerProps> = ({
             btnRef={moreIconRef}
           />
 
-          <TranslateActionMenu
+          {/* <TranslateActionMenu
             actionMenuVisible={langActionMenuVisible}
             setActionMenuVisible={setLangActionMenuVisible}
             btnRef={langSelectIconRef}
-          />
+          /> */}
 
           {(isHovered || isMobileUA()) && !isLangChangeInProgress && (
             <>
-              <LanguageSelectMenu
+              {/* <LanguageSelectMenu
                 ref={langSelectIconRef}
                 setActionMenuVisible={setLangActionMenuVisible}
-              />
+              /> */}
               <MoreMenu
                 ref={moreIconRef}
                 setActionMenuVisible={setActionMenuVisible}
@@ -283,6 +283,8 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     updateSTTBotSession,
     translationConfig,
     handleTranslateConfigChange,
+    viewMode,
+    setViewMode,
   } = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -342,6 +344,24 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     onPress: () => {
       setActionMenuVisible(false);
       setIsCaptionON(false);
+    },
+  });
+
+  // View Mode Options
+  actionMenuitems.push({
+    icon: 'lang-select',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    endIcon: viewMode === 'original-and-translated' ? 'tick-fill' : undefined,
+    endIconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Show Original and translated',
+    onPress: () => {
+      if (viewMode === 'translated') {
+        setViewMode('original-and-translated');
+      } else {
+        setViewMode('translated');
+      }
+      setActionMenuVisible(false);
     },
   });
 

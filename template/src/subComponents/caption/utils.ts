@@ -200,30 +200,49 @@ export const formatTranscriptContent = (
  * @param currentUserUid - The UID of the current user
  * @returns The appropriate caption text to display
  */
-export const getCaptionDisplayText = (
+export const getUserTranslatedText = (
   captionText: string,
   translations: Array<{lang: string; text: string; isFinal: boolean}> = [],
   viewerSourceLanguage: LanguageType,
   speakerUid: string | number,
   currentUserUid: string | number,
-): string => {
-  // If this is the current user's caption, always show original text
-  if (speakerUid === currentUserUid) {
-    return captionText;
-  }
+): {
+  value: string;
+  langCode: string;
+} => {
+  console.log(
+    'supriya-test',
+    captionText,
+    translations,
+    viewerSourceLanguage,
+    speakerUid,
+    currentUserUid,
+  );
 
+  if (speakerUid === currentUserUid) {
+    return {
+      value: captionText,
+      langCode: viewerSourceLanguage,
+    };
+  }
   // For other users' captions, try to find translation matching viewer's source language
   if (viewerSourceLanguage && translations && translations.length > 0) {
     const matchingTranslation = translations.find(
       t => t.lang === viewerSourceLanguage,
     );
     if (matchingTranslation?.text) {
-      return matchingTranslation.text;
+      return {
+        value: matchingTranslation.text,
+        langCode: matchingTranslation.lang,
+      };
     }
   }
 
   // Fallback to original text if no translation found
-  return captionText;
+  return {
+    value: captionText,
+    langCode: viewerSourceLanguage,
+  };
 };
 
 export interface TranslateConfig {

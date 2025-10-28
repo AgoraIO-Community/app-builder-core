@@ -11,7 +11,7 @@ import ThemeConfig from '../../../src/theme';
 import {useCaption} from './useCaption';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {isAndroid, isMobileUA} from '../../utils/common';
-import {getCaptionDisplayText, getLanguageLabel, LanguageType} from './utils';
+import {getUserTranslatedText, getLanguageLabel, LanguageType} from './utils';
 
 type TranslationItem = {
   lang: string;
@@ -57,7 +57,7 @@ const CaptionText = ({
   spokenLanguageCode,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const {selectedTranslationLanguage, translationConfig} = useCaption();
+  const {translationConfig, viewMode} = useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -101,18 +101,27 @@ const CaptionText = ({
 
   // Get the appropriate source text for display based on viewer's language preferences
   const viewerSourceLanguage = translationConfig.source[0];
-  const displayValue = getCaptionDisplayText(
+  // const localUserText = value;
+  // const remoteUserTranslatedText: {
+  //   text: string,
+  //   langcode: LanguageType
+  // } = () => {
+  //   const matchingTranslation = translations.find(
+  //     t => t.lang === viewerSourceLanguage,
+  //   );
+  //   if (matchingTranslation?.text) {
+  //     return matchingTranslation.text;
+  //   }
+  //   return value;
+  // };
+
+  const displayTranslatedViewText = getUserTranslatedText(
     value,
     translations,
     viewerSourceLanguage,
     speakerUid,
     userLocalUid,
   );
-
-  // Get translation text based on selected translation language
-  const translationText = selectedTranslationLanguage
-    ? translations.find(t => t.lang === selectedTranslationLanguage)?.text
-    : '';
 
   /**
    * ROBUST TEXT EXTRACTION LOGIC
@@ -137,24 +146,15 @@ const CaptionText = ({
     return portion;
   };
 
-  // Calculate how much text to show based on whether translation is active
-  const hasTranslation = !!translationText;
-
   // Adjust char limits based on mobile vs desktop (mobile has smaller font)
-  const sourceCharLimit = hasTranslation
-    ? isMobile
-      ? 80
-      : 100 // 2 lines worth
-    : isMobile
-    ? 120
-    : 150; // 3 lines worth
-
-  const translationCharLimit = isMobile ? 50 : 65; // 1 line worth
-
-  const displaySourceText = getLatestTextPortion(displayValue, sourceCharLimit);
-  const displayTranslationText = hasTranslation
-    ? getLatestTextPortion(translationText, translationCharLimit)
-    : '';
+  const sourceCharLimit =
+    viewMode === 'original-and-translated'
+      ? isMobile
+        ? 50
+        : 70 // 1 line for source when showing original + translation below
+      : isMobile
+      ? 150
+      : 180; // 3 lines for source in translated mode (uses full space)
 
   return (
     <View
@@ -211,21 +211,24 @@ const CaptionText = ({
             isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
             captionTextStyle,
           ]}>
-          {/* Source text with language label */}
+          {/* Default view when view mode is : translated */}
           <Text style={styles.languageLabel}>
-            ({getLanguageLabel([spokenLanguageCode || viewerSourceLanguage])}):{' '}
+            ({getLanguageLabel([displayTranslatedViewText.langCode])}
+            ):{' '}
           </Text>
-          {displaySourceText}
-          {/* Translation text on new line if available */}
-          {displayTranslationText && (
-            <>
-              {'\n'}
-              <Text style={styles.languageLabel}>
-                ({getLanguageLabel([selectedTranslationLanguage])}):{' '}
-              </Text>
-              {displayTranslationText}
-            </>
+          {getLatestTextPortion(
+            displayTranslatedViewText.value,
+            sourceCharLimit,
           )}
+          {/* View mode when "Original and Translated" is selected - show original for remote users only */}
+          {speakerUid !== userLocalUid &&
+            viewMode === 'original-and-translated' && (
+              <>
+                {'\n'}
+                <Text style={styles.languageLabel}>(original): </Text>
+                {getLatestTextPortion(value, sourceCharLimit)}
+              </>
+            )}
         </Text>
       </View>
     </View>

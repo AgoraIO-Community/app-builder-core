@@ -27,14 +27,7 @@ export type LanguageTranslationConfig = {
   autoPopulate?: boolean; // e.g. if auto-populated from others
 };
 
-type UserSTTBot = {
-  botUid: string; // Unique per user
-  ownerUid: string; // the user’s UID
-  translationConfig: LanguageTranslationConfig;
-  // isActive: boolean;
-};
-
-type CaptionViewMode = 'original-and-translated' | 'original';
+type CaptionViewMode = 'original-and-translated' | 'translated';
 
 export type TranscriptItem = {
   uid: string;
@@ -144,7 +137,7 @@ export const CaptionContext = React.createContext<{
     targets: [],
   },
   setTranslationConfig: () => {},
-  viewMode: 'original-and-translated',
+  viewMode: 'translated',
   setViewMode: () => {},
   meetingTranscript: [],
   setMeetingTranscript: () => {},
@@ -193,9 +186,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       targets: [],
     });
 
-  const [viewMode, setViewMode] = React.useState<CaptionViewMode>(
-    'original-and-translated',
-  );
+  const [viewMode, setViewMode] = React.useState<CaptionViewMode>('translated');
 
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
     React.useState<boolean>(false);
