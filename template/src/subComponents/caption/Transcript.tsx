@@ -72,6 +72,7 @@ const Transcript = (props: TranscriptProps) => {
   const viewlatest = useString(sttTranscriptPanelViewLatestText)();
 
   const data = meetingTranscript; // Object.entries(transcript);
+  console.log('[STT_PER_USER_BOT] meetingTranscript data: ', data);
 
   const [showButton, setShowButton] = React.useState(false);
 

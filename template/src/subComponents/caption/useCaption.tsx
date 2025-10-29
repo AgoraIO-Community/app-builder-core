@@ -236,13 +236,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     } // wait for room info to be ready
     const uid = generateBotUidForUser(localUid);
     setLocalBotUid(uid);
-
-    console.log(
-      `[STT_BOT_INIT] Local user UID: ${localUid}, Generated bot UID: ${uid}`,
-      '\n  → This bot will ONLY subscribe to local user audio (UID: ' +
-        localUid +
-        ')',
-    );
   }, [localUid, username, hasUserJoinedRTM]);
 
   // Listen for spoken language updates from other users
