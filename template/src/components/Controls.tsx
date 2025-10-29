@@ -538,11 +538,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      disabled: !(
-        $config.ENABLE_STT &&
-        $config.ENABLE_CAPTION &&
-        (isHost || (!isHost && isSTTActive))
-      ),
+      disabled: !($config.ENABLE_STT && $config.ENABLE_CAPTION),
       title: captionLabel(isCaptionON),
       onPress: () => {
         setActionMenuVisible(false);
@@ -567,8 +563,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         disabled: !(
           $config.ENABLE_STT &&
           $config.ENABLE_CAPTION &&
-          $config.ENABLE_MEETING_TRANSCRIPT &&
-          (isHost || (!isHost && isSTTActive))
+          $config.ENABLE_MEETING_TRANSCRIPT
         ),
         title: transcriptLabel(isTranscriptON),
         onPress: () => {

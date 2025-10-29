@@ -299,18 +299,18 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const changeTranslationLanguage = useString<boolean>(
     sttChangeTranslationLanguageText,
   )();
-  isHost &&
-    actionMenuitems.push({
-      icon: 'globe',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: changeSpokenLanguage + ' ',
-      disabled: isLangChangeInProgress,
-      onPress: () => {
-        setActionMenuVisible(false);
-        setLanguagePopup(true);
-      },
-    });
+  // isHost &&
+  actionMenuitems.push({
+    icon: 'globe',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: changeSpokenLanguage + ' ',
+    disabled: isLangChangeInProgress,
+    onPress: () => {
+      setActionMenuVisible(false);
+      setLanguagePopup(true);
+    },
+  });
 
   // actionMenuitems.push({
   //   icon: 'lang-select',

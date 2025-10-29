@@ -60,7 +60,6 @@ const Caption: React.FC<CaptionProps> = ({
   const [inActiveLinesAvailable, setInActiveLinesAvaialble] = React.useState(0);
 
   const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
-    console.log('[STT_PER_USER_BOT] handleStreamMessageCallback', args);
     setIsSTTListenerAdded(true);
     if (isWebInternal()) {
       const [uid, data] = args as WebStreamMessageArgs;

@@ -51,7 +51,7 @@ const useStreamMessageUtils = (): {
       const textstream = protoRoot
         .lookupType('agora.audio2text.Text')
         .decode(payload as Uint8Array) as any;
-      console.log('stt v7 textstream', textstream);
+      console.log('[STT_PER_USER_BOT] stt v7 textstream', textstream);
       console.log('[STT_PER_USER_BOT] textstream.trans:', textstream.trans);
 
       //console.log('STT - Parsed Textstream : ', textstream);
