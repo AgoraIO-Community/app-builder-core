@@ -1,4 +1,5 @@
 import {useCaption} from './useCaption';
+import {useLocalUid} from '../../../agora-rn-uikit';
 import protoRoot from './proto/ptoto';
 import PQueue from 'p-queue';
 
@@ -28,7 +29,11 @@ const useStreamMessageUtils = (): {
     // Use ref instead of state to avoid stale closure issues
     // The ref always has the current value, even in callbacks created at mount time
     selectedTranslationLanguageRef,
+    translationConfigRef,
+    getBotOwnerUid,
   } = useCaption();
+
+  const localUid = useLocalUid();
 
   let captionStartTime: number = 0;
   const finalList: FinalListType = {};
@@ -221,48 +226,70 @@ const useStreamMessageUtils = (): {
       }
 
       /* Updating Meeting Transcript */
-      if (currentFinalText.length) {
+      // Update transcript when: (1) new text finalized OR (2) final translations arrived
+      const hasFinalTranslations = textstream.trans?.some(
+        (t: any) => t.isFinal === true,
+      );
+
+      if (currentFinalText.length || hasFinalTranslations) {
         //  final translations for transcript - include ALL available final translations for this user
         const finalTranslationsForTranscript: TranslationData[] = [];
-        console.log('[TRANSCRIPT_DEBUG] Before loop:', {
-          'finalTranslationList[textstream.uid]':
-            finalTranslationList[textstream.uid],
-          keys: finalTranslationList[textstream.uid]
-            ? Object.keys(finalTranslationList[textstream.uid])
-            : [],
-        });
+        // console.log('[TRANSCRIPT_DEBUG] Before loop:', {
+        //   'finalTranslationList[textstream.uid]':
+        //     finalTranslationList[textstream.uid],
+        //   keys: finalTranslationList[textstream.uid]
+        //     ? Object.keys(finalTranslationList[textstream.uid])
+        //     : [],
+        // });
 
         if (finalTranslationList[textstream.uid]) {
           Object.keys(finalTranslationList[textstream.uid]).forEach(lang => {
             const translationText =
               finalTranslationList[textstream.uid][lang]?.join(' ') || '';
-            console.log(
-              '[TRANSCRIPT_DEBUG] Processing lang:',
-              lang,
-              'text:',
-              translationText,
-            );
-            if (translationText) {
+            // console.log(
+            //   '[TRANSCRIPT_DEBUG] Processing lang:',
+            //   lang,
+            //   'text:',
+            //   translationText,
+            // );
+            // Check if speaker is the local user
+            const speakerUid = getBotOwnerUid(textstream.uid);
+            const isLocalUser = speakerUid === localUid;
+
+            // Only filter translations for local user, show all for remote users
+            const isTargetLanguage = isLocalUser
+              ? translationConfigRef?.current?.targets?.includes(lang) || false
+              : true; // Show all translations for remote users
+
+            // console.log('supriya-isTargetLanguage', {
+            //   speakerUid,
+            //   localUid,
+            //   isLocalUser,
+            //   lang,
+            //   isTargetLanguage,
+            // });
+
+            if (translationText && isTargetLanguage) {
               finalTranslationsForTranscript.push({
                 lang: lang,
                 text: translationText,
                 isFinal: true,
               });
-              console.log('[TRANSCRIPT_DEBUG] Added translation for:', lang);
+              // console.log('[STT_PER_USER_BOT] Added translation for:', lang);
             }
           });
         }
 
-        console.log(
-          '[STT_PER_USER_BOT] [TRANSCRIPT_DEBUG] Adding to transcript:',
-          {
-            uid: textstream.uid,
-            text: currentFinalText,
-            translationsCount: finalTranslationsForTranscript.length,
-            translations: finalTranslationsForTranscript,
-            finalTranslationList: finalTranslationList[textstream.uid],
-          },
-        );
+        // console.log(
+        //   '[STT_PER_USER_BOT] [TRANSCRIPT_DEBUG] Adding to transcript:',
+        //   {
+        //     uid: textstream.uid,
+        //     text: currentFinalText,
+        //     translationsCount: finalTranslationsForTranscript.length,
+        //     translations: finalTranslationsForTranscript,
+        //     finalTranslationList: finalTranslationList[textstream.uid],
+        //   },
+        // );
 
         setMeetingTranscript(prevTranscript => {
           const lastTranscriptIndex = prevTranscript.length - 1;
@@ -274,13 +301,17 @@ const useStreamMessageUtils = (): {
           /*
             checking if the last item transcript matches with current uid
             If yes then updating the last transcript msg with current text and translations
-            If no then adding a new entry in the transcript
+            If no and we have new text, then adding a new entry in the transcript
+            If no new text and no matching uid, don't add empty item
           */
           if (lastTranscript && lastTranscript.uid === textstream.uid) {
+            // Update existing transcript item (text + translations or just translations)
             const updatedTranscript = {
               ...lastTranscript,
               //text: lastTranscript.text + ' ' + currentFinalText, // missing few updates with reading prev values
-              text: finalTranscriptList[textstream.uid].join(' '),
+              text: currentFinalText.length
+                ? finalTranscriptList[textstream.uid].join(' ')
+                : lastTranscript.text, // Keep existing text if no new text
               translations: finalTranslationsForTranscript,
               // preserve the original translation language from when this transcript was created
               selectedTranslationLanguage:
@@ -291,7 +322,8 @@ const useStreamMessageUtils = (): {
               ...prevTranscript.slice(0, lastTranscriptIndex),
               updatedTranscript,
             ];
-          } else {
+          } else if (currentFinalText.length) {
+            // Only create new item if we have new text
             finalTranscriptList[textstream.uid] = [currentFinalText];
 
             return [
@@ -307,6 +339,12 @@ const useStreamMessageUtils = (): {
                   selectedTranslationLanguageRef.current,
               },
             ];
+          } else {
+            // No new text and uid doesn't match - don't modify transcript
+            // console.log(
+            //   '[TRANSCRIPT_DEBUG] Skipping transcript update - no new text and uid mismatch',
+            // );
+            return prevTranscript;
           }
         });
       }

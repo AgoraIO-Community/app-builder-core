@@ -101,6 +101,8 @@ export const CaptionContext = React.createContext<{
   setSelectedTranslationLanguage: React.Dispatch<React.SetStateAction<string>>;
   // Ref for translation language - prevents stale closures in callbacks
   selectedTranslationLanguageRef: React.MutableRefObject<string>;
+  // Ref for translation config - prevents stale closures in callbacks
+  translationConfigRef: React.MutableRefObject<LanguageTranslationConfig>;
 
   // Stores spoken languages of all remote users (userUid -> spoken language)
   // Used to auto-populate target languages for new users
@@ -122,7 +124,6 @@ export const CaptionContext = React.createContext<{
 
   // Helper function to get user UID from bot UID
   getBotOwnerUid: (botUid: string | number) => string | number;
-  localBotUid: string | number;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -154,6 +155,7 @@ export const CaptionContext = React.createContext<{
   selectedTranslationLanguage: '',
   setSelectedTranslationLanguage: () => {},
   selectedTranslationLanguageRef: {current: ''},
+  translationConfigRef: {current: {source: [], targets: []}},
   remoteSpokenLanguages: {},
   setRemoteSpokenLanguages: () => {},
   handleTranslateConfigChange: async () => {},
@@ -161,7 +163,6 @@ export const CaptionContext = React.createContext<{
   updateSTTBotSession: async () => ({success: false}),
   stopSTTBotSession: async () => {},
   getBotOwnerUid: (botUid: string | number) => botUid,
-  localBotUid: null,
 });
 
 interface CaptionProviderProps {
@@ -211,11 +212,20 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
   const selectedTranslationLanguageRef = React.useRef('');
+  const translationConfigRef = React.useRef<LanguageTranslationConfig>({
+    source: [],
+    targets: [],
+  });
 
   // Sync ref with state for selectedTranslationLanguage
   React.useEffect(() => {
     selectedTranslationLanguageRef.current = selectedTranslationLanguage;
   }, [selectedTranslationLanguage]);
+
+  // Sync ref with state for translationConfig
+  React.useEffect(() => {
+    translationConfigRef.current = translationConfig;
+  }, [translationConfig]);
 
   // Import STT API methods
   const {start, stop, update} = useSTTAPI();
@@ -670,6 +680,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         selectedTranslationLanguage,
         setSelectedTranslationLanguage,
         selectedTranslationLanguageRef,
+        translationConfigRef,
         remoteSpokenLanguages,
         setRemoteSpokenLanguages,
         handleTranslateConfigChange,
@@ -677,7 +688,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         updateSTTBotSession,
         stopSTTBotSession,
         getBotOwnerUid,
-        localBotUid,
       }}>
       {children}
     </CaptionContext.Provider>
