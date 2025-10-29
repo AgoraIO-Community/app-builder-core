@@ -1039,7 +1039,9 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [textTrackModalTitleIntn]: 'Text Tracks',
   [sttChangeLanguagePopupHeading]: isFirstTimeOpened =>
-    isFirstTimeOpened ? 'Setup Speech to Text' : 'Modify Speech to Text',
+    isFirstTimeOpened
+      ? 'Setup Captions & Translation'
+      : 'Modify Captions & Translation',
   [sttChangeLanguagePopupSubHeading]:
     'Please select your preferred language as the source language and up to 10 target languages to translate into. You can update these settings at any time by returning to this page.',
   [sttChangeLanguagePopupPrimaryBtnText]: 'CONFIRM',
