@@ -141,9 +141,37 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
         </View>
       ) : (
         <>
+          {/* Source Language */}
+          <View>
+            <Text style={styles.labelText}>
+              What language will you speak in this meeting?
+            </Text>
+            <Spacer size={8} />
+            <Dropdown
+              label="Select language"
+              data={sourceLanguageOptions}
+              selectedValue={inputTranslationConfig.source[0] || ''}
+              onSelect={item =>
+                setInputTranslationConfig(prev => ({
+                  ...prev,
+                  source: [item.value as LanguageType],
+                }))
+              }
+              enabled={true}
+            />
+            <Spacer size={2} />
+            <Text style={styles.infoText}>
+              Captions and transcript will appear in this language for you.
+            </Text>
+          </View>
+
+          <Spacer size={20} />
+
           {/* Target Languages */}
           <View>
-            <Text style={styles.labelText}>Meeting Spoken languages</Text>
+            <Text style={styles.labelText}>
+              Spoken languages in the meeting
+            </Text>
             <Spacer size={8} />
             <DropdownMulti
               selectedValues={inputTranslationConfig.targets}
@@ -167,30 +195,6 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             <Text style={styles.infoText}>
               Auto populated by spoken languages of other users once they join
               the room.
-            </Text>
-          </View>
-
-          <Spacer size={20} />
-
-          {/* Source Language */}
-          <View>
-            <Text style={styles.labelText}>Translate to</Text>
-            <Spacer size={8} />
-            <Dropdown
-              label="Select language"
-              data={sourceLanguageOptions}
-              selectedValue={inputTranslationConfig.source[0] || ''}
-              onSelect={item =>
-                setInputTranslationConfig(prev => ({
-                  ...prev,
-                  source: [item.value as LanguageType],
-                }))
-              }
-              enabled={true}
-            />
-            <Spacer size={2} />
-            <Text style={styles.infoText}>
-              Captions and transcript will appear in this language for you.
             </Text>
           </View>
           <Spacer size={8} />

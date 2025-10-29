@@ -240,7 +240,11 @@ const DropdownMulti: FC<Props> = ({
               styles.dropdownOptionTextContainer,
               selectedValues.length === maxAllowedSelection && {flex: 1},
             ]}>
-            {formattedSelectedLanguages}
+            {selectedValues.length === 0 ? (
+              <Text style={styles.placeholderText}>Select languages</Text>
+            ) : (
+              formattedSelectedLanguages
+            )}
           </ScrollView>
         </View>
         {/* Dropdown end Icon */}
@@ -310,6 +314,14 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     marginRight: 4,
+  },
+  placeholderText: {
+    textAlign: 'left',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.normal,
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
+    paddingLeft: 8,
   },
   dropdownIconContainer: {
     alignSelf: 'center',

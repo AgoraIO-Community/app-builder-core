@@ -436,6 +436,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           setMeetingTranscript(prev => [
             ...prev,
             {
+              name: 'langUpdate',
               uid: `langUpdate-${localUid}`,
               time: new Date().getTime(),
               text: actionText,
