@@ -193,6 +193,10 @@ const SonixCaptionContainer = () => {
 
           // check for error
           if (data.type === 'ERROR' && data.payload) {
+            // show error only if botID matches localUid's bot
+            if (botID !== Number('9' + localUid.toString().slice(1))) {
+              return;
+            }
             const error = data.payload.err;
             logger.debug(
               LogSource.NetworkRest,
@@ -662,7 +666,7 @@ const SonixCaptionContainer = () => {
                     {getLangLabel(entry.targetLang, selectedTTS)}
                   </Text>
                   {entry.sourceLang === entry.targetLang ? (
-                    entry.srcText && (
+                    entry.srcText ? (
                       <View style={styles.singleLanguageContainer}>
                         <View style={styles.languageBadge}>
                           <Text style={styles.languageBadgeText}>
@@ -676,10 +680,10 @@ const SonixCaptionContainer = () => {
                           ) : null}
                         </Text>
                       </View>
-                    )
+                    ) : null
                   ) : (
                     <View style={styles.sideBySideContainer}>
-                      {entry.srcText && (
+                      {entry.srcText ? (
                         <View style={styles.languageColumn}>
                           <View style={styles.languageBadge}>
                             <Text style={styles.languageBadgeText}>
@@ -693,8 +697,8 @@ const SonixCaptionContainer = () => {
                             ) : null}
                           </Text>
                         </View>
-                      )}
-                      {entry.tgtText && (
+                      ) : null}
+                      {entry.tgtText ? (
                         <View style={styles.languageColumn}>
                           <View style={styles.languageBadge}>
                             <Text style={styles.languageBadgeText}>
@@ -708,7 +712,7 @@ const SonixCaptionContainer = () => {
                             ) : null}
                           </Text>
                         </View>
-                      )}
+                      ) : null}
                     </View>
                   )}
                 </View>
@@ -735,7 +739,7 @@ const SonixCaptionContainer = () => {
                     {getLangLabel(entry.targetLang, selectedTTS)}
                   </Text>
                   {entry.sourceLang === entry.targetLang ? (
-                    entry.srcNonFinal && (
+                    entry.srcNonFinal ? (
                       <View style={styles.singleLanguageContainer}>
                         <View style={styles.languageBadge}>
                           <Text style={styles.languageBadgeText}>
@@ -744,10 +748,10 @@ const SonixCaptionContainer = () => {
                         </View>
                         <Text style={styles.live}>{entry.srcNonFinal}</Text>
                       </View>
-                    )
+                    ) : null
                   ) : (
                     <View style={styles.sideBySideContainer}>
-                      {entry.srcNonFinal && (
+                      {entry.srcNonFinal ? (
                         <View style={styles.languageColumn}>
                           <View style={styles.languageBadge}>
                             <Text style={styles.languageBadgeText}>
@@ -756,8 +760,8 @@ const SonixCaptionContainer = () => {
                           </View>
                           <Text style={styles.live}>{entry.srcNonFinal}</Text>
                         </View>
-                      )}
-                      {entry.tgtNonFinal && (
+                      ) : null}
+                      {entry.tgtNonFinal ? (
                         <View style={styles.languageColumn}>
                           <View style={styles.languageBadge}>
                             <Text style={styles.languageBadgeText}>
@@ -766,7 +770,7 @@ const SonixCaptionContainer = () => {
                           </View>
                           <Text style={styles.live}>{entry.tgtNonFinal}</Text>
                         </View>
-                      )}
+                      ) : null}
                     </View>
                   )}
                 </View>
