@@ -168,10 +168,26 @@ export const formatTranscriptContent = (
       ) {
         return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
       }
-      const displayText = getDisplayText(item);
-      return `${defaultContent[item.uid]?.name} ${formatTime(
+
+      // Build transcript entry with original text and all translations
+      let transcriptEntry = `${defaultContent[item.uid]?.name} ${formatTime(
         Number(item?.time),
-      )}:\n${displayText}`;
+      )}:\n${item.text}`;
+
+      // Add all translations with language labels
+      if (item.translations && item.translations.length > 0) {
+        const translationLines = item.translations
+          .map(trans => {
+            const langLabel =
+              langData.find(l => l.value === trans.lang)?.label || trans.lang;
+            return `${langLabel}: ${trans.text}`;
+          })
+          .join('\n');
+
+        transcriptEntry += `\n${translationLines}`;
+      }
+
+      return transcriptEntry;
     })
     .join('\n\n');
 
