@@ -11,6 +11,7 @@ import ThemeConfig from '../../../src/theme';
 import {useCaption} from './useCaption';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {isAndroid, isMobileUA} from '../../utils/common';
+import {getUserTranslatedText, getLanguageLabel, LanguageType} from './utils';
 
 type TranslationItem = {
   lang: string;
@@ -30,6 +31,9 @@ interface CaptionTextProps {
   setInActiveLinesAvaialble?: React.Dispatch<React.SetStateAction<number>>;
   captionUserStyle?: TextStyle;
   captionTextStyle?: TextStyle;
+  speakerUid?: string | number;
+  userLocalUid?: string | number;
+  spokenLanguageCode?: LanguageType;
 }
 
 const DESKTOP_LINE_HEIGHT = 28;
@@ -48,9 +52,12 @@ const CaptionText = ({
   setInActiveLinesAvaialble,
   captionUserStyle = {},
   captionTextStyle = {},
+  speakerUid,
+  userLocalUid,
+  spokenLanguageCode,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const {selectedTranslationLanguage} = useCaption();
+  const {translationConfig, viewMode} = useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -91,6 +98,63 @@ const CaptionText = ({
    * If activeSpaker has three lines , then it will take entire space with flex:1 and preSpeaker flex:0
    *
    */
+
+  // Get the appropriate source text for display based on viewer's language preferences
+  const viewerSourceLanguage = translationConfig.source[0];
+  // const localUserText = value;
+  // const remoteUserTranslatedText: {
+  //   text: string,
+  //   langcode: LanguageType
+  // } = () => {
+  //   const matchingTranslation = translations.find(
+  //     t => t.lang === viewerSourceLanguage,
+  //   );
+  //   if (matchingTranslation?.text) {
+  //     return matchingTranslation.text;
+  //   }
+  //   return value;
+  // };
+
+  const displayTranslatedViewText = getUserTranslatedText(
+    value,
+    translations,
+    viewerSourceLanguage,
+    speakerUid,
+    userLocalUid,
+  );
+
+  /**
+   * ROBUST TEXT EXTRACTION LOGIC
+   * Problem: value and translationText contain FULL accumulated text (can be 1000+ chars)
+   * Solution: Extract only the latest portion that fits in allocated lines
+   * - With translation: 2 lines source (~100-120 chars) + 1 line translation (~50-75 chars)
+   * - Without translation: 3 lines source (~150-180 chars)
+   */
+  const getLatestTextPortion = (text: string, maxChars: number) => {
+    if (!text || text.length <= maxChars) return text;
+
+    // Take last maxChars, try to find sentence boundary for cleaner cut
+    const portion = text.slice(-maxChars);
+    const sentenceMatch = portion.match(/[.!?]\s+/);
+
+    // If we find a sentence boundary after position 10, start from there
+    if (sentenceMatch && sentenceMatch.index > 10) {
+      return portion.slice(sentenceMatch.index + sentenceMatch[0].length);
+    }
+
+    // Otherwise just return the last maxChars
+    return portion;
+  };
+
+  // Adjust char limits based on mobile vs desktop (mobile has smaller font)
+  const sourceCharLimit =
+    viewMode === 'original-and-translated'
+      ? isMobile
+        ? 50
+        : 70 // 1 line for source when showing original + translation below
+      : isMobile
+      ? 150
+      : 180; // 3 lines for source in translated mode (uses full space)
 
   return (
     <View
@@ -135,7 +199,7 @@ const CaptionText = ({
                   )) * LINE_HEIGHT,
           },
         ]}>
-        {/* Transcription */}
+        {/* Combined source and translation text */}
         <Text
           onLayout={handleTextLayout}
           style={[
@@ -147,10 +211,24 @@ const CaptionText = ({
             isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
             captionTextStyle,
           ]}>
-          {selectedTranslationLanguage
-            ? translations.find(t => t.lang === selectedTranslationLanguage)
-                ?.text || value
-            : value}
+          {/* Default view when view mode is : translated */}
+          <Text style={styles.languageLabel}>
+            ({getLanguageLabel([displayTranslatedViewText.langCode])}
+            ):{' '}
+          </Text>
+          {getLatestTextPortion(
+            displayTranslatedViewText.value,
+            sourceCharLimit,
+          )}
+          {/* View mode when "Original and Translated" is selected - show original for remote users only */}
+          {speakerUid !== userLocalUid &&
+            viewMode === 'original-and-translated' && (
+              <>
+                {'\n'}
+                <Text style={styles.languageLabel}>(original): </Text>
+                {getLatestTextPortion(value, sourceCharLimit)}
+              </>
+            )}
         </Text>
       </View>
     </View>
@@ -171,8 +249,6 @@ const styles = StyleSheet.create({
 
   captionTextContainerStyle: {
     width: '100%',
-    // flexDirection: 'column',
-    // justifyContent: 'flex-end',
     overflow: 'hidden',
     position: 'relative',
   },
@@ -189,11 +265,8 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
 
-  translationText: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '300',
-    color: $config.FONT_COLOR,
-    marginTop: 1,
+  languageLabel: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
 
   captionUserName: {

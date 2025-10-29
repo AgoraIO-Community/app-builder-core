@@ -6,19 +6,18 @@ import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 import {useIsDesktop} from '../../utils/common';
-import {useCaption} from './useCaption';
+import {LanguageTranslationConfig, useCaption} from './useCaption';
+import Dropdown from '../../atoms/Dropdown';
 import DropdownMulti from '../../atoms/DropDownMulti';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Loading from '../Loading';
-import {LanguageType} from './utils';
+import {LanguageType, langData, hasConfigChanged} from './utils';
 import {useString} from '../../utils/useString';
-import {useRoomInfo} from '../../components/room-info/useRoomInfo';
+import {useLocalUid} from '../../../agora-rn-uikit';
+// import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {
-  sttChangeLanguagePopupDropdownError,
-  sttChangeLanguagePopupDropdownInfo,
   sttChangeLanguagePopupHeading,
   sttChangeLanguagePopupPrimaryBtnText,
-  sttChangeLanguagePopupSubHeading,
   sttLanguageChangeInProgress,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {cancelText} from '../../language/default-labels/commonLabels';
@@ -26,47 +25,103 @@ import {cancelText} from '../../language/default-labels/commonLabels';
 interface LanguageSelectorPopup {
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
-  onConfirm: (param: boolean, lang: LanguageType[], userOwnLang?: LanguageType[]) => void;
-  isFirstTimePopupOpen?: boolean;
+  onConfirm: (inputTranslationConfig: LanguageTranslationConfig) => void;
 }
 
 const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
-  const {isFirstTimePopupOpen = false} = props;
-  const [isOpen, setIsOpen] = React.useState(false);
   const isDesktop = useIsDesktop()('popup');
   const heading = useString<boolean>(sttChangeLanguagePopupHeading);
-  const subHeading = useString(sttChangeLanguagePopupSubHeading)();
   const cancelBtnLabel = useString(cancelText)();
   const ConfirmBtnLabel = useString(sttChangeLanguagePopupPrimaryBtnText)();
-  const ddError = useString(sttChangeLanguagePopupDropdownError)();
-  const ddInfo = useString(sttChangeLanguagePopupDropdownInfo)();
   const languageChangeInProgress = useString(sttLanguageChangeInProgress)();
-  const {language, isLangChangeInProgress, isSTTActive} = useCaption();
-  
-  const {sttLanguage} = useRoomInfo();
 
-  // Get protected languages from accumulated remoteLang
-  const protectedLanguages = React.useMemo(() => {
-    return sttLanguage?.remoteLang || [];
-  }, [sttLanguage?.remoteLang]);
+  const {
+    translationConfig,
+    isLangChangeInProgress,
+    isSTTActive,
+    remoteSpokenLanguages,
+  } = useCaption();
+  const localUid = useLocalUid();
+  console.log(
+    '[STT_PER_USER_BOT] remoteSpokenLanguages',
+    remoteSpokenLanguages,
+  );
 
+  // const {sttLanguage} = useRoomInfo();
   const [error, setError] = React.useState<boolean>(false);
-  const [selectedValues, setSelectedValues] =
-    React.useState<LanguageType[]>(language);
+  const [isTargetOpen, setIsTargetOpen] = React.useState(false);
+
+  const [inputTranslationConfig, setInputTranslationConfig] =
+    React.useState<LanguageTranslationConfig>({
+      source: [],
+      targets: [],
+    });
+
   const isNotValidated =
-    isOpen && (selectedValues.length === 0 || selectedValues.length === 4);
+    inputTranslationConfig?.source.length === 0 ||
+    inputTranslationConfig?.targets.length === 0 ||
+    inputTranslationConfig?.targets.length > 10;
 
-  // Initialize selectedValues with current languages plus protected languages
+  // Create source language options with "None" prepended
+  const sourceLanguageOptions = React.useMemo(() => {
+    // return [{label: 'None', value: 'none'}, ...langData];
+    return [...langData];
+  }, []);
+
+  // All remote languages except for own user
+  const suggestedRemoteTargetLangs = React.useMemo(() => {
+    const remoteLangs = Object.entries(remoteSpokenLanguages)
+      .filter(([uid, lang]) => uid !== String(localUid) && lang)
+      .map(([, lang]) => lang);
+
+    return Array.from(new Set(remoteLangs));
+  }, [remoteSpokenLanguages, localUid]);
+
+  // Initialize or update source/targets dynamically when modal opens
   React.useEffect(() => {
-    console.log('LanguagePopup Debug - language:', language);
-    console.log('LanguagePopup Debug - protectedLanguages:', protectedLanguages);
-    const combinedLanguages = [...language, ...protectedLanguages];
-    // Remove duplicates
-    const uniqueLanguages = Array.from(new Set(combinedLanguages));
-    console.log('LanguagePopup Debug - uniqueLanguages:', uniqueLanguages);
-    setSelectedValues(uniqueLanguages);
-  }, [language, protectedLanguages]);
+    if (!props.modalVisible) {
+      return;
+    }
+    console.log(
+      '[STT_PER_USER_BOT] language selecter popup opened',
+      translationConfig,
+    );
 
+    const mergedTargets = Array.from(
+      new Set([
+        ...(translationConfig.targets || []),
+        ...suggestedRemoteTargetLangs,
+      ]),
+    );
+
+    setInputTranslationConfig({
+      source: translationConfig.source,
+      targets: mergedTargets,
+    });
+
+    console.log('[STT_PER_USER_BOT] mergedTargets —', mergedTargets);
+    console.log(
+      '[STT_PER_USER_BOT] all target langs —',
+      suggestedRemoteTargetLangs,
+    );
+  }, [props.modalVisible, translationConfig, suggestedRemoteTargetLangs]);
+
+  const onConfirmPress = async () => {
+    if (isNotValidated) {
+      return;
+    }
+
+    console.log('[LANG_SELECTOR] Confirm pressed:', {
+      inputTranslationConfig,
+    });
+
+    try {
+      props?.onConfirm(inputTranslationConfig);
+      // props.setModalVisible(false);
+    } catch (err) {
+      console.error('[LANG_SELECTOR] Error confirming STT config:', err);
+    }
+  };
 
   return (
     <Popup
@@ -74,8 +129,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
       setModalVisible={props.setModalVisible}
       showCloseIcon={true}
       contentContainerStyle={styles.contentContainer}
-      title={heading(isFirstTimePopupOpen)}
-      subtitle={subHeading}>
+      title={heading(isSTTActive ? false : true)}>
       {isLangChangeInProgress ? (
         <View style={styles.changeInProgress}>
           <Loading
@@ -87,37 +141,75 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
         </View>
       ) : (
         <>
+          {/* Source Language */}
           <View>
-            <DropdownMulti
-              selectedValues={selectedValues}
-              setSelectedValues={setSelectedValues}
-              defaultSelectedValues={
-                language.indexOf('') === -1 ? language : ['en-US']
+            <Text style={styles.labelText}>
+              What language will you speak in this meeting?
+            </Text>
+            <Spacer size={8} />
+            <Dropdown
+              label="Select language"
+              data={sourceLanguageOptions}
+              selectedValue={inputTranslationConfig.source[0] || ''}
+              onSelect={item =>
+                setInputTranslationConfig(prev => ({
+                  ...prev,
+                  source: [item.value as LanguageType],
+                }))
               }
+              enabled={true}
+            />
+            <Spacer size={2} />
+            <Text style={styles.infoText}>
+              Captions and transcript will appear in this language for you.
+            </Text>
+          </View>
+
+          <Spacer size={20} />
+
+          {/* Target Languages */}
+          <View>
+            <Text style={styles.labelText}>
+              Spoken languages in the meeting
+            </Text>
+            <Spacer size={8} />
+            <DropdownMulti
+              selectedValues={inputTranslationConfig.targets}
+              setSelectedValues={(val: LanguageType[]) =>
+                setInputTranslationConfig(prev => ({
+                  ...prev,
+                  targets: val,
+                }))
+              }
+              defaultSelectedValues={inputTranslationConfig.targets}
               error={error}
               setError={setError}
-              isOpen={isOpen}
-              setIsOpen={setIsOpen}
-              maxAllowedSelection={4}
-              protectedLanguages={protectedLanguages}
+              isOpen={isTargetOpen}
+              setIsOpen={setIsTargetOpen}
+              maxAllowedSelection={10}
+              protectedLanguages={Array.from(
+                new Set([...suggestedRemoteTargetLangs]),
+              )}
             />
+            <Spacer size={2} />
+            <Text style={styles.infoText}>
+              Auto populated by spoken languages of other users once they join
+              the room.
+            </Text>
           </View>
           <Spacer size={8} />
-          <Text style={[styles.subHeading, isNotValidated && styles.errorTxt]}>
-            {selectedValues.length === 0 ? ddError : ddInfo}
-          </Text>
+          {/* <Text style={[styles.subHeading, isNotValidated && styles.errorTxt]}>
+            {isNotValidated
+              ? 'Please select both source and target languages'
+              : 'You can select up to 10 target languages'}
+          </Text> */}
           <Spacer size={32} />
+
           <View
             style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
             <View style={isDesktop && {flex: 1}}>
               <TertiaryButton
-                containerStyle={{
-                  width: '100%',
-                  height: 48,
-                  paddingVertical: 12,
-                  paddingHorizontal: 12,
-                  borderRadius: ThemeConfig.BorderRadius.medium,
-                }}
+                containerStyle={styles.button}
                 text={cancelBtnLabel}
                 textStyle={styles.btnText}
                 onPress={() => props.setModalVisible(false)}
@@ -129,36 +221,14 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             />
             <View style={isDesktop && {flex: 1}}>
               <PrimaryButton
-                containerStyle={{
-                  minWidth: 'auto',
-                  width: '100%',
-                  borderRadius: ThemeConfig.BorderRadius.medium,
-                  height: 48,
-                  paddingVertical: 12,
-                  paddingHorizontal: 12,
-                }}
-                disabled={selectedValues.length === 0 }
+                containerStyle={styles.button}
+                disabled={
+                  isNotValidated ||
+                  !hasConfigChanged(translationConfig, inputTranslationConfig)
+                }
                 text={ConfirmBtnLabel}
                 textStyle={styles.btnText}
-                onPress={() => {
-                  console.log(selectedValues);
-                  console.log(language);
-
-                  if (selectedValues.length === 0) {
-                    return;
-                  }
-                  
-                  // Get user's own languages (not protected)
-                  const userOwnLanguages = selectedValues.filter(lang => !protectedLanguages.includes(lang));
-                  
-                  // Compare current languages with new selection (ignoring order)
-                  const currentLangs = language.slice().sort().join(',');
-                  const newLangs = selectedValues.slice().sort().join(',');
-                  const isLangChanged = currentLangs !== newLangs || !isSTTActive;
-                  
-                  // Pass all selected languages for STT API, and user's own for RTM
-                  props.onConfirm(isLangChanged, selectedValues, userOwnLanguages);
-                }}
+                onPress={onConfirmPress}
               />
             </View>
           </View>
@@ -177,11 +247,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  btnText: {
-    fontWeight: '600',
-    fontSize: 16,
-    lineHeight: 24,
-  },
   btnContainerMobile: {
     flexDirection: 'column-reverse',
   },
@@ -190,13 +255,32 @@ const styles = StyleSheet.create({
     maxWidth: 500,
     width: '100%',
   },
-
-  heading: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
+  button: {
+    width: '100%',
+    minWidth: 'auto',
+    height: 48,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: ThemeConfig.BorderRadius.medium,
+  },
+  btnText: {
     fontWeight: '600',
-    fontSize: 22,
+    fontSize: 16,
     lineHeight: 24,
+  },
+  labelText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 20,
     color: $config.FONT_COLOR,
+  },
+  infoText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: 12,
+    color: $config.SEMANTIC_NEUTRAL,
   },
   subHeading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -205,7 +289,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
   },
-
   errorTxt: {
     color: $config.SEMANTIC_WARNING,
     fontWeight: '600',

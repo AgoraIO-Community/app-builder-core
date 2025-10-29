@@ -36,6 +36,7 @@ import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 import {useString} from '../../../src/utils/useString';
 import {
   sttSettingSpokenLanguageText,
+  sttSettingTranslationLanguageText,
   sttTranscriptPanelNoSearchResultsFoundText,
   sttTranscriptPanelSearchText,
   sttTranscriptPanelViewLatestText,
@@ -50,11 +51,6 @@ type NativeStreamMessageArgs = [{}, number, number, Uint8Array, number, number];
 type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
 
 const Transcript = (props: TranscriptProps) => {
-  const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
-  const searchText = useString(sttTranscriptPanelSearchText)();
-  const noresults = useString(sttTranscriptPanelNoSearchResultsFoundText)();
-  const viewlatest = useString(sttTranscriptPanelViewLatestText)();
-
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
@@ -63,9 +59,20 @@ const Transcript = (props: TranscriptProps) => {
     isLangChangeInProgress,
     isSTTListenerAdded,
     setIsSTTListenerAdded,
+    getBotOwnerUid,
+    isSTTActive,
   } = useCaption();
 
+  const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
+  const settingTranslationLanguageLabel = useString<boolean>(
+    sttSettingTranslationLanguageText,
+  )(isSTTActive);
+  const searchText = useString(sttTranscriptPanelSearchText)();
+  const noresults = useString(sttTranscriptPanelNoSearchResultsFoundText)();
+  const viewlatest = useString(sttTranscriptPanelViewLatestText)();
+
   const data = meetingTranscript; // Object.entries(transcript);
+  console.log('[STT_PER_USER_BOT] meetingTranscript data: ', data);
 
   const [showButton, setShowButton] = React.useState(false);
 
@@ -112,7 +119,7 @@ const Transcript = (props: TranscriptProps) => {
         />
 
         <Text style={styles.langChange}>
-          {defaultContent[item?.uid?.split('-')[1]].name + ' ' + item.text}
+          {defaultContent[item?.uid?.split('-')[1]]?.name + ' ' + item.text}
         </Text>
       </View>
     ) : item.uid.toString().indexOf('translationUpdate') !== -1 ? (
@@ -125,12 +132,12 @@ const Transcript = (props: TranscriptProps) => {
         />
 
         <Text style={styles.langChange}>
-          {defaultContent[item?.uid?.split('-')[1]].name + ' has ' + item.text}
+          {defaultContent[item?.uid?.split('-')[1]]?.name + ' has ' + item.text}
         </Text>
       </View>
     ) : (
       <TranscriptText
-        user={defaultContent[item.uid].name}
+        user={defaultContent[getBotOwnerUid(item.uid)]?.name || 'Speaker'}
         time={item?.time}
         value={item.text}
         translations={item.translations}
@@ -188,7 +195,7 @@ const Transcript = (props: TranscriptProps) => {
       // Search in translations if available
       if (item.translations) {
         return item.translations.some(translation =>
-          translation.text.toLowerCase().includes(searchText)
+          translation.text.toLowerCase().includes(searchText),
         );
       }
       return false;
@@ -206,6 +213,7 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
+    console.log('[STT_PER_USER_BOT] handleStreamMessageCallback', args);
     setIsSTTListenerAdded(true);
     if (isWebInternal()) {
       const [uid, data] = args as WebStreamMessageArgs;
@@ -286,7 +294,7 @@ const Transcript = (props: TranscriptProps) => {
       {isLangChangeInProgress ? (
         <View style={{flex: 1}}>
           <Loading
-            text={settingSpokenLanguageLabel}
+            text={settingTranslationLanguageLabel}
             background="transparent"
             indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
             textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
@@ -464,6 +472,7 @@ export const styles = StyleSheet.create({
   langChangeContainer: {
     marginBottom: 20,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   footer: {
     borderWidth: 1,

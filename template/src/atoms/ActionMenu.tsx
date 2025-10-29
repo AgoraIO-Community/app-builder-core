@@ -36,7 +36,10 @@ export interface ActionMenuItem {
   isBase64Icon?: boolean;
   icon?: keyof IconsInterface;
   onHoverIcon?: keyof IconsInterface;
+  endIcon?: keyof IconsInterface;
+  onHoverEndIcon?: keyof IconsInterface;
   iconColor?: string;
+  endIconColor?: string;
   textColor?: string;
   title?: string;
   titleStyle?: StyleProp<TextStyle>;
@@ -49,6 +52,7 @@ export interface ActionMenuItem {
   onHoverContent?: JSX.Element;
   disabled?: boolean;
   iconSize?: number;
+  endIconSize?: number;
   hide?: ToolbarItemHide;
   type?: string;
   iconPosition?: 'start' | 'end';
@@ -73,13 +77,17 @@ export interface UserActionMenuItemProps {
   label: string;
   icon?: keyof IconsInterface;
   onHoverIcon?: keyof IconsInterface;
+  endIcon?: keyof IconsInterface;
+  onHoverEndIcon?: keyof IconsInterface;
   toggleStatus?: boolean;
   iconColor: string;
+  endIconColor?: string;
   textColor: string;
   onPress?: () => void;
   onToggle?: () => void;
   disabled?: boolean;
   iconSize?: number;
+  endIconSize?: number;
   isHovered?: boolean;
   isExternalIcon?: boolean;
   isBase64Icon?: boolean;
@@ -95,44 +103,56 @@ export const UserActionMenuItem = ({
   onPress,
   onToggle,
   iconColor,
+  endIconColor,
   textColor,
   iconSize = 20,
+  endIconSize = 20,
   titleStyle = {},
   disabled = false,
   isHovered = false,
   onHoverIcon,
+  endIcon,
+  onHoverEndIcon,
   isExternalIcon = false,
   isBase64Icon = false,
   externalIconString = '',
   iconPosition = 'start',
 }: UserActionMenuItemProps) => {
   const iconToShow = isHovered && onHoverIcon && !disabled ? onHoverIcon : icon;
+  const endIconToShow =
+    isHovered && onHoverEndIcon && !disabled ? onHoverEndIcon : endIcon;
 
-  const renderIcon = () => {
-    if (!iconToShow) return null;
-    
+  const renderIcon = (
+    iconName: keyof IconsInterface | undefined,
+    position: 'start' | 'end' = 'start',
+    size: number = 20,
+    color: string = iconColor,
+  ) => {
+    if (!iconName) return null;
+
     return (
-      <View style={[
-        styles.iconContainer,
-        iconPosition === 'end' && styles.iconContainerEnd
-      ]}>
+      <View
+        style={[
+          styles.iconContainer,
+          position === 'end' && styles.iconContainerEnd,
+        ]}>
         {isExternalIcon ? (
           <ImageIcon
             base64={isBase64Icon}
-            base64TintColor={iconColor}
+            base64TintColor={color}
             iconType="plain"
-            iconSize={iconSize}
+            iconSize={size}
             icon={externalIconString}
-            tintColor={iconColor}
+            tintColor={color}
           />
         ) : (
           <ImageIcon
             base64={isBase64Icon}
-            base64TintColor={iconColor}
+            base64TintColor={color}
             iconType="plain"
-            iconSize={iconSize}
-            name={iconToShow}
-            tintColor={iconColor}
+            iconSize={size}
+            name={iconName}
+            tintColor={color}
           />
         )}
       </View>
@@ -141,18 +161,19 @@ export const UserActionMenuItem = ({
 
   const content = (
     <>
-      {iconPosition === 'start' && renderIcon()}
-      
-      <Text style={[
-        styles.text, 
-        titleStyle, 
-        {color: textColor},
-        iconPosition === 'end' && styles.textWithEndIcon
-      ]}>
+      {renderIcon(iconToShow, 'start', iconSize, iconColor)}
+
+      <Text
+        style={[
+          styles.text,
+          titleStyle,
+          {color: textColor},
+          (iconPosition === 'end' || endIcon) && styles.textWithEndIcon,
+        ]}>
         {label}
       </Text>
 
-      {iconPosition === 'end' && renderIcon()}
+      {renderIcon(endIconToShow, 'end', endIconSize, endIconColor || iconColor)}
 
       {typeof toggleStatus === 'boolean' && (
         <View style={styles.toggleContainer}>
@@ -212,6 +233,8 @@ const ActionMenu = (props: ActionMenuProps) => {
         component: CustomActionItem = null,
         icon = '',
         onHoverIcon,
+        endIcon,
+        onHoverEndIcon,
         isBase64Icon = false,
         isExternalIcon = false,
         externalIconString = '',
@@ -220,11 +243,13 @@ const ActionMenu = (props: ActionMenuProps) => {
         closeActionMenu = () => {},
         uid,
         iconColor,
+        endIconColor,
         textColor,
         disabled = false,
         onHoverCallback = undefined,
         onHoverContent = undefined,
         iconSize = 20,
+        endIconSize = 20,
         titleStyle = {},
         type = '',
         iconPosition = 'start',
@@ -288,10 +313,13 @@ const ActionMenu = (props: ActionMenuProps) => {
                   <UserActionMenuItem
                     label={label || title}
                     icon={icon}
+                    endIcon={endIcon}
                     toggleStatus={toggleStatus}
                     iconColor={iconColor}
+                    endIconColor={endIconColor}
                     textColor={textColor}
                     iconSize={iconSize}
+                    endIconSize={endIconSize}
                     titleStyle={titleStyle}
                     disabled={disabled}
                     onToggle={onPress}
@@ -301,6 +329,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                     iconPosition={iconPosition}
                     isBase64Icon={isBase64Icon}
                     onHoverIcon={onHoverIcon}
+                    onHoverEndIcon={onHoverEndIcon}
                   />
                 </TouchableOpacity>
               )}
@@ -312,14 +341,13 @@ const ActionMenu = (props: ActionMenuProps) => {
   };
 
   const shouldUseScrollView = props?.containerStyle?.maxHeight !== undefined;
-  
+
   const renderScrollableContent = () => {
     return shouldUseScrollView ? (
-      <ScrollView 
-        style={{ maxHeight: props.containerStyle.maxHeight }}
+      <ScrollView
+        style={{maxHeight: props.containerStyle.maxHeight}}
         showsVerticalScrollIndicator={true}
-        nestedScrollEnabled={true}
-      >
+        nestedScrollEnabled={true}>
         {renderItems()}
       </ScrollView>
     ) : (
@@ -439,7 +467,7 @@ const styles = StyleSheet.create({
   },
   textWithEndIcon: {
     marginRight: 0,
-    paddingLeft:12
+    paddingLeft: 12,
   },
   toggleContainer: {
     justifyContent: 'center',

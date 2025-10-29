@@ -126,9 +126,7 @@ const DropdownMulti: FC<Props> = ({
             <Checkbox
               disabled={isDisabled}
               checked={isSelected}
-              label={
-                item.label + (isProtected ? ' (Selected by another user)' : '')
-              }
+              label={item.label + (isProtected ? ' (Selected already)' : '')}
               labelStye={
                 isProtected
                   ? {...styles.itemText, ...styles.protectedItemText}
@@ -161,7 +159,14 @@ const DropdownMulti: FC<Props> = ({
     const selectedLanguage = data.find(item => item.value === value);
     const isProtected = protectedLanguages.includes(value);
     return selectedLanguage ? (
-      <View style={styles.selectedLang}>
+      <View style={[styles.selectedLang, isProtected && styles.protectedPill]}>
+        <Text
+          style={[
+            styles.dropdownOptionText,
+            isProtected && styles.protectedPillText,
+          ]}>
+          {selectedLanguage.label}
+        </Text>
         <TouchableOpacity
           disabled={isProtected}
           onPress={() => {
@@ -183,14 +188,6 @@ const DropdownMulti: FC<Props> = ({
             }
           />
         </TouchableOpacity>
-
-        <Text
-          style={[
-            styles.dropdownOptionText,
-            isProtected && {fontStyle: 'italic', opacity: 0.7},
-          ]}>
-          {selectedLanguage.label}
-        </Text>
       </View>
     ) : (
       <></>
@@ -243,7 +240,11 @@ const DropdownMulti: FC<Props> = ({
               styles.dropdownOptionTextContainer,
               selectedValues.length === maxAllowedSelection && {flex: 1},
             ]}>
-            {formattedSelectedLanguages}
+            {selectedValues.length === 0 ? (
+              <Text style={styles.placeholderText}>Select languages</Text>
+            ) : (
+              formattedSelectedLanguages
+            )}
           </ScrollView>
         </View>
         {/* Dropdown end Icon */}
@@ -312,7 +313,15 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
-    marginLeft: 4,
+    marginRight: 4,
+  },
+  placeholderText: {
+    textAlign: 'left',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.normal,
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
+    paddingLeft: 8,
   },
   dropdownIconContainer: {
     alignSelf: 'center',
@@ -379,6 +388,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     opacity: 0.6,
     fontStyle: 'italic',
+  },
+  protectedPill: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+  },
+  protectedPillText: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
 });
 

@@ -4,7 +4,6 @@ import {
   useCaption,
   useContent,
   useRoomInfo,
-  useSTTAPI,
 } from 'customization-api';
 import {PropsContext, DispatchContext} from '../../agora-rn-uikit';
 import {useHistory} from '../components/Router';
@@ -17,13 +16,12 @@ import {useChatConfigure} from '../components/chat/chatConfigure';
 const useEndCall = () => {
   const history = useHistory();
   const {defaultContent} = useContent();
-  const {isSTTActive} = useCaption();
+  const {isSTTActive, stopSTTBotSession} = useCaption();
   const {
     data: {isHost},
   } = useRoomInfo();
   const {authLogin} = useAuth();
   const {deleteChatUser} = useChatConfigure();
-  const {stop: stopSTTAPI} = useSTTAPI();
 
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(DispatchContext);
@@ -60,7 +58,7 @@ const useEndCall = () => {
     );
     if (usersInCall.length === 1 && isSTTActive) {
       console.log('Stopping stt api as only one host is in the call');
-      stopSTTAPI().catch(error => {
+      stopSTTBotSession().catch(error => {
         console.log('Error stopping stt', error);
       });
     }
