@@ -201,7 +201,7 @@ const SonixCaptionContainer = () => {
             logger.debug(
               LogSource.NetworkRest,
               'v2v',
-              `V2V error sent via RTC Stream for user ${defaultContent[localUid].name} - ${localUid}`,
+              `V2V error sent via RTC Stream for user ${defaultContent[localUid].name} - ${localUid} by botID ${botID}`,
               {
                 error,
               },
