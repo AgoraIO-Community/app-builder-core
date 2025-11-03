@@ -42,6 +42,7 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
 import {
   sttChangeSpokenLanguageText,
+  sttOriginalTranslatedText,
   sttStopTranslationText,
   toolbarItemCaptionText,
 } from '../../language/default-labels/videoCallScreenLabels';
@@ -303,6 +304,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     sttChangeSpokenLanguageText,
   )();
   const sttStopTranslationLabel = useString<boolean>(sttStopTranslationText)();
+  const sttOriginalTranslatedLabel = useString(sttOriginalTranslatedText)();
 
   const hideCaptionLabel = useString<boolean>(toolbarItemCaptionText)(true);
 
@@ -352,9 +354,9 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     endIcon: viewMode === 'original-and-translated' ? 'tick-fill' : undefined,
-    endIconColor: $config.SECONDARY_ACTION_COLOR,
+    endIconColor: $config.SEMANTIC_SUCCESS,
     textColor: $config.FONT_COLOR,
-    title: 'Show Original and translated',
+    title: sttOriginalTranslatedLabel,
     onPress: () => {
       if (viewMode === 'translated') {
         setViewMode('original-and-translated');

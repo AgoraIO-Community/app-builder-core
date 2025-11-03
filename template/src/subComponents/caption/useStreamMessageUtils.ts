@@ -46,7 +46,7 @@ const useStreamMessageUtils = (): {
       /* uid - bot which sends stream message in channel
        payload - stream message in Uint8Array format
       */
-      const [, payload] = args1;
+      const [botUid, payload] = args1;
       let nonFinalText = ''; // holds intermediate results
       let finalText = ''; // holds final strings
       let currentFinalText = ''; // holds current caption
@@ -56,7 +56,7 @@ const useStreamMessageUtils = (): {
       const textstream = protoRoot
         .lookupType('agora.audio2text.Text')
         .decode(payload as Uint8Array) as any;
-      console.log('[STT_PER_USER_BOT] stt v7 textstream', textstream);
+      console.log('[STT_PER_USER_BOT] stt v7 textstream', botUid, textstream);
       console.log('[STT_PER_USER_BOT] textstream.trans:', textstream.trans);
 
       //console.log('STT - Parsed Textstream : ', textstream);

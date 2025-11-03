@@ -467,7 +467,6 @@ const styles = StyleSheet.create({
   },
   textWithEndIcon: {
     marginRight: 0,
-    paddingLeft: 12,
   },
   toggleContainer: {
     justifyContent: 'center',

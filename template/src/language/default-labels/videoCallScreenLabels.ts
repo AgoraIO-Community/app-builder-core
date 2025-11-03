@@ -198,6 +198,8 @@ export const sttChangeLanguagePopupPrimaryBtnText =
 export const sttChangeSpokenLanguageText =
   `${stt}ChangeSpokenLanguageText` as const;
 export const sttStopTranslationText = `${stt}StopTranslationText` as const;
+export const sttOriginalTranslatedText =
+  `${stt}sttOriginalTranslatedText` as const;
 export const sttSettingSpokenLanguageText =
   `${stt}SettingSpokenLanguageText` as const;
 export const sttSettingTranslationLanguageText =
@@ -645,6 +647,7 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [sttChangeSpokenLanguageText]?: I18nBaseType;
   [sttStopTranslationText]?: I18nBaseType;
+  [sttOriginalTranslatedText]?: I18nBaseType;
   [sttSettingSpokenLanguageText]?: I18nBaseType;
   [sttSettingTranslationLanguageText]?: I18nConditionalType;
   [sttChangeTranslationLanguageText]?: I18nBaseType;
@@ -1046,12 +1049,12 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     'Please select your preferred language as the source language and up to 10 target languages to translate into. You can update these settings at any time by returning to this page.',
   [sttChangeLanguagePopupPrimaryBtnText]: 'CONFIRM',
   [sttChangeLanguagePopupDropdownInfo]:
-    'You can choose a maximum of four languages',
+    'You can choose a maximum of ten languages',
   [sttChangeLanguagePopupDropdownError]:
     'Choose at least one language to proceed',
   [sttChangeSpokenLanguageText]: 'Change Spoken Language',
   [sttStopTranslationText]: 'Stop Translation',
-
+  [sttOriginalTranslatedText]: 'Show Original and translated',
   [sttTranscriptPanelHeaderText]: 'Meeting Transcript',
   [sttDownloadBtnText]: 'Download',
   [sttDownloadTranscriptBtnText]: 'Download Transcript',

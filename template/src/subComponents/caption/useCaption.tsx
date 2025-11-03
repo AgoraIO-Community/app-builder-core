@@ -1,6 +1,6 @@
 import {createHook} from 'customization-implementation';
 import React, {useContext} from 'react';
-import {LanguageType, hasConfigChanged} from './utils';
+import {LanguageType, getLanguageLabel, hasConfigChanged} from './utils';
 import useSTTAPI, {STTAPIResponse} from './useSTTAPI';
 import {useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
@@ -311,8 +311,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         // Add transcript entry for language change
         // If STT was not active before, this is the first time setting the language
         const actionText = !isSTTActive
-          ? `has set the spoken language to "${newConfig.source[0]}"`
-          : `changed the spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}"`;
+          ? `has set the spoken language to "${getLanguageLabel(
+              newConfig.source,
+            )}"`
+          : `changed the spoken language from "${getLanguageLabel(
+              translationConfig?.source,
+            )}" to "${getLanguageLabel(newConfig.source)}"`;
 
         setTranslationConfig(newConfig);
         setMeetingTranscript(prev => [
@@ -406,8 +410,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           translationConfig?.source[0] !== newConfig.source[0];
         const oldTargetsSorted = (translationConfig?.targets || [])
           .sort()
+          .map(lang => getLanguageLabel([lang]))
           .join(', ');
-        const newTargetsSorted = (newConfig.targets || []).sort().join(', ');
+        const newTargetsSorted = (newConfig.targets || [])
+          .sort()
+          .map(lang => getLanguageLabel([lang]))
+          .join(', ');
         const targetsChanged = oldTargetsSorted !== newTargetsSorted;
 
         const oldTargetsLength = translationConfig?.targets?.length || 0;
@@ -433,10 +441,14 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         let actionText = '';
         if (spokenLanguageChanged && targetsChanged) {
           // Both spoken language and targets changed
-          actionText = `changed spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}" and ${targetMessage}`;
+          actionText = `changed spoken language from "${getLanguageLabel(
+            translationConfig?.source,
+          )}" to "${getLanguageLabel(newConfig.source)}" and ${targetMessage}`;
         } else if (spokenLanguageChanged) {
           // Only spoken language changed
-          actionText = `changed the spoken language from "${translationConfig?.source[0]}" to "${newConfig.source[0]}"`;
+          actionText = `changed the spoken language from "${getLanguageLabel(
+            translationConfig?.source,
+          )}" to "${getLanguageLabel(newConfig.source)}"`;
         } else if (targetsChanged) {
           // Only target languages changed
           actionText = targetMessage;

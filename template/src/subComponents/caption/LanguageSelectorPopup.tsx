@@ -19,6 +19,7 @@ import {
   sttChangeLanguagePopupHeading,
   sttChangeLanguagePopupPrimaryBtnText,
   sttLanguageChangeInProgress,
+  sttChangeLanguagePopupDropdownInfo,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {cancelText} from '../../language/default-labels/commonLabels';
 
@@ -34,6 +35,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const cancelBtnLabel = useString(cancelText)();
   const ConfirmBtnLabel = useString(sttChangeLanguagePopupPrimaryBtnText)();
   const languageChangeInProgress = useString(sttLanguageChangeInProgress)();
+  const maxLangValInfo = useString(sttChangeLanguagePopupDropdownInfo)();
 
   const {
     translationConfig,
@@ -198,13 +200,12 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             </Text>
           </View>
           <Spacer size={8} />
-          {/* <Text style={[styles.subHeading, isNotValidated && styles.errorTxt]}>
-            {isNotValidated
-              ? 'Please select both source and target languages'
-              : 'You can select up to 10 target languages'}
-          </Text> */}
+          {inputTranslationConfig?.targets.length === 10 && (
+            <Text style={[styles.subHeading, styles.errorTxt]}>
+              {maxLangValInfo}
+            </Text>
+          )}
           <Spacer size={32} />
-
           <View
             style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
             <View style={isDesktop && {flex: 1}}>
