@@ -1140,9 +1140,7 @@ export const MoreButtonToolbarItem = (props?: {
   }, [isHost]);
 
   return width < BREAKPOINTS.lg ||
-    ($config.ENABLE_STT &&
-      $config.ENABLE_CAPTION &&
-      (isHost || (!isHost && isSTTActive))) ||
+    ($config.ENABLE_STT && $config.ENABLE_CAPTION) ||
     $config.ENABLE_NOISE_CANCELLATION ||
     (isHost && $config.CLOUD_RECORDING && isWeb()) ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
