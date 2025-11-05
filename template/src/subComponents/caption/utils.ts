@@ -255,6 +255,7 @@ export const getUserTranslatedText = (
     currentUserUid,
   );
 
+  // 1. If the speaker is the local user, always show their own source text
   if (speakerUid === currentUserUid) {
     return {
       value: captionText,
@@ -266,9 +267,13 @@ export const getUserTranslatedText = (
     const matchingTranslation = translations.find(
       t => t.lang === viewerSourceLanguage,
     );
-    if (matchingTranslation?.text) {
+    if (matchingTranslation) {
+      // Translation exists (even if empty)
+      // - If text is empty: show nothing (don’t fallback)
+      // - If text exists: show it
+      const translatedText = matchingTranslation.text?.trim() || '';
       return {
-        value: matchingTranslation.text,
+        value: translatedText,
         langCode: matchingTranslation.lang,
       };
     }
