@@ -178,7 +178,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
   // const [language, setLanguage] = React.useState<[LanguageType]>(['']);
-  // console.log('[STT_PER_USER_BOT] supriya language: ', language);
 
   // STT Form state - contains agentId, source, and target languages
   const [translationConfig, setTranslationConfig] =
@@ -248,6 +247,97 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     setLocalBotUid(uid);
   }, [localUid, username, hasUserJoinedRTM]);
 
+  // Silent update function to update local user's STT config without showing progress bar
+  const silentUpdateSTT = React.useCallback(
+    async (newtargetLanguages: LanguageType[]) => {
+      try {
+        // Merge new target languages with existing ones and keep unique
+        const currentTargets = translationConfigRef.current?.targets || [];
+        const mergedTargets = Array.from(
+          new Set([...newtargetLanguages, ...currentTargets]),
+        );
+
+        const newConfig: LanguageTranslationConfig = {
+          source: translationConfigRef.current?.source || [],
+          targets: mergedTargets,
+        };
+
+        console.log(
+          '[STT_PER_USER_BOT] Silent updating with merged targets:',
+          'newRemoteLanguages:',
+          newtargetLanguages,
+          'existingTargets:',
+          currentTargets,
+          'mergedTargets:',
+          mergedTargets,
+        );
+
+        // Call update API without showing progress bar (don't set isLangChangeInProgress)
+        const result = await update(localBotUid, newConfig);
+
+        if (result.success) {
+          setTranslationConfig(newConfig);
+          setIsSTTError(false);
+
+          logger.log(
+            LogSource.NetworkRest,
+            'stt',
+            'Local user STT updated silently',
+            {newtargetLanguages, mergedTargets, botUid: localBotUid},
+          );
+        } else {
+          setIsSTTError(true);
+          logger.error(
+            LogSource.NetworkRest,
+            'stt',
+            'Failed to silently update local user STT',
+            result.error,
+          );
+        }
+      } catch (error) {
+        setIsSTTError(true);
+        logger.error(
+          LogSource.NetworkRest,
+          'stt',
+          'Error in silentUpdateSTT',
+          error,
+        );
+      }
+    },
+    [localBotUid],
+  );
+
+  React.useEffect(() => {
+    const remoteLangs = Array.from(
+      new Set(
+        Object.entries(remoteSpokenLanguages)
+          .filter(([uid, lang]) => uid !== String(localUid) && lang)
+          .map(([, lang]) => lang),
+      ),
+    );
+
+    // If STT is active, check if received language differs from current target languages
+    if (isSTTActive && remoteLangs && remoteLangs.length > 0) {
+      const currentTargetLanguages =
+        translationConfigRef.current?.targets || [];
+      // Only update if any received language is not in current target languages
+      const hasTargetsChanged = remoteLangs.some(
+        lang => !currentTargetLanguages.includes(lang),
+      );
+      if (hasTargetsChanged) {
+        console.log(
+          '[STT_PER_USER_BOT] Spoken language change detected',
+          'currentTargets:',
+          currentTargetLanguages,
+          'receivedSpokenLanguages (unique):',
+          remoteLangs,
+        );
+        // Call silentUpdateSTT directly
+        silentUpdateSTT(remoteLangs);
+      }
+    }
+  }, [remoteSpokenLanguages]);
+
   // Listen for spoken language updates from other users
   React.useEffect(() => {
     const handleSpokenLanguage = (data: any) => {
@@ -284,6 +374,57 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     // Cleanup listener on unmount
     return () => {
       events.off(EventNames.STT_SPOKEN_LANGUAGE, handleSpokenLanguage);
+    };
+  }, []);
+
+  // Listen for when remote users stop translation and clear their translations
+  React.useEffect(() => {
+    const handleUserStoppedTranslation = (data: any) => {
+      try {
+        const payload = JSON.parse(data.payload);
+        const {userUid, username} = payload;
+
+        console.log(
+          '[STT_PER_USER_BOT] User stopped translation:',
+          username,
+          'userUid:',
+          userUid,
+        );
+
+        // Clear translations for this user by setting captionObj translations to empty
+        setCaptionObj(prevState => {
+          if (prevState[userUid]) {
+            return {
+              ...prevState,
+              [userUid]: {
+                ...prevState[userUid],
+                translations: [], // Clear translations
+              },
+            };
+          }
+          return prevState;
+        });
+      } catch (error) {
+        logger.error(
+          LogSource.Internals,
+          'STT',
+          'Failed to parse USER_STOPPED_TRANSLATION event',
+          error,
+        );
+      }
+    };
+
+    events.on(
+      EventNames.USER_STOPPED_TRANSLATION,
+      handleUserStoppedTranslation,
+    );
+
+    // Cleanup listener on unmount
+    return () => {
+      events.off(
+        EventNames.USER_STOPPED_TRANSLATION,
+        handleUserStoppedTranslation,
+      );
     };
   }, []);
 
@@ -476,6 +617,17 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               username: username,
             }),
             PersistanceLevel.Session,
+          );
+        }
+
+        // Send event when user stops translation
+        if (targetsWereDisabled) {
+          events.send(
+            EventNames.USER_STOPPED_TRANSLATION,
+            JSON.stringify({
+              userUid: localUid,
+              username: username,
+            }),
           );
         }
 

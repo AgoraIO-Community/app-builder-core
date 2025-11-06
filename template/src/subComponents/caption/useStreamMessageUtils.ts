@@ -57,50 +57,9 @@ const useStreamMessageUtils = (): {
         .lookupType('agora.audio2text.Text')
         .decode(payload as Uint8Array) as any;
       console.log('[STT_PER_USER_BOT] stt v7 textstream', botUid, textstream);
-      console.log('[STT_PER_USER_BOT] textstream.trans:', textstream.trans);
-
-      const speaker = textstream.uid;
-      const type = textstream.data_type;
-
-      // const finalWords = textstream.words?.filter((w: any) => w.isFinal);
-      // const interimWords = textstream.words?.filter((w: any) => !w.isFinal);
-      // const hasTrans = textstream.trans && textstream.trans.length > 0;
-
-      // TRANSCRIBE logs (same-language) (convert spoken audio into text (speech → text, same language))
-
-      // TRANSLATE logs (target languages) (take that transcribed text and translate it into one or more target languages.)
-      if (type === 'transcribe') {
-        const words = textstream.words || [];
-        const lastWord = words.length ? words[words.length - 1].text : '';
-        console.log(
-          `[STT_PER_USER_BOT] textstream health TYPE = ${type}  BOTUID = ${botUid} UID =${speaker} lastWord="${lastWord}"`,
-        );
-      } else if (type === 'translate') {
-        const langs = (textstream.trans || []).map((t: any) => t.lang);
-        console.log(
-          `[STT_PER_USER_BOT] textstream health TYPE = ${type} BOTUID = ${botUid} UID =${speaker} langs=[${langs.join(
-            ', ',
-          )}]`,
-        );
-      } else {
-        console.log(
-          `[STT_PER_USER_BOT] textstream health TYPE =${type}  BOTUID = ${botUid} UID =${speaker} type=${type}`,
-        );
-      }
       //console.log('STT - Parsed Textstream : ', textstream);
       // console.log(
       //   `STT-callback(${++counter}): %c${textstream.uid} %c${textstream.words
-      //     .map(word =>
-      //       word.text === '.'
-      //         ? ''
-      //         : word.isFinal
-      //         ? word.text + ' --Final--'
-      //         : word.text,
-      //     )
-      //     .join(' ')}`,
-      //   'color:red',
-      //   'color:blue',
-      // );
 
       // Identifing Current & Prev Speakers for the Captions
       /*
@@ -289,14 +248,6 @@ const useStreamMessageUtils = (): {
               ? translationConfigRef?.current?.targets?.includes(lang) || false
               : true; // Show all translations for remote users
 
-            // console.log('supriya-isTargetLanguage', {
-            //   speakerUid,
-            //   localUid,
-            //   isLocalUser,
-            //   lang,
-            //   isTargetLanguage,
-            // });
-
             if (translationText && isTargetLanguage) {
               finalTranslationsForTranscript.push({
                 lang: lang,
@@ -425,7 +376,7 @@ const useStreamMessageUtils = (): {
       // console.log('Recived uid =>', textstream.uid);
       // console.log('PrevSpeaker uid =>', prevSpeakerRef.current);
       // console.log('ActiveSpeaker uid=>', activeSpeakerRef.current);
-      console.log('supriya final List =>', finalList);
+      console.log('final List =>', finalList);
       // console.groupEnd();
     };
     (async () => {

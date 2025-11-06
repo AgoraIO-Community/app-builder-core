@@ -246,14 +246,14 @@ export const getUserTranslatedText = (
   value: string;
   langCode: string;
 } => {
-  console.log(
-    'supriya-test',
-    captionText,
-    translations,
-    viewerSourceLanguage,
-    speakerUid,
-    currentUserUid,
-  );
+  // console.log(
+  //   'getUserTranslatedText input params',
+  //   captionText,
+  //   translations,
+  //   viewerSourceLanguage,
+  //   speakerUid,
+  //   currentUserUid,
+  // );
 
   // 1. If the speaker is the local user, always show their own source text
   if (speakerUid === currentUserUid) {
