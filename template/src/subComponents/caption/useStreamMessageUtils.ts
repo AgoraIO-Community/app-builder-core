@@ -60,6 +60,17 @@ const useStreamMessageUtils = (): {
       //console.log('STT - Parsed Textstream : ', textstream);
       // console.log(
       //   `STT-callback(${++counter}): %c${textstream.uid} %c${textstream.words
+      //     .map(word =>
+      //       word.text === '.'
+      //         ? ''
+      //         : word.isFinal
+      //         ? word.text + ' --Final--'
+      //         : word.text,
+      //     )
+      //     .join(' ')}`,
+      //   'color:red',
+      //   'color:blue',
+      // );
 
       // Identifing Current & Prev Speakers for the Captions
       /*
@@ -221,24 +232,11 @@ const useStreamMessageUtils = (): {
       if (currentFinalText.length || hasFinalTranslations) {
         //  final translations for transcript - include ALL available final translations for this user
         const finalTranslationsForTranscript: TranslationData[] = [];
-        // console.log('[TRANSCRIPT_DEBUG] Before loop:', {
-        //   'finalTranslationList[textstream.uid]':
-        //     finalTranslationList[textstream.uid],
-        //   keys: finalTranslationList[textstream.uid]
-        //     ? Object.keys(finalTranslationList[textstream.uid])
-        //     : [],
-        // });
-
         if (finalTranslationList[textstream.uid]) {
           Object.keys(finalTranslationList[textstream.uid]).forEach(lang => {
             const translationText =
               finalTranslationList[textstream.uid][lang]?.join(' ') || '';
-            // console.log(
-            //   '[TRANSCRIPT_DEBUG] Processing lang:',
-            //   lang,
-            //   'text:',
-            //   translationText,
-            // );
+
             // Check if speaker is the local user
             const speakerUid = getBotOwnerUid(textstream.uid);
             const isLocalUser = speakerUid === localUid;
@@ -254,21 +252,9 @@ const useStreamMessageUtils = (): {
                 text: translationText,
                 isFinal: true,
               });
-              // console.log('[STT_PER_USER_BOT] Added translation for:', lang);
             }
           });
         }
-
-        // console.log(
-        //   '[STT_PER_USER_BOT] [TRANSCRIPT_DEBUG] Adding to transcript:',
-        //   {
-        //     uid: textstream.uid,
-        //     text: currentFinalText,
-        //     translationsCount: finalTranslationsForTranscript.length,
-        //     translations: finalTranslationsForTranscript,
-        //     finalTranslationList: finalTranslationList[textstream.uid],
-        //   },
-        // );
 
         setMeetingTranscript(prevTranscript => {
           const lastTranscriptIndex = prevTranscript.length - 1;
@@ -376,7 +362,7 @@ const useStreamMessageUtils = (): {
       // console.log('Recived uid =>', textstream.uid);
       // console.log('PrevSpeaker uid =>', prevSpeakerRef.current);
       // console.log('ActiveSpeaker uid=>', activeSpeakerRef.current);
-      console.log('final List =>', finalList);
+      // console.log('final List =>', finalList);
       // console.groupEnd();
     };
     (async () => {
