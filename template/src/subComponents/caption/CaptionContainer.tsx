@@ -284,8 +284,8 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     updateSTTBotSession,
     translationConfig,
     handleTranslateConfigChange,
-    viewMode,
-    setViewMode,
+    captionViewMode,
+    setCaptionViewMode,
   } = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -351,17 +351,18 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
 
   // View Mode Options
   actionMenuitems.push({
-    icon: 'lang-select',
+    icon: 'lang-translate',
     iconColor: $config.SECONDARY_ACTION_COLOR,
-    endIcon: viewMode === 'original-and-translated' ? 'tick-fill' : undefined,
+    endIcon:
+      captionViewMode === 'original-and-translated' ? 'tick-fill' : undefined,
     endIconColor: $config.SEMANTIC_SUCCESS,
     textColor: $config.FONT_COLOR,
     title: sttOriginalTranslatedLabel,
     onPress: () => {
-      if (viewMode === 'translated') {
-        setViewMode('original-and-translated');
+      if (captionViewMode === 'translated') {
+        setCaptionViewMode('original-and-translated');
       } else {
-        setViewMode('translated');
+        setCaptionViewMode('translated');
       }
       setActionMenuVisible(false);
     },

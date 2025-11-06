@@ -57,7 +57,7 @@ const CaptionText = ({
   spokenLanguageCode,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const {translationConfig, viewMode} = useCaption();
+  const {translationConfig, captionViewMode} = useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -148,7 +148,7 @@ const CaptionText = ({
 
   // Adjust char limits based on mobile vs desktop (mobile has smaller font)
   const sourceCharLimit =
-    viewMode === 'original-and-translated'
+    captionViewMode === 'original-and-translated'
       ? isMobile
         ? 50
         : 70 // 1 line for source when showing original + translation below
@@ -222,10 +222,10 @@ const CaptionText = ({
           )}
           {/* View mode when "Original and Translated" is selected - show original for remote users only */}
           {speakerUid !== userLocalUid &&
-            viewMode === 'original-and-translated' && (
+            captionViewMode === 'original-and-translated' && (
               <>
                 {'\n'}
-                <Text style={styles.languageLabel}>(original): </Text>
+                <Text style={styles.languageLabel}>(Original): </Text>
                 {getLatestTextPortion(value, sourceCharLimit)}
               </>
             )}

@@ -69,8 +69,8 @@ export const CaptionContext = React.createContext<{
     React.SetStateAction<LanguageTranslationConfig>
   >;
 
-  viewMode: CaptionViewMode;
-  setViewMode: React.Dispatch<React.SetStateAction<CaptionViewMode>>;
+  captionViewMode: CaptionViewMode;
+  setCaptionViewMode: React.Dispatch<React.SetStateAction<CaptionViewMode>>;
 
   // holds meeting transcript
   meetingTranscript: TranscriptItem[];
@@ -138,8 +138,8 @@ export const CaptionContext = React.createContext<{
     targets: [],
   },
   setTranslationConfig: () => {},
-  viewMode: 'translated',
-  setViewMode: () => {},
+  captionViewMode: 'translated',
+  setCaptionViewMode: () => {},
   meetingTranscript: [],
   setMeetingTranscript: () => {},
   isLangChangeInProgress: false,
@@ -186,7 +186,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       targets: [],
     });
 
-  const [viewMode, setViewMode] = React.useState<CaptionViewMode>('translated');
+  const [captionViewMode, setCaptionViewMode] =
+    React.useState<CaptionViewMode>('translated');
 
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
     React.useState<boolean>(false);
@@ -827,8 +828,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setIsSTTActive,
         translationConfig,
         setTranslationConfig,
-        viewMode,
-        setViewMode,
+        captionViewMode,
+        setCaptionViewMode,
         meetingTranscript,
         setMeetingTranscript,
         isLangChangeInProgress,
