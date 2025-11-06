@@ -1,5 +1,4 @@
 import {useCaption} from './useCaption';
-import {useLocalUid} from '../../../agora-rn-uikit';
 import protoRoot from './proto/ptoto';
 import PQueue from 'p-queue';
 
@@ -52,6 +51,7 @@ const useStreamMessageUtils = (): {
       const textstream = protoRoot
         .lookupType('agora.audio2text.Text')
         .decode(payload as Uint8Array) as any;
+
       console.log('[STT_PER_USER_BOT] stt v7 textstream', botUid, textstream);
       //console.log('STT - Parsed Textstream : ', textstream);
       // console.log(
@@ -187,13 +187,13 @@ const useStreamMessageUtils = (): {
       const words = textstream.words; //[Word,Word]
 
       /* categorize words into final & nonFinal objects per uid
-      Final Word Ex : {
-      "text": "Hello, are you doing?",
-      "durationMs": 960,
-      "isFinal": true,
-      "confidence": 0.8549408316612244
-      }
-  */
+        Final Word Ex : {
+        "text": "Hello, are you doing?",
+        "durationMs": 960,
+        "isFinal": true,
+        "confidence": 0.8549408316612244
+        }
+      */
 
       for (const word of words) {
         if (word.isFinal) {
