@@ -259,7 +259,7 @@ export const getUserTranslatedText = (
   if (speakerUid === currentUserUid) {
     return {
       value: captionText,
-      langCode: viewerSourceLanguage,
+      langCode: getLanguageLabel([viewerSourceLanguage]) || '',
     };
   }
   // For other users' captions, try to find translation matching viewer's source language
@@ -274,7 +274,7 @@ export const getUserTranslatedText = (
       const translatedText = matchingTranslation.text?.trim() || '';
       return {
         value: translatedText,
-        langCode: matchingTranslation.lang,
+        langCode: getLanguageLabel([matchingTranslation.lang]) || '',
       };
     }
   }
@@ -282,7 +282,7 @@ export const getUserTranslatedText = (
   // Fallback to original text if no translation found
   return {
     value: captionText,
-    langCode: viewerSourceLanguage,
+    langCode: 'Original',
   };
 };
 
