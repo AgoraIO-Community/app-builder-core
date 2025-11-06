@@ -29,11 +29,7 @@ const useStreamMessageUtils = (): {
     // Use ref instead of state to avoid stale closure issues
     // The ref always has the current value, even in callbacks created at mount time
     selectedTranslationLanguageRef,
-    translationConfigRef,
-    getBotOwnerUid,
   } = useCaption();
-
-  const localUid = useLocalUid();
 
   let captionStartTime: number = 0;
   const finalList: FinalListType = {};
@@ -237,16 +233,7 @@ const useStreamMessageUtils = (): {
             const translationText =
               finalTranslationList[textstream.uid][lang]?.join(' ') || '';
 
-            // Check if speaker is the local user
-            const speakerUid = getBotOwnerUid(textstream.uid);
-            const isLocalUser = speakerUid === localUid;
-
-            // Only filter translations for local user, show all for remote users
-            const isTargetLanguage = isLocalUser
-              ? translationConfigRef?.current?.targets?.includes(lang) || false
-              : true; // Show all translations for remote users
-
-            if (translationText && isTargetLanguage) {
+            if (translationText) {
               finalTranslationsForTranscript.push({
                 lang: lang,
                 text: translationText,
