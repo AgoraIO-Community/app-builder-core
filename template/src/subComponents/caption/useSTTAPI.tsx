@@ -37,7 +37,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   const localUid = useLocalUid();
 
   const apiCall = async (
-    method: string,
+    method: 'startv7' | 'update' | 'stopv7',
     botUid: number,
     translationConfig?: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
@@ -66,22 +66,28 @@ const useSTTAPI = (): IuseSTTAPI => {
         },
       );
       // Add translate_config only for start/update methods
-      if (translationConfig?.source && translationConfig?.targets) {
+      if (translationConfig?.source?.[0]) {
         requestBody.lang = translationConfig.source;
-        // Add translate_config payload only if targets exist
-        if (translationConfig?.targets?.length > 0) {
-          // Sanitize payload: remove source language from targets to avoid API errors
-          const sanitizedTargets = translationConfig?.targets.filter(
+        // Sanitize payload: remove source language from targets to avoid API errors
+        const sanitizedTargets =
+          translationConfig?.targets?.filter(
             target => target !== translationConfig?.source[0],
-          );
-          if (sanitizedTargets?.length > 0) {
-            requestBody.translate_config = [
-              {
-                source_lang: translationConfig.source[0],
-                target_lang: sanitizedTargets,
-              },
-            ];
+          ) || [];
+        const shouldTranslate = sanitizedTargets.length > 0;
+        // Add translate_config payload only if targets exist
+        if (shouldTranslate) {
+          requestBody.translate_config = [
+            {
+              source_lang: translationConfig.source[0],
+              target_lang: sanitizedTargets,
+            },
+          ];
+          if (method === 'update') {
+            requestBody.translate = true;
           }
+        } else if (method === 'update') {
+          // If method is update and no targets are passed
+          requestBody.translate = false;
         }
         requestBody.subscribeAudioUids = [`${localUid}`];
       }
