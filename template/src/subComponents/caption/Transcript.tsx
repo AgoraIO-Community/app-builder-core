@@ -61,6 +61,8 @@ const Transcript = (props: TranscriptProps) => {
     setIsSTTListenerAdded,
     getBotOwnerUid,
     isSTTActive,
+    transcriptViewMode,
+    translationConfig,
   } = useCaption();
 
   const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
@@ -143,6 +145,9 @@ const Transcript = (props: TranscriptProps) => {
         translations={item.translations}
         searchQuery={searchQuery}
         selectedTranslationLanguage={item.selectedTranslationLanguage}
+        transcriptViewMode={transcriptViewMode}
+        speakerUid={item.uid}
+        localUserSpokenLanguage={translationConfig.source?.[0]}
       />
     );
   };

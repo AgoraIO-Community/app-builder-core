@@ -359,11 +359,11 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     textColor: $config.FONT_COLOR,
     title: sttOriginalTranslatedLabel,
     onPress: () => {
-      if (captionViewMode === 'translated') {
-        setCaptionViewMode('original-and-translated');
-      } else {
-        setCaptionViewMode('translated');
-      }
+      setCaptionViewMode(
+        captionViewMode === 'translated'
+          ? 'original-and-translated'
+          : 'translated',
+      );
       setActionMenuVisible(false);
     },
   });
