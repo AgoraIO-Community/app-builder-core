@@ -4,7 +4,6 @@ import React from 'react';
 import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {formatTime, getLanguageLabel} from './utils';
-import {CaptionViewMode} from './useCaption';
 import {useLocalUid} from '../../../agora-rn-uikit';
 
 type TranslationItem = {
@@ -20,9 +19,6 @@ interface TranscriptTextProps {
   translations?: TranslationItem[];
   searchQuery?: string;
   selectedTranslationLanguage?: string;
-  transcriptViewMode?: CaptionViewMode;
-  speakerUid?: string | number;
-  localUserSpokenLanguage?: string;
 }
 
 export const TranscriptText = ({
@@ -56,8 +52,6 @@ export const TranscriptText = ({
   //   return value;
   // };
 
-  const localUid = useLocalUid();
-  const isLocalUser = localUid === speakerUid;
   // const displayText = getDisplayText();
   const regex = searchQuery ? new RegExp(`(${searchQuery})`, 'gi') : ' ';
   const originalParts = value.split(regex);
@@ -82,114 +76,43 @@ export const TranscriptText = ({
       </View>
 
       <View>
-        {/* AllView */}
-        {transcriptViewMode === 'original-and-translated' && (
-          <>
-            {/* Original Text  */}
-            <Text style={[styles.transciptText]}>
-              {/* If substring matches search query then highlight it */}
-              {originalParts.map((part, index) =>
-                part.toLowerCase() === searchQuery.toLowerCase() &&
-                searchQuery !== '' ? (
-                  <Text key={index} style={styles.highlightedText}>
-                    {searchQuery ? part : part + ' '}
-                  </Text>
-                ) : (
-                  <Text key={index}>{searchQuery ? part : part + ' '}</Text>
-                ),
-              )}
-            </Text>
-            {/* Translated text */}
-            {translationsParts.map((translation, translationIndex) => (
-              <Text
-                key={translation.lang}
-                style={[styles.transciptText, styles.translationText]}>
-                {/* lang code */}
-                <Text style={styles.languageLabel}>
-                  ({getLanguageLabel([translation.lang])}):{' '}
-                </Text>
-                {/* lang */}
-                {translation.parts.map((part, index) =>
-                  part.toLowerCase() === searchQuery.toLowerCase() &&
-                  searchQuery !== '' ? (
-                    <Text key={index} style={styles.highlightedText}>
-                      {searchQuery ? part : part + ' '}
-                    </Text>
-                  ) : (
-                    <Text key={index}>{searchQuery ? part : part + ' '}</Text>
-                  ),
-                )}
-              </Text>
-            ))}
-          </>
-        )}
-
-        {/* Translated mode */}
-        {transcriptViewMode === 'translated' && (
-          <>
-            {isLocalUser ? (
-              <Text style={[styles.transciptText]}>
-                {originalParts.map((part, index) =>
-                  part.toLowerCase() === searchQuery.toLowerCase() &&
-                  searchQuery !== '' ? (
-                    <Text key={index} style={styles.highlightedText}>
-                      {searchQuery ? part : part + ' '}
-                    </Text>
-                  ) : (
-                    <Text key={index}>{searchQuery ? part : part + ' '}</Text>
-                  ),
-                )}
+        {/* Original Text */}
+        <Text style={[styles.transciptText]}>
+          {/* If substring matches search query then highlight it */}
+          {originalParts.map((part, index) =>
+            part.toLowerCase() === searchQuery.toLowerCase() &&
+            searchQuery !== '' ? (
+              <Text key={index} style={styles.highlightedText}>
+                {searchQuery ? part : part + ' '}
               </Text>
             ) : (
-              <>
-                {(() => {
-                  const filteredTranslations = translationsParts.filter(
-                    translation => translation.lang === localUserSpokenLanguage,
-                  );
-                  if (filteredTranslations.length === 0) {
-                    return (
-                      <Text
-                        style={[
-                          styles.transciptText,
-                          styles.translationText,
-                          {opacity: 0.6},
-                        ]}>
-                        Translation not found for{' '}
-                        {getLanguageLabel([localUserSpokenLanguage])}
-                      </Text>
-                    );
-                  }
+              <Text key={index}>{searchQuery ? part : part + ' '}</Text>
+            ),
+          )}
+        </Text>
 
-                  return filteredTranslations.map(
-                    (translation, translationIndex) => (
-                      <Text
-                        key={translation.lang}
-                        style={[styles.transciptText, styles.translationText]}>
-                        {/* lang code */}
-                        <Text style={styles.languageLabel}>
-                          ({getLanguageLabel([translation.lang])}):{' '}
-                        </Text>
-                        {/* lang */}
-                        {translation.parts.map((part, index) =>
-                          part.toLowerCase() === searchQuery.toLowerCase() &&
-                          searchQuery !== '' ? (
-                            <Text key={index} style={styles.highlightedText}>
-                              {searchQuery ? part : part + ' '}
-                            </Text>
-                          ) : (
-                            <Text key={index}>
-                              {searchQuery ? part : part + ' '}
-                            </Text>
-                          ),
-                        )}
-                      </Text>
-                    ),
-                  );
-                })()}
-              </>
+        {/* All Translations */}
+        {translationsParts.map((translation, translationIndex) => (
+          <Text
+            key={translation.lang}
+            style={[styles.transciptText, styles.translationText]}>
+            {/* lang code */}
+            <Text style={styles.languageLabel}>
+              ({getLanguageLabel([translation.lang])}):{' '}
+            </Text>
+            {/* lang */}
+            {translation.parts.map((part, index) =>
+              part.toLowerCase() === searchQuery.toLowerCase() &&
+              searchQuery !== '' ? (
+                <Text key={index} style={styles.highlightedText}>
+                  {searchQuery ? part : part + ' '}
+                </Text>
+              ) : (
+                <Text key={index}>{searchQuery ? part : part + ' '}</Text>
+              ),
             )}
-          </>
-        )}
+          </Text>
+        ))}
       </View>
     </View>
   );

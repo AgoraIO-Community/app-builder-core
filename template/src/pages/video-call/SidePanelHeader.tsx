@@ -53,7 +53,6 @@ import {
   sttDownloadTranscriptBtnText,
   sttStopTranslationText,
   sttTranscriptPanelHeaderText,
-  sttOriginalTranslatedText,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import {TranslateActionMenu} from '../../subComponents/caption/CaptionContainer';
@@ -274,8 +273,6 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     meetingTranscript,
     isLangChangeInProgress,
     selectedTranslationLanguage,
-    transcriptViewMode,
-    setTranscriptViewMode,
   } = useCaption();
   const {downloadTranscript} = useTranscriptDownload();
   const [modalPosition, setModalPosition] = React.useState({});
@@ -302,7 +299,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const changeTranslationLanguage = useString<boolean>(
     sttChangeTranslationLanguageText,
   )();
-  const sttOriginalTranslatedLabel = useString(sttOriginalTranslatedText)();
+
   // isHost &&
   actionMenuitems.push({
     icon: 'globe',
@@ -342,26 +339,6 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
         source: translationConfig.source, // Keep current source
         targets: [], // Empty targets = no translation
       });
-    },
-  });
-
-  actionMenuitems.push({
-    icon: 'lang-translate',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    endIcon:
-      transcriptViewMode === 'original-and-translated'
-        ? 'tick-fill'
-        : undefined,
-    endIconColor: $config.SEMANTIC_SUCCESS,
-    textColor: $config.FONT_COLOR,
-    title: sttOriginalTranslatedLabel,
-    onPress: () => {
-      setTranscriptViewMode(
-        transcriptViewMode === 'translated'
-          ? 'original-and-translated'
-          : 'translated',
-      );
-      setActionMenuVisible(false);
     },
   });
 
