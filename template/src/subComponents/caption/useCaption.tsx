@@ -487,7 +487,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             spokenLanguage: newConfig.source[0],
             username: username,
           }),
-          PersistanceLevel.Session,
         );
 
         logger.log(
@@ -625,7 +624,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               spokenLanguage: newConfig.source[0],
               username: username,
             }),
-            PersistanceLevel.Session,
           );
         }
 
