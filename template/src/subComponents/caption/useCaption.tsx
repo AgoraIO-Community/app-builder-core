@@ -487,6 +487,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             spokenLanguage: newConfig.source[0],
             username: username,
           }),
+          PersistanceLevel.Sender,
         );
 
         logger.log(
