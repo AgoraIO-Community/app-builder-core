@@ -91,6 +91,7 @@ export interface IconsInterface {
   'closed-caption': string;
   globe: string;
   'lang-select': string;
+  'lang-translate': string;
   search: string;
   captions: string;
   'captions-off': string;

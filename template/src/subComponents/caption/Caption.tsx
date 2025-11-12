@@ -8,7 +8,11 @@ import {isWebInternal} from '../../utils/common';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
-import {sttSettingSpokenLanguageText} from '../../language/default-labels/videoCallScreenLabels';
+import {useLocalUid} from '../../../agora-rn-uikit';
+import {
+  sttSettingSpokenLanguageText,
+  sttSettingTranslationLanguageText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export type WebStreamMessageArgs = [number, Uint8Array];
 export type NativeStreamMessageArgs = [
@@ -33,13 +37,22 @@ const Caption: React.FC<CaptionProps> = ({
   const {RtcEngineUnsafe} = useRtc();
   const {
     isLangChangeInProgress,
+    isTranslationChangeInProgress,
     captionObj, //state for current live caption for all users
     isSTTListenerAdded,
     setIsSTTListenerAdded,
     activeSpeakerRef,
     prevSpeakerRef,
+    getBotOwnerUid,
+    isSTTActive,
+    translationConfig,
+    remoteSpokenLanguages,
   } = useCaption();
+  const currentUserUid = useLocalUid();
   const ssLabel = useString(sttSettingSpokenLanguageText)();
+  const stLabel = useString<boolean>(sttSettingTranslationLanguageText)(
+    isSTTActive,
+  );
   const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
 
@@ -66,18 +79,20 @@ const Caption: React.FC<CaptionProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (isLangChangeInProgress)
+  if (isLangChangeInProgress || isTranslationChangeInProgress) {
     return (
       <Loading
-        text={ssLabel}
+        text={stLabel}
         background="transparent"
         indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
         textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
       />
     );
+  }
 
-  console.log('current speaker uid', activeSpeakerRef.current);
-  console.log('prev current uid ', prevSpeakerRef.current);
+  console.log('[STT_PER_USER_BOT]  speaker uid', activeSpeakerRef.current);
+  console.log('[STT_PER_USER_BOT] prev current uid ', prevSpeakerRef.current);
+  console.log('[STT_PER_USER_BOT] captionObj ', captionObj);
 
   const speakerCount = prevSpeakerRef.current === '' ? 1 : 2;
 
@@ -104,8 +119,12 @@ const Caption: React.FC<CaptionProps> = ({
           {captionObj[prevSpeakerRef.current] &&
           captionObj[prevSpeakerRef.current].text ? (
             <CaptionText
-              user={defaultContent[prevSpeakerRef.current].name || 'Speaker'}
+              user={
+                defaultContent[getBotOwnerUid(prevSpeakerRef.current)]?.name ||
+                'Speaker'
+              }
               value={captionObj[prevSpeakerRef.current].text}
+              translations={captionObj[prevSpeakerRef.current].translations}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={false}
               activelinesAvailable={activelinesAvailable}
@@ -114,6 +133,15 @@ const Caption: React.FC<CaptionProps> = ({
               setInActiveLinesAvaialble={setInActiveLinesAvaialble}
               captionUserStyle={captionUserStyle}
               captionTextStyle={captionTextStyle}
+              speakerUid={getBotOwnerUid(prevSpeakerRef.current)}
+              userLocalUid={currentUserUid}
+              spokenLanguageCode={
+                getBotOwnerUid(prevSpeakerRef.current) === currentUserUid
+                  ? translationConfig.source[0]
+                  : remoteSpokenLanguages[
+                      getBotOwnerUid(prevSpeakerRef.current)
+                    ]
+              }
             />
           ) : (
             <></>
@@ -121,8 +149,12 @@ const Caption: React.FC<CaptionProps> = ({
           {captionObj[activeSpeakerRef.current] &&
           captionObj[activeSpeakerRef.current].text ? (
             <CaptionText
-              user={defaultContent[activeSpeakerRef.current].name || 'Speaker'}
+              user={
+                defaultContent[getBotOwnerUid(activeSpeakerRef.current)]
+                  ?.name || 'Speaker'
+              }
               value={captionObj[activeSpeakerRef.current].text}
+              translations={captionObj[activeSpeakerRef.current].translations}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={true}
               activelinesAvailable={activelinesAvailable}
@@ -131,6 +163,15 @@ const Caption: React.FC<CaptionProps> = ({
               setInActiveLinesAvaialble={setInActiveLinesAvaialble}
               captionUserStyle={captionUserStyle}
               captionTextStyle={captionTextStyle}
+              speakerUid={getBotOwnerUid(activeSpeakerRef.current)}
+              userLocalUid={currentUserUid}
+              spokenLanguageCode={
+                getBotOwnerUid(activeSpeakerRef.current) === currentUserUid
+                  ? translationConfig.source[0]
+                  : remoteSpokenLanguages[
+                      getBotOwnerUid(activeSpeakerRef.current)
+                    ]
+              }
             />
           ) : (
             <></>

@@ -58,13 +58,19 @@ import {
 import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
-import {useCaption} from '../../src/subComponents/caption/useCaption';
+import {
+  LanguageTranslationConfig,
+  useCaption,
+} from '../../src/subComponents/caption/useCaption';
 import LanguageSelectorPopup from '../../src/subComponents/caption/LanguageSelectorPopup';
-import useSTTAPI from '../../src/subComponents/caption/useSTTAPI';
 import {EventNames} from '../rtm-events';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import Toast from '../../react-native-toast-message';
-import {getLanguageLabel} from '../../src/subComponents/caption/utils';
+import {
+  getLanguageLabel,
+  LanguageType,
+  TranslateConfig,
+} from '../../src/subComponents/caption/utils';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem, {useToolbarProps} from '../atoms/ToolbarItem';
 import {
@@ -312,20 +318,21 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const {
     isCaptionON,
     setIsCaptionON,
-    language: prevLang,
+    // language: prevLang,
     isSTTActive,
-    setIsSTTActive,
+    // setIsSTTActive,
     isSTTError,
+    handleTranslateConfigChange,
   } = useCaption();
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
-  const isFirstTimePopupOpen = React.useRef(false);
+  // const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
 
-  const {start, restart} = useSTTAPI();
+  // const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -531,25 +538,17 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      disabled: !(
-        $config.ENABLE_STT &&
-        $config.ENABLE_CAPTION &&
-        (isHost || (!isHost && isSTTActive))
-      ),
+      disabled: !($config.ENABLE_STT && $config.ENABLE_CAPTION),
       title: captionLabel(isCaptionON),
       onPress: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isCaptionON ? 'caption' : null;
-        if (isSTTError) {
-          setIsCaptionON(prev => !prev);
-          return;
-        }
-        if (isSTTActive) {
-          setIsCaptionON(prev => !prev);
-          // is lang popup has been shown once for any user in meeting
-        } else {
-          isFirstTimePopupOpen.current = true;
+        if (isSTTError || !isSTTActive) {
+          // Show popup when error or STT not active
           setLanguagePopup(true);
+        } else {
+          // STT is active and no error
+          setIsCaptionON(prev => !prev);
         }
       },
     });
@@ -564,26 +563,19 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         disabled: !(
           $config.ENABLE_STT &&
           $config.ENABLE_CAPTION &&
-          $config.ENABLE_MEETING_TRANSCRIPT &&
-          (isHost || (!isHost && isSTTActive))
+          $config.ENABLE_MEETING_TRANSCRIPT
         ),
         title: transcriptLabel(isTranscriptON),
         onPress: () => {
           setActionMenuVisible(false);
           STT_clicked.current = !isTranscriptON ? 'transcript' : null;
-          if (isSTTError) {
-            !isTranscriptON
-              ? setSidePanel(SidePanelType.Transcript)
-              : setSidePanel(SidePanelType.None);
-            return;
-          }
-          if (isSTTActive) {
-            !isTranscriptON
-              ? setSidePanel(SidePanelType.Transcript)
-              : setSidePanel(SidePanelType.None);
-          } else {
-            isFirstTimePopupOpen.current = true;
+          if (isSTTError || !isSTTActive) {
             setLanguagePopup(true);
+          } else {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+            // isFirstTimePopupOpen.current = true;
           }
         },
       });
@@ -845,39 +837,51 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     setActionMenuVisible(false);
   }, [currentLayout]);
 
-  const onConfirm = async (langChanged, language) => {
+  const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
+    console.log(
+      '[STT_PER_USER_BOT] Controls onConfirm called',
+      inputTranslateConfig,
+    );
     const isCaptionClicked = STT_clicked.current === 'caption';
     const isTranscriptClicked = STT_clicked.current === 'transcript';
     setLanguagePopup(false);
-    isFirstTimePopupOpen.current = false;
-    const method = isCaptionClicked
-      ? isCaptionON
-      : isTranscriptON
-      ? 'stop'
-      : 'start';
-    if (isTranscriptClicked) {
-      if (!isTranscriptON) {
-        setSidePanel(SidePanelType.Transcript);
-      } else {
-        setSidePanel(SidePanelType.None);
-      }
-    }
-    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    // isFirstTimePopupOpen.current = false;
+    // const method = isCaptionClicked
+    //   ? isCaptionON
+    //   : isTranscriptON
+    //   ? 'stop'
+    //   : 'start';
 
-    if (isCaptionClicked) {
-      setIsCaptionON(prev => !prev);
-    } else {
-    }
+    // if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    // if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
 
     try {
-      const res = await start(language);
-      if (res?.message.includes('STARTED')) {
-        // channel is already started now restart
-        await restart(language);
+      // const res = await start(language, language);
+      // if (res?.message.includes('STARTED')) {
+      //   // channel is already started now restart
+      //   await restart(language, language);
+      // }
+      if (isTranscriptClicked) {
+        if (!isTranscriptON) {
+          setSidePanel(SidePanelType.Transcript);
+        } else {
+          setSidePanel(SidePanelType.None);
+        }
       }
+      if (isCaptionClicked) {
+        setIsCaptionON(prev => !prev);
+      } else {
+      }
+      await handleTranslateConfigChange(inputTranslateConfig);
     } catch (error) {
-      logger.error(LogSource.Internals, 'STT', 'error in starting stt', error);
+      setIsCaptionON(false);
+      setSidePanel(SidePanelType.None);
+      logger.error(
+        LogSource.Internals,
+        'STT',
+        'error in starting caption',
+        error,
+      );
     }
   };
 
@@ -952,12 +956,14 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
 
   return (
     <>
-      <LanguageSelectorPopup
-        modalVisible={isLanguagePopupOpen}
-        setModalVisible={setLanguagePopup}
-        onConfirm={onConfirm}
-        isFirstTimePopupOpen={isFirstTimePopupOpen.current}
-      />
+      {isLanguagePopupOpen && (
+        <LanguageSelectorPopup
+          modalVisible={isLanguagePopupOpen}
+          setModalVisible={setLanguagePopup}
+          onConfirm={onConfirm}
+          // isFirstTimePopupOpen={isFirstTimePopupOpen.current}
+        />
+      )}
       {$config.CLOUD_RECORDING && isHost && isWeb() && (
         <>
           <RecordingDeletePopup
@@ -1134,9 +1140,7 @@ export const MoreButtonToolbarItem = (props?: {
   }, [isHost]);
 
   return width < BREAKPOINTS.lg ||
-    ($config.ENABLE_STT &&
-      $config.ENABLE_CAPTION &&
-      (isHost || (!isHost && isSTTActive))) ||
+    ($config.ENABLE_STT && $config.ENABLE_CAPTION) ||
     $config.ENABLE_NOISE_CANCELLATION ||
     (isHost && $config.CLOUD_RECORDING && isWeb()) ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
@@ -1179,7 +1183,7 @@ const Controls = (props: ControlsProps) => {
   const {items = {}, includeDefaultItems = true} = props;
   const {width, height} = useWindowDimensions();
   const {defaultContent} = useContent();
-  const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
+  const {setMeetingTranscript} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
   const {setRoomInfo} = useSetRoomInfo();
   const heading = useString<'Set' | 'Changed'>(sttSpokenLanguageToastHeading);
@@ -1190,86 +1194,87 @@ const Controls = (props: ControlsProps) => {
     username: string;
   }>(sttSpokenLanguageToastSubHeading);
 
-  const {sttLanguage, isSTTActive} = useRoomInfo();
-  const {addStreamMessageListener} = useSpeechToText();
+  // const {sttLanguage} = useRoomInfo();
+  // const {addStreamMessageListener} = useSpeechToText();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
-  React.useEffect(() => {
-    // for mobile events are set in ActionSheetContent
-    if (!sttLanguage) return;
-    const {
-      username,
-      prevLang,
-      newLang,
-      uid,
-      langChanged,
-    }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
-    if (!langChanged) return;
-    const actionText =
-      prevLang.indexOf('') !== -1
-        ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
-        : `changed the spoken language from "${getLanguageLabel(
-            prevLang,
-          )}" to "${getLanguageLabel(newLang)}" `;
-    // const msg = `${
-    //   //@ts-ignore
-    //   defaultContentRef.current[uid]?.name || username
-    // } ${actionText} `;
-    let subheadingObj: any = {};
-    if (prevLang.indexOf('') !== -1) {
-      subheadingObj = {
-        username: defaultContentRef.current[uid]?.name || username,
-        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
-        newLanguage: getLanguageLabel(newLang),
-      };
-    } else {
-      subheadingObj = {
-        username: defaultContentRef.current[uid]?.name || username,
-        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
-        newLanguage: getLanguageLabel(newLang),
-        oldLanguage: getLanguageLabel(prevLang),
-      };
-    }
+  // React.useEffect(() => {
+  //   // for mobile events are set in ActionSheetContent
+  //   if (!sttLanguage) return;
+  //   const {
+  //     username,
+  //     prevLang,
+  //     newLang,
+  //     uid,
+  //     langChanged,
+  //   }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+  //   if (!langChanged) return;
+  //   const actionText =
+  //     prevLang.indexOf('') !== -1
+  //       ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+  //       : `changed the spoken language from "${getLanguageLabel(
+  //           prevLang,
+  //         )}" to "${getLanguageLabel(newLang)}" `;
+  //   // const msg = `${
+  //   //   //@ts-ignore
+  //   //   defaultContentRef.current[uid]?.name || username
+  //   // } ${actionText} `;
+  //   let subheadingObj: any = {};
+  //   if (prevLang.indexOf('') !== -1) {
+  //     subheadingObj = {
+  //       username: defaultContentRef.current[uid]?.name || username,
+  //       action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+  //       newLanguage: getLanguageLabel(newLang),
+  //     };
+  //   } else {
+  //     subheadingObj = {
+  //       username: defaultContentRef.current[uid]?.name || username,
+  //       action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+  //       newLanguage: getLanguageLabel(newLang),
+  //       oldLanguage: getLanguageLabel(prevLang),
+  //     };
+  //   }
 
-    Toast.show({
-      leadingIconName: 'lang-select',
-      type: 'info',
-      text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
-      visibilityTime: 3000,
-      primaryBtn: null,
-      secondaryBtn: null,
-      text2: subheading(subheadingObj),
-    });
-    setRoomInfo(prev => {
-      return {
-        ...prev,
-        sttLanguage: {...sttLanguage, langChanged: false},
-      };
-    });
-    // syncing local set language
-    newLang && setLanguage(newLang);
-    // add spoken lang msg to transcript
-    setMeetingTranscript(prev => {
-      return [
-        ...prev,
-        {
-          name: 'langUpdate',
-          time: new Date().getTime(),
-          uid: `langUpdate-${uid}`,
-          text: actionText,
-        },
-      ];
-    });
-    // start listening to stream Message callback
-    addStreamMessageListener();
-  }, [sttLanguage]);
+  //   // Toast.show({
+  //   //   leadingIconName: 'lang-select',
+  //   //   type: 'info',
+  //   //   text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
+  //   //   visibilityTime: 3000,
+  //   //   primaryBtn: null,
+  //   //   secondaryBtn: null,
+  //   //   text2: subheading(subheadingObj),
+  //   // });
+  //   setRoomInfo(prev => {
+  //     return {
+  //       ...prev,
+  //       sttLanguage: {...sttLanguage, langChanged: false},
+  //     };
+  //   });
+  //   // syncing local set language
+  //   // newLang && setLanguage(newLang);
+  //   // add spoken lang msg to transcript
+  //   setMeetingTranscript(prev => {
+  //     return [
+  //       ...prev,
+  //       {
+  //         name: 'langUpdate',
+  //         time: new Date().getTime(),
+  //         uid: `langUpdate-${uid}`,
+  //         text: actionText,
+  //       },
+  //     ];
+  //   });
+  //   // start listening to stream Message callback
+  //   addStreamMessageListener();
+  // }, [sttLanguage]);
 
-  React.useEffect(() => {
-    setIsSTTActive(isSTTActive);
-  }, [isSTTActive]);
+  // Ask bhupendra
+  // React.useEffect(() => {
+  //   setIsSTTActive(isSTTActive);
+  // }, [isSTTActive]);
 
   const isHidden = (hide: ToolbarItemHide = false) => {
     try {

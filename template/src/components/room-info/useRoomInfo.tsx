@@ -103,6 +103,11 @@ export interface RoomInfoContextInterface {
     newLang?: LanguageType[];
     uid?: UidType;
     langChanged?: boolean;
+    remoteLang?: LanguageType[];
+    translateConfig?: {
+      target_lang: string[];
+      source_lang: string;
+    }[];
   };
   isSTTActive?: boolean;
   roomPreference?: joinRoomPreference;

@@ -1,7 +1,7 @@
 import {View} from 'react-native';
 import React from 'react';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
-import {useCaption} from './useCaption';
+import {LanguageTranslationConfig, useCaption} from './useCaption';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import {useString} from '../../utils/useString';
@@ -26,42 +26,49 @@ const CaptionIcon = (props: CaptionIconProps) => {
     isOnActionSheet = false,
     closeActionSheet,
   } = props;
-  const {isCaptionON, setIsCaptionON, isSTTActive, isSTTError} = useCaption();
+  const {
+    isCaptionON,
+    setIsCaptionON,
+    isSTTActive,
+    isSTTError,
+    handleTranslateConfigChange,
+  } = useCaption();
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
 
-  const isFirstTimePopupOpen = React.useRef(false);
-  const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
-  const isDisabled = !isAuthorizedSTTUser();
+  // const isFirstTimePopupOpen = React.useRef(false);
+  // const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
+  // const isDisabled = !isAuthorizedSTTUser();
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
   const label = captionLabel(isCaptionON);
   const onPress = () => {
-    if (isSTTError) {
-      setIsCaptionON(prev => !prev);
-      closeActionSheet();
-      return;
-    }
-    if (isSTTActive) {
-      // is lang popup has been shown once for any user in meeting
-      setIsCaptionON(prev => !prev);
-      closeActionSheet();
-    } else {
-      isFirstTimePopupOpen.current = true;
+    if (isSTTError || !isSTTActive) {
+      // Show popup when error or STT not active
       setLanguagePopup(true);
+    } else {
+      // STT is active and no error
+      setIsCaptionON(prev => !prev);
+      closeActionSheet();
     }
+    // if (isSTTActive) {
+    //   // is lang popup has been shown once for any user in meeting
+    //   setIsCaptionON(prev => !prev);
+    //   closeActionSheet();
+    // } else {
+    //   // isFirstTimePopupOpen.current = true;
+    //   setLanguagePopup(true);
+    // }
   };
   const iconButtonProps: IconButtonProps = {
     onPress: onPressCustom || onPress,
-    disabled: isDisabled,
+    disabled: false,
     iconProps: {
       name: isCaptionON ? 'captions-off' : 'captions',
       iconBackgroundColor: isCaptionON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: isDisabled
-        ? $config.SEMANTIC_NEUTRAL
-        : isCaptionON
+      tintColor: isCaptionON
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
@@ -80,22 +87,16 @@ const CaptionIcon = (props: CaptionIconProps) => {
     iconButtonProps.toolTipMessage = label;
   }
 
-  const onConfirm = async (langChanged, language) => {
-    setLanguagePopup(false);
-    closeActionSheet();
-    isFirstTimePopupOpen.current = false;
-    const method = isCaptionON ? 'stop' : 'start';
-    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-    setIsCaptionON(prev => !prev);
+  const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
     try {
-      const res = await start(language);
-      if (res?.message.includes('STARTED')) {
-        // channel is already started now restart
-        await restart(language);
-      }
+      closeActionSheet();
+      setLanguagePopup(false);
+      setIsCaptionON(prev => !prev);
+      await handleTranslateConfigChange(inputTranslateConfig);
     } catch (error) {
-      console.log('eror in starting stt', error);
+      setIsCaptionON(false);
+      console.log('error in starting stt', error);
+      // State is NOT changed on error, user can retry
     }
   };
 
@@ -106,7 +107,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}
         onConfirm={onConfirm}
-        isFirstTimePopupOpen={isFirstTimePopupOpen.current}
+        // isFirstTimePopupOpen={isFirstTimePopupOpen.current}
       />
     </View>
   );
