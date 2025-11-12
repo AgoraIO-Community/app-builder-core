@@ -11,7 +11,7 @@ const DefaultConfig = {
   PRECALL: true,
   CHAT: true,
   CLOUD_RECORDING: false,
-  RECORDING_MODE: 'WEB',
+  RECORDING_MODE: 'MIX',
   SCREEN_SHARING: true,
   LANDING_SUB_HEADING: 'The Real-Time Engagement Platform',
   ENCRYPTION_ENABLED: false,
