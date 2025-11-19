@@ -609,17 +609,30 @@ const RtmConfigure = (props: any) => {
         'API',
         'RTM presence.getOnlineUsers(getMembers) start',
       );
-      await engine.current.presence
-        .getOnlineUsers(rtcProps.channel, 1)
-        .then(async (data: GetOnlineUsersResponse) => {
-          logger.log(
-            LogSource.AgoraSDK,
-            'API',
-            'RTM presence.getOnlineUsers data received',
-            data,
+
+      let pageNum = 1;
+      let hasNext = true;
+
+      while (hasNext) {
+        const data: GetOnlineUsersResponse =
+          await engine.current.presence.getOnlineUsers(
+            rtcProps.channel,
+            pageNum,
           );
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          `RTM presence.getOnlineUsers page ${pageNum} received`,
+          {
+            pageNum,
+            occupantsCount: data.occupants?.length || 0,
+            hasNextPage: !!data.nextPage,
+          },
+        );
+        if (data.occupants?.length) {
+          // This matches your earlier behavior (no throttling)
           await Promise.all(
-            data.occupants?.map(async member => {
+            data.occupants.map(async member => {
               try {
                 const backoffAttributes =
                   await fetchUserAttributesWithBackoffRetry(member.userId);
@@ -634,13 +647,13 @@ const RtmConfigure = (props: any) => {
                 backoffAttributes?.items?.forEach(item => {
                   try {
                     if (hasJsonStructure(item.value as string)) {
-                      const data = {
-                        evt: item.key, // Use item.key instead of key
-                        value: item.value, // Use item.value instead of value
+                      const evtData = {
+                        evt: item.key,
+                        value: item.value,
                       };
-                      // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
+                      // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat event
                       EventsQueue.enqueue({
-                        data: data,
+                        data: evtData,
                         uid: member.userId,
                         ts: timeNow(),
                       });
@@ -661,18 +674,23 @@ const RtmConfigure = (props: any) => {
                 logger.error(
                   LogSource.AgoraSDK,
                   'Log',
-                  `RTM Could not retrieve name of ${member.userId}`,
+                  `RTM Could not retrieve attributes for ${member.userId}`,
                   {error: e},
                 );
               }
             }),
           );
-          logger.debug(
-            LogSource.AgoraSDK,
-            'Log',
-            'RTM fetched all data and user attr...RTM init done',
-          );
-        });
+        }
+
+        hasNext = !!data.nextPage;
+        pageNum++;
+      }
+      logger.debug(
+        LogSource.AgoraSDK,
+        'Log',
+        'RTM fetched all pages and user attributes...RTM init done',
+      );
+
       timerValueRef.current = 5;
     } catch (error) {
       setTimeout(async () => {
