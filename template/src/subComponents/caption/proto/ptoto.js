@@ -1,9 +1,9 @@
 /*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
 "use strict";
 
-var $protobuf = require("protobufjs/light");
+var $protobuf = require("protobufjs");
 
-var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $protobuf.Root()))
+var $protobufRoot = ($protobuf.roots.default || ($protobuf.roots.default = new $protobuf.Root()))
     .addJSON({
         agora: {
             nested: {
@@ -55,7 +55,24 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
                                     rule: "repeated",
                                     type: "Word",
                                     id: 10
-                                }
+                                },
+                                end_of_segment: {
+                                    type: "bool",
+                                    id: 11
+                                },
+                                duration_ms: {
+                                    type: "int32",
+                                    id: 12
+                                },
+                                data_type: {
+                                    type: "string",
+                                    id: 13
+                                },
+                                trans: {
+                                    rule: "repeated",
+                                    type: "Translation",
+                                    id: 14
+                                },
                             }
                         },
                         Word: {
@@ -81,6 +98,23 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
                                     id: 5
                                 }
                             }
+                        },
+                        Translation: {
+                            fields: {
+                                isFinal: {
+                                    type: "bool",
+                                    id: 1
+                                },
+                                lang: {
+                                    type: "string",
+                                    id: 2
+                                },
+                                texts: {
+                                    rule: "repeated",
+                                    type: "string",
+                                    id: 3
+                                }
+                            }
                         }
                     }
                 }
@@ -88,4 +122,4 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
         }
     });
 
-module.exports = $root;
+module.exports = $protobufRoot;

@@ -85,7 +85,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     iconButtonProps.toolTipMessage = label(isTranscriptON);
   }
 
-  const onConfirm = async (langChanged, language) => {
+  const onConfirm = async (langChanged, language, userOwnLanguages) => {
     setLanguagePopup(false);
 
     isFirstTimePopupOpen.current = false;
@@ -98,10 +98,10 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
       setSidePanel(SidePanelType.None);
     }
     try {
-      const res = await start(language);
+      const res = await start(language, userOwnLanguages);
       if (res?.message.includes('STARTED')) {
         // channel is already started now restart
-        await restart(language);
+        await restart(language, userOwnLanguages);
       }
     } catch (error) {
       console.log('eror in starting stt', error);
