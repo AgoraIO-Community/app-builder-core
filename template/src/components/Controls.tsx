@@ -277,7 +277,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
-  const transcriptLabel = useString<boolean>(toolbarItemTranscriptText);
+  const transcriptLabel = useString(toolbarItemTranscriptText)();
   const settingsLabel = useString(toolbarItemSettingText)();
   const screenShareButton = useString<boolean>(toolbarItemShareText);
   const recordingButton = useString<boolean>(toolbarItemRecordingText);
@@ -320,9 +320,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     setIsCaptionON,
     // language: prevLang,
     isSTTActive,
-    // setIsSTTActive,
     isSTTError,
-    handleTranslateConfigChange,
+    confirmSpokenLanguageChange,
   } = useCaption();
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
@@ -538,7 +537,11 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      disabled: !($config.ENABLE_STT && $config.ENABLE_CAPTION),
+      disabled: !(
+        $config.ENABLE_STT &&
+        $config.ENABLE_CAPTION &&
+        (isHost || (!isHost && isSTTActive))
+      ),
       title: captionLabel(isCaptionON),
       onPress: () => {
         setActionMenuVisible(false);
@@ -553,7 +556,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       },
     });
     // 4. Meeting transcript
-    if ($config.ENABLE_MEETING_TRANSCRIPT) {
+    if ($config.ENABLE_MEETING_TRANSCRIPT && isHost) {
       actionMenuitems.push({
         componentName: 'transcript',
         order: 4,
@@ -565,7 +568,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           $config.ENABLE_CAPTION &&
           $config.ENABLE_MEETING_TRANSCRIPT
         ),
-        title: transcriptLabel(isTranscriptON),
+        title: transcriptLabel,
         onPress: () => {
           setActionMenuVisible(false);
           STT_clicked.current = !isTranscriptON ? 'transcript' : null;
@@ -837,30 +840,12 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     setActionMenuVisible(false);
   }, [currentLayout]);
 
-  const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
-    console.log(
-      '[STT_PER_USER_BOT] Controls onConfirm called',
-      inputTranslateConfig,
-    );
+  const onConfirm = async (newSpokenLang: LanguageType) => {
+    console.log('[STT_PER_USER_BOT] Controls onConfirm called', newSpokenLang);
     const isCaptionClicked = STT_clicked.current === 'caption';
     const isTranscriptClicked = STT_clicked.current === 'transcript';
     setLanguagePopup(false);
-    // isFirstTimePopupOpen.current = false;
-    // const method = isCaptionClicked
-    //   ? isCaptionON
-    //   : isTranscriptON
-    //   ? 'stop'
-    //   : 'start';
-
-    // if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    // if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-
     try {
-      // const res = await start(language, language);
-      // if (res?.message.includes('STARTED')) {
-      //   // channel is already started now restart
-      //   await restart(language, language);
-      // }
       if (isTranscriptClicked) {
         if (!isTranscriptON) {
           setSidePanel(SidePanelType.Transcript);
@@ -872,7 +857,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         setIsCaptionON(prev => !prev);
       } else {
       }
-      await handleTranslateConfigChange(inputTranslateConfig);
+      await confirmSpokenLanguageChange(newSpokenLang);
     } catch (error) {
       setIsCaptionON(false);
       setSidePanel(SidePanelType.None);
@@ -1270,11 +1255,6 @@ const Controls = (props: ControlsProps) => {
   //   // start listening to stream Message callback
   //   addStreamMessageListener();
   // }, [sttLanguage]);
-
-  // Ask bhupendra
-  // React.useEffect(() => {
-  //   setIsSTTActive(isSTTActive);
-  // }, [isSTTActive]);
 
   const isHidden = (hide: ToolbarItemHide = false) => {
     try {

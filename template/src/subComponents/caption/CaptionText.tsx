@@ -54,10 +54,9 @@ const CaptionText = ({
   captionTextStyle = {},
   speakerUid,
   userLocalUid,
-  spokenLanguageCode,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const {translationConfig, captionViewMode} = useCaption();
+  const {globalSttState, captionViewMode} = useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -100,7 +99,7 @@ const CaptionText = ({
    */
 
   // Get the appropriate source text for display based on viewer's language preferences
-  const viewerSourceLanguage = translationConfig.source[0];
+  const viewerSourceLanguage = globalSttState?.globalSpokenLanguage;
   // const localUserText = value;
   // const remoteUserTranslatedText: {
   //   text: string,
