@@ -214,10 +214,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     Record<string, LanguageType>
   >({});
 
-  // STT session state machine
-  const [sttSessionState, setSttSessionState] =
-    React.useState<STTSessionState>('idle');
-
   // Active/prev speaker tracking (exposed as refs)
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
@@ -294,7 +290,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
     try {
       setIsLangChangeInProgress(true);
-      setSttSessionState('starting');
 
       const result = await start(localBotUid, newConfig);
       console.log('[STT] start result: ', result);
@@ -302,7 +297,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       if (result.success || result.error?.code === 610) {
         // Success or already started
         setIsSTTError(false);
-        setSttSessionState('active');
 
         const previousSource = globalSttStateRef?.current.globalSpokenLanguage;
         const isFirstStart = !isSTTActive;
@@ -312,7 +306,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               newConfig.source,
             )}"`
           : `changed the spoken language from "${getLanguageLabel([
-              globalSttStateRef?.current.globalSpokenLanguage,
+              previousSource,
             ])}" to "${getLanguageLabel(newConfig.source)}"`;
 
         setMeetingTranscript(prev => [
@@ -333,7 +327,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         );
       } else {
         setIsSTTError(true);
-        setSttSessionState('idle');
         logger.error(
           LogSource.NetworkRest,
           'stt',
@@ -353,7 +346,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     } catch (error: any) {
       setIsLangChangeInProgress(false);
       setIsSTTError(true);
-      setSttSessionState('idle');
       logger.error(LogSource.NetworkRest, 'stt', 'STT start error', error);
       // Show error toast: text1 = translated label, text2 = exception error
       Toast.show({
@@ -388,13 +380,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
     try {
       setIsLangChangeInProgress(true);
-      setSttSessionState('updating');
 
       const result = await update(localBotUid, newConfig);
 
       if (result.success) {
         setIsSTTError(false);
-        setSttSessionState('active');
 
         // Add transcript entry for language change
         // Determine what actually changed
@@ -469,7 +459,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         );
       } else {
         setIsSTTError(true);
-        setSttSessionState('active'); // logically still active but failed update
         logger.error(
           LogSource.NetworkRest,
           'stt',
@@ -490,7 +479,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     } catch (error: any) {
       setIsLangChangeInProgress(false);
       setIsSTTError(true);
-      setSttSessionState('active');
       logger.error(LogSource.NetworkRest, 'stt', 'STT update error', error);
       // Show error toast: text1 = translated label, text2 = exception error
       Toast.show({
@@ -516,7 +504,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     }
 
     try {
-      setSttSessionState('stopping');
       const result = await stop(localBotUid);
 
       if (result.success) {
@@ -524,7 +511,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         // Clear user's source language when stopping
         // setIsCaptionON(false);
         setIsSTTError(false);
-        setSttSessionState('idle');
 
         logger.log(
           LogSource.NetworkRest,
@@ -534,7 +520,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         );
       } else {
         setIsSTTError(true);
-        setSttSessionState('active'); // still active logically
         logger.error(
           LogSource.NetworkRest,
           'stt',
@@ -544,7 +529,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       }
     } catch (error) {
       setIsSTTError(true);
-      setSttSessionState('active');
       logger.error(
         LogSource.NetworkRest,
         'stt',
@@ -715,6 +699,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       try {
         if (!wasEnabledBefore && isEnabledNow) {
           console.log('[STT] Remote global STT -> starting session', newState);
+          Toast.show({
+            type: 'info',
+            text1: 'Live transcription enabled',
+            text2: 'The host has turned on live captions for everyone',
+            visibilityTime: 3000,
+          });
           await startSTTBotSession({
             source: [newState.globalSpokenLanguage],
             targets: newState.globalTranslationTargets,
@@ -768,14 +758,34 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       for (const newState of pendingGlobalSttEventsRef.current) {
         const wasEnabledBefore = prevState.globalSttEnabled;
         const isEnabledNow = newState.globalSttEnabled;
-
+        const spokenLanguageChanged =
+          prevState.globalSpokenLanguage !== newState.globalSpokenLanguage;
         try {
           if (!wasEnabledBefore && isEnabledNow) {
             await startSTTBotSession({
               source: [newState.globalSpokenLanguage],
               targets: newState.globalTranslationTargets,
             });
+            //
+            Toast.show({
+              type: 'info',
+              text1: 'Live transcription enabled',
+              text2: 'The host has turned on live captions for everyone',
+              visibilityTime: 3000,
+            });
           } else if (wasEnabledBefore && isEnabledNow) {
+            if (spokenLanguageChanged) {
+              // Spoken language changed
+              const newLabel = getLanguageLabel([
+                newState.globalSpokenLanguage,
+              ]);
+              Toast.show({
+                type: 'info',
+                text1: 'Spoken language changed',
+                text2: `The host set the spoken language to "${newLabel}"`,
+                visibilityTime: 3000,
+              });
+            }
             await updateSTTBotSession({
               source: [newState.globalSpokenLanguage],
               targets: newState.globalTranslationTargets,
@@ -811,7 +821,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         globalSttState,
         confirmSpokenLanguageChange,
         confirmTargetLanguageChange,
-        translationConfig,
         captionViewMode,
         setCaptionViewMode,
         transcriptViewMode,
