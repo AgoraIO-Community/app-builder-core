@@ -15,11 +15,13 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import chatContext from '../../components/ChatContext';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
+import {useContent} from 'customization-api';
 
 type GlobalSttState = {
   globalSttEnabled: boolean;
   globalSpokenLanguage: LanguageType;
   globalTranslationTargets: LanguageType[];
+  initiatorUid?: string | number;
 };
 
 type TranslationItem = {
@@ -167,6 +169,7 @@ export const CaptionContext = React.createContext<{
     globalSttEnabled: false,
     globalSpokenLanguage: '',
     globalTranslationTargets: [],
+    initiatorUid: null,
   },
   confirmSpokenLanguageChange: async () => {},
   confirmTargetLanguageChange: async () => {},
@@ -210,12 +213,17 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const [activeSpeakerUID, setActiveSpeakerUID] = React.useState<string>('');
   const [prevActiveSpeakerUID, setPrevActiveSpeakerUID] =
     React.useState<string>('');
+  const {defaultContent} = useContent();
+  const defaultContentRef = React.useRef(defaultContent);
+
   const [selectedTranslationLanguage, setSelectedTranslationLanguage] =
     React.useState<LanguageType>(null);
   const [remoteSpokenLanguages, setRemoteSpokenLanguages] = React.useState<
     Record<string, LanguageType>
   >({});
-
+  React.useEffect(() => {
+    defaultContentRef.current = defaultContent;
+  }, [defaultContent]);
   // Active/prev speaker tracking (exposed as refs)
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
@@ -225,6 +233,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     globalSttEnabled: false,
     globalSpokenLanguage: '',
     globalTranslationTargets: [],
+    initiatorUid: null,
   });
   const sttStartGuardRef = React.useRef(false);
 
@@ -584,6 +593,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       globalSttEnabled: true,
       globalSpokenLanguage: newSpokenLang,
       globalTranslationTargets: globalSttState.globalTranslationTargets,
+      initiatorUid: localUid,
     };
 
     // Locally start/update immediately (we don't want to wait for RTM roundtrip)
@@ -736,10 +746,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           }
           sttStartGuardRef.current = true;
           // Start guard ends
+          const initiatorName =
+            defaultContentRef.current[newState.initiatorUid]?.name || 'Host';
           Toast.show({
             type: 'info',
             text1: 'Live transcription enabled',
-            text2: 'The host has turned on live captions for everyone',
+            text2: `${initiatorName} : has turned on captions for everyone`,
             visibilityTime: 3000,
           });
           await startSTTBotSession({
@@ -799,16 +811,25 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           prevState.globalSpokenLanguage !== newState.globalSpokenLanguage;
         try {
           if (!wasEnabledBefore && isEnabledNow) {
-            await startSTTBotSession({
-              source: [newState.globalSpokenLanguage],
-              targets: newState.globalTranslationTargets,
-            });
-            //
+            // Start guard starts
+            if (sttStartGuardRef.current) {
+              console.log('[STT] Start skipped (already started)');
+              return;
+            }
+            sttStartGuardRef.current = true;
+            // Start guard ends
+            const initiatorName =
+              defaultContentRef.current[newState.initiatorUid]?.name || 'Host';
+
             Toast.show({
               type: 'info',
               text1: 'Live transcription enabled',
-              text2: 'The host has turned on live captions for everyone',
+              text2: `${initiatorName} : has turned on captions for everyone`,
               visibilityTime: 3000,
+            });
+            await startSTTBotSession({
+              source: [newState.globalSpokenLanguage],
+              targets: newState.globalTranslationTargets,
             });
           } else if (wasEnabledBefore && isEnabledNow) {
             if (spokenLanguageChanged) {
