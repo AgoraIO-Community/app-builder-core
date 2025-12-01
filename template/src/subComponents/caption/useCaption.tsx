@@ -53,8 +53,6 @@ type CaptionObj = {
   };
 };
 
-type STTSessionState = 'idle' | 'starting' | 'active' | 'updating' | 'stopping';
-
 export const CaptionContext = React.createContext<{
   // for caption btn state
   isCaptionON: boolean;
@@ -228,6 +226,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     globalSpokenLanguage: '',
     globalTranslationTargets: [],
   });
+  const sttStartGuardRef = React.useRef(false);
 
   const isSTTActive = globalSttState.globalSttEnabled;
 
@@ -730,6 +729,13 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       try {
         if (!wasEnabledBefore && isEnabledNow) {
           console.log('[STT] Remote global STT -> starting session', newState);
+          // Start guard starts
+          if (sttStartGuardRef.current) {
+            console.log('[STT] Start skipped (already started)');
+            return;
+          }
+          sttStartGuardRef.current = true;
+          // Start guard ends
           Toast.show({
             type: 'info',
             text1: 'Live transcription enabled',
