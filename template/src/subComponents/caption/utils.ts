@@ -232,19 +232,18 @@ export const formatTranscriptContent = (
  * @param captionText - The original caption text
  * @param translations - Array of available translations
  * @param viewerSourceLanguage - The user's source (spoken) language
- * @param speakerUid - The UID of the person speaking
- * @param currentUserUid - The UID of the current user
  * @returns The appropriate caption text to display
  */
 export const getUserTranslatedText = (
   captionText: string,
   translations: Array<{lang: string; text: string; isFinal: boolean}> = [],
-  viewerSourceLanguage: LanguageType,
-  speakerUid: string | number,
-  currentUserUid: string | number,
+  sourceLanguage: LanguageType,
+  selectedTranslationLanguage: LanguageType,
+  // speakerUid: string | number,
+  // currentUserUid: string | number,
 ): {
   value: string;
-  langCode: string;
+  langLabel: string;
 } => {
   // console.log(
   //   'getUserTranslatedText input params',
@@ -256,16 +255,17 @@ export const getUserTranslatedText = (
   // );
 
   // 1. If the speaker is the local user, always show their own source text
-  if (speakerUid === currentUserUid) {
+  if (!selectedTranslationLanguage) {
     return {
       value: captionText,
-      langCode: getLanguageLabel([viewerSourceLanguage]) || '',
+      langLabel: getLanguageLabel([sourceLanguage]) || '',
     };
   }
+
   // For other users' captions, try to find translation matching viewer's source language
-  if (viewerSourceLanguage && translations && translations.length > 0) {
+  if (selectedTranslationLanguage && translations && translations.length > 0) {
     const matchingTranslation = translations.find(
-      t => t.lang === viewerSourceLanguage,
+      t => t.lang === selectedTranslationLanguage,
     );
     if (matchingTranslation) {
       // Translation exists (even if empty)
@@ -274,7 +274,7 @@ export const getUserTranslatedText = (
       const translatedText = matchingTranslation.text?.trim() || '';
       return {
         value: translatedText,
-        langCode: getLanguageLabel([matchingTranslation.lang]) || '',
+        langLabel: getLanguageLabel([selectedTranslationLanguage]) || '',
       };
     }
   }
@@ -282,7 +282,7 @@ export const getUserTranslatedText = (
   // Fallback to original text if no translation found
   return {
     value: captionText,
-    langCode: 'Original',
+    langLabel: 'Original',
   };
 };
 

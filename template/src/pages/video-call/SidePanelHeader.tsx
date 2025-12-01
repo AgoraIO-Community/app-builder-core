@@ -54,6 +54,7 @@ import {
   sttDownloadTranscriptBtnText,
   sttStopTranslationText,
   sttTranscriptPanelHeaderText,
+  sttOriginalTranslatedText,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {TranslateActionMenu} from '../../subComponents/caption/TranslateActionMenu';
 
@@ -269,10 +270,11 @@ interface TranscriptHeaderActionMenuProps {
 const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {
-    language: prevLang,
     meetingTranscript,
     isLangChangeInProgress,
     selectedTranslationLanguage,
+    captionViewMode,
+    setCaptionViewMode,
   } = useCaption();
   const {downloadTranscript} = useTranscriptDownload();
   const [modalPosition, setModalPosition] = React.useState({});
@@ -282,22 +284,22 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     React.useState<boolean>(false);
   const [isTranslateMenuOpen, setTranslateMenuOpen] =
     React.useState<boolean>(false);
-  const {restart} = useSTTAPI();
-  const username = useGetName();
+  // const {restart} = useSTTAPI();
+  // const username = useGetName();
   const actionMenuitems: ActionMenuItem[] = [];
   const {
     data: {isHost},
-    sttLanguage,
   } = useRoomInfo();
   const {confirmSpokenLanguageChange} = useCaption();
   const downloadTranscriptLabel = useString(sttDownloadTranscriptBtnText)();
   const updateSpokenLanguageLabel = useString<boolean>(
     sttChangeSpokenLanguageText,
   )();
-  const sttStopTranslationLabel = useString<boolean>(sttStopTranslationText)();
-  const changeTranslationLanguage = useString<boolean>(
-    sttChangeTranslationLanguageText,
-  )();
+  // const sttStopTranslationLabel = useString<boolean>(sttStopTranslationText)();
+  // const changeTranslationLanguage = useString<boolean>(
+  //   sttChangeTranslationLanguageText,
+  // )();
+  const sttOriginalTranslatedLabel = useString(sttOriginalTranslatedText)();
 
   // Update Spoken language
   isHost &&
@@ -322,20 +324,38 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
         ? getLanguageLabel([selectedTranslationLanguage])
         : 'OFF'
     }`,
-    disabled: false,
+    disabled: isLangChangeInProgress,
     onPress: () => {
       setActionMenuVisible(false);
       setTranslateMenuOpen(true);
     },
   });
 
+  // View Mode Options
+  actionMenuitems.push({
+    icon: 'lang-translate',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    endIcon:
+      captionViewMode === 'original-and-translated' ? 'tick-fill' : undefined,
+    endIconColor: $config.SEMANTIC_SUCCESS,
+    textColor: $config.FONT_COLOR,
+    title: sttOriginalTranslatedLabel,
+    onPress: () => {
+      setCaptionViewMode(
+        captionViewMode === 'translated'
+          ? 'original-and-translated'
+          : 'translated',
+      );
+      setActionMenuVisible(false);
+    },
+  });
   // Download transcript
   actionMenuitems.push({
     icon: 'download',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: downloadTranscriptLabel,
-    disabled: meetingTranscript.length === 0,
+    disabled: meetingTranscript.length === 0 || isLangChangeInProgress,
     onPress: () => {
       downloadTranscript();
       setActionMenuVisible(false);

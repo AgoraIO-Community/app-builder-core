@@ -158,7 +158,7 @@ export const CaptionContext = React.createContext<{
   prevSpeakerRef: {current: ''},
   selectedTranslationLanguage: '',
   setSelectedTranslationLanguage: () => {},
-  selectedTranslationLanguageRef: {current: ''},
+  selectedTranslationLanguageRef: {current: null},
   remoteSpokenLanguages: {},
   setRemoteSpokenLanguages: () => {},
   startSTTBotSession: async () => ({success: false}),
@@ -232,7 +232,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const isSTTActive = globalSttState.globalSttEnabled;
 
   // Keep refs in sync with state
-  const selectedTranslationLanguageRef = React.useRef('');
+  const selectedTranslationLanguageRef = React.useRef(null);
   React.useEffect(() => {
     selectedTranslationLanguageRef.current = selectedTranslationLanguage;
   }, [selectedTranslationLanguage]);

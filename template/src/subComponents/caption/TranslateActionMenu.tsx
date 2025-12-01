@@ -21,6 +21,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
     selectedTranslationLanguage,
     handleTranslationMenuSelect,
     globalSttState,
+    isLangChangeInProgress,
   } = useCaption();
 
   const sourceLang = globalSttState.globalSpokenLanguage;
@@ -36,7 +37,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
     iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     textColor: $config.FONT_COLOR,
     iconPosition: 'end',
-    disabled: false,
+    disabled: isLangChangeInProgress,
     titleStyle: {
       paddingLeft: 14,
     },

@@ -61,6 +61,8 @@ const Transcript = (props: TranscriptProps) => {
     setIsSTTListenerAdded,
     getBotOwnerUid,
     isSTTActive,
+    selectedTranslationLanguage,
+    captionViewMode,
   } = useCaption();
 
   const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
@@ -109,40 +111,74 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const renderItem = ({item}) => {
-    return item.uid.toString().indexOf('langUpdate') !== -1 ? (
-      <View style={styles.langChangeContainer}>
-        <ImageIcon
-          iconType="plain"
-          iconSize={20}
-          tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-          name={'globe'}
-        />
+    const speakerName =
+      defaultContent[getBotOwnerUid(item.uid)]?.name || 'Speaker';
+    const mode = captionViewMode;
+    const translation = item.translations?.find(
+      tr => tr.lang === selectedTranslationLanguage,
+    );
 
-        <Text style={styles.langChange}>
-          {defaultContent[item?.uid?.split('-')[1]]?.name + ' ' + item.text}
-        </Text>
-      </View>
-    ) : item.uid.toString().indexOf('translationUpdate') !== -1 ? (
-      <View style={styles.langChangeContainer}>
-        <ImageIcon
-          iconType="plain"
-          iconSize={20}
-          tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-          name={'lang-select'}
-        />
+    // system messages - spoken lang update
+    if (item.uid.toString().indexOf('langUpdate') !== -1) {
+      return (
+        <View style={styles.langChangeContainer}>
+          <ImageIcon
+            iconType="plain"
+            iconSize={20}
+            tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+            name={'globe'}
+          />
 
-        <Text style={styles.langChange}>
-          {defaultContent[item?.uid?.split('-')[1]]?.name + ' has ' + item.text}
-        </Text>
-      </View>
-    ) : (
+          <Text style={styles.langChange}>
+            {defaultContent[item?.uid?.split('-')[1]]?.name + ' ' + item.text}
+          </Text>
+        </View>
+      );
+    }
+    // system messages - target update
+    if (item.uid.toString().indexOf('translationUpdate') !== -1) {
+      return (
+        <View style={styles.langChangeContainer}>
+          <ImageIcon
+            iconType="plain"
+            iconSize={20}
+            tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+            name={'lang-select'}
+          />
+
+          <Text style={styles.langChange}>
+            {defaultContent[item?.uid?.split('-')[1]]?.name +
+              ' has ' +
+              item.text}
+          </Text>
+        </View>
+      );
+    }
+    // Translated mode (default)
+    if (mode === 'translated' && selectedTranslationLanguage) {
+      if (!translation) {
+        return null;
+      } // hide if translation not available
+      return (
+        <TranscriptText
+          user={speakerName}
+          time={item.time}
+          value={translation.text}
+          translations={[]}
+          searchQuery={searchQuery}
+          selectedTranslationLanguage={selectedTranslationLanguage}
+        />
+      );
+    }
+    // original and translated
+    return (
       <TranscriptText
-        user={defaultContent[getBotOwnerUid(item.uid)]?.name || 'Speaker'}
+        user={speakerName}
         time={item?.time}
         value={item.text}
-        translations={item.translations}
+        translations={translation ? [translation] : []}
         searchQuery={searchQuery}
-        selectedTranslationLanguage={item.selectedTranslationLanguage}
+        selectedTranslationLanguage={selectedTranslationLanguage}
       />
     );
   };
