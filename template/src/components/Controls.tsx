@@ -540,7 +540,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       disabled: !(
         $config.ENABLE_STT &&
         $config.ENABLE_CAPTION &&
-        (isHost || (!isHost && isSTTActive))
+        (isHost || isSTTActive)
       ),
       title: captionLabel(isCaptionON),
       onPress: () => {
@@ -566,7 +566,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         disabled: !(
           $config.ENABLE_STT &&
           $config.ENABLE_CAPTION &&
-          $config.ENABLE_MEETING_TRANSCRIPT
+          $config.ENABLE_MEETING_TRANSCRIPT &&
+          (isHost || isSTTActive)
         ),
         title: transcriptLabel,
         onPress: () => {
