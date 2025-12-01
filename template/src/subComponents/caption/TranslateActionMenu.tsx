@@ -19,7 +19,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const {
     selectedTranslationLanguage,
-    setSelectedTranslationLanguage,
+    handleTranslationMenuSelect,
     globalSttState,
   } = useCaption();
 
@@ -27,59 +27,32 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const globalTargets = globalSttState.globalTranslationTargets || [];
   const isGlobalTargetsFull = globalTargets.length >= 10;
 
-  let availableLanguagesToTranslate = langData.filter(
-    l => l.value !== sourceLang,
-  );
-
   const actionMenuitems: ActionMenuItem[] = [];
 
   // Off option
   actionMenuitems.push({
     title: 'Off',
-    icon: selectedTranslationLanguage === '' ? 'tick-fill' : undefined,
+    endIcon: !selectedTranslationLanguage ? 'tick-fill' : undefined,
     iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     textColor: $config.FONT_COLOR,
     iconPosition: 'end',
     disabled: false,
+    titleStyle: {
+      paddingLeft: 14,
+    },
     onPress: () => {
-      setSelectedTranslationLanguage('');
+      handleTranslationMenuSelect(null);
       setActionMenuVisible(false);
     },
   });
 
-  if (selectedTranslationLanguage) {
-    const selectedLangObj = langData.find(
-      l => l.value === selectedTranslationLanguage,
-    );
-
-    if (selectedLangObj) {
-      actionMenuitems.push({
-        title: selectedLangObj.label,
-        icon: 'tick-fill',
-        iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-        textColor: $config.FONT_COLOR,
-        iconPosition: 'end',
-        disabled: false,
-        onPress: () => {
-          setActionMenuVisible(false);
-        },
-      });
-    }
-  }
-
-  availableLanguagesToTranslate.forEach(lang => {
-    if (lang.value === selectedTranslationLanguage) {
-      return;
-    } // skip selected (already added above)
-
-    const alreadyInGlobal = globalTargets.includes(lang.value);
-
-    // If global is full and language is NOT in globalTargets → DISABLE
-    const disabled = isGlobalTargetsFull || alreadyInGlobal;
-
+  langData.forEach(lang => {
+    const selectedLang = lang.value === selectedTranslationLanguage;
+    // If global is full or if its a source disable all langs
+    const disabled = isGlobalTargetsFull || lang.value === sourceLang;
     actionMenuitems.push({
       title: lang.label,
-      icon: undefined,
+      endIcon: selectedLang ? 'tick-fill' : undefined,
       iconPosition: 'end',
       iconColor: disabled
         ? $config.FONT_COLOR + hexadecimalTransparency['40%']
@@ -88,24 +61,14 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
         ? $config.FONT_COLOR + hexadecimalTransparency['40%']
         : $config.FONT_COLOR,
       disabled,
+      titleStyle: {
+        paddingLeft: 14,
+      },
       onPress: async () => {
         if (disabled) {
           return;
         }
-        // CASE 1: If already global → simply select
-        if (alreadyInGlobal) {
-          console.log('supriya-stt already in global');
-          setSelectedTranslationLanguage(lang.value);
-          setActionMenuVisible(false);
-          return;
-        }
-        console.log('supriya-stt not in global new target');
-        // CASE 2: Need to ADD new global target
-        // (only allowed if globalTargets < 10)
-        const newTargets = [...globalTargets, lang.value];
-        console.log('supriya-stt newTargets: ', newTargets);
-
-        setSelectedTranslationLanguage(lang.value);
+        handleTranslationMenuSelect(lang.value);
         setActionMenuVisible(false);
       },
     });
@@ -147,7 +110,6 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
       containerStyle={{
         maxHeight: Math.min(440, globalHeight * 0.6),
         width: 220,
-        paddingLeft: 14,
       }}
     />
   );

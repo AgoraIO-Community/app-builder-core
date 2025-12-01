@@ -1,6 +1,5 @@
 import {
   StyleSheet,
-  Text,
   TextStyle,
   useWindowDimensions,
   View,
@@ -9,26 +8,18 @@ import {
 import React from 'react';
 
 import Caption from './Caption';
-import {useCaption, LanguageTranslationConfig} from './useCaption';
+import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
 import {
   calculatePosition,
   isMobileUA,
-  isWeb,
   isWebInternal,
   useIsDesktop,
   useIsSmall,
 } from '../../utils/common';
 import IconButton from '../../../src/atoms/IconButton';
-
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
-
 import LanguageSelectorPopup from './LanguageSelectorPopup';
-import useSTTAPI from './useSTTAPI';
-import useGetName from '../../utils/useGetName';
-import {useRoomInfo} from 'customization-api';
-import {useLocalUid} from '../../../agora-rn-uikit';
-import {getLanguageLabel} from './utils';
 import {
   SIDE_PANEL_MAX_WIDTH,
   SIDE_PANEL_GAP,
@@ -37,7 +28,7 @@ import {
   MOBILE_CAPTION_CONTAINER_HEIGHT,
 } from '../../../src/components/CommonStyles';
 import useCaptionWidth from './useCaptionWidth';
-import {LanguageType, langData, mergeTranslationConfigs} from './utils';
+import {LanguageType} from './utils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
 import {
@@ -60,10 +51,7 @@ const CaptionContainer: React.FC<CaptionContainerProps> = ({
   captionTextStyle = {},
 }) => {
   const moreIconRef = React.useRef<View>(null);
-  const langSelectIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
-    React.useState<boolean>(false);
-  const [langActionMenuVisible, setLangActionMenuVisible] =
     React.useState<boolean>(false);
   const [isHovered, setIsHovered] = React.useState<boolean>(false);
   const isDesktop = useIsDesktop();
@@ -277,10 +265,8 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {
     setIsCaptionON,
-    // language: prevLang,
     isLangChangeInProgress,
-    // setLanguage,
-    // selectedTranslationLanguage,
+    setSelectedTranslationLanguage,
     confirmSpokenLanguageChange,
     captionViewMode,
     setCaptionViewMode,
@@ -327,6 +313,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     title: sttStopTranslationLabel,
     disabled: isLangChangeInProgress,
     onPress: async () => {
+      setSelectedTranslationLanguage(null);
       setActionMenuVisible(false);
     },
   });
@@ -344,23 +331,24 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   });
 
   // View Mode Options
-  actionMenuitems.push({
-    icon: 'lang-translate',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    endIcon:
-      captionViewMode === 'original-and-translated' ? 'tick-fill' : undefined,
-    endIconColor: $config.SEMANTIC_SUCCESS,
-    textColor: $config.FONT_COLOR,
-    title: sttOriginalTranslatedLabel,
-    onPress: () => {
-      setCaptionViewMode(
-        captionViewMode === 'translated'
-          ? 'original-and-translated'
-          : 'translated',
-      );
-      setActionMenuVisible(false);
-    },
-  });
+  // TODO:SUP
+  // actionMenuitems.push({
+  //   icon: 'lang-translate',
+  //   iconColor: $config.SECONDARY_ACTION_COLOR,
+  //   endIcon:
+  //     captionViewMode === 'original-and-translated' ? 'tick-fill' : undefined,
+  //   endIconColor: $config.SEMANTIC_SUCCESS,
+  //   textColor: $config.FONT_COLOR,
+  //   title: sttOriginalTranslatedLabel,
+  //   onPress: () => {
+  //     setCaptionViewMode(
+  //       captionViewMode === 'translated'
+  //         ? 'original-and-translated'
+  //         : 'translated',
+  //     );
+  //     setActionMenuVisible(false);
+  //   },
+  // });
 
   const onLanguageChange = async (newSpokenLang: LanguageType) => {
     setLanguagePopup(false);

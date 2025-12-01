@@ -74,6 +74,9 @@ export const CaptionContext = React.createContext<{
   globalSttState: GlobalSttState;
   confirmSpokenLanguageChange: (newLang: LanguageType) => Promise<void>;
   confirmTargetLanguageChange: (newTargetLang: LanguageType) => Promise<void>;
+  handleTranslationMenuSelect: (
+    selectedTargetLang: LanguageType,
+  ) => Promise<void>;
 
   captionViewMode: CaptionViewMode;
   setCaptionViewMode: React.Dispatch<React.SetStateAction<CaptionViewMode>>;
@@ -169,6 +172,7 @@ export const CaptionContext = React.createContext<{
   },
   confirmSpokenLanguageChange: async () => {},
   confirmTargetLanguageChange: async () => {},
+  handleTranslationMenuSelect: async () => {},
 });
 
 interface CaptionProviderProps {
@@ -619,6 +623,33 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     }
   };
 
+  const handleTranslationMenuSelect = async (
+    selectedTargetLang: LanguageType,
+  ) => {
+    // User selected "Off"
+    if (!selectedTargetLang) {
+      setSelectedTranslationLanguage(null);
+      return;
+    }
+
+    const alreadyInGlobal =
+      globalSttStateRef.current.globalTranslationTargets.includes(
+        selectedTargetLang,
+      );
+
+    // CASE 1: Target already global → Just select locally
+    if (alreadyInGlobal) {
+      setSelectedTranslationLanguage(selectedTargetLang);
+      return;
+    }
+
+    // CASE 2: Need to add target
+    await confirmTargetLanguageChange(selectedTargetLang);
+
+    // After successful update, select it locally
+    setSelectedTranslationLanguage(selectedTargetLang);
+  };
+
   const confirmTargetLanguageChange = async (newTargetLang: LanguageType) => {
     if (!globalSttStateRef.current.globalSttEnabled) {
       console.log('cannot update target as stt has not started yet');
@@ -821,6 +852,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         globalSttState,
         confirmSpokenLanguageChange,
         confirmTargetLanguageChange,
+        handleTranslationMenuSelect,
         captionViewMode,
         setCaptionViewMode,
         transcriptViewMode,
