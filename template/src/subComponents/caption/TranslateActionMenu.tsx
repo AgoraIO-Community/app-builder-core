@@ -147,6 +147,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
       containerStyle={{
         maxHeight: Math.min(440, globalHeight * 0.6),
         width: 220,
+        paddingLeft: 14,
       }}
     />
   );
