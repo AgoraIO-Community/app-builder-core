@@ -166,7 +166,8 @@ export const formatTranscriptContent = (
         item.uid.toString().indexOf('langUpdate') !== -1 ||
         item.uid.toString().indexOf('translationUpdate') !== -1
       ) {
-        return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
+        // return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
+        return item.text;
       }
 
       // Build transcript entry with original text and all translations

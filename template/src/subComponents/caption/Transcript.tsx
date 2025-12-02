@@ -130,7 +130,8 @@ const Transcript = (props: TranscriptProps) => {
           />
 
           <Text style={styles.langChange}>
-            {defaultContent[item?.uid?.split('-')[1]]?.name + ' ' + item.text}
+            {/* {defaultContent[item?.uid?.split('-')[1]]?.name + ' ' + item.text} */}
+            {item.text}
           </Text>
         </View>
       );
@@ -147,9 +148,10 @@ const Transcript = (props: TranscriptProps) => {
           />
 
           <Text style={styles.langChange}>
-            {defaultContent[item?.uid?.split('-')[1]]?.name +
+            {/* {defaultContent[item?.uid?.split('-')[1]]?.name +
               ' has ' +
-              item.text}
+              item.text} */}
+            {item.text}
           </Text>
         </View>
       );
