@@ -664,7 +664,15 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         break;
       }
       const {state: newState, isLocal, targetChange} = item;
-      await processGlobalSttSingleEvent(newState, isLocal, targetChange);
+      const ok = await processGlobalSttSingleEvent(
+        newState,
+        isLocal,
+        targetChange,
+      );
+      if (!ok) {
+        console.warn('[STT] Skipping global state update because API failed.');
+        continue;
+      }
       // update global state AFTER processing
       setGlobalSttState(newState);
       globalSttStateRef.current = newState;
@@ -702,7 +710,10 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             source: [newState.globalSpokenLanguage],
             targets: newState.globalTranslationTargets,
           });
-          if (result.success && isLocal) {
+          if (!result.success) {
+            return false;
+          }
+          if (isLocal) {
             events.send(
               EventNames.STT_GLOBAL_STATE,
               JSON.stringify(newState),
@@ -713,6 +724,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               newState.globalSpokenLanguage,
             );
           }
+          return true;
         } else if (isUpdateOperation) {
           console.log('[STT] Global STT -> updating session', newState);
           const result = await updateSTTBotSession(
@@ -723,7 +735,10 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             isLocal,
             targetChange ?? undefined,
           );
-          if (isLocal && result.success) {
+          if (!result.success) {
+            return false;
+          }
+          if (isLocal) {
             events.send(
               EventNames.STT_GLOBAL_STATE,
               JSON.stringify(newState),
@@ -731,11 +746,14 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             );
             setSelectedTranslationLanguage(targetChange?.next);
           }
+          return true;
         } else if (isStopOperation) {
           console.log('[STT] Global STT -> stopping session', newState);
           await stopSTTBotSession();
           sttStartGuardRef.current = false;
+          return true;
         }
+        return true;
       } catch (error) {
         logger.error(
           LogSource.Internals,
@@ -743,6 +761,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           'Error handling STT_GLOBAL_STATE event',
           error,
         );
+        return false;
       }
     },
     [],
