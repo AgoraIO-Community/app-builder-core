@@ -359,6 +359,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     endIconColor: $config.SEMANTIC_SUCCESS,
     textColor: $config.FONT_COLOR,
     title: sttOriginalTranslatedLabel,
+    disabled: isLangChangeInProgress,
     onPress: () => {
       setCaptionViewMode(
         captionViewMode === 'translated'

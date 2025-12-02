@@ -1053,7 +1053,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     'Choose at least one language to proceed',
   [sttChangeSpokenLanguageText]: 'Update Spoken Language',
   [sttStopTranslationText]: 'Stop Translation',
-  [sttOriginalTranslatedText]: 'Show Original and translated',
+  [sttOriginalTranslatedText]: 'Show original and translated',
   [sttTranscriptPanelHeaderText]: 'Meeting Transcript',
   [sttDownloadBtnText]: 'Download',
   [sttDownloadTranscriptBtnText]: 'Download Transcript',
