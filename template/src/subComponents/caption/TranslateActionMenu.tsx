@@ -47,7 +47,18 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
     },
   });
 
-  langData.forEach(lang => {
+  // Move selected translation language to the top
+  const sortedLangData = [...langData].sort((a, b) => {
+    if (a.value === selectedTranslationLanguage) {
+      return -1;
+    }
+    if (b.value === selectedTranslationLanguage) {
+      return 1;
+    }
+    return 0;
+  });
+
+  sortedLangData.forEach(lang => {
     const selectedLang = lang.value === selectedTranslationLanguage;
     // If global is full or if its a source disable all langs
     const disabled = isGlobalTargetsFull || lang.value === sourceLang;
