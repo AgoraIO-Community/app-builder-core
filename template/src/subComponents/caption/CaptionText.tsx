@@ -227,8 +227,7 @@ const CaptionText = ({
           ]}>
           {/* Default view when view mode is : translated */}
           <Text style={styles.languageLabel}>
-            ({displayTranslatedViewText.langLabel}
-            ):{' '}
+            ({displayTranslatedViewText.langLabel}){' '}
           </Text>
           {getLatestTextPortion(
             displayTranslatedViewText.value,

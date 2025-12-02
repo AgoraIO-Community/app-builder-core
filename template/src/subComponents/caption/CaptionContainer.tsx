@@ -351,24 +351,25 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   });
 
   // View Mode Options
-  actionMenuitems.push({
-    icon: 'lang-translate',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    endIcon:
-      captionViewMode === 'original-and-translated' ? 'tick-fill' : undefined,
-    endIconColor: $config.SEMANTIC_SUCCESS,
-    textColor: $config.FONT_COLOR,
-    title: sttOriginalTranslatedLabel,
-    disabled: isLangChangeInProgress,
-    onPress: () => {
-      setCaptionViewMode(
-        captionViewMode === 'translated'
-          ? 'original-and-translated'
-          : 'translated',
-      );
-      setActionMenuVisible(false);
-    },
-  });
+  selectedTranslationLanguage &&
+    actionMenuitems.push({
+      icon: 'lang-translate',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      endIcon:
+        captionViewMode === 'original-and-translated' ? 'tick-fill' : undefined,
+      endIconColor: $config.SEMANTIC_SUCCESS,
+      textColor: $config.FONT_COLOR,
+      title: sttOriginalTranslatedLabel,
+      disabled: isLangChangeInProgress,
+      onPress: () => {
+        setCaptionViewMode(
+          captionViewMode === 'translated'
+            ? 'original-and-translated'
+            : 'translated',
+        );
+        setActionMenuVisible(false);
+      },
+    });
 
   const onLanguageChange = async (newSpokenLang: LanguageType) => {
     setLanguagePopup(false);

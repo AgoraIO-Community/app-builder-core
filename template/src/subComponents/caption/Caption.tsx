@@ -37,7 +37,6 @@ const Caption: React.FC<CaptionProps> = ({
   const {RtcEngineUnsafe} = useRtc();
   const {
     isLangChangeInProgress,
-    isTranslationChangeInProgress,
     captionObj, //state for current live caption for all users
     isSTTListenerAdded,
     setIsSTTListenerAdded,
@@ -78,7 +77,7 @@ const Caption: React.FC<CaptionProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (isLangChangeInProgress || isTranslationChangeInProgress) {
+  if (isLangChangeInProgress) {
     return (
       <Loading
         text={stLabel}

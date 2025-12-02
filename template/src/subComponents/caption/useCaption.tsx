@@ -17,6 +17,7 @@ import chatContext from '../../components/ChatContext';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useContent} from 'customization-api';
 
+// Types
 type GlobalSttState = {
   globalSttEnabled: boolean;
   globalSpokenLanguage: LanguageType;
@@ -24,10 +25,13 @@ type GlobalSttState = {
   initiatorUid?: string | number;
 };
 
-type TranslationItem = {
-  lang: string;
-  text: string;
-  isFinal: boolean;
+type SttQueueItem = {
+  state: GlobalSttState;
+  isLocal: boolean;
+  targetChange?: {
+    prev: LanguageType | null;
+    next: LanguageType | null;
+  };
 };
 
 export type LanguageTranslationConfig = {
@@ -35,9 +39,16 @@ export type LanguageTranslationConfig = {
   targets: LanguageType[]; // ['zh-CN', 'ja-JP']
 };
 
-export type CaptionViewMode = 'original-and-translated' | 'translated';
+export type STTViewMode = 'original-and-translated' | 'translated';
+
+type TranslationItem = {
+  lang: string;
+  text: string;
+  isFinal: boolean;
+};
 
 export type TranscriptItem = {
+  name: string;
   uid: string;
   time: number;
   text: string;
@@ -74,15 +85,12 @@ export const CaptionContext = React.createContext<{
   globalSttState: GlobalSttState;
   confirmSpokenLanguageChange: (newLang: LanguageType) => Promise<void>;
   confirmTargetLanguageChange: (newTargetLang: LanguageType) => Promise<void>;
-  handleTranslationMenuSelect: (
-    selectedTargetLang: LanguageType,
-  ) => Promise<void>;
 
-  captionViewMode: CaptionViewMode;
-  setCaptionViewMode: React.Dispatch<React.SetStateAction<CaptionViewMode>>;
+  captionViewMode: STTViewMode;
+  setCaptionViewMode: React.Dispatch<React.SetStateAction<STTViewMode>>;
 
-  transcriptViewMode: CaptionViewMode;
-  setTranscriptViewMode: React.Dispatch<React.SetStateAction<CaptionViewMode>>;
+  transcriptViewMode: STTViewMode;
+  setTranscriptViewMode: React.Dispatch<React.SetStateAction<STTViewMode>>;
 
   // holds meeting transcript
   meetingTranscript: TranscriptItem[];
@@ -91,12 +99,6 @@ export const CaptionContext = React.createContext<{
   // holds status of stt language change process
   isLangChangeInProgress: boolean;
   setIsLangChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
-
-  // holds status of translation language change process
-  isTranslationChangeInProgress: boolean;
-  setIsTranslationChangeInProgress: React.Dispatch<
-    React.SetStateAction<boolean>
-  >;
 
   // holds live captions
   captionObj: CaptionObj;
@@ -110,11 +112,8 @@ export const CaptionContext = React.createContext<{
   prevSpeakerRef: React.MutableRefObject<string>;
 
   selectedTranslationLanguage: LanguageType;
-  setSelectedTranslationLanguage: React.Dispatch<
-    React.SetStateAction<LanguageType>
-  >;
   // Ref for translation language - prevents stale closures in callbacks
-  selectedTranslationLanguageRef: React.MutableRefObject<LanguageType>;
+  selectedTranslationLanguageRef: React.MutableRefObject<LanguageType | null>;
   // Stores spoken languages of all remote users (userUid -> spoken language)
   // Used to auto-populate target languages for new users
   remoteSpokenLanguages: Record<string, LanguageType>;
@@ -127,6 +126,8 @@ export const CaptionContext = React.createContext<{
   ) => Promise<STTAPIResponse>;
   updateSTTBotSession: (
     newConfig: LanguageTranslationConfig,
+    isLocal: boolean,
+    targetChange?: {prev: LanguageType | null; next: LanguageType | null},
   ) => Promise<STTAPIResponse>;
   stopSTTBotSession: () => Promise<void>;
 
@@ -148,8 +149,6 @@ export const CaptionContext = React.createContext<{
   setMeetingTranscript: () => {},
   isLangChangeInProgress: false,
   setIsLangChangeInProgress: () => {},
-  isTranslationChangeInProgress: false,
-  setIsTranslationChangeInProgress: () => {},
   captionObj: {},
   setCaptionObj: () => {},
   isSTTListenerAdded: false,
@@ -157,7 +156,6 @@ export const CaptionContext = React.createContext<{
   activeSpeakerRef: {current: ''},
   prevSpeakerRef: {current: ''},
   selectedTranslationLanguage: '',
-  setSelectedTranslationLanguage: () => {},
   selectedTranslationLanguageRef: {current: null},
   remoteSpokenLanguages: {},
   setRemoteSpokenLanguages: () => {},
@@ -173,7 +171,6 @@ export const CaptionContext = React.createContext<{
   },
   confirmSpokenLanguageChange: async () => {},
   confirmTargetLanguageChange: async () => {},
-  handleTranslationMenuSelect: async () => {},
 });
 
 interface CaptionProviderProps {
@@ -189,41 +186,38 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     data: {roomId},
   } = useRoomInfo();
 
-  const [isSTTError, setIsSTTError] = React.useState<boolean>(false);
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
-  // const [language, setLanguage] = React.useState<[LanguageType]>(['']);
 
   const [captionViewMode, setCaptionViewMode] =
-    React.useState<CaptionViewMode>('translated');
-
+    React.useState<STTViewMode>('translated');
   const [transcriptViewMode, setTranscriptViewMode] =
-    React.useState<CaptionViewMode>('translated');
+    React.useState<STTViewMode>('original-and-translated');
 
+  const [isSTTError, setIsSTTError] = React.useState<boolean>(false);
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
     React.useState<boolean>(false);
-  const [isTranslationChangeInProgress, setIsTranslationChangeInProgress] =
-    React.useState<boolean>(false);
+
+  const [captionObj, setCaptionObj] = React.useState<CaptionObj>({});
   const [meetingTranscript, setMeetingTranscript] = React.useState<
     TranscriptItem[]
   >([]);
-  const [captionObj, setCaptionObj] = React.useState<CaptionObj>({});
-  console.log('[STT_PER_USER_BOT] captionObj: ', captionObj);
+
   const [isSTTListenerAdded, setIsSTTListenerAdded] =
     React.useState<boolean>(false);
   const [activeSpeakerUID, setActiveSpeakerUID] = React.useState<string>('');
   const [prevActiveSpeakerUID, setPrevActiveSpeakerUID] =
     React.useState<string>('');
-  const {defaultContent} = useContent();
-  const defaultContentRef = React.useRef(defaultContent);
-
-  const [selectedTranslationLanguage, setSelectedTranslationLanguage] =
-    React.useState<LanguageType>(null);
   const [remoteSpokenLanguages, setRemoteSpokenLanguages] = React.useState<
     Record<string, LanguageType>
   >({});
+
+  // Default content
+  const {defaultContent} = useContent();
+  const defaultContentRef = React.useRef(defaultContent);
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
+
   // Active/prev speaker tracking (exposed as refs)
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
@@ -235,20 +229,28 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     globalTranslationTargets: [],
     initiatorUid: null,
   });
-  const sttStartGuardRef = React.useRef(false);
-
-  const isSTTActive = globalSttState.globalSttEnabled;
-
-  // Keep refs in sync with state
-  const selectedTranslationLanguageRef = React.useRef(null);
-  React.useEffect(() => {
-    selectedTranslationLanguageRef.current = selectedTranslationLanguage;
-  }, [selectedTranslationLanguage]);
-
   const globalSttStateRef = React.useRef(globalSttState);
   React.useEffect(() => {
     globalSttStateRef.current = globalSttState;
   }, [globalSttState]);
+
+  // Queue for all stt operations
+  const sttEventQueueRef = React.useRef<SttQueueItem[]>([]);
+  const isProcessingSttEventRef = React.useRef(false);
+  const hasFlushedSttQueueRef = React.useRef(false);
+
+  // Selected Translated language
+  const [selectedTranslationLanguage, setSelectedTranslationLanguage] =
+    React.useState<LanguageType | null>(null);
+  const selectedTranslationLanguageRef = React.useRef<LanguageType | null>(
+    null,
+  );
+  React.useEffect(() => {
+    selectedTranslationLanguageRef.current = selectedTranslationLanguage;
+  }, [selectedTranslationLanguage]);
+
+  const sttStartGuardRef = React.useRef(false);
+  const isSTTActive = globalSttState.globalSttEnabled;
 
   // STT API methods
   const {start, stop, update} = useSTTAPI();
@@ -259,6 +261,10 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
   // Bot UID for this user
   const [localBotUid, setLocalBotUid] = React.useState<number | null>(null);
+  const localBotUidRef = React.useRef<number | null>(null);
+  React.useEffect(() => {
+    localBotUidRef.current = localBotUid;
+  }, [localBotUid]);
 
   // i18n labels for error toasts
   const startErrorLabel = useString(sttStartError)();
@@ -271,9 +277,24 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     !!hasUserJoinedRTM &&
     !!callActive &&
     !!(roomId?.host || roomId?.attendee);
+  const sttDepsReadyRef = React.useRef(false);
+  React.useEffect(() => {
+    sttDepsReadyRef.current = sttDepsReady;
+  }, [sttDepsReady]);
 
-  // Queue of incoming global STT events received before stt is ready
-  const pendingGlobalSttEventsRef = React.useRef<GlobalSttState[]>([]);
+  console.log('[STT_GLOBAL] sttDepsReady global', sttDepsReady);
+  React.useEffect(() => {
+    if (sttDepsReadyRef.current && !hasFlushedSttQueueRef.current) {
+      hasFlushedSttQueueRef.current = true;
+      processSttEventQueue();
+    }
+    // When deps become ready → flush queue once
+  }, []);
+
+  // Helper: convert user UID -> bot UID
+  const generateBotUidForUser = React.useCallback((userLocalUid: number) => {
+    return 900000000 + (userLocalUid % 100000000);
+  }, []);
 
   // Generate bot UID once deps are ready enough
   React.useEffect(() => {
@@ -282,29 +303,25 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     } // wait for room info to be ready
     const uid = generateBotUidForUser(localUid);
     setLocalBotUid(uid);
-  }, [localUid, username, hasUserJoinedRTM]);
+  }, [localUid, username, generateBotUidForUser, hasUserJoinedRTM]);
 
   const buildSttTranscriptForSourceChanged = (
-    oldSpokenLang: LanguageType,
+    prevSpokenLang: LanguageType,
     newSpokenLang: LanguageType,
   ) => {
-    const spokenLanguageChanged = oldSpokenLang !== newSpokenLang;
+    const spokenLanguageChanged = prevSpokenLang !== newSpokenLang;
     if (!spokenLanguageChanged) {
       return null;
     }
     let message = '';
     // Spoken lang changed
-    if (spokenLanguageChanged) {
-      if (!oldSpokenLang) {
-        // First time STT is enabled
-        message = `Spoken language set to "${getLanguageLabel([
-          newSpokenLang,
-        ])}"`;
-      } else {
-        message = `Spoken language changed from "${getLanguageLabel([
-          oldSpokenLang,
-        ])}" to "${getLanguageLabel([newSpokenLang])}"`;
-      }
+    if (!prevSpokenLang) {
+      // First time STT is enabled
+      message = `Spoken language set to "${getLanguageLabel([newSpokenLang])}"`;
+    } else {
+      message = `Spoken language changed from "${getLanguageLabel([
+        prevSpokenLang,
+      ])}" to "${getLanguageLabel([newSpokenLang])}"`;
     }
     setMeetingTranscript(prev => [
       ...prev,
@@ -313,7 +330,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         time: new Date().getTime(),
         uid: `langUpdate-${localUid}`,
         text: message,
-      } as any,
+      },
     ]);
   };
 
@@ -327,60 +344,39 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       return null;
     }
     let message = '';
-    // Spoken lang changed
-    if (targetLanguageChanged) {
-      // Case 1: User turned translation OFF
-      if (!newSelectedTargetLang) {
-        message = 'Translation turned off';
-      }
-      // Case 2: User selected ANY new translation
-      else {
-        message = `Translation set to "${getLanguageLabel([
-          newSelectedTargetLang,
-        ])}"`;
-      }
+    // Target lang changed
+    // Case 1: User turned translation OFF
+    if (prevSelectedTargetLang && !newSelectedTargetLang) {
+      message = 'Translation turned off';
+    }
+    // Case 2: User selected ANY new translation
+    else {
+      message = `Translation set to "${getLanguageLabel([
+        newSelectedTargetLang,
+      ])}"`;
     }
     setMeetingTranscript(prev => [
       ...prev,
       {
-        name: 'langUpdate',
-        uid: `langUpdate-${localUid}`,
+        name: 'translationUpdate',
+        uid: `translationUpdate-${localUid}`,
         time: new Date().getTime(),
         text: message,
-      } as any,
+        selectedTranslationLanguage: newSelectedTargetLang,
+      },
     ]);
   };
+
   const startSTTBotSession = async (
     newConfig: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
-    if (!sttDepsReady) {
-      console.warn('[STT] startSTTBotSession called before STT deps ready', {
-        localUid,
-        localBotUid,
-        hasUserJoinedRTM,
-        callActive,
-      });
-      return {
-        success: false,
-        error: {message: 'STT not ready (missing UID/botUid/RTM/call)'},
-      };
-    }
-
     try {
       setIsLangChangeInProgress(true);
-
-      const result = await start(localBotUid, newConfig);
+      const result = await start(localBotUidRef.current, newConfig);
       console.log('[STT] start result: ', result);
-
       if (result.success || result.error?.code === 610) {
         // Success or already started
         setIsSTTError(false);
-
-        buildSttTranscriptForSourceChanged(
-          globalSttStateRef?.current.globalSpokenLanguage,
-          newConfig?.source[0],
-        );
-
         logger.log(
           LogSource.NetworkRest,
           'stt',
@@ -426,27 +422,26 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
   const updateSTTBotSession = async (
     newConfig: LanguageTranslationConfig,
+    isLocal = false,
+    targetChange?: {prev: LanguageType | null; next: LanguageType | null},
   ): Promise<STTAPIResponse> => {
-    if (!sttDepsReady) {
-      console.warn('[STT] updateSTTBotSession called before STT deps ready', {
-        localUid,
-        localBotUid,
-        hasUserJoinedRTM,
-        callActive,
-      });
-      return {
-        success: false,
-        error: {message: 'STT not ready (missing UID/botUid/RTM/call)'},
-      };
-    }
-
     try {
-      setIsLangChangeInProgress(true);
-
-      const result = await update(localBotUid, newConfig);
-
+      isLocal && setIsLangChangeInProgress(true);
+      const result = await update(localBotUidRef.current, newConfig);
       if (result.success) {
         setIsSTTError(false);
+
+        const oldSource = globalSttStateRef.current.globalSpokenLanguage;
+        const newSource = newConfig.source[0];
+
+        // Build transcript messages if source changed
+        buildSttTranscriptForSourceChanged(oldSource, newSource);
+        if (isLocal && targetChange) {
+          buildSttTranscriptForTargetChanged(
+            targetChange?.prev,
+            targetChange?.next,
+          );
+        }
 
         logger.log(
           LogSource.NetworkRest,
@@ -495,13 +490,13 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const stopSTTBotSession = React.useCallback(async () => {
     console.log('[STT] stopSTTBotSession called');
 
-    if (!localBotUid) {
+    if (!localBotUidRef.current) {
       console.warn('[STT] Missing botUid for stop');
       return;
     }
 
     try {
-      const result = await stop(localBotUid);
+      const result = await stop(localBotUidRef.current);
 
       if (result.success) {
         // Set STT inactive locally
@@ -532,14 +527,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         'Error in stopSTTBotSession',
         error,
       );
-      throw error;
     }
-  }, [stop, localBotUid]);
-
-  // Helper: convert user UID -> bot UID
-  const generateBotUidForUser = (userLocalUid: number): number => {
-    return 900000000 + (userLocalUid % 100000000);
-  };
+  }, [stop]);
 
   // Helper function to convert bot UID to user UID
   // Bot UIDs are in format: 900000000 + userUid
@@ -565,150 +554,205 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     [],
   );
 
-  // --- STT session helpers (state machine-ish) ---
-  // --- GLOBAL STT FLOW ---
-  const confirmSpokenLanguageChange = async (newSpokenLang: LanguageType) => {
-    const isFirstStart = !globalSttState.globalSttEnabled;
-    console.log(
-      '[STT] confirmSpokenLanguageChange isFirstStart: ',
-      isFirstStart,
-    );
-
-    const updatedState: GlobalSttState = {
-      globalSttEnabled: true,
-      globalSpokenLanguage: newSpokenLang,
-      globalTranslationTargets: globalSttState.globalTranslationTargets,
-      initiatorUid: localUid,
-    };
-
-    // Locally start/update immediately (we don't want to wait for RTM roundtrip)
-    if (!sttDepsReady) {
-      console.warn(
-        '[STT] confirmSpokenLanguageChange called before STT deps ready',
-        {localUid, localBotUid, hasUserJoinedRTM, callActive},
-      );
-
-      return;
-    }
-
-    try {
-      if (isFirstStart) {
-        await startSTTBotSession({
-          source: [updatedState.globalSpokenLanguage],
-          targets: [],
-        });
-      } else {
-        await updateSTTBotSession({
-          source: [updatedState.globalSpokenLanguage],
-          targets: updatedState.globalTranslationTargets,
-        });
+  // Spoken language handler
+  const confirmSpokenLanguageChange = React.useCallback(
+    async (newSpokenLang: LanguageType) => {
+      try {
+        // 1. new state
+        const updatedState: GlobalSttState = {
+          ...globalSttStateRef.current,
+          globalSttEnabled: true,
+          globalSpokenLanguage: newSpokenLang,
+          globalTranslationTargets:
+            globalSttStateRef.current.globalTranslationTargets,
+          initiatorUid: localUid,
+        };
+        // 2. queue
+        enqueueSttEvent(updatedState, true);
+        console.log(
+          '[STT_GLOBAL] confirmSpokenLanguageChange sent STT_GLOBAL_STATE: ',
+          updatedState,
+        );
+      } catch (error) {
+        console.log('[STT_GLOBAL] confirmSpokenLanguageChange error: ', error);
       }
-      // 2. Update state
-      setGlobalSttState(updatedState);
-      // 3. Broadcast
-      events.send(
-        EventNames.STT_GLOBAL_STATE,
-        JSON.stringify(updatedState),
-        PersistanceLevel.Session,
-      );
-      console.log('[STT] sent STT_GLOBAL_STATE: ', updatedState);
-    } catch (error) {
-      console.log('setting confirmSpokenLanguageChange error: ', error);
-    }
-  };
+    },
+    [localUid], // only real dependency
+  );
 
-  const handleTranslationMenuSelect = async (
-    selectedTargetLang: LanguageType,
-  ) => {
-    // User selected "Off"
-    if (!selectedTargetLang) {
-      buildSttTranscriptForTargetChanged(
-        selectedTranslationLanguageRef.current,
-        null,
-      );
-      setSelectedTranslationLanguage(null);
-      return;
-    }
+  // Target language handler
+  const confirmTargetLanguageChange = React.useCallback(
+    async (newTargetLang: LanguageType) => {
+      // 1. User selected "Off"
+      const prevSelectedTargetLang = selectedTranslationLanguage;
+      if (!newTargetLang) {
+        buildSttTranscriptForTargetChanged(
+          prevSelectedTargetLang,
+          newTargetLang,
+        );
+        setSelectedTranslationLanguage(null);
+        return;
+      }
+      // 2. User selected a translation language.
+      // 3. Check if target is already included in global targets
+      const alreadyInGlobal =
+        globalSttStateRef.current.globalTranslationTargets.includes(
+          newTargetLang,
+        );
+      if (alreadyInGlobal) {
+        buildSttTranscriptForTargetChanged(
+          prevSelectedTargetLang,
+          newTargetLang,
+        );
+        setSelectedTranslationLanguage(newTargetLang);
+        return;
+      }
+      // 4. Not in global targets, need to create updated state to pass to api
+      const prevTargets = globalSttStateRef.current.globalTranslationTargets;
+      const newTargets = Array.from(new Set([...prevTargets, newTargetLang]));
 
-    const alreadyInGlobal =
-      globalSttStateRef.current.globalTranslationTargets.includes(
-        selectedTargetLang,
-      );
-
-    // CASE 1: Target already global → Just select locally
-    if (alreadyInGlobal) {
-      setSelectedTranslationLanguage(selectedTargetLang);
-      return;
-    }
-
-    // CASE 2: Need to add target
-    await confirmTargetLanguageChange(selectedTargetLang, true);
-
-    // After successful update, select it locally
-    setSelectedTranslationLanguage(selectedTargetLang);
-  };
-
-  const confirmTargetLanguageChange = async (
-    newTargetLang: LanguageType,
-    isLocalUserUpdate = false,
-  ) => {
-    if (!globalSttStateRef.current.globalSttEnabled) {
-      console.log('cannot update target as stt has not started yet');
-    }
-    console.log('[STT] confirmTargetLanguageChange: ', newTargetLang);
-    const prevTargets = globalSttStateRef.current.globalTranslationTargets;
-    const newTargets = Array.from(new Set([...prevTargets, newTargetLang]));
-
-    const updatedState: GlobalSttState = {
-      globalSttEnabled: globalSttStateRef.current.globalSttEnabled,
-      globalSpokenLanguage: globalSttStateRef.current.globalSpokenLanguage,
-      globalTranslationTargets: newTargets,
-    };
-
-    // Locally start/update immediately (we don't want to wait for RTM roundtrip)
-    if (!sttDepsReady) {
-      console.warn(
-        '[STT] confirmSpokenLanguageChange called before STT deps ready',
-        {localUid, localBotUid, hasUserJoinedRTM, callActive},
-      );
-
-      return;
-    }
-
-    try {
-      const result = await updateSTTBotSession({
-        source: [updatedState.globalSpokenLanguage],
-        targets: updatedState.globalTranslationTargets,
+      const updatedState: GlobalSttState = {
+        globalSttEnabled: globalSttStateRef.current.globalSttEnabled,
+        globalSpokenLanguage: globalSttStateRef.current.globalSpokenLanguage,
+        globalTranslationTargets: newTargets,
+      };
+      // 5. Queue event
+      const prevTargetLang = selectedTranslationLanguageRef.current;
+      enqueueSttEvent(updatedState, true, {
+        prev: prevTargetLang,
+        next: newTargetLang,
       });
-      if (result.success) {
-        if (isLocalUserUpdate) {
-          buildSttTranscriptForTargetChanged(
-            selectedTranslationLanguageRef.current,
-            newTargetLang,
-          );
-        }
-      }
+    },
+    [selectedTranslationLanguage], // only real state dependency
+  );
 
-      // 2. Update state
-      setGlobalSttState(updatedState);
-      // 3. Broadcast
-      events.send(
-        EventNames.STT_GLOBAL_STATE,
-        JSON.stringify(updatedState),
-        PersistanceLevel.Session,
+  // Queues all local + remote stt events
+  const enqueueSttEvent = React.useCallback(
+    (
+      state: GlobalSttState,
+      isLocal: boolean,
+      targetChange?: {
+        prev: LanguageType | null;
+        next: LanguageType | null;
+      },
+    ) => {
+      console.log(
+        '[STT_GLOBAL] inside enqueueSttEvent - sttDepsReadyRef flag',
+        sttDepsReadyRef.current,
       );
-      console.log('[STT] sent STT_GLOBAL_STATE: ', updatedState);
-    } catch (error) {
-      console.log('setting confirmSpokenLanguageChange error: ', error);
+      sttEventQueueRef.current.push({
+        state,
+        isLocal,
+        targetChange,
+      });
+      if (sttDepsReadyRef.current) {
+        processSttEventQueue();
+      }
+    },
+    [],
+  );
+
+  // Process stt events
+  const processSttEventQueue = React.useCallback(async () => {
+    if (isProcessingSttEventRef.current) {
+      return;
     }
-  };
+    isProcessingSttEventRef.current = true;
+    while (sttEventQueueRef.current.length > 0) {
+      const item = sttEventQueueRef.current.shift();
+      if (!item) {
+        break;
+      }
+      const {state: newState, isLocal, targetChange} = item;
+      await processGlobalSttSingleEvent(newState, isLocal, targetChange);
+      // update global state AFTER processing
+      setGlobalSttState(newState);
+      globalSttStateRef.current = newState;
+    }
+    isProcessingSttEventRef.current = false;
+  }, []);
+
+  const processGlobalSttSingleEvent = React.useCallback(
+    async (
+      newState: GlobalSttState,
+      isLocal: boolean,
+      targetChange?: {
+        prev: LanguageType | null;
+        next: LanguageType | null;
+      },
+    ) => {
+      const prevState = globalSttStateRef.current;
+      const wasEnabledBefore = prevState.globalSttEnabled;
+      const isEnabledNow = newState.globalSttEnabled;
+
+      const isStartOperation = !wasEnabledBefore && isEnabledNow;
+      const isUpdateOperation = wasEnabledBefore && isEnabledNow;
+      const isStopOperation = wasEnabledBefore && !isEnabledNow;
+      try {
+        if (isStartOperation) {
+          console.log('[STT] Remote global STT -> starting session', newState);
+          // Start guard starts
+          if (sttStartGuardRef.current) {
+            console.log('[STT] Start skipped (already started)');
+            return;
+          }
+          sttStartGuardRef.current = true;
+          // Start guard ends
+          const result = await startSTTBotSession({
+            source: [newState.globalSpokenLanguage],
+            targets: newState.globalTranslationTargets,
+          });
+          if (result.success && isLocal) {
+            events.send(
+              EventNames.STT_GLOBAL_STATE,
+              JSON.stringify(newState),
+              PersistanceLevel.Session,
+            );
+            buildSttTranscriptForSourceChanged(
+              prevState.globalSpokenLanguage,
+              newState.globalSpokenLanguage,
+            );
+          }
+        } else if (isUpdateOperation) {
+          console.log('[STT] Global STT -> updating session', newState);
+          const result = await updateSTTBotSession(
+            {
+              source: [newState.globalSpokenLanguage],
+              targets: newState.globalTranslationTargets,
+            },
+            isLocal,
+            targetChange ?? undefined,
+          );
+          if (isLocal && result.success) {
+            events.send(
+              EventNames.STT_GLOBAL_STATE,
+              JSON.stringify(newState),
+              PersistanceLevel.Session,
+            );
+            setSelectedTranslationLanguage(targetChange?.next);
+          }
+        } else if (isStopOperation) {
+          console.log('[STT] Global STT -> stopping session', newState);
+          await stopSTTBotSession();
+          sttStartGuardRef.current = false;
+        }
+      } catch (error) {
+        logger.error(
+          LogSource.Internals,
+          'STT',
+          'Error handling STT_GLOBAL_STATE event',
+          error,
+        );
+      }
+    },
+    [],
+  );
 
   // Handle GLOBAL STT events from others (simple "machine" + queue)
   React.useEffect(() => {
     const handleGlobalSTTChange = async (evt: any) => {
       const {payload} = evt || {};
       console.log('[STT] STT_GLOBAL_STATE event received: ', evt);
-
       let newState: GlobalSttState;
       try {
         newState = JSON.parse(payload);
@@ -721,152 +765,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         );
         return;
       }
-
-      const prevState = globalSttStateRef.current;
-      const wasEnabledBefore = prevState.globalSttEnabled;
-      const isEnabledNow = newState.globalSttEnabled;
-
-      // If not ready yet, queue this event
-      if (!sttDepsReady) {
-        console.log(
-          '[STT] Not ready for STT, queueing STT_GLOBAL_STATE event',
-          newState,
-        );
-        pendingGlobalSttEventsRef.current.push(newState);
-        return;
-      }
-
-      try {
-        if (!wasEnabledBefore && isEnabledNow) {
-          console.log('[STT] Remote global STT -> starting session', newState);
-          // Start guard starts
-          if (sttStartGuardRef.current) {
-            console.log('[STT] Start skipped (already started)');
-            return;
-          }
-          sttStartGuardRef.current = true;
-          // Start guard ends
-          const initiatorName =
-            defaultContentRef.current[newState.initiatorUid]?.name || 'Host';
-          Toast.show({
-            type: 'info',
-            text1: 'Live transcription enabled',
-            text2: `${initiatorName} : has turned on captions for everyone`,
-            visibilityTime: 3000,
-          });
-          await startSTTBotSession({
-            source: [newState.globalSpokenLanguage],
-            targets: newState.globalTranslationTargets,
-          });
-        } else if (wasEnabledBefore && isEnabledNow) {
-          console.log('[STT] Remote global STT -> updating session', newState);
-          await updateSTTBotSession({
-            source: [newState.globalSpokenLanguage],
-            targets: newState.globalTranslationTargets,
-          });
-        } else if (wasEnabledBefore && !isEnabledNow) {
-          console.log('[STT] Remote global STT -> stopping session', newState);
-          await stopSTTBotSession();
-        }
-        setGlobalSttState(newState);
-        globalSttStateRef.current = newState;
-      } catch (error) {
-        logger.error(
-          LogSource.Internals,
-          'STT',
-          'Error handling STT_GLOBAL_STATE event',
-          error,
-        );
-      }
+      enqueueSttEvent(newState, false);
     };
 
     events.on(EventNames.STT_GLOBAL_STATE, handleGlobalSTTChange);
-
-    return () => {
-      events.off(EventNames.STT_GLOBAL_STATE, handleGlobalSTTChange);
-    };
-  }, [sttDepsReady]);
-
-  // Flush queued STT_GLOBAL_STATE events once deps become ready
-  React.useEffect(() => {
-    if (!sttDepsReady) {
-      return;
-    }
-    if (!pendingGlobalSttEventsRef.current.length) {
-      return;
-    }
-
-    console.log(
-      '[STT] Flushing queued STT_GLOBAL_STATE events',
-      pendingGlobalSttEventsRef.current,
-    );
-
-    (async () => {
-      let prevState = globalSttStateRef.current;
-
-      for (const newState of pendingGlobalSttEventsRef.current) {
-        const wasEnabledBefore = prevState.globalSttEnabled;
-        const isEnabledNow = newState.globalSttEnabled;
-        const spokenLanguageChanged =
-          prevState.globalSpokenLanguage !== newState.globalSpokenLanguage;
-        try {
-          if (!wasEnabledBefore && isEnabledNow) {
-            // Start guard starts
-            if (sttStartGuardRef.current) {
-              console.log('[STT] Start skipped (already started)');
-              return;
-            }
-            sttStartGuardRef.current = true;
-            // Start guard ends
-            const initiatorName =
-              defaultContentRef.current[newState.initiatorUid]?.name || 'Host';
-
-            Toast.show({
-              type: 'info',
-              text1: 'Live transcription enabled',
-              text2: `${initiatorName} : has turned on captions for everyone`,
-              visibilityTime: 3000,
-            });
-            await startSTTBotSession({
-              source: [newState.globalSpokenLanguage],
-              targets: newState.globalTranslationTargets,
-            });
-          } else if (wasEnabledBefore && isEnabledNow) {
-            if (spokenLanguageChanged) {
-              // Spoken language changed
-              const newLabel = getLanguageLabel([
-                newState.globalSpokenLanguage,
-              ]);
-              Toast.show({
-                type: 'info',
-                text1: 'Spoken language changed',
-                text2: `The host set the spoken language to "${newLabel}"`,
-                visibilityTime: 3000,
-              });
-            }
-            await updateSTTBotSession({
-              source: [newState.globalSpokenLanguage],
-              targets: newState.globalTranslationTargets,
-            });
-          } else if (wasEnabledBefore && !isEnabledNow) {
-            await stopSTTBotSession();
-          }
-          setGlobalSttState(newState);
-          globalSttStateRef.current = newState;
-          prevState = newState;
-        } catch (error) {
-          logger.error(
-            LogSource.Internals,
-            'STT',
-            'Error while flushing queued STT_GLOBAL_STATE events',
-            error,
-          );
-        }
-      }
-
-      pendingGlobalSttEventsRef.current = [];
-    })();
-  }, [sttDepsReady]);
+    return () => events.off(EventNames.STT_GLOBAL_STATE, handleGlobalSTTChange);
+  }, []);
 
   return (
     <CaptionContext.Provider
@@ -879,7 +783,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         globalSttState,
         confirmSpokenLanguageChange,
         confirmTargetLanguageChange,
-        handleTranslationMenuSelect,
         captionViewMode,
         setCaptionViewMode,
         transcriptViewMode,
@@ -888,8 +791,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setMeetingTranscript,
         isLangChangeInProgress,
         setIsLangChangeInProgress,
-        isTranslationChangeInProgress,
-        setIsTranslationChangeInProgress,
         captionObj,
         setCaptionObj,
         isSTTListenerAdded,
@@ -897,7 +798,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         activeSpeakerRef,
         prevSpeakerRef,
         selectedTranslationLanguage,
-        setSelectedTranslationLanguage,
         selectedTranslationLanguageRef,
         remoteSpokenLanguages,
         setRemoteSpokenLanguages,
