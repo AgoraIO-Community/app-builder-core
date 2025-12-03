@@ -125,16 +125,6 @@ const CaptionText = ({
   //   langCode: getLanguageLabel([globalSourceLanguage]) || '',
   // };
 
-  console.log(
-    'supriya-caption displayTranslatedViewText params',
-    value,
-    translations,
-  );
-  console.log(
-    'supriya-caption selectedTranslationLanguageRef',
-    selectedTranslationLanguageRef,
-  );
-
   /**
    * ROBUST TEXT EXTRACTION LOGIC
    * Problem: value and translationText contain FULL accumulated text (can be 1000+ chars)
