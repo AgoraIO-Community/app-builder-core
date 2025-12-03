@@ -472,6 +472,14 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
         // Build transcript messages if source changed
         buildSttTranscriptForSourceChanged(oldSource, newSource);
+        Toast.show({
+          type: 'info',
+          text1: 'Spoken language updated',
+          text2: `Captions will now transcribe in ${getLanguageLabel(
+            newConfig.source,
+          )}`,
+          visibilityTime: 3000,
+        });
         if (isLocal && targetChange) {
           buildSttTranscriptForTargetChanged(
             targetChange?.prev,
@@ -697,7 +705,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     isProcessingSttEventRef.current = true;
     // 2. stt auto start check
     if (
-      $config?.STT_AUTO_START &&
+      $config.STT_AUTO_START &&
       sttDepsReadyRef.current &&
       !sttAutoStartGuardRef.current
     ) {
@@ -720,7 +728,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         });
       }
     }
-
     // 3. queue processing of all stt events
     while (sttEventQueueRef.current.length > 0) {
       const item = sttEventQueueRef.current.shift();
@@ -786,6 +793,25 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             prevState.globalSpokenLanguage,
             newState.globalSpokenLanguage,
           );
+          let text2 = '';
+          if (isLocal) {
+            if (sttAutoStartGuardRef.current) {
+              text2 =
+                'Live transcription are automatically enabled for this meeting';
+            } else {
+              text2 = 'You have turned on captions for everyone';
+            }
+          } else {
+            const initiatorName =
+              defaultContentRef.current[newState.initiatorUid]?.name || 'Host';
+            text2 = `${initiatorName} has turned on captions for everyone`;
+          }
+          Toast.show({
+            type: 'info',
+            text1: 'Live transcription enabled',
+            text2,
+            visibilityTime: 3000,
+          });
           if (isLocal) {
             events.send(
               EventNames.STT_GLOBAL_STATE,
