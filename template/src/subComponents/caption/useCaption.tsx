@@ -210,7 +210,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   children,
 }) => {
   const {
-    data: {roomId},
+    data: {isHost, roomId},
   } = useRoomInfo();
 
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
@@ -276,7 +276,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     selectedTranslationLanguageRef.current = selectedTranslationLanguage;
   }, [selectedTranslationLanguage]);
 
-  const sttStartGuardRef = React.useRef(false);
   const isSTTActive = globalSttState.globalSttEnabled;
 
   // STT API methods
@@ -293,6 +292,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     localBotUidRef.current = localBotUid;
   }, [localBotUid]);
 
+  // Host flag
+  const isHostRef = React.useRef(isHost);
+  React.useEffect(() => {
+    isHostRef.current = isHost;
+  }, [isHost]);
+
   // i18n labels for error toasts
   const startErrorLabel = useString(sttStartError)();
   const updateErrorLabel = useString(sttUpdateError)();
@@ -304,19 +309,23 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     !!hasUserJoinedRTM &&
     !!callActive &&
     !!(roomId?.host || roomId?.attendee);
+
+  const sttStartGuardRef = React.useRef(false);
+  const sttAutoStartGuardRef = React.useRef(false);
+
+  // STT dependencues
   const sttDepsReadyRef = React.useRef(false);
   React.useEffect(() => {
     sttDepsReadyRef.current = sttDepsReady;
   }, [sttDepsReady]);
 
-  console.log('[STT_GLOBAL] sttDepsReady global', sttDepsReady);
   React.useEffect(() => {
     if (sttDepsReadyRef.current && !hasFlushedSttQueueRef.current) {
       hasFlushedSttQueueRef.current = true;
       processSttEventQueue();
     }
     // When deps become ready → flush queue once
-  }, []);
+  }, [sttDepsReady]);
 
   // Helper: convert user UID -> bot UID
   const generateBotUidForUser = React.useCallback((userLocalUid: number) => {
@@ -681,10 +690,38 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
   // Process stt events
   const processSttEventQueue = React.useCallback(async () => {
+    // 1. Concurrent queue processing
     if (isProcessingSttEventRef.current) {
       return;
     }
     isProcessingSttEventRef.current = true;
+    // 2. stt auto start check
+    if (
+      $config?.STT_AUTO_START &&
+      sttDepsReadyRef.current &&
+      !sttAutoStartGuardRef.current
+    ) {
+      if (isHostRef.current && !globalSttStateRef.current.globalSttEnabled) {
+        console.log('[STT] AUTO_START →supriya injecting start state');
+
+        sttAutoStartGuardRef.current = true;
+
+        const autoStartState: GlobalSttState = {
+          globalSttEnabled: true,
+          globalSpokenLanguage: 'en-US',
+          globalTranslationTargets: [],
+          initiatorUid: localUid,
+        };
+
+        // Add auto-start at the FRONT → ensures correct ordering
+        sttEventQueueRef.current.unshift({
+          state: autoStartState,
+          isLocal: true,
+        });
+      }
+    }
+
+    // 3. queue processing of all stt events
     while (sttEventQueueRef.current.length > 0) {
       const item = sttEventQueueRef.current.shift();
       if (!item) {
