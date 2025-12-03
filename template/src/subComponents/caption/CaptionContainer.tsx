@@ -6,7 +6,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import React from 'react';
-
+import {useRoomInfo} from 'customization-api';
 import Caption from './Caption';
 import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
@@ -284,12 +284,11 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
 
   // const {restart} = useSTTAPI();
   // const username = useGetName();
-  // const {
-  //   data: {isHost},
-  //   sttLanguage,
-  // } = useRoomInfo();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
 
-  const changeSpokenLangLabel = useString<boolean>(
+  const updateSpokenLangLabel = useString<boolean>(
     sttChangeSpokenLanguageText,
   )();
   const sttOriginalTranslatedLabel = useString(sttOriginalTranslatedText)();
@@ -297,17 +296,18 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const hideCaptionLabel = useString<boolean>(toolbarItemCaptionText)(true);
 
   // Anyone can start/stop stt
-  actionMenuitems.push({
-    icon: 'globe',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: changeSpokenLangLabel + ' ',
-    disabled: isLangChangeInProgress,
-    onPress: () => {
-      setActionMenuVisible(false);
-      setLanguagePopup(true);
-    },
-  });
+  isHost &&
+    actionMenuitems.push({
+      icon: 'globe',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: updateSpokenLangLabel + ' ',
+      disabled: isLangChangeInProgress,
+      onPress: () => {
+        setActionMenuVisible(false);
+        setLanguagePopup(true);
+      },
+    });
 
   // Stop Translation (not STT bot, pass empty targets)
   // actionMenuitems.push({

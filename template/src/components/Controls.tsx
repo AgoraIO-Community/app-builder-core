@@ -559,7 +559,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       },
     });
     // 4. Meeting transcript
-    if ($config.ENABLE_MEETING_TRANSCRIPT && isHost) {
+    if ($config.ENABLE_MEETING_TRANSCRIPT) {
       actionMenuitems.push({
         componentName: 'transcript',
         order: 4,
