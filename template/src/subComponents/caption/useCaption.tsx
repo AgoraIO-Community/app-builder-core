@@ -66,6 +66,28 @@ type CaptionObj = {
   };
 };
 
+// helper
+// (sorted) version of the target list.
+const normalizeTargets = (arr: LanguageType[]) => [...(arr || [])].sort();
+
+/**
+ * This helpher compares the STT_GLOBAL_STATE
+ * When a new user joins a call, they replay all previously persisted
+ * STT_GLOBAL_STATE events sent by other participants, as STT_GLOBAL_STATE
+ * is a session persistance event
+ * Without this check, the joining user would:
+ *   - run start/update api multiple times as it will read event
+ *     from all users attributes
+ */
+const isSameState = (prev: GlobalSttState, next: GlobalSttState) => {
+  return (
+    prev.globalSttEnabled === next.globalSttEnabled &&
+    prev.globalSpokenLanguage === next.globalSpokenLanguage &&
+    JSON.stringify(normalizeTargets(prev.globalTranslationTargets)) ===
+      JSON.stringify(normalizeTargets(next.globalTranslationTargets))
+  );
+};
+
 export const CaptionContext = React.createContext<{
   // for caption btn state
   isCaptionON: boolean;
@@ -664,6 +686,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         break;
       }
       const {state: newState, isLocal, targetChange} = item;
+      const prevState = globalSttStateRef.current;
+      if (isSameState(prevState, newState)) {
+        console.log('[STT] Skipped duplicate STT_GLOBAL_STATE');
+        continue; // no call to processGlobalSttSingleEvent
+      }
       const ok = await processGlobalSttSingleEvent(
         newState,
         isLocal,
