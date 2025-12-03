@@ -32,6 +32,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     setIsCaptionON,
     isSTTActive,
     isSTTError,
+    sttDepsReady,
     confirmSpokenLanguageChange,
   } = useCaption();
 
@@ -63,7 +64,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
   };
   const iconButtonProps: IconButtonProps = {
     onPress: onPressCustom || onPress,
-    disabled: false,
+    disabled: !sttDepsReady,
     iconProps: {
       name: isCaptionON ? 'captions-off' : 'captions',
       iconBackgroundColor: isCaptionON

@@ -100,6 +100,10 @@ export const CaptionContext = React.createContext<{
   // to check if stt is active in the call :derived from globalSttState
   isSTTActive: boolean;
 
+  // flag to check if STT dependencies are ready (all required data loaded)
+  // Used to disable caption/transcript buttons until system is fully initialized
+  sttDepsReady: boolean;
+
   // holds the language selection for stt (deprecated - use sttForm instead)
   // language: LanguageType[];
   // setLanguage: React.Dispatch<React.SetStateAction<LanguageType[]>>;
@@ -161,6 +165,7 @@ export const CaptionContext = React.createContext<{
   isSTTError: false,
   setIsSTTError: () => {},
   isSTTActive: false,
+  sttDepsReady: false,
   // language: ['en-US'],
   // setLanguage: () => {},
   captionViewMode: 'translated',
@@ -826,6 +831,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         isSTTError,
         setIsSTTError,
         isSTTActive,
+        sttDepsReady,
         globalSttState,
         confirmSpokenLanguageChange,
         confirmTargetLanguageChange,
