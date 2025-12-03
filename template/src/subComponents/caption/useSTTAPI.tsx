@@ -36,6 +36,26 @@ const useSTTAPI = (): IuseSTTAPI => {
   const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
   const localUid = useLocalUid();
 
+  const roomIdRef = React.useRef(roomId);
+  React.useEffect(() => {
+    roomIdRef.current = roomId;
+  }, [roomId]);
+
+  const localUidRef = React.useRef(localUid);
+  React.useEffect(() => {
+    localUidRef.current = localUid;
+  }, [localUid]);
+
+  const tokenRef = React.useRef(store.token);
+  React.useEffect(() => {
+    tokenRef.current = store.token;
+  }, [store.token]);
+
+  const rtcPropsRef = React.useRef(rtcProps);
+  React.useEffect(() => {
+    rtcPropsRef.current = rtcProps;
+  }, [rtcProps]);
+
   const apiCall = async (
     method: 'startv7' | 'update' | 'stopv7',
     botUid: number,
@@ -49,10 +69,11 @@ const useSTTAPI = (): IuseSTTAPI => {
       const ownerUid = botUid - 900000000;
 
       let requestBody: any = {
-        passphrase: roomId?.host || roomId?.attendee || '',
+        passphrase:
+          roomIdRef?.current?.host || roomIdRef?.current?.attendee || '',
         dataStream_uid: botUid,
         encryption_mode: $config.ENCRYPTION_ENABLED
-          ? rtcProps.encryption.mode
+          ? rtcPropsRef?.current.encryption.mode
           : null,
       };
 
@@ -89,14 +110,14 @@ const useSTTAPI = (): IuseSTTAPI => {
           // If method is update and no targets are passed
           requestBody.translate = false;
         }
-        requestBody.subscribeAudioUids = [`${localUid}`];
+        requestBody.subscribeAudioUids = [`${localUidRef.current}`];
       }
 
       const response = await fetch(`${STT_API_URL}/${method}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          authorization: store.token ? `Bearer ${store.token}` : '',
+          authorization: tokenRef?.current ? `Bearer ${tokenRef?.current}` : '',
           'X-Request-Id': requestId,
           'X-Session-Id': logger.getSessionId(),
         },

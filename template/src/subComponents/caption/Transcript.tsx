@@ -22,7 +22,7 @@ import {
 } from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
 import {useRtc, useContent} from 'customization-api';
-import {useCaption} from './useCaption';
+import {TranscriptItem, useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
@@ -62,7 +62,7 @@ const Transcript = (props: TranscriptProps) => {
     getBotOwnerUid,
     isSTTActive,
     selectedTranslationLanguage,
-    captionViewMode,
+    transcriptViewMode,
   } = useCaption();
 
   const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
@@ -110,13 +110,20 @@ const Transcript = (props: TranscriptProps) => {
     }
   };
 
-  const renderItem = ({item}) => {
+  const renderItem = ({item}: {item: TranscriptItem}) => {
     const speakerName =
       defaultContent[getBotOwnerUid(item.uid)]?.name || 'Speaker';
-    const mode = captionViewMode;
-    const translation = item.translations?.find(
-      tr => tr.lang === selectedTranslationLanguage,
-    );
+    const mode = transcriptViewMode;
+    // Find translation (always return TranslationItem | null)
+    const translation =
+      item.selectedTranslationLanguage &&
+      item.translations?.find(
+        tr => tr.lang === item.selectedTranslationLanguage,
+      )
+        ? item.translations.find(
+            tr => tr.lang === item.selectedTranslationLanguage,
+          )
+        : null;
 
     // system messages - spoken lang update
     if (item.uid.toString().indexOf('langUpdate') !== -1) {

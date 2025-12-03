@@ -31,7 +31,8 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   } = props;
 
   // const {start, restart, isAuthorizedTranscriptUser} = useSTTAPI();
-  const {isSTTActive, isSTTError, confirmSpokenLanguageChange} = useCaption();
+  const {isSTTActive, isSTTError, sttDepsReady, confirmSpokenLanguageChange} =
+    useCaption();
   // const isDisabled = !isAuthorizedTranscriptUser();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -61,7 +62,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
-    disabled: false,
+    disabled: !sttDepsReady,
     btnTextProps: {
       text: showLabel
         ? isOnActionSheet

@@ -320,6 +320,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     setIsCaptionON,
     // language: prevLang,
     isSTTActive,
+    sttDepsReady,
     isSTTError,
     confirmSpokenLanguageChange,
   } = useCaption();
@@ -537,11 +538,13 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      disabled: !(
-        $config.ENABLE_STT &&
-        $config.ENABLE_CAPTION &&
-        (isHost || isSTTActive)
-      ),
+      disabled:
+        !sttDepsReady ||
+        !(
+          $config.ENABLE_STT &&
+          $config.ENABLE_CAPTION &&
+          (isHost || isSTTActive)
+        ),
       title: captionLabel(isCaptionON),
       onPress: () => {
         setActionMenuVisible(false);
@@ -563,12 +566,14 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         icon: 'transcript',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.FONT_COLOR,
-        disabled: !(
-          $config.ENABLE_STT &&
-          $config.ENABLE_CAPTION &&
-          $config.ENABLE_MEETING_TRANSCRIPT &&
-          (isHost || isSTTActive)
-        ),
+        disabled:
+          !sttDepsReady ||
+          !(
+            $config.ENABLE_STT &&
+            $config.ENABLE_CAPTION &&
+            $config.ENABLE_MEETING_TRANSCRIPT &&
+            (isHost || isSTTActive)
+          ),
         title: transcriptLabel,
         onPress: () => {
           setActionMenuVisible(false);

@@ -19,7 +19,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const {
     selectedTranslationLanguage,
-    handleTranslationMenuSelect,
+    confirmTargetLanguageChange,
     globalSttState,
     isLangChangeInProgress,
   } = useCaption();
@@ -42,7 +42,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
       paddingLeft: 14,
     },
     onPress: () => {
-      handleTranslationMenuSelect(null);
+      confirmTargetLanguageChange(null);
       setActionMenuVisible(false);
     },
   });
@@ -80,7 +80,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
         if (disabled) {
           return;
         }
-        handleTranslationMenuSelect(lang.value);
+        confirmTargetLanguageChange(lang.value);
         setActionMenuVisible(false);
       },
     });

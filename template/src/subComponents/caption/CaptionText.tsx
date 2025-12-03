@@ -125,16 +125,6 @@ const CaptionText = ({
   //   langCode: getLanguageLabel([globalSourceLanguage]) || '',
   // };
 
-  console.log(
-    'supriya-caption displayTranslatedViewText params',
-    value,
-    translations,
-  );
-  console.log(
-    'supriya-caption selectedTranslationLanguageRef',
-    selectedTranslationLanguageRef,
-  );
-
   /**
    * ROBUST TEXT EXTRACTION LOGIC
    * Problem: value and translationText contain FULL accumulated text (can be 1000+ chars)
@@ -227,8 +217,7 @@ const CaptionText = ({
           ]}>
           {/* Default view when view mode is : translated */}
           <Text style={styles.languageLabel}>
-            ({displayTranslatedViewText.langLabel}
-            ):{' '}
+            ({displayTranslatedViewText.langLabel}){' '}
           </Text>
           {getLatestTextPortion(
             displayTranslatedViewText.value,
@@ -240,7 +229,7 @@ const CaptionText = ({
               <>
                 {'\n'}
                 <Text style={styles.languageLabel}>
-                  {getLanguageLabel([globalSourceLanguage])}{' '}
+                  ({getLanguageLabel([globalSourceLanguage])}){' '}
                 </Text>
                 {getLatestTextPortion(value, sourceCharLimit)}
               </>
