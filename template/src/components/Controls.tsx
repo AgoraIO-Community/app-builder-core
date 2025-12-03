@@ -847,7 +847,10 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }, [currentLayout]);
 
   const onConfirm = async (newSpokenLang: LanguageType) => {
-    console.log('[STT_PER_USER_BOT] Controls onConfirm called', newSpokenLang);
+    console.log(
+      '[STT_GLOBAL] spoken language changed confirm called',
+      newSpokenLang,
+    );
     const isCaptionClicked = STT_clicked.current === 'caption';
     const isTranscriptClicked = STT_clicked.current === 'transcript';
     setLanguagePopup(false);

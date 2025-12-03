@@ -74,7 +74,7 @@ const Transcript = (props: TranscriptProps) => {
   const viewlatest = useString(sttTranscriptPanelViewLatestText)();
 
   const data = meetingTranscript; // Object.entries(transcript);
-  console.log('[STT_PER_USER_BOT] meetingTranscript data: ', data);
+  console.log('[STT_GLOBAL] meetingTranscript data: ', data);
 
   const [showButton, setShowButton] = React.useState(false);
 
@@ -258,7 +258,7 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
-    console.log('[STT_PER_USER_BOT] handleStreamMessageCallback', args);
+    console.log('[STT_GLOBAL] handleStreamMessageCallback', args);
     setIsSTTListenerAdded(true);
     if (isWebInternal()) {
       const [uid, data] = args as WebStreamMessageArgs;

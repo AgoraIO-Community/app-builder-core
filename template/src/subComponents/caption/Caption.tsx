@@ -88,9 +88,9 @@ const Caption: React.FC<CaptionProps> = ({
     );
   }
 
-  console.log('[STT_PER_USER_BOT]  speaker uid', activeSpeakerRef.current);
-  console.log('[STT_PER_USER_BOT] prev current uid ', prevSpeakerRef.current);
-  console.log('[STT_PER_USER_BOT] captionObj ', captionObj);
+  console.log('[STT_GLOBAL]  speaker uid', activeSpeakerRef.current);
+  console.log('[STT_GLOBAL] prev current uid ', prevSpeakerRef.current);
+  console.log('[STT_GLOBAL] captionObj ', captionObj);
 
   const speakerCount = prevSpeakerRef.current === '' ? 1 : 2;
 

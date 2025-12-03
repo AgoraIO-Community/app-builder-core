@@ -368,7 +368,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
 
   const onLanguageChange = async (newSpokenLang: LanguageType) => {
     console.log(
-      '[STT_PER_USER_BOT] SidePanelHeader TranscriptHeaderActionMenu - onLanguageChange - sourceLanguage , targetLanguage:',
+      '[STT_GLOBAL] SidePanelHeader TranscriptHeaderActionMenu onSpokenLang changed called:',
       newSpokenLang,
     );
     setLanguagePopup(false);
