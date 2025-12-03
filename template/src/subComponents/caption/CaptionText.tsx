@@ -239,7 +239,7 @@ const CaptionText = ({
               <>
                 {'\n'}
                 <Text style={styles.languageLabel}>
-                  {getLanguageLabel([globalSourceLanguage])}{' '}
+                  ({getLanguageLabel([globalSourceLanguage])}){' '}
                 </Text>
                 {getLatestTextPortion(value, sourceCharLimit)}
               </>
