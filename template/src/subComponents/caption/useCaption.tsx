@@ -740,15 +740,15 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           if (!result.success) {
             return false;
           }
+          buildSttTranscriptForSourceChanged(
+            prevState.globalSpokenLanguage,
+            newState.globalSpokenLanguage,
+          );
           if (isLocal) {
             events.send(
               EventNames.STT_GLOBAL_STATE,
               JSON.stringify(newState),
               PersistanceLevel.Session,
-            );
-            buildSttTranscriptForSourceChanged(
-              prevState.globalSpokenLanguage,
-              newState.globalSpokenLanguage,
             );
           }
           return true;
