@@ -472,14 +472,16 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
         // Build transcript messages if source changed
         buildSttTranscriptForSourceChanged(oldSource, newSource);
-        Toast.show({
-          type: 'info',
-          text1: 'Spoken language updated',
-          text2: `Captions will now transcribe in ${getLanguageLabel(
-            newConfig.source,
-          )}`,
-          visibilityTime: 3000,
-        });
+        if (oldSource !== newSource) {
+          Toast.show({
+            type: 'info',
+            text1: 'Spoken language updated',
+            text2: `Captions will now transcribe in ${getLanguageLabel(
+              newConfig.source,
+            )}`,
+            visibilityTime: 3000,
+          });
+        }
         if (isLocal && targetChange) {
           buildSttTranscriptForTargetChanged(
             targetChange?.prev,
@@ -602,17 +604,35 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const confirmSpokenLanguageChange = React.useCallback(
     async (newSpokenLang: LanguageType) => {
       try {
-        // 1. new state
+        const prevState = globalSttStateRef.current;
+        const prevTargets = prevState.globalTranslationTargets || [];
+        const prevSelectedTarget = selectedTranslationLanguageRef.current;
+
+        // Remove spoken from targets
+        const cleanedTargets = prevTargets.filter(t => t !== newSpokenLang);
+
+        // Build update state
         const updatedState: GlobalSttState = {
-          ...globalSttStateRef.current,
+          ...prevState,
           globalSttEnabled: true,
           globalSpokenLanguage: newSpokenLang,
-          globalTranslationTargets:
-            globalSttStateRef.current.globalTranslationTargets,
+          globalTranslationTargets: cleanedTargets,
           initiatorUid: localUid,
         };
-        // 2. queue
-        enqueueSttEvent(updatedState, true);
+
+        // Check if selected target still exists in target
+        const isSelectedStillValid =
+          prevSelectedTarget && cleanedTargets.includes(prevSelectedTarget);
+
+        // Prepare the target change
+        const targetChange =
+          prevSelectedTarget && !isSelectedStillValid
+            ? {prev: prevSelectedTarget, next: null}
+            : undefined;
+
+        // Queue
+        enqueueSttEvent(updatedState, true, targetChange);
+
         console.log(
           '[STT_GLOBAL] confirmSpokenLanguageChange sent STT_GLOBAL_STATE: ',
           updatedState,
@@ -840,6 +860,15 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               PersistanceLevel.Session,
             );
             setSelectedTranslationLanguage(targetChange?.next);
+          } else {
+            const currentSelectedTarget =
+              selectedTranslationLanguageRef.current;
+            if (
+              currentSelectedTarget &&
+              !newState.globalTranslationTargets.includes(currentSelectedTarget)
+            ) {
+              setSelectedTranslationLanguage(null);
+            }
           }
           return true;
         } else if (isStopOperation) {
