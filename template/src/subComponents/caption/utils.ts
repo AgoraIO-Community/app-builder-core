@@ -110,7 +110,7 @@ export function getLanguageLabel(
   languageCode: LanguageType[],
 ): string | undefined {
   const langLabels = languageCode.map(langCode => {
-    return langData.find(data => data.value === langCode).label;
+    return langData.find(data => data.value === langCode)?.label;
   });
   return langLabels ? langLabels.join(', ') : undefined;
 }

@@ -25,13 +25,16 @@ type GlobalSttState = {
   initiatorUid?: string | number;
 };
 
+type TargetChange = {
+  prev: LanguageType | null;
+  next: LanguageType | null;
+  reason?: 'user' | 'spoken-language-changed' | 'auto-start';
+};
+
 type SttQueueItem = {
   state: GlobalSttState;
   isLocal: boolean;
-  targetChange?: {
-    prev: LanguageType | null;
-    next: LanguageType | null;
-  };
+  targetChange?: TargetChange;
 };
 
 export type LanguageTranslationConfig = {
@@ -153,7 +156,7 @@ export const CaptionContext = React.createContext<{
   updateSTTBotSession: (
     newConfig: LanguageTranslationConfig,
     isLocal: boolean,
-    targetChange?: {prev: LanguageType | null; next: LanguageType | null},
+    targetChange?: TargetChange,
   ) => Promise<STTAPIResponse>;
   stopSTTBotSession: () => Promise<void>;
 
@@ -373,6 +376,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const buildSttTranscriptForTargetChanged = (
     prevSelectedTargetLang: LanguageType | null,
     newSelectedTargetLang: LanguageType | null,
+    reason?: TargetChange['reason'],
   ) => {
     const targetLanguageChanged =
       prevSelectedTargetLang !== newSelectedTargetLang;
@@ -380,9 +384,17 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       return null;
     }
     let message = '';
+
+    if (reason === 'spoken-language-changed') {
+      message = `Translation for "${getLanguageLabel([
+        prevSelectedTargetLang,
+      ])}" was turned off because the spoken language changed to ${getLanguageLabel(
+        [prevSelectedTargetLang],
+      )}`;
+    }
     // Target lang changed
     // Case 1: User turned translation OFF
-    if (prevSelectedTargetLang && !newSelectedTargetLang) {
+    else if (prevSelectedTargetLang && !newSelectedTargetLang) {
       message = 'Translation turned off';
     }
     // Case 2: User selected ANY new translation
@@ -459,7 +471,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const updateSTTBotSession = async (
     newConfig: LanguageTranslationConfig,
     isLocal = false,
-    targetChange?: {prev: LanguageType | null; next: LanguageType | null},
+    targetChange?: TargetChange,
   ): Promise<STTAPIResponse> => {
     try {
       isLocal && setIsLangChangeInProgress(true);
@@ -486,6 +498,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           buildSttTranscriptForTargetChanged(
             targetChange?.prev,
             targetChange?.next,
+            targetChange?.reason,
           );
         }
 
@@ -625,11 +638,20 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           prevSelectedTarget && cleanedTargets.includes(prevSelectedTarget);
 
         // Prepare the target change
-        const targetChange =
-          prevSelectedTarget && !isSelectedStillValid
-            ? {prev: prevSelectedTarget, next: null}
-            : undefined;
-
+        let targetChange: TargetChange;
+        if (prevSelectedTarget) {
+          if (isSelectedStillValid) {
+            // target remains valid
+            targetChange = {prev: prevSelectedTarget, next: prevSelectedTarget};
+          } else {
+            // target becomes invalid → must be turned OFF
+            targetChange = {
+              prev: prevSelectedTarget,
+              next: null,
+              reason: 'spoken-language-changed',
+            };
+          }
+        }
         // Queue
         enqueueSttEvent(updatedState, true, targetChange);
 
@@ -692,14 +714,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
   // Queues all local + remote stt events
   const enqueueSttEvent = React.useCallback(
-    (
-      state: GlobalSttState,
-      isLocal: boolean,
-      targetChange?: {
-        prev: LanguageType | null;
-        next: LanguageType | null;
-      },
-    ) => {
+    (state: GlobalSttState, isLocal: boolean, targetChange?: TargetChange) => {
       console.log(
         '[STT_GLOBAL] inside enqueueSttEvent - sttDepsReadyRef flag',
         sttDepsReadyRef.current,
@@ -741,7 +756,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           initiatorUid: localUid,
         };
 
-        // Add auto-start at the FRONT → ensures correct ordering
+        // adding auto start in the beginning of queue
         sttEventQueueRef.current.unshift({
           state: autoStartState,
           isLocal: true,
@@ -780,10 +795,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     async (
       newState: GlobalSttState,
       isLocal: boolean,
-      targetChange?: {
-        prev: LanguageType | null;
-        next: LanguageType | null;
-      },
+      targetChange?: TargetChange,
     ) => {
       const prevState = globalSttStateRef.current;
       const wasEnabledBefore = prevState.globalSttEnabled;
