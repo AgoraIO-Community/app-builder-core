@@ -414,16 +414,20 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
         modalPosition={modalPosition}
         items={actionMenuitems}
       />
-      <LanguageSelectorPopup
-        modalVisible={isLanguagePopupOpen}
-        setModalVisible={setLanguagePopup}
-        onConfirm={onLanguageChange}
-      />
-      <TranslateActionMenu
-        actionMenuVisible={isTranslateMenuOpen}
-        setActionMenuVisible={setTranslateMenuOpen}
-        btnRef={btnRef}
-      />
+      {isLanguagePopupOpen && (
+        <LanguageSelectorPopup
+          modalVisible={isLanguagePopupOpen}
+          setModalVisible={setLanguagePopup}
+          onConfirm={onLanguageChange}
+        />
+      )}
+      {isTranslateMenuOpen && (
+        <TranslateActionMenu
+          actionMenuVisible={isTranslateMenuOpen}
+          setActionMenuVisible={setTranslateMenuOpen}
+          btnRef={btnRef}
+        />
+      )}
     </>
   );
 };

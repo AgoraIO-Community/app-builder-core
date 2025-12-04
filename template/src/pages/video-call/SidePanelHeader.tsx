@@ -415,17 +415,21 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
         items={actionMenuitems}
       />
 
-      <LanguageSelectorPopup
-        modalVisible={isLanguagePopupOpen}
-        setModalVisible={setLanguagePopup}
-        onConfirm={onLanguageChange}
-      />
+      {isLanguagePopupOpen && (
+        <LanguageSelectorPopup
+          modalVisible={isLanguagePopupOpen}
+          setModalVisible={setLanguagePopup}
+          onConfirm={onLanguageChange}
+        />
+      )}
 
-      <TranslateActionMenu
-        actionMenuVisible={isTranslateMenuOpen}
-        setActionMenuVisible={setTranslateMenuOpen}
-        btnRef={btnRef}
-      />
+      {isTranslateMenuOpen && (
+        <TranslateActionMenu
+          actionMenuVisible={isTranslateMenuOpen}
+          setActionMenuVisible={setTranslateMenuOpen}
+          btnRef={btnRef}
+        />
+      )}
     </>
   );
 };
