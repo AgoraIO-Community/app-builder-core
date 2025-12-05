@@ -324,6 +324,8 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
         ? getLanguageLabel([selectedTranslationLanguage])
         : 'OFF'
     }`,
+    endIcon: 'arrow-right',
+    endIconColor: $config.SECONDARY_ACTION_COLOR,
     disabled: isLangChangeInProgress,
     onPress: () => {
       setActionMenuVisible(false);
