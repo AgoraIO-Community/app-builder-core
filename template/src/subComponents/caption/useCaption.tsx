@@ -492,35 +492,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
         // Build transcript messages if source changed
         buildSttTranscriptForSourceChanged(oldSource, newSource);
-        if (oldSource !== newSource) {
-          let subheadingObj: sttSpokenLanguageToastSubHeadingDataInterface = {
-            username: isLocal
-              ? 'You'
-              : defaultContentRef.current[localUid]?.name || username,
-            action: 'Changed',
-            newLanguage: getLanguageLabel([newSource]) || '',
-            oldLanguage: getLanguageLabel([oldSource]) || '',
-          };
-          // text1: 'Spoken language updated',
-          // text2: `Captions will now transcribe in ${getLanguageLabel(
-          //     newConfig.source,
-          // )}`,
-          Toast.show({
-            type: 'info',
-            text1: heading('Changed'),
-            text2: subheading(subheadingObj),
-            // text2: `${subheading(
-            //   subheadingObj,
-            // )} \n Captions will now transcribe in ${
-            //   getLanguageLabel(newConfig.source) || ''
-            // }`,
-            // text1: 'Spoken language updated',
-            // text2: `Captions will now transcribe in ${getLanguageLabel(
-            //   newConfig.source,
-            // )}`,
-            visibilityTime: 3000,
-          });
-        }
         if (isLocal && targetChange) {
           buildSttTranscriptForTargetChanged(
             targetChange?.prev,
@@ -914,6 +885,40 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           );
           if (!result.success) {
             return false;
+          }
+          if (
+            prevState.globalSpokenLanguage !== newState.globalSpokenLanguage
+          ) {
+            let subheadingObj: sttSpokenLanguageToastSubHeadingDataInterface = {
+              username: isLocal
+                ? 'You'
+                : defaultContentRef.current[newState?.initiatorUid]?.name ||
+                  username,
+              action: 'Changed',
+              newLanguage:
+                getLanguageLabel([newState.globalSpokenLanguage]) || '',
+              oldLanguage:
+                getLanguageLabel([prevState.globalSpokenLanguage]) || '',
+            };
+            // text1: 'Spoken language updated',
+            // text2: `Captions will now transcribe in ${getLanguageLabel(
+            //     newConfig.source,
+            // )}`,
+            Toast.show({
+              type: 'info',
+              text1: heading('Changed'),
+              text2: subheading(subheadingObj),
+              // text2: `${subheading(
+              //   subheadingObj,
+              // )} \n Captions will now transcribe in ${
+              //   getLanguageLabel(newConfig.source) || ''
+              // }`,
+              // text1: 'Spoken language updated',
+              // text2: `Captions will now transcribe in ${getLanguageLabel(
+              //   newConfig.source,
+              // )}`,
+              visibilityTime: 3000,
+            });
           }
           if (isLocal) {
             events.send(
