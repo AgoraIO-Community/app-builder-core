@@ -215,6 +215,18 @@ const CaptionText = ({
             isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
             captionTextStyle,
           ]}>
+          {/* View mode when "Original and Translated" is selected - show original on top*/}
+          {selectedTranslationLanguageRef.current &&
+            captionViewMode === 'original-and-translated' && (
+              <>
+                <Text style={styles.languageLabel}>
+                  ({getLanguageLabel([globalSourceLanguage])}){' '}
+                </Text>
+                {getLatestTextPortion(value, sourceCharLimit)}
+                {'\n'}
+              </>
+            )}
+
           {/* Default view when view mode is : translated */}
           <Text style={styles.languageLabel}>
             ({displayTranslatedViewText.langLabel}){' '}
@@ -223,17 +235,6 @@ const CaptionText = ({
             displayTranslatedViewText.value,
             sourceCharLimit,
           )}
-          {/* View mode when "Original and Translated" is selected - show original*/}
-          {selectedTranslationLanguageRef.current &&
-            captionViewMode === 'original-and-translated' && (
-              <>
-                {'\n'}
-                <Text style={styles.languageLabel}>
-                  ({getLanguageLabel([globalSourceLanguage])}){' '}
-                </Text>
-                {getLatestTextPortion(value, sourceCharLimit)}
-              </>
-            )}
         </Text>
       </View>
     </View>
