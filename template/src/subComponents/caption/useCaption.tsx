@@ -12,6 +12,9 @@ import {useString} from '../../utils/useString';
 import {
   sttStartError,
   sttUpdateError,
+  sttSpokenLanguageToastHeading,
+  sttSpokenLanguageToastSubHeading,
+  sttSpokenLanguageToastSubHeadingDataInterface,
 } from '../../language/default-labels/videoCallScreenLabels';
 import chatContext from '../../components/ChatContext';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
@@ -215,6 +218,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const {
     data: {isHost, roomId},
   } = useRoomInfo();
+  // Toast message
+  const heading = useString<'Set' | 'Changed'>(sttSpokenLanguageToastHeading);
+  const subheading = useString<sttSpokenLanguageToastSubHeadingDataInterface>(
+    sttSpokenLanguageToastSubHeading,
+  );
 
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
 
@@ -485,12 +493,31 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         // Build transcript messages if source changed
         buildSttTranscriptForSourceChanged(oldSource, newSource);
         if (oldSource !== newSource) {
+          let subheadingObj: sttSpokenLanguageToastSubHeadingDataInterface = {
+            username: isLocal
+              ? 'You'
+              : defaultContentRef.current[localUid]?.name || username,
+            action: 'Changed',
+            newLanguage: getLanguageLabel([newSource]) || '',
+            oldLanguage: getLanguageLabel([oldSource]) || '',
+          };
+          // text1: 'Spoken language updated',
+          // text2: `Captions will now transcribe in ${getLanguageLabel(
+          //     newConfig.source,
+          // )}`,
           Toast.show({
             type: 'info',
-            text1: 'Spoken language updated',
-            text2: `Captions will now transcribe in ${getLanguageLabel(
-              newConfig.source,
-            )}`,
+            text1: heading('Changed'),
+            text2: subheading(subheadingObj),
+            // text2: `${subheading(
+            //   subheadingObj,
+            // )} \n Captions will now transcribe in ${
+            //   getLanguageLabel(newConfig.source) || ''
+            // }`,
+            // text1: 'Spoken language updated',
+            // text2: `Captions will now transcribe in ${getLanguageLabel(
+            //   newConfig.source,
+            // )}`,
             visibilityTime: 3000,
           });
         }
@@ -825,25 +852,48 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             prevState.globalSpokenLanguage,
             newState.globalSpokenLanguage,
           );
-          let text2 = '';
+          // Toast
+          let spokenLangLabel =
+            getLanguageLabel([newState?.globalSpokenLanguage]) || '';
           if (isLocal) {
+            // I see this
             if (sttAutoStartGuardRef.current) {
-              text2 =
-                'Live transcription are automatically enabled for this meeting';
+              Toast.show({
+                type: 'info',
+                text1: heading('Set'),
+                text2: `Live transcription are automatically enabled for this meeting in "${spokenLangLabel}"`,
+                visibilityTime: 3000,
+              });
             } else {
-              text2 = 'You have turned on captions for everyone';
+              Toast.show({
+                type: 'info',
+                text1: heading('Set'),
+                text2: subheading({
+                  username: 'You',
+                  action: 'Set',
+                  newLanguage: spokenLangLabel,
+                }),
+                visibilityTime: 3000,
+              });
             }
           } else {
+            // Remote users see this
             const initiatorName =
-              defaultContentRef.current[newState.initiatorUid]?.name || 'Host';
-            text2 = `${initiatorName} has turned on captions for everyone`;
+              defaultContentRef.current[newState.initiatorUid]?.name ||
+              username;
+            let subheadingObj: sttSpokenLanguageToastSubHeadingDataInterface = {
+              username: initiatorName,
+              action: 'Set',
+              newLanguage: getLanguageLabel([newState?.globalSpokenLanguage]),
+            };
+            Toast.show({
+              type: 'info',
+              text1: heading('Set'),
+              text2: subheading(subheadingObj),
+              visibilityTime: 3000,
+            });
           }
-          Toast.show({
-            type: 'info',
-            text1: 'Live transcription enabled',
-            text2,
-            visibilityTime: 3000,
-          });
+
           if (isLocal) {
             events.send(
               EventNames.STT_GLOBAL_STATE,

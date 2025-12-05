@@ -10,7 +10,7 @@ export type sttSpokenLanguageToastHeadingDataType = 'Set' | 'Changed';
 export interface sttSpokenLanguageToastSubHeadingDataInterface {
   action: sttSpokenLanguageToastHeadingDataType;
   newLanguage: string;
-  oldLanguage: string;
+  oldLanguage?: string;
   username: string;
 }
 
@@ -1288,8 +1288,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     username,
   }) =>
     action === 'Set'
-      ? `${username} has set the spoken language to "${newLanguage}"`
-      : `${username} changed the spoken language from "${oldLanguage}" to ${newLanguage}`,
+      ? `${username} set the spoken language to "${newLanguage}".`
+      : `${username} changed the spoken language from "${oldLanguage}" to "${newLanguage}".`,
 
   [deviceDetectionToastHeading]: name => `New ${name} detected`,
   [deviceDetectionToastSubHeading]: ({name, label}) =>
