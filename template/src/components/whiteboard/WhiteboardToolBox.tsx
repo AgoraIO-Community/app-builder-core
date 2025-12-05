@@ -13,7 +13,21 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {StyleSheet, View, Pressable} from 'react-native';
 import {hexToRgb, isMobileUA, isWeb, randomString} from '../../utils/common';
-import {ApplianceNames} from 'white-web-sdk';
+// import {ApplianceNames} from 'white-web-sdk';
+// Commented out for fastboard migration
+const ApplianceNames = {
+  selector: 'selector',
+  pencil: 'pencil',
+  rectangle: 'rectangle',
+  ellipse: 'ellipse',
+  straight: 'straight',
+  arrow: 'arrow',
+  hand: 'hand',
+  laserPointer: 'laserPointer',
+  eraser: 'eraser',
+  text: 'text',
+  pencilEraser: 'pencilEraser',
+} as const;
 import StorageContext from '../../components/StorageContext';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import Toast from '../../../react-native-toast-message';
