@@ -89,8 +89,9 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             />
             <Spacer size={8} />
             <Text style={styles.infoText}>
-              The language that everyone in the meeting is speaking. This
-              setting will be applied for everyone.
+              {globalSttState?.globalSttEnabled
+                ? 'Updates the spoken-language for everyone in the call.'
+                : 'Sets the spoken-language for everyone in the call.'}
             </Text>
           </View>
 
