@@ -954,7 +954,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     active ? 'Hide Whiteboard' : 'Show Whiteboard',
   [toolbarItemCaptionText]: active =>
     active ? 'Hide Caption' : 'Show Caption',
-  [toolbarItemTranscriptText]: 'Meeting Transcript',
+  [toolbarItemTranscriptText]: 'Show Meeting Transcript',
   [toolbarItemViewRecordingText]: 'View Recordings',
   [toolbarItemManageTextTracksText]: 'View Text-tracks',
 
