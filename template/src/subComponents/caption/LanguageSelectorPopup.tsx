@@ -57,7 +57,9 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
       contentContainerStyle={styles.contentContainer}
       title={heading(globalSttState?.globalSttEnabled ? false : true)}
       subtitle={
-        'Speech-to-text service will turn on for everyone in the call.'
+        globalSttState?.globalSttEnabled
+          ? ''
+          : 'Speech-to-text service will turn on for everyone in the call.'
       }>
       {isLangChangeInProgress ? (
         <View style={styles.changeInProgress}>
