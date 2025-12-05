@@ -76,7 +76,15 @@ import {
 } from '../atoms/ToolbarPreset';
 
 import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
-import {RoomPhase} from 'white-web-sdk';
+// import {RoomPhase} from 'white-web-sdk';
+// Commented out for fastboard migration
+enum RoomPhase {
+  Connecting = 'connecting',
+  Connected = 'connected',
+  Reconnecting = 'reconnecting',
+  Disconnecting = 'disconnecting',
+  Disconnected = 'disconnected',
+}
 import {useNoiseSupression} from '../app-state/useNoiseSupression';
 
 import {useVB} from './virtual-background/useVB';

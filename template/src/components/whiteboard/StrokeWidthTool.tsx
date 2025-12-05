@@ -1,6 +1,10 @@
 import * as React from 'react';
 //import './StrokeWidthTool.less';
-import {Color, Room, RoomState} from 'white-web-sdk';
+// import {Color, Room, RoomState} from 'white-web-sdk';
+// Commented out for fastboard migration
+type Color = [number, number, number];
+type Room = any;
+type RoomState = any;
 import {View, Text} from 'react-native';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';

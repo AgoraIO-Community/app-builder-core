@@ -13,7 +13,15 @@
 import React, {useRef, useEffect, useContext, useState} from 'react';
 import {whiteboardContext} from './WhiteboardConfigure';
 import {StyleSheet, View, Text} from 'react-native';
-import {RoomPhase, ApplianceNames} from 'white-web-sdk';
+// import {RoomPhase, ApplianceNames} from 'white-web-sdk';
+// Commented out for fastboard migration
+enum RoomPhase {
+  Connecting = 'connecting',
+  Connected = 'connected',
+  Reconnecting = 'reconnecting',
+  Disconnecting = 'disconnecting',
+  Disconnected = 'disconnected',
+}
 import WhiteboardToolBox from './WhiteboardToolBox';
 import WhiteboardCanvas from './WhiteboardCanvas';
 import {useContent, useLayout} from 'customization-api';
