@@ -277,7 +277,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
-  const transcriptLabel = useString(toolbarItemTranscriptText)();
+  const transcriptLabel = useString<boolean>(toolbarItemTranscriptText);
   const settingsLabel = useString(toolbarItemSettingText)();
   const screenShareButton = useString<boolean>(toolbarItemShareText);
   const recordingButton = useString<boolean>(toolbarItemRecordingText);
@@ -574,7 +574,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
             $config.ENABLE_MEETING_TRANSCRIPT &&
             (isHost || isSTTActive)
           ),
-        title: transcriptLabel,
+        title: transcriptLabel(isTranscriptON),
         onPress: () => {
           setActionMenuVisible(false);
           STT_clicked.current = !isTranscriptON ? 'transcript' : null;
