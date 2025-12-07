@@ -8,12 +8,20 @@ import {
 import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
+import {useCaption} from './useCaption';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {isAndroid, isMobileUA} from '../../utils/common';
+
+type TranslationItem = {
+  lang: string;
+  text: string;
+  isFinal: boolean;
+};
 
 interface CaptionTextProps {
   user: string;
   value: string;
+  translations?: TranslationItem[];
   activeSpeakersCount: number;
   isActiveSpeaker?: boolean;
   activelinesAvailable?: number;
@@ -31,6 +39,7 @@ const MAX_CAPTIONS_LINES_ALLOWED = 3;
 const CaptionText = ({
   user,
   value,
+  translations = [],
   activeSpeakersCount,
   isActiveSpeaker = false,
   activelinesAvailable,
@@ -41,6 +50,7 @@ const CaptionText = ({
   captionTextStyle = {},
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
+  const {selectedTranslationLanguage} = useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -125,17 +135,22 @@ const CaptionText = ({
                   )) * LINE_HEIGHT,
           },
         ]}>
+        {/* Transcription */}
         <Text
           onLayout={handleTextLayout}
           style={[
             styles.captionText,
+            styles.transcriptionText,
             isMobile
               ? styles.mobileCaptionFontSize
               : styles.desktopCaptionFontSize,
             isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
             captionTextStyle,
           ]}>
-          {value}
+          {selectedTranslationLanguage
+            ? translations.find(t => t.lang === selectedTranslationLanguage)
+                ?.text || value
+            : value}
         </Text>
       </View>
     </View>
@@ -155,8 +170,10 @@ const styles = StyleSheet.create({
   },
 
   captionTextContainerStyle: {
-    overflow: 'hidden',
     width: '100%',
+    // flexDirection: 'column',
+    // justifyContent: 'flex-end',
+    overflow: 'hidden',
     position: 'relative',
   },
 
@@ -166,6 +183,17 @@ const styles = StyleSheet.create({
     color: $config.FONT_COLOR,
     position: 'absolute',
     bottom: 0,
+  },
+
+  transcriptionText: {
+    marginBottom: 2,
+  },
+
+  translationText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '300',
+    color: $config.FONT_COLOR,
+    marginTop: 1,
   },
 
   captionUserName: {

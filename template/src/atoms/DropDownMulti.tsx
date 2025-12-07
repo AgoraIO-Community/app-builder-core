@@ -14,6 +14,7 @@ import {
   Modal,
   View,
   Image,
+  ScrollView,
 } from 'react-native';
 import {isWebInternal} from '../utils/common';
 import ThemeConfig from '../theme';
@@ -34,6 +35,8 @@ interface Props {
   defaultSelectedValues?: LanguageType[];
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  maxAllowedSelection?: number;
+  protectedLanguages?: LanguageType[];
 }
 
 const DropdownMulti: FC<Props> = ({
@@ -45,6 +48,8 @@ const DropdownMulti: FC<Props> = ({
   icon,
   isOpen,
   setIsOpen,
+  maxAllowedSelection = 2,
+  protectedLanguages = [],
 }) => {
   const DropdownButton = useRef();
   const maxHeight = 170;
@@ -78,20 +83,20 @@ const DropdownMulti: FC<Props> = ({
     //setIsOpen(false);
 
     const isSelected = selectedValues.includes(item.value);
+    const isProtected = protectedLanguages.includes(item.value);
     let updatedValues = [...selectedValues];
 
     if (isSelected) {
-      // Item is already selected, remove it if there are more than one selected languages
-      if (selectedValues.length > 0) {
-        updatedValues = selectedValues.filter((value) => value !== item.value);
+      // Item is already selected, remove it if it's not protected and there are more than one selected languages
+      if (selectedValues.length > 0 && !isProtected) {
+        updatedValues = selectedValues.filter(value => value !== item.value);
       }
     } else {
       // Item is not selected, add it
-      if (selectedValues.length < 2) {
+      if (selectedValues.length < maxAllowedSelection) {
         updatedValues = [...selectedValues, item.value];
       } else {
-        // Max selection limit reached, replace the second selected value
-        //  updatedValues = [selectedValues[1], item.value];
+        // Max selection limit reached, do nothing or implement replacement logic
       }
     }
 
@@ -102,13 +107,15 @@ const DropdownMulti: FC<Props> = ({
   // renders each lang checkbox row
   const renderItem = ({item}): ReactElement<any, any> => {
     const isSelected = selectedValues.includes(item.value);
+    const isProtected = protectedLanguages.includes(item.value);
     const isUSEngLangSelected = selectedValues.includes('en-US');
     const isINEngLangSelected = selectedValues.includes('en-IN');
 
     const isDisabled =
-      (!isSelected && selectedValues.length === 2) ||
+      (!isSelected && selectedValues.length === maxAllowedSelection) ||
       (item.value === 'en-US' && isINEngLangSelected) ||
-      (item.value === 'en-IN' && isUSEngLangSelected);
+      (item.value === 'en-IN' && isUSEngLangSelected) ||
+      (isSelected && isProtected);
 
     setError(isDisabled || selectedValues.length === 0);
 
@@ -119,8 +126,14 @@ const DropdownMulti: FC<Props> = ({
             <Checkbox
               disabled={isDisabled}
               checked={isSelected}
-              label={item.label}
-              labelStye={styles.itemText}
+              label={
+                item.label + (isProtected ? ' (Selected by another user)' : '')
+              }
+              labelStye={
+                isProtected
+                  ? {...styles.itemText, ...styles.protectedItemText}
+                  : styles.itemText
+              }
               onChange={() => onItemPress(item)}
             />
           </View>
@@ -144,26 +157,38 @@ const DropdownMulti: FC<Props> = ({
     );
   };
 
-  const selectedLabels = selectedValues.map((value) => {
-    const selectedLanguage = data.find((item) => item.value === value);
+  const selectedLabels = selectedValues.map(value => {
+    const selectedLanguage = data.find(item => item.value === value);
+    const isProtected = protectedLanguages.includes(value);
     return selectedLanguage ? (
       <View style={styles.selectedLang}>
         <TouchableOpacity
+          disabled={isProtected}
           onPress={() => {
-            const updatedValues = selectedValues.filter(
-              (value) => value !== selectedLanguage.value,
-            );
-            setSelectedValues(updatedValues);
+            if (!isProtected) {
+              const updatedValues = selectedValues.filter(
+                value => value !== selectedLanguage.value,
+              );
+              setSelectedValues(updatedValues);
+            }
           }}>
           <ImageIcon
             iconType="plain"
             name={'close'}
             iconSize={20}
-            tintColor={$config.CARD_LAYER_5_COLOR}
+            tintColor={
+              isProtected
+                ? $config.FONT_COLOR + hexadecimalTransparency['40%']
+                : $config.CARD_LAYER_5_COLOR
+            }
           />
         </TouchableOpacity>
 
-        <Text numberOfLines={1} style={styles.dropdownOptionText}>
+        <Text
+          style={[
+            styles.dropdownOptionText,
+            isProtected && {fontStyle: 'italic', opacity: 0.7},
+          ]}>
           {selectedLanguage.label}
         </Text>
       </View>
@@ -210,13 +235,16 @@ const DropdownMulti: FC<Props> = ({
             <></>
           )}
           {/* Dropdown Text */}
-          <View
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={true}
+            contentContainerStyle={styles.scrollContainer}
             style={[
               styles.dropdownOptionTextContainer,
-              selectedValues.length === 2 && {flex: 0.9},
+              selectedValues.length === maxAllowedSelection && {flex: 1},
             ]}>
             {formattedSelectedLanguages}
-          </View>
+          </ScrollView>
         </View>
         {/* Dropdown end Icon */}
         <View style={styles.dropdownIconContainer}>
@@ -274,6 +302,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     flexDirection: 'row',
   },
+  scrollContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   dropdownOptionText: {
     textAlign: 'left',
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -281,7 +313,6 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     marginLeft: 4,
-    flex: 1,
   },
   dropdownIconContainer: {
     alignSelf: 'center',
@@ -311,7 +342,7 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 6,
-    flex: 1,
+    maxWidth: 140,
     justifyContent: 'flex-start',
     alignItems: 'center',
     flexDirection: 'row',
@@ -343,6 +374,11 @@ const styles = StyleSheet.create({
     flex: 0.2,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  protectedItemText: {
+    paddingVertical: 12,
+    opacity: 0.6,
+    fontStyle: 'italic',
   },
 });
 

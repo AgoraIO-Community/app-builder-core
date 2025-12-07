@@ -2,15 +2,26 @@ import {createHook} from 'customization-implementation';
 import React from 'react';
 import {LanguageType} from './utils';
 
+type TranslationItem = {
+  lang: string;
+  text: string;
+  isFinal: boolean;
+};
+
 export type TranscriptItem = {
   uid: string;
   time: number;
   text: string;
+  translations?: TranslationItem[];
+  // Stores which translation language was active when this transcript was created
+  // This preserves historical context when users switch translation languages mid-meeting
+  selectedTranslationLanguage?: string;
 };
 
 type CaptionObj = {
   [key: string]: {
     text: string;
+    translations: TranslationItem[];
     lastUpdated: number;
   };
 };
@@ -40,6 +51,10 @@ export const CaptionContext = React.createContext<{
   isLangChangeInProgress: boolean;
   setIsLangChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 
+  // holds status of translation language change process
+  isTranslationChangeInProgress: boolean;
+  setIsTranslationChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
+
   // holds live captions
   captionObj: CaptionObj;
   setCaptionObj: React.Dispatch<React.SetStateAction<CaptionObj>>;
@@ -50,6 +65,11 @@ export const CaptionContext = React.createContext<{
 
   activeSpeakerRef: React.MutableRefObject<string>;
   prevSpeakerRef: React.MutableRefObject<string>;
+
+  selectedTranslationLanguage: string;
+  setSelectedTranslationLanguage: React.Dispatch<React.SetStateAction<string>>;
+  // Ref for translation language - prevents stale closures in callbacks
+  selectedTranslationLanguageRef: React.MutableRefObject<string>;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -63,12 +83,17 @@ export const CaptionContext = React.createContext<{
   setMeetingTranscript: () => {},
   isLangChangeInProgress: false,
   setIsLangChangeInProgress: () => {},
+  isTranslationChangeInProgress: false,
+  setIsTranslationChangeInProgress: () => {},
   captionObj: {},
   setCaptionObj: () => {},
   isSTTListenerAdded: false,
   setIsSTTListenerAdded: () => {},
   activeSpeakerRef: {current: ''},
   prevSpeakerRef: {current: ''},
+  selectedTranslationLanguage: '',
+  setSelectedTranslationLanguage: () => {},
+  selectedTranslationLanguageRef: {current: ''},
 });
 
 interface CaptionProviderProps {
@@ -86,6 +111,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const [language, setLanguage] = React.useState<[LanguageType]>(['']);
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
     React.useState<boolean>(false);
+  const [isTranslationChangeInProgress, setIsTranslationChangeInProgress] =
+    React.useState<boolean>(false);
   const [meetingTranscript, setMeetingTranscript] = React.useState<
     TranscriptItem[]
   >([]);
@@ -95,9 +122,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const [activeSpeakerUID, setActiveSpeakerUID] = React.useState<string>('');
   const [prevActiveSpeakerUID, setPrevActiveSpeakerUID] =
     React.useState<string>('');
+  const [selectedTranslationLanguage, setSelectedTranslationLanguage] =
+    React.useState<string>('');
 
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
+  const selectedTranslationLanguageRef = React.useRef('');
 
   return (
     <CaptionContext.Provider
@@ -114,12 +144,17 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setMeetingTranscript,
         isLangChangeInProgress,
         setIsLangChangeInProgress,
+        isTranslationChangeInProgress,
+        setIsTranslationChangeInProgress,
         captionObj,
         setCaptionObj,
         isSTTListenerAdded,
         setIsSTTListenerAdded,
         activeSpeakerRef,
         prevSpeakerRef,
+        selectedTranslationLanguage,
+        setSelectedTranslationLanguage,
+        selectedTranslationLanguageRef,
       }}>
       {children}
     </CaptionContext.Provider>

@@ -12,11 +12,30 @@ import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
 
 interface IuseSTTAPI {
-  start: (lang: LanguageType[]) => Promise<{message: string} | null>;
+  start: (lang: LanguageType[], userOwnLang?: LanguageType[]) => Promise<{message: string} | null>;
   stop: () => Promise<void>;
-  restart: (lang: LanguageType[]) => Promise<void>;
+  restart: (
+    lang: LanguageType[], 
+    userOwnLang?: LanguageType[], 
+    translationConfig?: { translate_config: any[], userSelectedTranslation: string }
+  ) => Promise<void>;
+  update: (params: UpdateParams) => Promise<any>;
   isAuthorizedSTTUser: () => boolean;
   isAuthorizedTranscriptUser: () => boolean;
+}
+
+interface UpdateParams {
+  // Speaking language (max 4 allowed)
+  lang?: LanguageType[];       
+  // Translation configuration parameters
+  translate_config?: {         
+    target_lang: string[];     
+    source_lang: string;       
+  }[];
+  // User's own selected translation language (for RTM message)
+  userSelectedTranslation?: string;
+  // Flag to indicate if this is a translation-only change
+  isTranslationChange?: boolean;
 }
 
 const useSTTAPI = (): IuseSTTAPI => {
@@ -29,9 +48,13 @@ const useSTTAPI = (): IuseSTTAPI => {
     isSTTActive,
     setIsSTTActive,
     setIsLangChangeInProgress,
+    setIsTranslationChangeInProgress,
     setLanguage,
     setMeetingTranscript,
     setIsSTTError,
+    setSelectedTranslationLanguage,
+    // Ref to track translation language - updated synchronously to avoid race conditions
+    selectedTranslationLanguageRef,
   } = useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
@@ -44,21 +67,40 @@ const useSTTAPI = (): IuseSTTAPI => {
     currentLangRef.current = language;
   }, [language]);
 
-  const apiCall = async (method: string, lang: LanguageType[] = []) => {
+  const apiCall = async (method: string, payload?: any) => {
     const requestId = getUniqueID();
     const startReqTs = Date.now();
+    
     logger.log(
       LogSource.NetworkRest,
       'stt',
-      `Trying to ${method} stt for lang ${lang}`,
+      `Trying to ${method} stt`,
       {
         method,
-        lang,
+        payload,
         requestId,
         startReqTs,
       },
     );
+    
     try {
+      
+      let requestBody: any = {
+        passphrase: roomId?.host || roomId?.attendee || '',
+        dataStream_uid: 111111, // default bot ID
+        encryption_mode: $config.ENCRYPTION_ENABLED
+          ? rtcProps.encryption.mode
+          : null,
+      };
+
+    
+      if (payload && typeof payload === 'object') {
+        requestBody = {
+          ...requestBody,
+          ...payload,
+        };
+      }
+
       const response = await fetch(`${STT_API_URL}/${method}`, {
         method: 'POST',
         headers: {
@@ -67,22 +109,17 @@ const useSTTAPI = (): IuseSTTAPI => {
           'X-Request-Id': requestId,
           'X-Session-Id': logger.getSessionId(),
         },
-        body: JSON.stringify({
-          passphrase: roomId?.host || '',
-          lang: lang,
-          dataStream_uid: 111111, // bot ID
-          encryption_mode: $config.ENCRYPTION_ENABLED
-            ? rtcProps.encryption.mode
-            : null,
-        }),
+        body: JSON.stringify(requestBody),
       });
+      
       const res = await response.json();
       const endReqTs = Date.now();
       const latency = endReqTs - startReqTs;
+      
       logger.log(
         LogSource.NetworkRest,
         'stt',
-        `STT API Success - Called ${method} on stt with lang ${lang}`,
+        `STT API Success - Called ${method}`,
         {
           responseData: res,
           requestId,
@@ -98,7 +135,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       logger.error(
         LogSource.NetworkRest,
         'stt',
-        `STT API Failure - Called ${method} on stt with lang ${lang}`,
+        `STT API Failure - Called ${method}`,
         error,
         {
           requestId,
@@ -107,21 +144,22 @@ const useSTTAPI = (): IuseSTTAPI => {
           latency,
         },
       );
+      throw error;
     }
   };
 
-  const startWithDelay = (lang: LanguageType[]): Promise<string> =>
+  const startWithDelay = (lang: LanguageType[], userOwnLang?: LanguageType[]): Promise<string> =>
     new Promise(resolve => {
       setTimeout(async () => {
-        const res = await start(lang);
+        const res = await start(lang, userOwnLang);
         resolve(res);
       }, 1000); // Delay of 1 seconds (1000 milliseconds) to allow existing stt service to fully stop
     });
 
-  const start = async (lang: LanguageType[]) => {
+  const start = async (lang: LanguageType[], userOwnLang?: LanguageType[]) => {
     try {
       setIsLangChangeInProgress(true);
-      const res = await apiCall('startv7', lang);
+      const res = await apiCall('startv7', {lang});
       // null means stt startred successfully
       const isSTTAlreadyActive =
         res?.error?.message
@@ -160,26 +198,33 @@ const useSTTAPI = (): IuseSTTAPI => {
           'stt',
           `stt lang update from: ${language} to ${lang}`,
         );
-        // inform about the language set for stt
+        // Send RTM message with all languages and user's own selection as remoteLang
+        // From other users' perspective, userOwnLang are the new remote languages
+        const userSelectedLang = userOwnLang && userOwnLang.length > 0 ? userOwnLang : [];
+        
         events.send(
           EventNames.STT_LANGUAGE,
           JSON.stringify({
             username: capitalizeFirstLetter(username),
             uid: localUid,
             prevLang: language,
-            newLang: lang,
+            newLang: lang, // Send all languages
+            remoteLang: userSelectedLang, // Send user's own selection as remote for others
           }),
           PersistanceLevel.Sender,
         );
+        
+        // Set the user's language state to ALL languages (own + protected)
+        // This allows the popup to properly identify protected languages
         setLanguage(lang);
 
         // updaing transcript for self
         const actionText =
           language.indexOf('') !== -1
-            ? `has set the spoken language to  "${getLanguageLabel(lang)}" `
+            ? `has set the spoken language to  "${getLanguageLabel(userSelectedLang)}" `
             : `changed the spoken language from "${getLanguageLabel(
                 language,
-              )}" to "${getLanguageLabel(lang)}" `;
+              )}" to "${getLanguageLabel(userSelectedLang)}" `;
         //const msg = `${capitalizeFirstLetter(username)} ${actionText} `;
         setMeetingTranscript(prev => {
           return [
@@ -234,11 +279,60 @@ const useSTTAPI = (): IuseSTTAPI => {
       throw error;
     }
   };
-  const restart = async (lang: LanguageType[]) => {
+  const restart = async (
+    lang: LanguageType[], 
+    userOwnLang?: LanguageType[], 
+    translationConfig?: { translate_config: any[], userSelectedTranslation: string }
+  ) => {
     try {
       setIsLangChangeInProgress(true);
-      await stop();
-      await startWithDelay(lang);
+    //  await stop();
+      
+      // If translation config is provided, use update method after start
+      
+       // await startWithDelay(lang, userOwnLang);
+        await update({
+          ...translationConfig,
+          lang: lang,
+        });
+      
+        const userSelectedLang = userOwnLang && userOwnLang.length > 0 ? userOwnLang : [];
+        
+        events.send(
+          EventNames.STT_LANGUAGE,
+          JSON.stringify({
+            username: capitalizeFirstLetter(username),
+            uid: localUid,
+            prevLang: language,
+            newLang: lang, // Send all languages
+            remoteLang: userSelectedLang, // Send user's own selection as remote for others
+          }),
+          PersistanceLevel.Sender,
+        );
+
+         setLanguage(lang);
+
+        // updaing transcript for self
+        const actionText =
+          language.indexOf('') !== -1
+            ? `has set the spoken language to  "${getLanguageLabel(userSelectedLang)}" `
+            : `changed the spoken language from "${getLanguageLabel(
+                language,
+              )}" to "${getLanguageLabel(userSelectedLang)}" `;
+        //const msg = `${capitalizeFirstLetter(username)} ${actionText} `;
+        setMeetingTranscript(prev => {
+          return [
+            ...prev,
+            {
+              name: 'langUpdate',
+              time: new Date().getTime(),
+              uid: `langUpdate-${localUid}`,
+              text: actionText,
+            },
+          ];
+        });
+        
+      
       return Promise.resolve();
     } catch (error) {
       logger.error(
@@ -250,6 +344,94 @@ const useSTTAPI = (): IuseSTTAPI => {
       return Promise.reject(error);
     } finally {
       setIsLangChangeInProgress(false);
+    }
+  };
+
+ 
+  const update = async (params: UpdateParams) => {
+    try {
+      // Use the appropriate progress state based on the type of change
+      if (params?.isTranslationChange) {
+        setIsTranslationChangeInProgress(true);
+      } else {
+        setIsLangChangeInProgress(true);
+      }
+      
+      logger.log(
+        LogSource.NetworkRest,
+        'stt',
+        'Calling STT update method',
+        { params }
+      );
+      
+      const res = await apiCall('update', params);
+      
+      if (res?.error?.message) {
+        setIsSTTError(true);
+        logger.error(
+          LogSource.NetworkRest,
+          'stt',
+          'STT update failed',
+          res?.error,
+        );
+      } else {
+        logger.log(
+          LogSource.NetworkRest,
+          'stt',
+          'STT update successful',
+          res,
+        );
+        setIsSTTError(false);
+
+        // If language was updated, update local state
+        if (params.lang) {
+          setLanguage(params.lang);
+        }
+
+        // If translation language was updated, update local state and ref
+        if (params.isTranslationChange && params.userSelectedTranslation !== undefined) {
+          setSelectedTranslationLanguage(params.userSelectedTranslation);
+          // Update ref immediately to prevent race conditions
+          // This ensures callbacks see the updated value right away, before state updates
+          selectedTranslationLanguageRef.current = params.userSelectedTranslation;
+        }
+
+        // Send RTM message for translation config sync
+        if (params.translate_config && params.userSelectedTranslation) {
+          // Create user's own translation config from userSelectedTranslation
+          const userOwnTranslateConfig = (params.lang || currentLangRef.current).map(spokenLang => ({
+            source_lang: spokenLang,
+            target_lang: [params.userSelectedTranslation]
+          }));
+
+          events.send(
+            EventNames.STT_TRANSLATE_LANGUAGE,
+            JSON.stringify({
+              username: capitalizeFirstLetter(username),
+              uid: localUid,
+              translateConfig: userOwnTranslateConfig, // Only user's own choice
+            }),
+            PersistanceLevel.Sender,
+          );
+        }
+      }
+      
+      return res;
+    } catch (error) {
+      logger.error(
+        LogSource.NetworkRest,
+        'stt',
+        'Error in STT update method',
+        error,
+      );
+      throw error;
+    } finally {
+      // Reset the appropriate progress state based on the type of change
+      if (params?.isTranslationChange) {
+        setIsTranslationChangeInProgress(false);
+      } else {
+        setIsLangChangeInProgress(false);
+      }
     }
   };
 
@@ -269,6 +451,7 @@ const useSTTAPI = (): IuseSTTAPI => {
     start,
     stop,
     restart,
+    update,
     isAuthorizedSTTUser,
     isAuthorizedTranscriptUser,
   };

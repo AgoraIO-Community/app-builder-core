@@ -8,7 +8,10 @@ import {isWebInternal} from '../../utils/common';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
-import {sttSettingSpokenLanguageText} from '../../language/default-labels/videoCallScreenLabels';
+import {
+  sttSettingSpokenLanguageText,
+  sttSettingTranslationLanguageText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export type WebStreamMessageArgs = [number, Uint8Array];
 export type NativeStreamMessageArgs = [
@@ -33,6 +36,7 @@ const Caption: React.FC<CaptionProps> = ({
   const {RtcEngineUnsafe} = useRtc();
   const {
     isLangChangeInProgress,
+    isTranslationChangeInProgress,
     captionObj, //state for current live caption for all users
     isSTTListenerAdded,
     setIsSTTListenerAdded,
@@ -40,6 +44,7 @@ const Caption: React.FC<CaptionProps> = ({
     prevSpeakerRef,
   } = useCaption();
   const ssLabel = useString(sttSettingSpokenLanguageText)();
+  const stLabel = useString(sttSettingTranslationLanguageText)();
   const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
 
@@ -76,6 +81,16 @@ const Caption: React.FC<CaptionProps> = ({
       />
     );
 
+  if (isTranslationChangeInProgress)
+    return (
+      <Loading
+        text={stLabel}
+        background="transparent"
+        indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+        textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+      />
+    );
+
   console.log('current speaker uid', activeSpeakerRef.current);
   console.log('prev current uid ', prevSpeakerRef.current);
 
@@ -106,6 +121,7 @@ const Caption: React.FC<CaptionProps> = ({
             <CaptionText
               user={defaultContent[prevSpeakerRef.current].name || 'Speaker'}
               value={captionObj[prevSpeakerRef.current].text}
+              translations={captionObj[prevSpeakerRef.current].translations}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={false}
               activelinesAvailable={activelinesAvailable}
@@ -123,6 +139,7 @@ const Caption: React.FC<CaptionProps> = ({
             <CaptionText
               user={defaultContent[activeSpeakerRef.current].name || 'Speaker'}
               value={captionObj[activeSpeakerRef.current].text}
+              translations={captionObj[activeSpeakerRef.current].translations}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={true}
               activelinesAvailable={activelinesAvailable}

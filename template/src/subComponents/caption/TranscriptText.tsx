@@ -5,22 +5,53 @@ import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {formatTime} from './utils';
 
+type TranslationItem = {
+  lang: string;
+  text: string;
+  isFinal: boolean;
+};
+
 interface TranscriptTextProps {
   user: string;
   time: number;
   value: string;
+  translations?: TranslationItem[];
   searchQuery?: string;
+  selectedTranslationLanguage?: string;
 }
 
 export const TranscriptText = ({
   user,
   time,
   value,
+  translations = [],
   searchQuery = '',
+  selectedTranslationLanguage: storedTranslationLanguage,
 }: TranscriptTextProps) => {
   const t = time ? formatTime(Number(time)) : '';
+
+  //  text to display based on stored translation language
+  const getDisplayText = () => {
+    if (!storedTranslationLanguage) {
+      return value; // no translation selected, show original
+    }
+
+    // find translation for the stored language
+    const currentTranslation = translations.find(
+      t => t.lang === storedTranslationLanguage,
+    );
+    if (currentTranslation?.text) {
+      return currentTranslation.text;
+    }
+
+    // if stored language not available, show original
+    return value;
+  };
+
+  const displayText = getDisplayText();
+
   const regex = searchQuery ? new RegExp(`(${searchQuery})`, 'gi') : ' ';
-  const parts = value.split(regex);
+  const parts = displayText.split(regex);
 
   return (
     <View key={user} style={styles.transcriptTextContainer}>

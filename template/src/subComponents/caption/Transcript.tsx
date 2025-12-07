@@ -108,11 +108,24 @@ const Transcript = (props: TranscriptProps) => {
           iconType="plain"
           iconSize={20}
           tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-          name={'lang-select'}
+          name={'globe'}
         />
 
         <Text style={styles.langChange}>
           {defaultContent[item?.uid?.split('-')[1]].name + ' ' + item.text}
+        </Text>
+      </View>
+    ) : item.uid.toString().indexOf('translationUpdate') !== -1 ? (
+      <View style={styles.langChangeContainer}>
+        <ImageIcon
+          iconType="plain"
+          iconSize={20}
+          tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+          name={'lang-select'}
+        />
+
+        <Text style={styles.langChange}>
+          {defaultContent[item?.uid?.split('-')[1]].name + ' has ' + item.text}
         </Text>
       </View>
     ) : (
@@ -120,7 +133,9 @@ const Transcript = (props: TranscriptProps) => {
         user={defaultContent[item.uid].name}
         time={item?.time}
         value={item.text}
+        translations={item.translations}
         searchQuery={searchQuery}
+        selectedTranslationLanguage={item.selectedTranslationLanguage}
       />
     );
   };
@@ -164,9 +179,20 @@ const Transcript = (props: TranscriptProps) => {
   const handleSearch = (text: string) => {
     setSearchQuery(text);
     // Filter the data based on the search query
-    const filteredResults = meetingTranscript.filter(item =>
-      item.text.toLowerCase().includes(text.toLowerCase()),
-    );
+    const filteredResults = meetingTranscript.filter(item => {
+      const searchText = text.toLowerCase();
+      // Search in original text
+      if (item.text.toLowerCase().includes(searchText)) {
+        return true;
+      }
+      // Search in translations if available
+      if (item.translations) {
+        return item.translations.some(translation =>
+          translation.text.toLowerCase().includes(searchText)
+        );
+      }
+      return false;
+    });
     setShowButton(false);
     setSearchResults(filteredResults);
     // Scroll to the top of the FlatList when searching
