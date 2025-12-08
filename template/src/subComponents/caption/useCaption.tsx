@@ -25,7 +25,7 @@ type GlobalSttState = {
   globalSttEnabled: boolean;
   globalSpokenLanguage: LanguageType;
   globalTranslationTargets: LanguageType[];
-  initiatorUid?: string | number;
+  initiatorName?: string;
 };
 
 type TargetChange = {
@@ -200,7 +200,7 @@ export const CaptionContext = React.createContext<{
     globalSttEnabled: false,
     globalSpokenLanguage: '',
     globalTranslationTargets: [],
-    initiatorUid: null,
+    initiatorName: '',
   },
   confirmSpokenLanguageChange: async () => {},
   confirmTargetLanguageChange: async () => {},
@@ -265,7 +265,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     globalSttEnabled: false,
     globalSpokenLanguage: '',
     globalTranslationTargets: [],
-    initiatorUid: null,
+    initiatorName: '',
   });
   const globalSttStateRef = React.useRef(globalSttState);
   React.useEffect(() => {
@@ -628,7 +628,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           globalSttEnabled: true,
           globalSpokenLanguage: newSpokenLang,
           globalTranslationTargets: cleanedTargets,
-          initiatorUid: localUid,
+          initiatorName: defaultContentRef?.current[localUid]?.name || username,
         };
 
         // Check if selected target still exists in target
@@ -751,7 +751,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           globalSttEnabled: true,
           globalSpokenLanguage: 'en-US',
           globalTranslationTargets: [],
-          initiatorUid: localUid,
+          initiatorName: defaultContentRef.current[localUid]?.name || username,
         };
 
         // adding auto start in the beginning of queue
@@ -849,11 +849,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             }
           } else {
             // Remote users see this
-            const initiatorName =
-              defaultContentRef.current[newState.initiatorUid]?.name ||
-              username;
             let subheadingObj: sttSpokenLanguageToastSubHeadingDataInterface = {
-              username: initiatorName,
+              username: newState?.initiatorName || 'Host',
               action: 'Set',
               newLanguage: getLanguageLabel([newState?.globalSpokenLanguage]),
             };
@@ -890,10 +887,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             prevState.globalSpokenLanguage !== newState.globalSpokenLanguage
           ) {
             let subheadingObj: sttSpokenLanguageToastSubHeadingDataInterface = {
-              username: isLocal
-                ? 'You'
-                : defaultContentRef.current[newState?.initiatorUid]?.name ||
-                  username,
+              username: isLocal ? 'You' : newState.initiatorName || 'Host',
               action: 'Changed',
               newLanguage:
                 getLanguageLabel([newState.globalSpokenLanguage]) || '',
