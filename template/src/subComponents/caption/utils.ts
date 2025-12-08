@@ -110,7 +110,7 @@ export function getLanguageLabel(
   languageCode: LanguageType[],
 ): string | undefined {
   const langLabels = languageCode.map(langCode => {
-    return langData.find(data => data.value === langCode).label;
+    return langData.find(data => data.value === langCode)?.label;
   });
   return langLabels ? langLabels.join(', ') : undefined;
 }
@@ -163,31 +163,32 @@ export const formatTranscriptContent = (
   const formattedContent = meetingTranscript
     .map(item => {
       if (
-        item.uid.toString().indexOf('langUpdate') !== -1 ||
-        item.uid.toString().indexOf('translationUpdate') !== -1
+        item.uid.toString().includes('langUpdate') ||
+        item.uid.toString().includes('translationUpdate')
       ) {
-        return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
+        // return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
+        return item.text;
       }
 
-      // Build transcript entry with original text and all translations
-      let transcriptEntry = `${defaultContent[item.uid]?.name} ${formatTime(
-        Number(item?.time),
-      )}:\n${item.text}`;
+      const speakerName = defaultContent[item.uid]?.name || 'Speaker';
 
-      // Add all translations with language labels
-      if (item.translations && item.translations.length > 0) {
-        const translationLines = item.translations
-          .map(trans => {
-            const langLabel =
-              langData.find(l => l.value === trans.lang)?.label || trans.lang;
-            return `${langLabel}: ${trans.text}`;
-          })
-          .join('\n');
+      // Original
+      let entry = `${speakerName}:\n${item.text}`;
 
-        transcriptEntry += `\n${translationLines}`;
+      // Selected Translation
+      const storedLang = item.selectedTranslationLanguage;
+      const selectedTranslation = storedLang
+        ? item.translations?.find(t => t.lang === storedLang) || null
+        : null;
+      if (selectedTranslation) {
+        const langLabel =
+          langData.find(l => l.value === selectedTranslation.lang)?.label ||
+          selectedTranslation.lang;
+
+        entry += `\n→ (${langLabel}) ${selectedTranslation.text}`;
       }
 
-      return transcriptEntry;
+      return entry;
     })
     .join('\n\n');
 
@@ -196,13 +197,20 @@ export const formatTranscriptContent = (
   );
 
   const attendees = Object.entries(defaultContent)
-    .filter(
-      arr =>
-        arr[1].type === 'rtc' &&
-        arr[0] !== '100000' && // exclude recording bot
-        (arr[1]?.isInWaitingRoom === true ? false : true),
-    )
-    .map(arr => arr[1].name)
+    .filter(([uid, user]) => {
+      const uidNum = Number(uid);
+
+      const isBot =
+        uidNum === 111111 || // STT bot (web)
+        uidNum > 900000000 || // STT bots (native)
+        uidNum === 100000 || // Recording bot (web user)
+        uidNum === 100001; // Recording bot (web screen)
+
+      const isWaitingRoom = user?.isInWaitingRoom === true;
+
+      return user.type === 'rtc' && !isBot && !isWaitingRoom;
+    })
+    .map(([_, user]) => user.name)
     .join(',');
 
   const info =
@@ -232,19 +240,18 @@ export const formatTranscriptContent = (
  * @param captionText - The original caption text
  * @param translations - Array of available translations
  * @param viewerSourceLanguage - The user's source (spoken) language
- * @param speakerUid - The UID of the person speaking
- * @param currentUserUid - The UID of the current user
  * @returns The appropriate caption text to display
  */
 export const getUserTranslatedText = (
   captionText: string,
   translations: Array<{lang: string; text: string; isFinal: boolean}> = [],
-  viewerSourceLanguage: LanguageType,
-  speakerUid: string | number,
-  currentUserUid: string | number,
+  sourceLanguage: LanguageType,
+  selectedTranslationLanguage: LanguageType,
+  // speakerUid: string | number,
+  // currentUserUid: string | number,
 ): {
   value: string;
-  langCode: string;
+  langLabel: string;
 } => {
   // console.log(
   //   'getUserTranslatedText input params',
@@ -256,16 +263,17 @@ export const getUserTranslatedText = (
   // );
 
   // 1. If the speaker is the local user, always show their own source text
-  if (speakerUid === currentUserUid) {
+  if (!selectedTranslationLanguage) {
     return {
       value: captionText,
-      langCode: getLanguageLabel([viewerSourceLanguage]) || '',
+      langLabel: getLanguageLabel([sourceLanguage]) || '',
     };
   }
+
   // For other users' captions, try to find translation matching viewer's source language
-  if (viewerSourceLanguage && translations && translations.length > 0) {
+  if (selectedTranslationLanguage && translations && translations.length > 0) {
     const matchingTranslation = translations.find(
-      t => t.lang === viewerSourceLanguage,
+      t => t.lang === selectedTranslationLanguage,
     );
     if (matchingTranslation) {
       // Translation exists (even if empty)
@@ -274,7 +282,7 @@ export const getUserTranslatedText = (
       const translatedText = matchingTranslation.text?.trim() || '';
       return {
         value: translatedText,
-        langCode: getLanguageLabel([matchingTranslation.lang]) || '',
+        langLabel: getLanguageLabel([selectedTranslationLanguage]) || '',
       };
     }
   }
@@ -282,7 +290,7 @@ export const getUserTranslatedText = (
   // Fallback to original text if no translation found
   return {
     value: captionText,
-    langCode: 'Original',
+    langLabel: 'Original',
   };
 };
 

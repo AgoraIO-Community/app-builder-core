@@ -22,7 +22,7 @@ import {
 } from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
 import {useRtc, useContent} from 'customization-api';
-import {useCaption} from './useCaption';
+import {TranscriptItem, useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
@@ -61,6 +61,8 @@ const Transcript = (props: TranscriptProps) => {
     setIsSTTListenerAdded,
     getBotOwnerUid,
     isSTTActive,
+    selectedTranslationLanguage,
+    transcriptViewMode,
   } = useCaption();
 
   const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
@@ -72,7 +74,7 @@ const Transcript = (props: TranscriptProps) => {
   const viewlatest = useString(sttTranscriptPanelViewLatestText)();
 
   const data = meetingTranscript; // Object.entries(transcript);
-  console.log('[STT_PER_USER_BOT] meetingTranscript data: ', data);
+  console.log('[STT_GLOBAL] meetingTranscript data: ', data);
 
   const [showButton, setShowButton] = React.useState(false);
 
@@ -108,41 +110,84 @@ const Transcript = (props: TranscriptProps) => {
     }
   };
 
-  const renderItem = ({item}) => {
-    return item.uid.toString().indexOf('langUpdate') !== -1 ? (
-      <View style={styles.langChangeContainer}>
-        <ImageIcon
-          iconType="plain"
-          iconSize={20}
-          tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-          name={'globe'}
-        />
+  const renderItem = ({item}: {item: TranscriptItem}) => {
+    const speakerName =
+      defaultContent[getBotOwnerUid(item.uid)]?.name || 'Speaker';
+    const mode = transcriptViewMode;
+    // Find translation (always return TranslationItem | null)
+    const translation =
+      item.selectedTranslationLanguage &&
+      item.translations?.find(
+        tr => tr.lang === item.selectedTranslationLanguage,
+      )
+        ? item.translations.find(
+            tr => tr.lang === item.selectedTranslationLanguage,
+          )
+        : null;
 
-        <Text style={styles.langChange}>
-          {defaultContent[item?.uid?.split('-')[1]]?.name + ' ' + item.text}
-        </Text>
-      </View>
-    ) : item.uid.toString().indexOf('translationUpdate') !== -1 ? (
-      <View style={styles.langChangeContainer}>
-        <ImageIcon
-          iconType="plain"
-          iconSize={20}
-          tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-          name={'lang-select'}
-        />
+    // system messages - spoken lang update
+    if (item.uid.toString().indexOf('langUpdate') !== -1) {
+      return (
+        <View style={styles.langChangeContainer}>
+          <ImageIcon
+            iconType="plain"
+            iconSize={20}
+            tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+            name={'globe'}
+          />
 
-        <Text style={styles.langChange}>
-          {defaultContent[item?.uid?.split('-')[1]]?.name + ' has ' + item.text}
-        </Text>
-      </View>
-    ) : (
+          <Text style={styles.langChange}>
+            {/* {defaultContent[item?.uid?.split('-')[1]]?.name + ' ' + item.text} */}
+            {item.text}
+          </Text>
+        </View>
+      );
+    }
+    // system messages - target update
+    if (item.uid.toString().indexOf('translationUpdate') !== -1) {
+      return (
+        <View style={styles.langChangeContainer}>
+          <ImageIcon
+            iconType="plain"
+            iconSize={20}
+            tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+            name={'lang-select'}
+          />
+
+          <Text style={styles.langChange}>
+            {/* {defaultContent[item?.uid?.split('-')[1]]?.name +
+              ' has ' +
+              item.text} */}
+            {item.text}
+          </Text>
+        </View>
+      );
+    }
+    // Translated mode (default)
+    if (mode === 'translated' && selectedTranslationLanguage) {
+      if (!translation) {
+        return null;
+      } // hide if translation not available
+      return (
+        <TranscriptText
+          user={speakerName}
+          time={item.time}
+          value={translation.text}
+          translations={[]}
+          searchQuery={searchQuery}
+          selectedTranslationLanguage={selectedTranslationLanguage}
+        />
+      );
+    }
+    // original and translated
+    return (
       <TranscriptText
-        user={defaultContent[getBotOwnerUid(item.uid)]?.name || 'Speaker'}
+        user={speakerName}
         time={item?.time}
         value={item.text}
-        translations={item.translations}
+        translations={translation ? [translation] : []}
         searchQuery={searchQuery}
-        selectedTranslationLanguage={item.selectedTranslationLanguage}
+        selectedTranslationLanguage={selectedTranslationLanguage}
       />
     );
   };
@@ -213,7 +258,7 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
-    console.log('[STT_PER_USER_BOT] handleStreamMessageCallback', args);
+    console.log('[STT_GLOBAL] handleStreamMessageCallback', args);
     setIsSTTListenerAdded(true);
     if (isWebInternal()) {
       const [uid, data] = args as WebStreamMessageArgs;

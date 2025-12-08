@@ -52,7 +52,7 @@ const useStreamMessageUtils = (): {
         .lookupType('agora.audio2text.Text')
         .decode(payload as Uint8Array) as any;
 
-      console.log('[STT_PER_USER_BOT] stt v7 textstream', botUid, textstream);
+      console.log('[STT_GLOBAL] stt v7 textstream', botUid, textstream);
       //console.log('STT - Parsed Textstream : ', textstream);
       // console.log(
       //   `STT-callback(${++counter}): %c${textstream.uid} %c${textstream.words

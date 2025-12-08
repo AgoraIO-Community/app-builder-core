@@ -7,6 +7,7 @@ import useSTTAPI from './useSTTAPI';
 import {useString} from '../../utils/useString';
 import {toolbarItemCaptionText} from '../../language/default-labels/videoCallScreenLabels';
 import {useToolbarProps} from '../../atoms/ToolbarItem';
+import {LanguageType} from './utils';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -31,7 +32,8 @@ const CaptionIcon = (props: CaptionIconProps) => {
     setIsCaptionON,
     isSTTActive,
     isSTTError,
-    handleTranslateConfigChange,
+    sttDepsReady,
+    confirmSpokenLanguageChange,
   } = useCaption();
 
   const [isLanguagePopupOpen, setLanguagePopup] =
@@ -62,7 +64,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
   };
   const iconButtonProps: IconButtonProps = {
     onPress: onPressCustom || onPress,
-    disabled: false,
+    disabled: !sttDepsReady,
     iconProps: {
       name: isCaptionON ? 'captions-off' : 'captions',
       iconBackgroundColor: isCaptionON
@@ -87,12 +89,12 @@ const CaptionIcon = (props: CaptionIconProps) => {
     iconButtonProps.toolTipMessage = label;
   }
 
-  const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
+  const onConfirm = async (newSpokenLang: LanguageType) => {
     try {
       closeActionSheet();
       setLanguagePopup(false);
       setIsCaptionON(prev => !prev);
-      await handleTranslateConfigChange(inputTranslateConfig);
+      await confirmSpokenLanguageChange(newSpokenLang);
     } catch (error) {
       setIsCaptionON(false);
       console.log('error in starting stt', error);

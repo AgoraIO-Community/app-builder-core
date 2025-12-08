@@ -25,6 +25,7 @@ export interface IconsInterface {
   clipboard: string;
   tick: string;
   'tick-fill': string;
+  'arrow-right': string;
   'arrow-down': string;
   'arrow-up': string;
   'screen-share': string;

@@ -10,7 +10,7 @@ export type sttSpokenLanguageToastHeadingDataType = 'Set' | 'Changed';
 export interface sttSpokenLanguageToastSubHeadingDataInterface {
   action: sttSpokenLanguageToastHeadingDataType;
   newLanguage: string;
-  oldLanguage: string;
+  oldLanguage?: string;
   username: string;
 }
 
@@ -581,7 +581,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemNoiseCancellationText]?: I18nBaseType;
   [toolbarItemWhiteboardText]?: I18nConditionalType;
   [toolbarItemCaptionText]?: I18nConditionalType;
-  [toolbarItemTranscriptText]?: I18nConditionalType;
+  [toolbarItemTranscriptText]?: I18nBaseType;
   [toolbarItemManageTextTracksText]?: I18nConditionalType;
   [toolbarItemVirtualBackgroundText]?: I18nBaseType;
   [toolbarItemViewRecordingText]?: I18nConditionalType;
@@ -955,7 +955,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemCaptionText]: active =>
     active ? 'Hide Caption' : 'Show Caption',
   [toolbarItemTranscriptText]: active =>
-    active ? 'Hide Transcript' : 'Show Transcript',
+    active ? 'Hide Meeting Transcript' : 'Show Meeting Transcript',
   [toolbarItemViewRecordingText]: 'View Recordings',
   [toolbarItemManageTextTracksText]: 'View Text-tracks',
 
@@ -1043,8 +1043,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [textTrackModalTitleIntn]: 'Text Tracks',
   [sttChangeLanguagePopupHeading]: isFirstTimeOpened =>
     isFirstTimeOpened
-      ? 'Setup Captions & Translation'
-      : 'Modify Captions & Translation',
+      ? 'Setup Captions & Transcript'
+      : 'Update Spoken Language',
   [sttChangeLanguagePopupSubHeading]:
     'Please select your preferred language as the source language and up to 10 target languages to translate into. You can update these settings at any time by returning to this page.',
   [sttChangeLanguagePopupPrimaryBtnText]: 'CONFIRM',
@@ -1052,9 +1052,9 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     'You can choose a maximum of ten languages',
   [sttChangeLanguagePopupDropdownError]:
     'Choose at least one language to proceed',
-  [sttChangeSpokenLanguageText]: 'Change Spoken Language',
+  [sttChangeSpokenLanguageText]: 'Update Spoken Language',
   [sttStopTranslationText]: 'Stop Translation',
-  [sttOriginalTranslatedText]: 'Show Original and translated',
+  [sttOriginalTranslatedText]: 'Show original and translated',
   [sttTranscriptPanelHeaderText]: 'Meeting Transcript',
   [sttDownloadBtnText]: 'Download',
   [sttDownloadTranscriptBtnText]: 'Download Transcript',
@@ -1289,8 +1289,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     username,
   }) =>
     action === 'Set'
-      ? `${username} has set the spoken language to "${newLanguage}"`
-      : `${username} changed the spoken language from "${oldLanguage}" to ${newLanguage}`,
+      ? `${username} set the spoken language to "${newLanguage}".`
+      : `${username} changed the spoken language from "${oldLanguage}" to "${newLanguage}".`,
 
   [deviceDetectionToastHeading]: name => `New ${name} detected`,
   [deviceDetectionToastSubHeading]: ({name, label}) =>

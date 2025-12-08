@@ -1,4 +1,4 @@
-import React, {SetStateAction} from 'react';
+import React, {SetStateAction, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Spacer from '../../atoms/Spacer';
 import Popup from '../../atoms/Popup';
@@ -6,27 +6,23 @@ import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 import {useIsDesktop} from '../../utils/common';
-import {LanguageTranslationConfig, useCaption} from './useCaption';
+import {useCaption} from './useCaption';
 import Dropdown from '../../atoms/Dropdown';
-import DropdownMulti from '../../atoms/DropDownMulti';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Loading from '../Loading';
-import {LanguageType, langData, hasConfigChanged} from './utils';
+import {LanguageType, langData} from './utils';
 import {useString} from '../../utils/useString';
-import {useLocalUid} from '../../../agora-rn-uikit';
-// import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {
   sttChangeLanguagePopupHeading,
   sttChangeLanguagePopupPrimaryBtnText,
   sttLanguageChangeInProgress,
-  sttChangeLanguagePopupDropdownInfo,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {cancelText} from '../../language/default-labels/commonLabels';
 
 interface LanguageSelectorPopup {
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
-  onConfirm: (inputTranslationConfig: LanguageTranslationConfig) => void;
+  onConfirm: (newLang: LanguageType) => void;
 }
 
 const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
@@ -35,91 +31,19 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const cancelBtnLabel = useString(cancelText)();
   const ConfirmBtnLabel = useString(sttChangeLanguagePopupPrimaryBtnText)();
   const languageChangeInProgress = useString(sttLanguageChangeInProgress)();
-  const maxLangValInfo = useString(sttChangeLanguagePopupDropdownInfo)();
 
-  const {
-    translationConfig,
-    isLangChangeInProgress,
-    isSTTActive,
-    remoteSpokenLanguages,
-  } = useCaption();
-  const localUid = useLocalUid();
-  console.log(
-    '[STT_PER_USER_BOT] remoteSpokenLanguages',
-    remoteSpokenLanguages,
+  const {globalSttState, isLangChangeInProgress} = useCaption();
+
+  const [draftSpokenLanguage, setDraftSpokenLanguage] = useState<LanguageType>(
+    globalSttState?.globalSpokenLanguage || 'en-US',
   );
 
-  // const {sttLanguage} = useRoomInfo();
-  const [error, setError] = React.useState<boolean>(false);
-  const [isTargetOpen, setIsTargetOpen] = React.useState(false);
-
-  const [inputTranslationConfig, setInputTranslationConfig] =
-    React.useState<LanguageTranslationConfig>({
-      source: [],
-      targets: [],
-    });
-
-  const isNotValidated =
-    inputTranslationConfig?.source.length === 0 ||
-    inputTranslationConfig?.targets.length === 0 ||
-    inputTranslationConfig?.targets.length > 10;
-
-  // Create source language options with "None" prepended
-  const sourceLanguageOptions = React.useMemo(() => {
-    // return [{label: 'None', value: 'none'}, ...langData];
-    return [...langData];
-  }, []);
-
-  // All remote languages except for own user
-  const suggestedRemoteTargetLangs = React.useMemo(() => {
-    const remoteLangs = Object.entries(remoteSpokenLanguages)
-      .filter(([uid, lang]) => uid !== String(localUid) && lang)
-      .map(([, lang]) => lang);
-
-    return Array.from(new Set(remoteLangs));
-  }, [remoteSpokenLanguages, localUid]);
-
-  // Initialize or update source/targets dynamically when modal opens
-  React.useEffect(() => {
-    if (!props.modalVisible) {
-      return;
-    }
-    console.log(
-      '[STT_PER_USER_BOT] language selecter popup opened',
-      translationConfig,
-    );
-
-    const mergedTargets = Array.from(
-      new Set([
-        ...(translationConfig.targets || []),
-        ...suggestedRemoteTargetLangs,
-      ]),
-    );
-
-    setInputTranslationConfig({
-      source: translationConfig.source,
-      targets: mergedTargets,
-    });
-
-    console.log('[STT_PER_USER_BOT] mergedTargets —', mergedTargets);
-    console.log(
-      '[STT_PER_USER_BOT] all target langs —',
-      suggestedRemoteTargetLangs,
-    );
-  }, [props.modalVisible, translationConfig, suggestedRemoteTargetLangs]);
+  const hasSpokenLanguageChanged =
+    draftSpokenLanguage !== globalSttState?.globalSpokenLanguage;
 
   const onConfirmPress = async () => {
-    if (isNotValidated) {
-      return;
-    }
-
-    console.log('[LANG_SELECTOR] Confirm pressed:', {
-      inputTranslationConfig,
-    });
-
     try {
-      props?.onConfirm(inputTranslationConfig);
-      // props.setModalVisible(false);
+      props?.onConfirm(draftSpokenLanguage);
     } catch (err) {
       console.error('[LANG_SELECTOR] Error confirming STT config:', err);
     }
@@ -131,7 +55,12 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
       setModalVisible={props.setModalVisible}
       showCloseIcon={true}
       contentContainerStyle={styles.contentContainer}
-      title={heading(isSTTActive ? false : true)}>
+      title={heading(globalSttState?.globalSttEnabled ? false : true)}
+      subtitle={
+        globalSttState?.globalSttEnabled
+          ? ''
+          : 'Speech-to-text service will turn on for everyone in the call.'
+      }>
       {isLangChangeInProgress ? (
         <View style={styles.changeInProgress}>
           <Loading
@@ -145,67 +74,29 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
         <>
           {/* Source Language */}
           <View>
-            <Text style={styles.labelText}>
-              What language will you speak in this meeting?
-            </Text>
+            <Text style={styles.labelText}>Meeting Spoken language</Text>
             <Spacer size={8} />
             <Dropdown
               label="Select language"
-              data={sourceLanguageOptions}
-              selectedValue={inputTranslationConfig.source[0] || ''}
-              onSelect={item =>
-                setInputTranslationConfig(prev => ({
-                  ...prev,
-                  source: [item.value as LanguageType],
-                }))
-              }
+              data={[...langData]}
+              selectedValue={draftSpokenLanguage}
+              onSelect={item => {
+                if (item.value) {
+                  setDraftSpokenLanguage(item.value as LanguageType);
+                }
+              }}
               enabled={true}
             />
-            <Spacer size={2} />
+            <Spacer size={8} />
             <Text style={styles.infoText}>
-              Captions and transcript will appear in this language for you.
+              {globalSttState?.globalSttEnabled
+                ? 'Updates the spoken-language for everyone in the call.'
+                : 'Sets the spoken-language for everyone in the call.'}
             </Text>
           </View>
 
           <Spacer size={20} />
 
-          {/* Target Languages */}
-          <View>
-            <Text style={styles.labelText}>
-              Spoken languages in the meeting
-            </Text>
-            <Spacer size={8} />
-            <DropdownMulti
-              selectedValues={inputTranslationConfig.targets}
-              setSelectedValues={(val: LanguageType[]) =>
-                setInputTranslationConfig(prev => ({
-                  ...prev,
-                  targets: val,
-                }))
-              }
-              defaultSelectedValues={inputTranslationConfig.targets}
-              error={error}
-              setError={setError}
-              isOpen={isTargetOpen}
-              setIsOpen={setIsTargetOpen}
-              maxAllowedSelection={10}
-              protectedLanguages={Array.from(
-                new Set([...suggestedRemoteTargetLangs]),
-              )}
-            />
-            <Spacer size={2} />
-            <Text style={styles.infoText}>
-              Auto populated by spoken languages of other users once they join
-              the room.
-            </Text>
-          </View>
-          <Spacer size={8} />
-          {inputTranslationConfig?.targets.length === 10 && (
-            <Text style={[styles.subHeading, styles.errorTxt]}>
-              {maxLangValInfo}
-            </Text>
-          )}
-          <Spacer size={32} />
           <View
             style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
             <View style={isDesktop && {flex: 1}}>
@@ -223,10 +114,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             <View style={isDesktop && {flex: 1}}>
               <PrimaryButton
                 containerStyle={styles.button}
-                disabled={
-                  isNotValidated ||
-                  !hasConfigChanged(translationConfig, inputTranslationConfig)
-                }
+                disabled={!hasSpokenLanguageChanged}
                 text={ConfirmBtnLabel}
                 textStyle={styles.btnText}
                 onPress={onConfirmPress}

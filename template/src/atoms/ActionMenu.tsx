@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   iconContainerEnd: {
-    marginLeft: 10,
+    marginLeft: 'auto',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',

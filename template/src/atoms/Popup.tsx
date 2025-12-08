@@ -106,7 +106,7 @@ const Popup = (props: PopupProps) => {
                 <></>
               )}
 
-              {title ? <Spacer size={32} /> : null}
+              {title ? <Spacer size={24} /> : null}
             </>
           ) : (
             <></>
