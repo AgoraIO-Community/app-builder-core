@@ -12,6 +12,7 @@ import {
   StyleProp,
   TextStyle,
   Pressable,
+  ScrollView,
 } from 'react-native';
 import React, {SetStateAction, useState} from 'react';
 
@@ -35,7 +36,10 @@ export interface ActionMenuItem {
   isBase64Icon?: boolean;
   icon?: keyof IconsInterface;
   onHoverIcon?: keyof IconsInterface;
+  endIcon?: keyof IconsInterface;
+  onHoverEndIcon?: keyof IconsInterface;
   iconColor?: string;
+  endIconColor?: string;
   textColor?: string;
   title?: string;
   titleStyle?: StyleProp<TextStyle>;
@@ -48,8 +52,10 @@ export interface ActionMenuItem {
   onHoverContent?: JSX.Element;
   disabled?: boolean;
   iconSize?: number;
+  endIconSize?: number;
   hide?: ToolbarItemHide;
   type?: string;
+  iconPosition?: 'start' | 'end';
 }
 export interface ActionMenuProps {
   from: string;
@@ -71,18 +77,23 @@ export interface UserActionMenuItemProps {
   label: string;
   icon?: keyof IconsInterface;
   onHoverIcon?: keyof IconsInterface;
+  endIcon?: keyof IconsInterface;
+  onHoverEndIcon?: keyof IconsInterface;
   toggleStatus?: boolean;
   iconColor: string;
+  endIconColor?: string;
   textColor: string;
   onPress?: () => void;
   onToggle?: () => void;
   disabled?: boolean;
   iconSize?: number;
+  endIconSize?: number;
   isHovered?: boolean;
   isExternalIcon?: boolean;
   isBase64Icon?: boolean;
   externalIconString?: string;
   titleStyle?: StyleProp<TextStyle>;
+  iconPosition?: 'start' | 'end';
 }
 
 export const UserActionMenuItem = ({
@@ -92,42 +103,77 @@ export const UserActionMenuItem = ({
   onPress,
   onToggle,
   iconColor,
+  endIconColor,
   textColor,
   iconSize = 20,
+  endIconSize = 20,
   titleStyle = {},
   disabled = false,
   isHovered = false,
   onHoverIcon,
+  endIcon,
+  onHoverEndIcon,
   isExternalIcon = false,
   isBase64Icon = false,
   externalIconString = '',
+  iconPosition = 'start',
 }: UserActionMenuItemProps) => {
   const iconToShow = isHovered && onHoverIcon && !disabled ? onHoverIcon : icon;
+  const endIconToShow =
+    isHovered && onHoverEndIcon && !disabled ? onHoverEndIcon : endIcon;
 
-  const content = (
-    <>
-      <View style={styles.iconContainer}>
+  const renderIcon = (
+    iconName: keyof IconsInterface | undefined,
+    position: 'start' | 'end' = 'start',
+    size: number = 20,
+    color: string = iconColor,
+  ) => {
+    if (!iconName) return null;
+
+    return (
+      <View
+        style={[
+          styles.iconContainer,
+          position === 'end' && styles.iconContainerEnd,
+        ]}>
         {isExternalIcon ? (
           <ImageIcon
             base64={isBase64Icon}
-            base64TintColor={iconColor}
+            base64TintColor={color}
             iconType="plain"
-            iconSize={iconSize}
+            iconSize={size}
             icon={externalIconString}
-            tintColor={iconColor}
+            tintColor={color}
           />
         ) : (
           <ImageIcon
             base64={isBase64Icon}
-            base64TintColor={iconColor}
+            base64TintColor={color}
             iconType="plain"
-            iconSize={iconSize}
-            name={iconToShow}
-            tintColor={iconColor}
+            iconSize={size}
+            name={iconName}
+            tintColor={color}
           />
         )}
       </View>
-      <Text style={[styles.text, titleStyle, {color: textColor}]}>{label}</Text>
+    );
+  };
+
+  const content = (
+    <>
+      {renderIcon(iconToShow, 'start', iconSize, iconColor)}
+
+      <Text
+        style={[
+          styles.text,
+          titleStyle,
+          {color: textColor},
+          (iconPosition === 'end' || endIcon) && styles.textWithEndIcon,
+        ]}>
+        {label}
+      </Text>
+
+      {renderIcon(endIconToShow, 'end', endIconSize, endIconColor || iconColor)}
 
       {typeof toggleStatus === 'boolean' && (
         <View style={styles.toggleContainer}>
@@ -187,6 +233,8 @@ const ActionMenu = (props: ActionMenuProps) => {
         component: CustomActionItem = null,
         icon = '',
         onHoverIcon,
+        endIcon,
+        onHoverEndIcon,
         isBase64Icon = false,
         isExternalIcon = false,
         externalIconString = '',
@@ -195,13 +243,16 @@ const ActionMenu = (props: ActionMenuProps) => {
         closeActionMenu = () => {},
         uid,
         iconColor,
+        endIconColor,
         textColor,
         disabled = false,
         onHoverCallback = undefined,
         onHoverContent = undefined,
         iconSize = 20,
+        endIconSize = 20,
         titleStyle = {},
         type = '',
+        iconPosition = 'start',
       } = item;
       return (
         <PlatformWrapper key={props.from + '_' + title + index}>
@@ -262,18 +313,23 @@ const ActionMenu = (props: ActionMenuProps) => {
                   <UserActionMenuItem
                     label={label || title}
                     icon={icon}
+                    endIcon={endIcon}
                     toggleStatus={toggleStatus}
                     iconColor={iconColor}
+                    endIconColor={endIconColor}
                     textColor={textColor}
                     iconSize={iconSize}
+                    endIconSize={endIconSize}
                     titleStyle={titleStyle}
                     disabled={disabled}
                     onToggle={onPress}
                     isHovered={isHovered}
                     isExternalIcon={isExternalIcon}
                     externalIconString={externalIconString}
+                    iconPosition={iconPosition}
                     isBase64Icon={isBase64Icon}
                     onHoverIcon={onHoverIcon}
+                    onHoverEndIcon={onHoverEndIcon}
                   />
                 </TouchableOpacity>
               )}
@@ -282,6 +338,21 @@ const ActionMenu = (props: ActionMenuProps) => {
         </PlatformWrapper>
       );
     });
+  };
+
+  const shouldUseScrollView = props?.containerStyle?.maxHeight !== undefined;
+
+  const renderScrollableContent = () => {
+    return shouldUseScrollView ? (
+      <ScrollView
+        style={{maxHeight: props.containerStyle.maxHeight}}
+        showsVerticalScrollIndicator={true}
+        nestedScrollEnabled={true}>
+        {renderItems()}
+      </ScrollView>
+    ) : (
+      renderItems()
+    );
   };
 
   return (
@@ -293,7 +364,7 @@ const ActionMenu = (props: ActionMenuProps) => {
             <div
               onMouseEnter={() => props?.onHover && props.onHover(true)}
               onMouseLeave={() => props?.onHover && props.onHover(false)}>
-              {renderItems()}
+              {renderScrollableContent()}
             </div>
           </View>
         )
@@ -311,7 +382,7 @@ const ActionMenu = (props: ActionMenuProps) => {
           </TouchableWithoutFeedback>
           <View
             style={[styles.modalView, props?.containerStyle, modalPosition]}>
-            {renderItems()}
+            {renderScrollableContent()}
           </View>
         </Modal>
       )}
@@ -387,6 +458,15 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginVertical: 12,
     marginLeft: 12,
+  },
+  iconContainerEnd: {
+    marginLeft: 10,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textWithEndIcon: {
+    marginRight: 0,
   },
   toggleContainer: {
     justifyContent: 'center',

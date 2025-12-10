@@ -29,6 +29,8 @@ export interface PreCallContextInterface {
   setSpeakerAvailable: React.Dispatch<React.SetStateAction<boolean>>;
   isPermissionRequested: boolean;
   setIsPermissionRequested: React.Dispatch<React.SetStateAction<boolean>>;
+  isNameIsEmpty: boolean;
+  setIsNameIsEmpty: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const PreCallContext = createContext<PreCallContextInterface>({
@@ -42,6 +44,8 @@ const PreCallContext = createContext<PreCallContextInterface>({
   setSpeakerAvailable: () => {},
   isPermissionRequested: false,
   setIsPermissionRequested: () => {},
+  isNameIsEmpty: false,
+  setIsNameIsEmpty: () => {},
 });
 
 interface PreCallProviderProps {
@@ -54,6 +58,7 @@ const PreCallProvider = (props: PreCallProviderProps) => {
   const roomInfo = useRoomInfo();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
+  const [isNameIsEmpty, setIsNameIsEmpty] = useState(false);
   const [isCameraAvailable, setCameraAvailable] = useState(false);
   const [isMicAvailable, setMicAvailable] = useState(false);
   const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
@@ -69,6 +74,8 @@ const PreCallProvider = (props: PreCallProviderProps) => {
     setSpeakerAvailable,
     isPermissionRequested,
     setIsPermissionRequested,
+    isNameIsEmpty,
+    setIsNameIsEmpty,
   };
 
   useEffect(() => {

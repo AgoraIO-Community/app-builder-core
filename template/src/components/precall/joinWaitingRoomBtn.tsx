@@ -45,6 +45,8 @@ import {
   waitingRoomHostNotJoined,
   waitingRoomUsersInCall,
 } from '../../language/default-labels/videoCallScreenLabels';
+import SDKEvents from '../../utils/SdkEvents';
+import isSDK from '../../utils/isSDK';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -69,7 +71,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const waitingRoomUsersInCallText = useString(waitingRoomUsersInCall);
   let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
-  const {setCallActive, callActive} = usePreCall();
+  const {setCallActive, callActive, setIsNameIsEmpty} = usePreCall();
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
@@ -150,6 +152,10 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
       });
 
       if (approved) {
+        if (isSDK()) {
+          //emit SDKEvent waiting-room-approval-granted
+          SDKEvents.emit('waiting-room-approval-granted');
+        }
         setRoomInfo(prev => {
           return {
             ...prev,
@@ -189,6 +195,10 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
           };
         });
       } else {
+        if (isSDK()) {
+          //emit SDKEvent waiting-room-approval-rejected
+          SDKEvents.emit('waiting-room-approval-rejected');
+        }
         setRoomInfo(prev => {
           return {
             ...prev,
@@ -236,6 +246,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   };
 
   const onSubmit = () => {
+    if (!username || (username && username?.trim() === '')) {
+      setIsNameIsEmpty(true);
+      return;
+    }
+    setIsNameIsEmpty(false);
     shouldWaitingRoomPoll = true;
     setUsername(username.trim());
     //setCallActive(true);
@@ -252,7 +267,10 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
     // join request API to server, server will send RTM message to all hosts regarding request from this user,
     requestServerToJoinRoom();
-
+    if (isSDK()) {
+      //emit SDKEvent waiting for approval
+      SDKEvents.emit('waiting-room-approval-requested');
+    }
     // Play a sound to avoid autoblocking in safari
     if (isWebInternal() || isMobileOrTablet()) {
       audio.volume = 0;
@@ -281,8 +299,8 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const title = buttonText;
   const onPress = () => onSubmit();
   const disabled = $config.ENABLE_WAITING_ROOM_AUTO_REQUEST
-    ? !hasHostJoined || isInWaitingRoom ||  username?.trim() === ''
-    : isInWaitingRoom || username?.trim() === '';
+    ? !hasHostJoined || isInWaitingRoom
+    : isInWaitingRoom;
   return props?.render ? (
     props.render(onPress, title, disabled)
   ) : (

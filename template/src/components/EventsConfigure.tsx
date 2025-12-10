@@ -268,65 +268,65 @@ const EventsConfigure: React.FC<Props> = ({
     permissionStatusRef.current = permissionStatus;
   }, [permissionStatus]);
 
-  const {hasUserJoinedRTM, isInitialQueueCompleted} = useContext(ChatContext);
-  const {startSpeechToText, addStreamMessageListener} = useSpeechToText();
+  // const {hasUserJoinedRTM, isInitialQueueCompleted} = useContext(ChatContext);
+  // const {startSpeechToText, addStreamMessageListener} = useSpeechToText();
 
-  //auto start stt
-  useEffect(() => {
-    if (
-      !isRecordingBot &&
-      $config.ENABLE_CAPTION &&
-      $config.STT_AUTO_START &&
-      callActive &&
-      hasUserJoinedRTM &&
-      isInitialQueueCompleted &&
-      !sttAutoStarted
-    ) {
-      //host will start the caption
-      if (isHost && roomId?.host && !isSTTAlreadyActiveRef.current) {
-        logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered', {
-          uidWhoTriggered: localUid,
-        });
+  // auto start stt
+  // useEffect(() => {
+  //   if (
+  //     !isRecordingBot &&
+  //     $config.ENABLE_CAPTION &&
+  //     $config.STT_AUTO_START &&
+  //     callActive &&
+  //     hasUserJoinedRTM &&
+  //     isInitialQueueCompleted &&
+  //     !sttAutoStarted
+  //   ) {
+  //     //host will start the caption
+  //     if (isHost && roomId?.host && !isSTTAlreadyActiveRef.current) {
+  //       logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered', {
+  //         uidWhoTriggered: localUid,
+  //       });
 
-        // add stream message callback listener
-        addStreamMessageListener();
+  //       // add stream message callback listener
+  //       addStreamMessageListener();
 
-        //start with default language
-        startSpeechToText(['en-US'])
-          .then(() => {
-            logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START success');
-            setSttAutoStarted(true);
-          })
-          .catch(err => {
-            logger.log(
-              LogSource.Internals,
-              'STT',
-              'STT_AUTO_START failed',
-              err,
-            );
-            setSttAutoStarted(false);
-          });
-      }
+  //       //start with default language
+  //       startSpeechToText(['en-US'])
+  //         .then(() => {
+  //           logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START success');
+  //           setSttAutoStarted(true);
+  //         })
+  //         .catch(err => {
+  //           logger.log(
+  //             LogSource.Internals,
+  //             'STT',
+  //             'STT_AUTO_START failed',
+  //             err,
+  //           );
+  //           setSttAutoStarted(false);
+  //         });
+  //     }
 
-      if (isHost && roomId?.host && isSTTAlreadyActiveRef.current) {
-        logger.log(
-          LogSource.Internals,
-          'STT',
-          'STT_AUTO_START already triggered by some other host',
-        );
-        setSttAutoStarted(true);
-      }
-    }
-  }, [
-    isRecordingBot,
-    callActive,
-    isHost,
-    hasUserJoinedRTM,
-    roomId,
-    sttAutoStarted,
-    isInitialQueueCompleted,
-    isSTTAlreadyActiveRef.current,
-  ]);
+  //     if (isHost && roomId?.host && isSTTAlreadyActiveRef.current) {
+  //       logger.log(
+  //         LogSource.Internals,
+  //         'STT',
+  //         'STT_AUTO_START already triggered by some other host',
+  //       );
+  //       setSttAutoStarted(true);
+  //     }
+  //   }
+  // }, [
+  //   isRecordingBot,
+  //   callActive,
+  //   isHost,
+  //   hasUserJoinedRTM,
+  //   roomId,
+  //   sttAutoStarted,
+  //   isInitialQueueCompleted,
+  //   isSTTAlreadyActiveRef.current,
+  // ]);
 
   useEffect(() => {
     //user joined event listener
@@ -570,43 +570,97 @@ const EventsConfigure: React.FC<Props> = ({
       }
     });
 
-    events.on(EventNames.STT_ACTIVE, data => {
-      const payload = JSON.parse(data?.payload);
-      if (payload.active) {
-        isSTTAlreadyActiveRef.current = true;
-      } else {
-        isSTTAlreadyActiveRef.current = false;
-      }
-      setRoomInfo(prev => {
-        return {
-          ...prev,
-          isSTTActive: payload.active,
-        };
-      });
-    });
+    //  events.on(EventNames.STT_ACTIVE, data => {
+    //   const payload = JSON.parse(data?.payload);
+    //   if (payload.active) {
+    //     isSTTAlreadyActiveRef.current = true;
+    //   } else {
+    //     isSTTAlreadyActiveRef.current = false;
+    //   }
+    //   setRoomInfo(prev => {
+    //     return {
+    //       ...prev,
+    //       isSTTActive: payload.active,
+    //     };
+    //   });
+    // });
 
-    events.on(EventNames.STT_LANGUAGE, data => {
-      const {
-        username,
-        prevLang,
-        newLang,
-        uid,
-      }: RoomInfoContextInterface['sttLanguage'] = JSON.parse(data?.payload);
-      // set this on roominfo then use it in Controls
-      const sttLangObj = {
-        username,
-        prevLang,
-        newLang,
-        uid,
-        langChanged: true,
-      };
-      setRoomInfo(prev => {
-        return {
-          ...prev,
-          sttLanguage: sttLangObj,
-        };
-      });
-    });
+    // events.on(EventNames.STT_LANGUAGE, data => {
+    //   const {
+    //     username,
+    //     prevLang,
+    //     newLang,
+    //     uid,
+    //     remoteLang,
+    //   }: RoomInfoContextInterface['sttLanguage'] = JSON.parse(data?.payload);
+
+    //   setRoomInfo(prev => {
+    //     // Merge remoteLang with existing remoteLang to accumulate protected languages
+    //     const existingRemoteLang = prev.sttLanguage?.remoteLang || [];
+    //     const newRemoteLang = remoteLang || [];
+    //     const mergedRemoteLang = [...new Set([...existingRemoteLang, ...newRemoteLang])];
+
+    //     const sttLangObj = {
+    //       username,
+    //       prevLang,
+    //       newLang, // All languages in the channel
+    //       uid,
+    //       langChanged: true,
+    //       remoteLang: mergedRemoteLang, // Accumulated protected languages
+    //     };
+
+    //     return {
+    //       ...prev,
+    //       sttLanguage: sttLangObj,
+    //     };
+    //   });
+    // });
+
+    // events.on(EventNames.STT_TRANSLATE_LANGUAGE, data => {
+    //   const {
+    //     username,
+    //     uid,
+    //     translateConfig,
+    //   } = JSON.parse(data?.payload);
+
+    //   setRoomInfo(prev => {
+    //     // Merge translate configs with existing configuration
+    //     const existingTranslateConfig = prev.sttLanguage?.translateConfig || [];
+    //     const newTranslateConfig = translateConfig || [];
+
+    //     // Merge logic: for each new source language, merge with existing or add new
+    //     const mergedTranslateConfig = [...existingTranslateConfig];
+
+    //     newTranslateConfig.forEach(newConfig => {
+    //       const existingIndex = mergedTranslateConfig.findIndex(
+    //         existing => existing.source_lang === newConfig.source_lang
+    //       );
+
+    //       if (existingIndex !== -1) {
+    //         // Same source language - merge target languages
+    //         const existingTargets = mergedTranslateConfig[existingIndex].target_lang;
+    //         const mergedTargets = [...new Set([...existingTargets, ...newConfig.target_lang])];
+    //         mergedTranslateConfig[existingIndex] = {
+    //           ...mergedTranslateConfig[existingIndex],
+    //           target_lang: mergedTargets,
+    //         };
+    //       } else {
+    //         // Different source language - add new config
+    //         mergedTranslateConfig.push(newConfig);
+    //       }
+    //     });
+
+    //     const sttLangObj = {
+    //       ...prev.sttLanguage,
+    //       translateConfig: mergedTranslateConfig,
+    //     };
+
+    //     return {
+    //       ...prev,
+    //       sttLanguage: sttLangObj,
+    //     };
+    //   });
+    // });
 
     events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
       if (!isHostRef.current) return;
@@ -871,8 +925,9 @@ const EventsConfigure: React.FC<Props> = ({
       events.off(EventNames.WHITEBOARD_ACTIVE);
       events.off(EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION);
       events.off(EventNames.BOARD_COLOR_CHANGED);
-      events.off(EventNames.STT_ACTIVE);
-      events.off(EventNames.STT_LANGUAGE);
+      // events.off(EventNames.STT_ACTIVE);
+      // events.off(EventNames.STT_LANGUAGE);
+      // events.off(EventNames.STT_TRANSLATE_LANGUAGE);
     };
   }, []);
 

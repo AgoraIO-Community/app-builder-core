@@ -197,8 +197,15 @@ export const sttChangeLanguagePopupPrimaryBtnText =
 
 export const sttChangeSpokenLanguageText =
   `${stt}ChangeSpokenLanguageText` as const;
+export const sttStopTranslationText = `${stt}StopTranslationText` as const;
+export const sttOriginalTranslatedText =
+  `${stt}sttOriginalTranslatedText` as const;
 export const sttSettingSpokenLanguageText =
   `${stt}SettingSpokenLanguageText` as const;
+export const sttSettingTranslationLanguageText =
+  `${stt}SettingTranslationLanguageText` as const;
+export const sttChangeTranslationLanguageText =
+  `${stt}ChangeTranslationLanguageText` as const;
 export const sttTranscriptPanelHeaderText =
   `${stt}TranscriptPanelHeaderText` as const;
 export const sttDownloadBtnText = `${stt}DownloadBtnText` as const;
@@ -206,6 +213,8 @@ export const sttDownloadTranscriptBtnText =
   `${stt}DownloadTranscriptBtnText` as const;
 export const sttLanguageChangeInProgress =
   `${stt}LanguageChangeInProgress` as const;
+export const sttStartError = `${stt}StartError` as const;
+export const sttUpdateError = `${stt}UpdateError` as const;
 
 export const chatPanelGroupTabText = 'chatPanelGroupTabText';
 export const chatPanelPrivateTabText = 'chatPanelPrivateTabText';
@@ -637,11 +646,17 @@ export interface I18nVideoCallScreenLabelsInterface {
   [sttChangeLanguagePopupPrimaryBtnText]?: I18nBaseType;
 
   [sttChangeSpokenLanguageText]?: I18nBaseType;
+  [sttStopTranslationText]?: I18nBaseType;
+  [sttOriginalTranslatedText]?: I18nBaseType;
   [sttSettingSpokenLanguageText]?: I18nBaseType;
+  [sttSettingTranslationLanguageText]?: I18nConditionalType;
+  [sttChangeTranslationLanguageText]?: I18nBaseType;
   [sttTranscriptPanelHeaderText]?: I18nBaseType;
   [sttDownloadBtnText]?: I18nBaseType;
   [sttDownloadTranscriptBtnText]?: I18nBaseType;
   [sttLanguageChangeInProgress]?: I18nBaseType;
+  [sttStartError]?: I18nBaseType;
+  [sttUpdateError]?: I18nBaseType;
 
   [peoplePanelHeaderText]?: I18nBaseType;
 
@@ -1027,21 +1042,29 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [textTrackModalTitleIntn]: 'Text Tracks',
   [sttChangeLanguagePopupHeading]: isFirstTimeOpened =>
-    isFirstTimeOpened ? 'Set Spoken Language' : 'Change Spoken Language',
+    isFirstTimeOpened
+      ? 'Setup Captions & Translation'
+      : 'Modify Captions & Translation',
   [sttChangeLanguagePopupSubHeading]:
-    'What language(s) are being spoken by everyone in this meeting?',
+    'Please select your preferred language as the source language and up to 10 target languages to translate into. You can update these settings at any time by returning to this page.',
   [sttChangeLanguagePopupPrimaryBtnText]: 'CONFIRM',
   [sttChangeLanguagePopupDropdownInfo]:
-    'You can choose a maximum of two languages',
+    'You can choose a maximum of ten languages',
   [sttChangeLanguagePopupDropdownError]:
     'Choose at least one language to proceed',
   [sttChangeSpokenLanguageText]: 'Change Spoken Language',
-
+  [sttStopTranslationText]: 'Stop Translation',
+  [sttOriginalTranslatedText]: 'Show Original and translated',
   [sttTranscriptPanelHeaderText]: 'Meeting Transcript',
   [sttDownloadBtnText]: 'Download',
   [sttDownloadTranscriptBtnText]: 'Download Transcript',
   [sttSettingSpokenLanguageText]: 'Setting Spoken Language',
+  [sttSettingTranslationLanguageText]: (isUpdate: boolean) =>
+    isUpdate ? 'Updating Translation Language' : 'Setting Translation Language',
+  [sttChangeTranslationLanguageText]: 'Change Translation Language',
   [sttLanguageChangeInProgress]: 'Language Change is in progress...',
+  [sttStartError]: 'Failed to start captions',
+  [sttUpdateError]: 'Failed to update caption settings',
 
   [peoplePanelHeaderText]: 'People',
 

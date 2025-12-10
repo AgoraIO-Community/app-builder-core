@@ -11,7 +11,7 @@
 */
 
 import React from 'react';
-import {TextStyle} from 'react-native';
+import {TextStyle, Text} from 'react-native';
 import TextInput from '../../atoms/TextInput';
 import {useString} from '../../utils/useString';
 import {useRoomInfo} from '../room-info/useRoomInfo';
@@ -25,6 +25,7 @@ import {
   precallNameInputPlaceholderText,
   precallYouAreJoiningAsHeading,
 } from '../../language/default-labels/precallScreenLabels';
+import {usePreCall} from './usePreCall';
 
 export interface PreCallTextInputProps {
   labelStyle?: TextStyle;
@@ -39,30 +40,52 @@ const PreCallTextInput = (props?: PreCallTextInputProps) => {
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
+  const {isNameIsEmpty, setIsNameIsEmpty} = usePreCall();
   const {isDesktop = false, isOnPrecall = false} = props;
 
   return (
-    <Input
-      maxLength={maxInputLimit}
-      label={isOnPrecall ? '' : isDesktop ? joiningAs : ''}
-      labelStyle={
-        props?.labelStyle
-          ? props.labelStyle
-          : {
-              fontFamily: ThemeConfig.FontFamily.sansPro,
-              fontWeight: '400',
-              fontSize: ThemeConfig.FontSize.small,
-              lineHeight: ThemeConfig.FontSize.small,
-              color: $config.FONT_COLOR,
-            }
-      }
-      value={username}
-      autoFocus
-      onChangeText={text => setUsername(text ? text : '')}
-      onSubmitEditing={() => {}}
-      placeholder={isJoinDataFetched ? placeHolder : fetchingNamePlaceholder}
-      editable={!isInWaitingRoom && isJoinDataFetched}
-    />
+    <>
+      <Input
+        maxLength={maxInputLimit}
+        label={isOnPrecall ? '' : isDesktop ? joiningAs : ''}
+        labelStyle={
+          props?.labelStyle
+            ? props.labelStyle
+            : {
+                fontFamily: ThemeConfig.FontFamily.sansPro,
+                fontWeight: '400',
+                fontSize: ThemeConfig.FontSize.small,
+                lineHeight: ThemeConfig.FontSize.small,
+                color: $config.FONT_COLOR,
+              }
+        }
+        value={username}
+        autoFocus
+        onChangeText={text => {
+          setUsername(text ? text : '');
+          if (text && text.trim() === '') {
+            setIsNameIsEmpty(true);
+          } else {
+            setIsNameIsEmpty(false);
+          }
+        }}
+        onSubmitEditing={() => {}}
+        placeholder={isJoinDataFetched ? placeHolder : fetchingNamePlaceholder}
+        editable={!isInWaitingRoom && isJoinDataFetched}
+        style={isNameIsEmpty ? {borderColor: $config.SEMANTIC_ERROR} : {}}
+      />
+      {isNameIsEmpty && (
+        <Text
+          style={{
+            color: $config.SEMANTIC_ERROR,
+            fontFamily: ThemeConfig.FontFamily.sansPro,
+            marginTop: 4,
+            marginLeft: 4,
+          }}>
+          {'Name is required'}
+        </Text>
+      )}
+    </>
   );
 };
 

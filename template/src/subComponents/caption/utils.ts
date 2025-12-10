@@ -1,5 +1,5 @@
 import {ContentObjects} from '../../../agora-rn-uikit/src/Contexts/RtcContext';
-import {TranscriptItem} from './useCaption';
+import {TranscriptItem, LanguageTranslationConfig} from './useCaption';
 
 export function formatTime(timestamp: number): string {
   const d = new Date(timestamp);
@@ -10,6 +10,26 @@ export function formatTime(timestamp: number): string {
   const H = h % 12 || 12;
   return `${H}:${m} ${suffix}`;
 }
+
+/**
+ * Check if translation configuration has changed
+ * Compares source language and target languages between two configs
+ * @param prev - Previous translation configuration
+ * @param next - New translation configuration
+ * @returns true if config has changed, false otherwise
+ */
+export const hasConfigChanged = (
+  prev: LanguageTranslationConfig,
+  next: LanguageTranslationConfig,
+): boolean => {
+  const sourceChanged =
+    (prev.source || []).sort().join(',') !==
+    (next.source || []).sort().join(',');
+  const targetsChanged =
+    (prev.targets || []).sort().join(',') !==
+    (next.targets || []).sort().join(',');
+  return sourceChanged || targetsChanged;
+};
 
 export type LanguageType =
   | 'ar-EG'
@@ -118,14 +138,56 @@ export const formatTranscriptContent = (
   meetingTitle: string,
   defaultContent: ContentObjects,
 ) => {
+  // Helper function to get display text based on stored translation language
+  // Uses the translation language that was active when this transcript item was created
+  const getDisplayText = (item: TranscriptItem): string => {
+    // Use the stored translation language from when this item was created
+    const storedTranslationLanguage = item.selectedTranslationLanguage;
+
+    if (!storedTranslationLanguage || !item.translations) {
+      return item.text; // no translation selected or no translations available, show original
+    }
+
+    // find translation for the stored language
+    const currentTranslation = item.translations.find(
+      t => t.lang === storedTranslationLanguage,
+    );
+    if (currentTranslation?.text) {
+      return currentTranslation.text;
+    }
+
+    // if stored language not available, show original
+    return item.text;
+  };
+
   const formattedContent = meetingTranscript
     .map(item => {
-      if (item.uid.toString().indexOf('langUpdate') !== -1) {
+      if (
+        item.uid.toString().indexOf('langUpdate') !== -1 ||
+        item.uid.toString().indexOf('translationUpdate') !== -1
+      ) {
         return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
       }
-      return `${defaultContent[item.uid].name} ${formatTime(
+
+      // Build transcript entry with original text and all translations
+      let transcriptEntry = `${defaultContent[item.uid]?.name} ${formatTime(
         Number(item?.time),
       )}:\n${item.text}`;
+
+      // Add all translations with language labels
+      if (item.translations && item.translations.length > 0) {
+        const translationLines = item.translations
+          .map(trans => {
+            const langLabel =
+              langData.find(l => l.value === trans.lang)?.label || trans.lang;
+            return `${langLabel}: ${trans.text}`;
+          })
+          .join('\n');
+
+        transcriptEntry += `\n${translationLines}`;
+      }
+
+      return transcriptEntry;
     })
     .join('\n\n');
 
@@ -159,4 +221,110 @@ export const formatTranscriptContent = (
   const fileName = `MeetingTranscript_${formattedDate}_${formattedTime}.txt`;
 
   return [finalContent, fileName];
+};
+
+/**
+ * Get the appropriate caption text to display based on the user's source/spoken language
+ * For other users' captions: shows translation matching user's source/spoken language
+ * For current user's captions: shows original text
+ * Falls back to original text if translation is not available
+ *
+ * @param captionText - The original caption text
+ * @param translations - Array of available translations
+ * @param viewerSourceLanguage - The user's source (spoken) language
+ * @param speakerUid - The UID of the person speaking
+ * @param currentUserUid - The UID of the current user
+ * @returns The appropriate caption text to display
+ */
+export const getUserTranslatedText = (
+  captionText: string,
+  translations: Array<{lang: string; text: string; isFinal: boolean}> = [],
+  viewerSourceLanguage: LanguageType,
+  speakerUid: string | number,
+  currentUserUid: string | number,
+): {
+  value: string;
+  langCode: string;
+} => {
+  // console.log(
+  //   'getUserTranslatedText input params',
+  //   captionText,
+  //   translations,
+  //   viewerSourceLanguage,
+  //   speakerUid,
+  //   currentUserUid,
+  // );
+
+  // 1. If the speaker is the local user, always show their own source text
+  if (speakerUid === currentUserUid) {
+    return {
+      value: captionText,
+      langCode: getLanguageLabel([viewerSourceLanguage]) || '',
+    };
+  }
+  // For other users' captions, try to find translation matching viewer's source language
+  if (viewerSourceLanguage && translations && translations.length > 0) {
+    const matchingTranslation = translations.find(
+      t => t.lang === viewerSourceLanguage,
+    );
+    if (matchingTranslation) {
+      // Translation exists (even if empty)
+      // - If text is empty: show nothing (don’t fallback)
+      // - If text exists: show it
+      const translatedText = matchingTranslation.text?.trim() || '';
+      return {
+        value: translatedText,
+        langCode: getLanguageLabel([matchingTranslation.lang]) || '',
+      };
+    }
+  }
+
+  // Fallback to original text if no translation found
+  return {
+    value: captionText,
+    langCode: 'Original',
+  };
+};
+
+export interface TranslateConfig {
+  source_lang: string;
+  target_lang: string[];
+}
+
+export const mergeTranslationConfigs = (
+  existingTranslateConfig: TranslateConfig[],
+  userOwnLanguages: LanguageType[],
+  selectedTranslationLanguage: string,
+): TranslateConfig[] => {
+  // Create new translate_config for user's own languages
+  const newTranslateConfigs = userOwnLanguages.map(spokenLang => ({
+    source_lang: spokenLang,
+    target_lang: [selectedTranslationLanguage],
+  }));
+
+  // Merge with existing configuration
+  const mergedTranslateConfig = [...existingTranslateConfig];
+
+  newTranslateConfigs.forEach(newConfig => {
+    const existingIndex = mergedTranslateConfig.findIndex(
+      existing => existing.source_lang === newConfig.source_lang,
+    );
+
+    if (existingIndex !== -1) {
+      // Same source language - merge target languages
+      const existingTargets = mergedTranslateConfig[existingIndex].target_lang;
+      const mergedTargets = [
+        ...new Set([...existingTargets, ...newConfig.target_lang]),
+      ];
+      mergedTranslateConfig[existingIndex] = {
+        ...mergedTranslateConfig[existingIndex],
+        target_lang: mergedTargets,
+      };
+    } else {
+      // Different source language - add new config
+      mergedTranslateConfig.push(newConfig);
+    }
+  });
+
+  return mergedTranslateConfig;
 };

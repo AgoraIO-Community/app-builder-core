@@ -42,7 +42,7 @@ export interface PreCallJoinCallBtnProps {
 
 const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const {rtcProps} = useContext(PropsContext);
-  const {setCallActive} = usePreCall();
+  const {setCallActive, setIsNameIsEmpty} = usePreCall();
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched} = useRoomInfo();
@@ -59,6 +59,11 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   );
 
   const onSubmit = () => {
+    if (!username || (username && username?.trim() === '')) {
+      setIsNameIsEmpty(true);
+      return;
+    }
+    setIsNameIsEmpty(false);
     logger.log(
       LogSource.Internals,
       'PRECALL_SCREEN',
@@ -95,7 +100,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
 
   const title = buttonText;
   const onPress = () => onSubmit();
-  const disabled = !isJoinDataFetched || username?.trim() === '';
+  const disabled = !isJoinDataFetched;
   return props?.render ? (
     props.render(onPress, title, disabled)
   ) : (

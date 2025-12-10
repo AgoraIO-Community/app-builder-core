@@ -20,13 +20,20 @@ import {
 } from '../../components/chat-ui/useChatUIControls';
 import {numFormatter} from '../../utils';
 import ChatContext from '../../components/ChatContext';
-import {useCaption} from '../../subComponents/caption/useCaption';
+import {
+  LanguageTranslationConfig,
+  useCaption,
+} from '../../subComponents/caption/useCaption';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
 import {calculatePosition, isMobileUA} from '../../utils/common';
 import LanguageSelectorPopup from '../../subComponents/caption/LanguageSelectorPopup';
 import useSTTAPI from '../../subComponents/caption/useSTTAPI';
 import useGetName from '../../utils/useGetName';
-import {LanguageType} from '../../subComponents/caption/utils';
+import {
+  LanguageType,
+  mergeTranslationConfigs,
+  TranslateConfig,
+} from '../../subComponents/caption/utils';
 import {useRoomInfo, usePreCall} from 'customization-api';
 import useTranscriptDownload from '../../subComponents/caption/useTranscriptDownload';
 import {useVB} from '../../components/virtual-background/useVB';
@@ -42,10 +49,13 @@ import {
   chatPanelPrivateTabText,
   peoplePanelHeaderText,
   sttChangeSpokenLanguageText,
+  sttChangeTranslationLanguageText,
   sttDownloadTranscriptBtnText,
+  sttStopTranslationText,
   sttTranscriptPanelHeaderText,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import {TranslateActionMenu} from '../../subComponents/caption/CaptionContainer';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
@@ -262,7 +272,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     language: prevLang,
     meetingTranscript,
     isLangChangeInProgress,
-    setLanguage,
+    selectedTranslationLanguage,
   } = useCaption();
   const {downloadTranscript} = useTranscriptDownload();
   const [modalPosition, setModalPosition] = React.useState({});
@@ -270,29 +280,67 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
+  const [isTranslateMenuOpen, setTranslateMenuOpen] =
+    React.useState<boolean>(false);
   const {restart} = useSTTAPI();
   const username = useGetName();
   const actionMenuitems: ActionMenuItem[] = [];
   const {
     data: {isHost},
+    sttLanguage,
   } = useRoomInfo();
-
+  const {handleTranslateConfigChange, updateSTTBotSession, translationConfig} =
+    useCaption();
   const downloadTranscriptLabel = useString(sttDownloadTranscriptBtnText)();
   const changeSpokenLanguage = useString<boolean>(
     sttChangeSpokenLanguageText,
   )();
-  isHost &&
-    actionMenuitems.push({
-      icon: 'lang-select',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: changeSpokenLanguage + ' ',
-      disabled: isLangChangeInProgress,
-      onPress: () => {
-        setActionMenuVisible(false);
-        setLanguagePopup(true);
-      },
-    });
+  const sttStopTranslationLabel = useString<boolean>(sttStopTranslationText)();
+  const changeTranslationLanguage = useString<boolean>(
+    sttChangeTranslationLanguageText,
+  )();
+
+  // isHost &&
+  actionMenuitems.push({
+    icon: 'globe',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: changeSpokenLanguage + ' ',
+    disabled: isLangChangeInProgress,
+    onPress: () => {
+      setActionMenuVisible(false);
+      setLanguagePopup(true);
+    },
+  });
+
+  // actionMenuitems.push({
+  //   icon: 'lang-select',
+  //   iconColor: $config.SECONDARY_ACTION_COLOR,
+  //   textColor: $config.FONT_COLOR,
+  //   title: changeTranslationLanguage,
+  //   disabled: false,
+  //   onPress: () => {
+  //     setActionMenuVisible(false);
+  //     setTranslateMenuOpen(true);
+  //   },
+  // });
+
+  actionMenuitems.push({
+    icon: 'lang-select',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: sttStopTranslationLabel,
+    disabled: false,
+    onPress: async () => {
+      setActionMenuVisible(false);
+      // Keep source language same, just clear target languages
+      // This stops translation but keeps transcription running
+      await updateSTTBotSession({
+        source: translationConfig.source, // Keep current source
+        targets: [], // Empty targets = no translation
+      });
+    },
+  });
 
   actionMenuitems.push({
     icon: 'download',
@@ -306,27 +354,18 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     },
   });
 
-  const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
+  const onLanguageChange = async (
+    inputTranslateConfig: LanguageTranslationConfig,
+  ) => {
+    console.log(
+      '[STT_PER_USER_BOT] SidePanelHeader TranscriptHeaderActionMenu - onLanguageChange - sourceLanguage , targetLanguage:',
+      inputTranslateConfig,
+    );
     setLanguagePopup(false);
-    if (langChanged) {
-      restart(language)
-        .then(() => {
-          logger.debug(
-            LogSource.Internals,
-            'STT',
-            'stt restarted successfully',
-          );
-        })
-        .catch(error => {
-          logger.error(
-            LogSource.Internals,
-            'STT',
-            'Error in restarting',
-            error,
-          );
-          // Handle the error case
-        });
-    }
+    // Update caption with new language configuration\
+    try {
+      await handleTranslateConfigChange(inputTranslateConfig);
+    } catch (error) {}
   };
 
   React.useEffect(() => {
@@ -369,6 +408,12 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}
         onConfirm={onLanguageChange}
+      />
+
+      <TranslateActionMenu
+        actionMenuVisible={isTranslateMenuOpen}
+        setActionMenuVisible={setTranslateMenuOpen}
+        btnRef={btnRef}
       />
     </>
   );
