@@ -67,7 +67,7 @@ const useEndCall = () => {
     if ($config.CHAT) {
       deleteChatUser();
     }
-    RTMEngine.getInstance().engine.leaveChannel(rtcProps.channel);
+    RTMEngine.getInstance().engine.unsubscribe(rtcProps.channel);
     if (!ENABLE_AUTH) {
       // await authLogout();
       await authLogin();
