@@ -10,57 +10,71 @@
 *********************************************
 */
 
-import RtmEngine from 'agora-react-native-rtm';
+import {
+  createAgoraRtmClient,
+  RtmConfig,
+  type RTMClient,
+} from 'agora-react-native-rtm';
 import {isAndroid, isIOS} from '../utils/common';
 
 class RTMEngine {
-  engine!: RtmEngine;
+  private _engine?: RTMClient;
   private localUID: string = '';
   private channelId: string = '';
 
   private static _instance: RTMEngine | null = null;
-
-  public static getInstance() {
-    if (!RTMEngine._instance) {
-      return new RTMEngine();
-    }
-    return RTMEngine._instance;
-  }
-
-  private async createClientInstance() {
-    await this.engine.createClient($config.APP_ID);
-  }
-
-  private async destroyClientInstance() {
-    await this.engine.logout();
-    if (isIOS() || isAndroid()) {
-      await this.engine.destroyClient();
-    }
-  }
 
   private constructor() {
     if (RTMEngine._instance) {
       return RTMEngine._instance;
     }
     RTMEngine._instance = this;
-    this.engine = new RtmEngine();
-    this.localUID = '';
-    this.channelId = '';
-    this.createClientInstance();
-
     return RTMEngine._instance;
   }
 
-  setLocalUID(localUID: string) {
-    this.localUID = localUID;
+  public static getInstance() {
+    // We are only creating the instance but not creating the rtm client yet
+    if (!RTMEngine._instance) {
+      RTMEngine._instance = new RTMEngine();
+    }
+    return RTMEngine._instance;
+  }
+
+  setLocalUID(localUID: string | number) {
+    if (localUID === null || localUID === undefined) {
+      throw new Error('setLocalUID: localUID cannot be null or undefined');
+    }
+
+    const newUID = String(localUID);
+    if (newUID.trim() === '') {
+      throw new Error(
+        'setLocalUID: localUID cannot be empty after string conversion',
+      );
+    }
+
+    // If UID is changing and we have an existing engine, throw error
+    if (this._engine && this.localUID !== newUID) {
+      throw new Error(
+        `RTMEngine: Cannot change UID from '${this.localUID}' to '${newUID}' while engine is active. ` +
+          `Please call destroy() first, then setLocalUID() with the new UID.`,
+      );
+    }
+
+    this.localUID = newUID;
+
+    if (!this._engine) {
+      this.createClientInstance();
+    }
   }
 
   setChannelId(channelID: string) {
-    this.channelId = channelID;
-  }
-
-  setLoginInfo(localUID: string, channelID: string) {
-    this.localUID = localUID;
+    if (
+      !channelID ||
+      typeof channelID !== 'string' ||
+      channelID.trim() === ''
+    ) {
+      throw new Error('setChannelId: channelID must be a non-empty string');
+    }
     this.channelId = channelID;
   }
 
@@ -72,16 +86,99 @@ class RTMEngine {
     return this.channelId;
   }
 
+  get isEngineReady() {
+    return !!this._engine && !!this.localUID;
+  }
+
+  get engine(): RTMClient {
+    this.ensureEngineReady();
+    return this._engine!;
+  }
+
+  private ensureEngineReady() {
+    if (!this.isEngineReady) {
+      throw new Error(
+        'RTM Engine not ready. Please call setLocalUID() with a valid UID first.',
+      );
+    }
+  }
+
+  private createClientInstance() {
+    try {
+      if (!this.localUID || this.localUID.trim() === '') {
+        throw new Error('Cannot create RTM client: localUID is not set');
+      }
+      if (!$config.APP_ID) {
+        throw new Error('Cannot create RTM client: APP_ID is not configured');
+      }
+      const rtmConfig = new RtmConfig({
+        appId: $config.APP_ID,
+        userId: this.localUID,
+      });
+      this._engine = createAgoraRtmClient(rtmConfig);
+    } catch (error) {
+      const contextError = new Error(
+        `Failed to create RTM client instance for userId: ${
+          this.localUID
+        }, appId: ${$config.APP_ID}. Error: ${error.message || error}`,
+      );
+      console.error('RTMEngine createClientInstance error:', contextError);
+      throw contextError;
+    }
+  }
+
+  private async destroyClientInstance() {
+    try {
+      if (this._engine) {
+        // 1. Unsubscribe from channel if we have one
+        if (this.channelId) {
+          try {
+            await this._engine.unsubscribe(this.channelId);
+          } catch (error) {
+            console.warn(
+              `Failed to unsubscribe from channel '${this.channelId}':`,
+              error,
+            );
+            // Continue with cleanup even if unsubscribe fails
+          }
+        }
+        // 2. Remove all listeners
+        try {
+          this._engine.removeAllListeners?.();
+        } catch (error) {
+          console.warn('Failed to remove listeners:', error);
+        }
+        // 3. Logout
+        try {
+          await this._engine.logout();
+          if (isAndroid() || isIOS()) {
+            this._engine.release();
+          }
+        } catch (error) {
+          console.warn('Failed to logout:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error during client instance destruction:', error);
+      // Don't re-throw - we want cleanup to complete
+    }
+  }
+
   async destroy() {
     try {
-      await this.destroyClientInstance();
-      if (isIOS() || isAndroid()) {
-        RTMEngine._instance = null;
+      if (!this._engine) {
+        return;
       }
-      this.localUID = '';
+
+      await this.destroyClientInstance();
       this.channelId = '';
+      this.localUID = '';
+      this._engine = undefined;
+      RTMEngine._instance = null;
     } catch (error) {
-      console.log('Error destroying instance error: ', error);
+      console.error('Error destroying RTM instance:', error);
+      // Don't re-throw - destruction should be a best-effort cleanup
+      // Re-throwing could prevent proper cleanup in calling code
     }
   }
 }
