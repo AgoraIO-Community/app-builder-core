@@ -256,7 +256,7 @@ const VideoCallView = React.memo(() => {
   });
 
   return (
-    <VideocallWrapper>
+    <>
       <ToolbarProvider value={{position: ToolbarPosition.top}}>
         {Object.keys(TopbarProps)?.length ? (
           <TopbarComponent items={TopbarProps} includeDefaultItems={false} />
@@ -289,7 +289,7 @@ const VideoCallView = React.memo(() => {
           )}
         </ActionSheetProvider>
       </ToolbarProvider>
-    </VideocallWrapper>
+    </>
   );
 });
 
