@@ -2,7 +2,8 @@ import React, {useContext} from 'react';
 import {whiteboardContext} from './WhiteboardConfigure';
 import VideoRenderer from '../../pages/video-call/VideoRenderer';
 import {useContent} from 'customization-api';
-import WhiteboardView from './WhiteboardView';
+// import WhiteboardView from './WhiteboardView';
+import FastBoardView from './FastBoardView';
 
 const WhiteboardWrapper = () => {
   const {getWhiteboardUid} = useContext(whiteboardContext);
@@ -28,7 +29,7 @@ const WhiteboardWrapper = () => {
           name: 'Whiteboard',
           muted: undefined,
         }}
-        CustomChild={WhiteboardView}
+        CustomChild={FastBoardView}
       />
     );
   }

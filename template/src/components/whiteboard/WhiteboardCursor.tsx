@@ -1,13 +1,21 @@
 import * as React from 'react';
-import {
-  Cursor,
-  CursorAdapter,
-  CursorDescription,
-  Player,
-  Room,
-  RoomMember,
-  RoomState,
-} from 'white-web-sdk';
+// import {
+//   Cursor,
+//   CursorAdapter,
+//   CursorDescription,
+//   Player,
+//   Room,
+//   RoomMember,
+//   RoomState,
+// } from 'white-web-sdk';
+// Commented out for fastboard migration - types defined locally
+type Cursor = any;
+type CursorAdapter = any;
+type CursorDescription = {x: number; y: number; width: number; height: number};
+type Player = any;
+type Room = any;
+type RoomMember = any;
+type RoomState = any;
 
 export type CursorComponentProps = {
   roomMember: RoomMember;

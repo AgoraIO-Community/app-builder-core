@@ -112,7 +112,7 @@
     "rn-emoji-keyboard": "^1.7.0",
     "rn-fetch-blob": "0.12.0",
     "text-encoding": "^0.7.0",
-    "white-web-sdk": "2.16.42"
+    "@netless/fastboard-react": "^1.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

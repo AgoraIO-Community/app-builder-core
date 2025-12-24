@@ -8,11 +8,22 @@ import {
   randomIntFromInterval,
   randomString,
 } from '../../utils/common';
-import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
+// import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
+// Commented out for fastboard migration - types defined locally
+type Room = any;
+type ViewMode = any;
+type WhiteWebSdk = any;
+enum RoomPhase {
+  Connecting = 'connecting',
+  Connected = 'connected',
+  Reconnecting = 'reconnecting',
+  Disconnecting = 'disconnecting',
+  Disconnected = 'disconnected',
+}
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../rtm-events-api/LocalEvents';
-import {CursorTool} from './WhiteboardCursor';
+// import {CursorTool} from './WhiteboardCursor'; // Disabled for fastboard migration
 import useUserName from '../../utils/useUserName';
 import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
 import events, {PersistanceLevel} from '../../rtm-events-api';
@@ -117,23 +128,24 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const whiteboardRoom = useRef({} as Room);
   const {pinnedUid, activeUids} = useContent();
   const prevImageUploadHeightRef = useRef(0);
-  const cursorAdapter = new CursorTool();
+  // const cursorAdapter = new CursorTool(); // Disabled for fastboard migration
   const uploadPendingRef = useRef(false);
 
-  useEffect(() => {
-    if (
-      whiteboardRoomState === RoomPhase.Connected &&
-      pinnedUid &&
-      pinnedUid == whiteboardUidRef.current
-    ) {
-      whiteboardRoom?.current?.moveCamera &&
-        whiteboardRoom?.current?.moveCamera({
-          centerX: 0,
-          centerY: 0,
-          scale: 1,
-        });
-    }
-  }, [pinnedUid, whiteboardRoomState]);
+  // Disabled for fastboard migration - FastBoardView handles camera
+  // useEffect(() => {
+  //   if (
+  //     whiteboardRoomState === RoomPhase.Connected &&
+  //     pinnedUid &&
+  //     pinnedUid == whiteboardUidRef.current
+  //   ) {
+  //     whiteboardRoom?.current?.moveCamera &&
+  //       whiteboardRoom?.current?.moveCamera({
+  //         centerX: 0,
+  //         centerY: 0,
+  //         scale: 1,
+  //       });
+  //   }
+  // }, [pinnedUid, whiteboardRoomState]);
 
   const [name] = useUserName();
   const {
@@ -143,34 +155,35 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   } = useRoomInfo();
   const {currentLayout} = useLayout();
 
-  useEffect(() => {
-    try {
-      if (
-        whiteboardRoomState === RoomPhase.Connected &&
-        isHost &&
-        !isMobileUA()
-      ) {
-        if (
-          currentLayout === DefaultLayouts[1].name &&
-          activeUids &&
-          activeUids?.length &&
-          (activeUids[0] === getWhiteboardUid() ||
-            pinnedUid === getWhiteboardUid())
-        ) {
-          whiteboardRoom?.current?.setWritable(true);
-        } else {
-          whiteboardRoom?.current?.setWritable(false);
-        }
-      }
-    } catch (error) {
-      logger.error(
-        LogSource.Internals,
-        'WHITEBOARD',
-        'error on whiteboard setWritable',
-        error,
-      );
-    }
-  }, [currentLayout, isHost, whiteboardRoomState, activeUids, pinnedUid]);
+  // Disabled for fastboard migration - FastBoardView handles writable state
+  // useEffect(() => {
+  //   try {
+  //     if (
+  //       whiteboardRoomState === RoomPhase.Connected &&
+  //       isHost &&
+  //       !isMobileUA()
+  //     ) {
+  //       if (
+  //         currentLayout === DefaultLayouts[1].name &&
+  //         activeUids &&
+  //         activeUids?.length &&
+  //         (activeUids[0] === getWhiteboardUid() ||
+  //           pinnedUid === getWhiteboardUid())
+  //       ) {
+  //         whiteboardRoom?.current?.setWritable(true);
+  //       } else {
+  //         whiteboardRoom?.current?.setWritable(false);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     logger.error(
+  //       LogSource.Internals,
+  //       'WHITEBOARD',
+  //       'error on whiteboard setWritable',
+  //       error,
+  //     );
+  //   }
+  // }, [currentLayout, isHost, whiteboardRoomState, activeUids, pinnedUid]);
 
   const BoardColorChangedCallBack = ({boardColor}) => {
     setBoardColor(boardColor);
@@ -213,94 +226,20 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     };
   }, []);
 
-  const fileUploadCallBack = images => {
-    if (uploadPendingRef.current) {
-      let prevImageWidth = 0;
-      let prevImageHeight = prevImageUploadHeightRef.current;
-      let count = 0;
-      let focus = {
-        x: 0,
-        y: 0,
-      };
-      for (const key in images) {
-        if (Object.prototype.hasOwnProperty.call(images, key)) {
-          const element = images[key];
-          const uuid = key + ' ' + randomString();
-          const x = 0 + prevImageWidth + 50;
-          const y = 0 + prevImageUploadHeightRef?.current + 50;
-          whiteboardRoom.current?.insertImage({
-            centerX: x,
-            centerY: y,
-            height: dummyHeight,
-            width: dummyWidth,
-            uuid: uuid,
-            locked: false,
-          });
-          if (count === 0) {
-            focus.x = x;
-            focus.y = y;
-          }
-          setTimeout(() => {
-            whiteboardRoom.current?.completeImageUpload(uuid, element.url);
-          }, 1000);
-          prevImageWidth = prevImageWidth + 50 + dummyWidth;
-          if ((count + 1) % 4 === 0) {
-            prevImageUploadHeightRef.current =
-              prevImageUploadHeightRef.current + 50 + dummyHeight;
-            prevImageWidth = 0;
-          } else {
-            prevImageHeight = dummyHeight;
-          }
-          count = count + 1;
-        }
-      }
-
-      //for next image upload
-      if ((count + 1) % 4 !== 0) {
-        prevImageUploadHeightRef.current =
-          prevImageUploadHeightRef.current + 50 + prevImageHeight;
-      }
-      uploadPendingRef.current = false;
-
-      //focus the uploaded doc/image
-      whiteboardRoom.current?.moveCamera({
-        centerX: focus.x,
-        centerY: focus.y,
-      });
-      sendLastImageUploadPositionToRemoteUsers(
-        prevImageUploadHeightRef.current,
-      );
-    }
+  // Disabled for fastboard migration - file upload not supported yet
+  const fileUploadCallBack = (images: any) => {
+    // TODO: Implement file upload for fastboard if needed
+    console.log('File upload not yet implemented for fastboard');
   };
 
   const setUploadRef = () => {
     uploadPendingRef.current = true;
   };
 
-  const insertImageIntoWhiteboard = url => {
-    if (!url) {
-      return;
-    }
-    const uuid = randomString();
-    const y = 0 + prevImageUploadHeightRef?.current + 50;
-    whiteboardRoom.current?.insertImage({
-      centerX: 0,
-      centerY: y,
-      height: 300,
-      width: 300,
-      uuid: uuid,
-      locked: false,
-    });
-    setTimeout(() => {
-      whiteboardRoom.current?.completeImageUpload(uuid, url);
-    }, 1000);
-    whiteboardRoom.current?.moveCamera({
-      centerX: 0,
-      centerY: y,
-    });
-    prevImageUploadHeightRef.current =
-      prevImageUploadHeightRef.current + 50 + 300 + 100;
-    sendLastImageUploadPositionToRemoteUsers(prevImageUploadHeightRef.current);
+  // Disabled for fastboard migration - image insert not supported yet
+  const insertImageIntoWhiteboard = (url: string) => {
+    // TODO: Implement image insert for fastboard if needed
+    console.log('Image insert not yet implemented for fastboard');
   };
 
   const sendLastImageUploadPositionToRemoteUsers = (height: number) => {
@@ -326,79 +265,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     };
   }, []);
 
-  const join = () => {
-    const InitState = whiteboardRoomState;
-    try {
-      const index = randomIntFromInterval(0, 9);
-      setWhiteboardRoomState(RoomPhase.Connecting);
-      logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room');
-      whiteWebSdkClient.current
-        .joinRoom({
-          cursorAdapter: cursorAdapter,
-          uid: `${whiteboardUidRef.current}`,
-          uuid: room_uuid,
-          roomToken: room_token,
-          floatBar: true,
-          isWritable: isHost && !isMobileUA(),
-          userPayload: {
-            cursorName: name,
-            cursorColor: CursorColor[index].cursorColor,
-            textColor: CursorColor[index].textColor,
-          },
-        })
-        .then(room => {
-          logger.log(LogSource.Internals, 'WHITEBOARD', 'Join room successful');
-          whiteboardRoom.current = room;
-          cursorAdapter.setRoom(room);
-          whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
-          whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
-          if (isHost && !isMobileUA()) {
-            whiteboardRoom.current?.setMemberState({
-              strokeColor: [0, 0, 0],
-            });
-          }
-          setWhiteboardRoomState(RoomPhase.Connected);
-        })
-        .catch(err => {
-          setWhiteboardRoomState(InitState);
-          logger.error(
-            LogSource.Internals,
-            'WHITEBOARD',
-            'Join room error',
-            err,
-          );
-        });
-    } catch (err) {
-      setWhiteboardRoomState(InitState);
-      logger.error(LogSource.Internals, 'WHITEBOARD', 'Join room error', err);
-    }
-  };
-
-  const leave = () => {
-    const InitState = whiteboardRoomState;
-    try {
-      setWhiteboardRoomState(RoomPhase.Disconnecting);
-      whiteboardRoom.current
-        ?.disconnect()
-        .then(() => {
-          whiteboardUidRef.current = Date.now();
-          whiteboardRoom.current?.bindHtmlElement(null);
-          setWhiteboardRoomState(RoomPhase.Disconnected);
-        })
-        .catch(err => {
-          setWhiteboardRoomState(InitState);
-          logger.error(
-            LogSource.Internals,
-            'WHITEBOARD',
-            'leave room error',
-            err,
-          );
-        });
-    } catch (err) {
-      setWhiteboardRoomState(InitState);
-      logger.error(LogSource.Internals, 'WHITEBOARD', 'leave room error', err);
-    }
-  };
+  // Disabled for fastboard migration - FastBoardView handles join/leave
+  // const join = () => { ... };
+  // const leave = () => { ... };
 
   const joinWhiteboardRoom = () => {
     setWhiteboardActive(true);
@@ -408,24 +277,35 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     setWhiteboardActive(false);
   };
 
+  // Disabled for fastboard migration - FastBoardView handles its own connection
+  // useEffect(() => {
+  //   if (!whiteWebSdkClient.current.joinRoom && whiteboardActive) {
+  //     const appIdentifier = $config.WHITEBOARD_APPIDENTIFIER;
+  //     whiteWebSdkClient.current = new WhiteWebSdk({
+  //       appIdentifier: appIdentifier,
+  //       region: $config.WHITEBOARD_REGION,
+  //     });
+  //     join();
+  //     setWhiteboardStartedFirst(true);
+  //   } else if (whiteboardActive) {
+  //     join();
+  //   } else {
+  //     if (
+  //       whiteboardRoom.current &&
+  //       Object.keys(whiteboardRoom.current)?.length
+  //     ) {
+  //       leave();
+  //     }
+  //   }
+  // }, [whiteboardActive]);
+
+  // For fastboard: just set whiteboardStartedFirst when active
   useEffect(() => {
-    if (!whiteWebSdkClient.current.joinRoom && whiteboardActive) {
-      const appIdentifier = $config.WHITEBOARD_APPIDENTIFIER;
-      whiteWebSdkClient.current = new WhiteWebSdk({
-        appIdentifier: appIdentifier,
-        region: $config.WHITEBOARD_REGION,
-      });
-      join();
+    if (whiteboardActive) {
       setWhiteboardStartedFirst(true);
-    } else if (whiteboardActive) {
-      join();
+      setWhiteboardRoomState(RoomPhase.Connected);
     } else {
-      if (
-        whiteboardRoom.current &&
-        Object.keys(whiteboardRoom.current)?.length
-      ) {
-        leave();
-      }
+      setWhiteboardRoomState(RoomPhase.Disconnected);
     }
   }, [whiteboardActive]);
 
