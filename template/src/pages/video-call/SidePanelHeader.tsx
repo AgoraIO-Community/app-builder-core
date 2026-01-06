@@ -30,6 +30,7 @@ import LanguageSelectorPopup from '../../subComponents/caption/LanguageSelectorP
 import useSTTAPI from '../../subComponents/caption/useSTTAPI';
 import useGetName from '../../utils/useGetName';
 import {
+  getLanguageLabel,
   LanguageType,
   mergeTranslationConfigs,
   TranslateConfig,
@@ -53,9 +54,9 @@ import {
   sttDownloadTranscriptBtnText,
   sttStopTranslationText,
   sttTranscriptPanelHeaderText,
+  sttOriginalTranslatedText,
 } from '../../language/default-labels/videoCallScreenLabels';
-import {logger, LogSource} from '../../logger/AppBuilderLogger';
-import {TranslateActionMenu} from '../../subComponents/caption/CaptionContainer';
+import {TranslateActionMenu} from '../../subComponents/caption/TranslateActionMenu';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
@@ -269,10 +270,11 @@ interface TranscriptHeaderActionMenuProps {
 const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {
-    language: prevLang,
     meetingTranscript,
     isLangChangeInProgress,
     selectedTranslationLanguage,
+    transcriptViewMode,
+    setTranscriptViewMode,
   } = useCaption();
   const {downloadTranscript} = useTranscriptDownload();
   const [modalPosition, setModalPosition] = React.useState({});
@@ -282,89 +284,99 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     React.useState<boolean>(false);
   const [isTranslateMenuOpen, setTranslateMenuOpen] =
     React.useState<boolean>(false);
-  const {restart} = useSTTAPI();
-  const username = useGetName();
+  // const {restart} = useSTTAPI();
+  // const username = useGetName();
   const actionMenuitems: ActionMenuItem[] = [];
   const {
     data: {isHost},
-    sttLanguage,
   } = useRoomInfo();
-  const {handleTranslateConfigChange, updateSTTBotSession, translationConfig} =
-    useCaption();
+  const {confirmSpokenLanguageChange} = useCaption();
   const downloadTranscriptLabel = useString(sttDownloadTranscriptBtnText)();
-  const changeSpokenLanguage = useString<boolean>(
+  const updateSpokenLanguageLabel = useString<boolean>(
     sttChangeSpokenLanguageText,
   )();
-  const sttStopTranslationLabel = useString<boolean>(sttStopTranslationText)();
-  const changeTranslationLanguage = useString<boolean>(
-    sttChangeTranslationLanguageText,
-  )();
+  // const sttStopTranslationLabel = useString<boolean>(sttStopTranslationText)();
+  // const changeTranslationLanguage = useString<boolean>(
+  //   sttChangeTranslationLanguageText,
+  // )();
+  const sttOriginalTranslatedLabel = useString(sttOriginalTranslatedText)();
 
-  // isHost &&
-  actionMenuitems.push({
-    icon: 'globe',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: changeSpokenLanguage + ' ',
-    disabled: isLangChangeInProgress,
-    onPress: () => {
-      setActionMenuVisible(false);
-      setLanguagePopup(true);
-    },
-  });
-
-  // actionMenuitems.push({
-  //   icon: 'lang-select',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: changeTranslationLanguage,
-  //   disabled: false,
-  //   onPress: () => {
-  //     setActionMenuVisible(false);
-  //     setTranslateMenuOpen(true);
-  //   },
-  // });
+  // Update Spoken language
+  isHost &&
+    actionMenuitems.push({
+      icon: 'globe',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: updateSpokenLanguageLabel + ' ',
+      disabled: isLangChangeInProgress,
+      onPress: () => {
+        setActionMenuVisible(false);
+        setLanguagePopup(true);
+      },
+    });
 
   actionMenuitems.push({
     icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: sttStopTranslationLabel,
-    disabled: false,
-    onPress: async () => {
+    title: `Translate to: ${
+      selectedTranslationLanguage
+        ? getLanguageLabel([selectedTranslationLanguage])
+        : 'OFF'
+    }`,
+    endIcon: 'arrow-right',
+    endIconColor: $config.SECONDARY_ACTION_COLOR,
+    disabled: isLangChangeInProgress,
+    onPress: () => {
       setActionMenuVisible(false);
-      // Keep source language same, just clear target languages
-      // This stops translation but keeps transcription running
-      await updateSTTBotSession({
-        source: translationConfig.source, // Keep current source
-        targets: [], // Empty targets = no translation
-      });
+      setTranslateMenuOpen(true);
     },
   });
 
+  // View Mode Options
+  selectedTranslationLanguage &&
+    actionMenuitems.push({
+      icon: 'lang-translate',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      endIcon:
+        transcriptViewMode === 'original-and-translated'
+          ? 'tick-fill'
+          : undefined,
+      endIconColor: $config.SEMANTIC_SUCCESS,
+      textColor: $config.FONT_COLOR,
+      title: sttOriginalTranslatedLabel,
+      disabled: isLangChangeInProgress,
+      onPress: () => {
+        setTranscriptViewMode(
+          transcriptViewMode === 'translated'
+            ? 'original-and-translated'
+            : 'translated',
+        );
+        setActionMenuVisible(false);
+      },
+    });
+  // Download transcript
   actionMenuitems.push({
     icon: 'download',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: downloadTranscriptLabel,
-    disabled: meetingTranscript.length === 0,
+    disabled: meetingTranscript.length === 0 || isLangChangeInProgress,
     onPress: () => {
       downloadTranscript();
       setActionMenuVisible(false);
     },
   });
 
-  const onLanguageChange = async (
-    inputTranslateConfig: LanguageTranslationConfig,
-  ) => {
+  const onLanguageChange = async (newSpokenLang: LanguageType) => {
     console.log(
-      '[STT_PER_USER_BOT] SidePanelHeader TranscriptHeaderActionMenu - onLanguageChange - sourceLanguage , targetLanguage:',
-      inputTranslateConfig,
+      '[STT_GLOBAL] SidePanelHeader TranscriptHeaderActionMenu onSpokenLang changed called:',
+      newSpokenLang,
     );
     setLanguagePopup(false);
     // Update caption with new language configuration\
     try {
-      await handleTranslateConfigChange(inputTranslateConfig);
+      await confirmSpokenLanguageChange(newSpokenLang);
     } catch (error) {}
   };
 
@@ -394,6 +406,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
       );
     }
   }, [actionMenuVisible]);
+
   return (
     <>
       <ActionMenu
@@ -404,17 +417,21 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
         items={actionMenuitems}
       />
 
-      <LanguageSelectorPopup
-        modalVisible={isLanguagePopupOpen}
-        setModalVisible={setLanguagePopup}
-        onConfirm={onLanguageChange}
-      />
+      {isLanguagePopupOpen && (
+        <LanguageSelectorPopup
+          modalVisible={isLanguagePopupOpen}
+          setModalVisible={setLanguagePopup}
+          onConfirm={onLanguageChange}
+        />
+      )}
 
-      <TranslateActionMenu
-        actionMenuVisible={isTranslateMenuOpen}
-        setActionMenuVisible={setTranslateMenuOpen}
-        btnRef={btnRef}
-      />
+      {isTranslateMenuOpen && (
+        <TranslateActionMenu
+          actionMenuVisible={isTranslateMenuOpen}
+          setActionMenuVisible={setTranslateMenuOpen}
+          btnRef={btnRef}
+        />
+      )}
     </>
   );
 };

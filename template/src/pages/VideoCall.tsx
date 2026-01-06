@@ -491,7 +491,8 @@ const VideoCall: React.FC = () => {
                                     <RtmConfigure callActive={callActive}>
                                       <UserPreferenceProvider
                                         callActive={callActive}>
-                                        <CaptionProvider>
+                                        <CaptionProvider
+                                          callActive={callActive}>
                                           <WaitingRoomProvider>
                                             <EventsConfigure
                                               setSttAutoStarted={

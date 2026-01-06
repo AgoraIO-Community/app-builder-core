@@ -216,7 +216,6 @@ const ActionSheetContent = props => {
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
-  // const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
   const {defaultContent} = useContent();
   const {waitingRoomUids} = useWaitingRoomContext();
   const defaultContentRef = React.useRef(defaultContent);
@@ -225,12 +224,6 @@ const ActionSheetContent = props => {
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
-
-  // STT events on mount
-
-  //  React.useEffect(() => {
-  //   setIsSTTActive(isSTTActive);
-  // }, [isSTTActive]);
 
   // React.useEffect(() => {
   //   // for mobile events are set in ActionSheetContent
