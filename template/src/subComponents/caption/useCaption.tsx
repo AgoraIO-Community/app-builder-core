@@ -453,6 +453,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           text1: startErrorLabel,
           text2: result.error?.message || 'Unknown error occurred',
           visibilityTime: 4000,
+          primaryBtn: null,
+          secondaryBtn: null,
         });
       }
       setIsLangChangeInProgress(false);
@@ -468,6 +470,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         text1: startErrorLabel,
         text2: error?.message || 'Unknown error occurred',
         visibilityTime: 4000,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
       return {
         success: false,
@@ -521,6 +525,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           text1: updateErrorLabel,
           text2: result.error?.message || 'Unknown error occurred',
           visibilityTime: 4000,
+          primaryBtn: null,
+          secondaryBtn: null,
         });
       }
       setIsLangChangeInProgress(false);
@@ -536,6 +542,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         text1: updateErrorLabel,
         text2: error?.message || 'Unknown error occurred',
         visibilityTime: 4000,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
       return {
         success: false,
@@ -834,6 +842,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
                 text1: heading('Set'),
                 text2: `Live transcription are automatically enabled for this meeting in "${spokenLangLabel}"`,
                 visibilityTime: 3000,
+                primaryBtn: null,
+                secondaryBtn: null,
               });
             } else {
               Toast.show({
@@ -845,6 +855,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
                   newLanguage: spokenLangLabel,
                 }),
                 visibilityTime: 3000,
+                primaryBtn: null,
+                secondaryBtn: null,
               });
             }
           } else {
@@ -859,6 +871,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               text1: heading('Set'),
               text2: subheading(subheadingObj),
               visibilityTime: 3000,
+              primaryBtn: null,
+              secondaryBtn: null,
             });
           }
 
@@ -912,6 +926,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               //   newConfig.source,
               // )}`,
               visibilityTime: 3000,
+              primaryBtn: null,
+              secondaryBtn: null,
             });
           }
           if (isLocal) {
