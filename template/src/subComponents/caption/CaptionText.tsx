@@ -52,12 +52,10 @@ const CaptionText = ({
   setInActiveLinesAvaialble,
   captionUserStyle = {},
   captionTextStyle = {},
-  speakerUid,
-  userLocalUid,
-  spokenLanguageCode,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const {translationConfig, captionViewMode} = useCaption();
+  const {globalSttState, captionViewMode, selectedTranslationLanguageRef} =
+    useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -100,7 +98,7 @@ const CaptionText = ({
    */
 
   // Get the appropriate source text for display based on viewer's language preferences
-  const viewerSourceLanguage = translationConfig.source[0];
+  const globalSourceLanguage = globalSttState?.globalSpokenLanguage;
   // const localUserText = value;
   // const remoteUserTranslatedText: {
   //   text: string,
@@ -115,13 +113,17 @@ const CaptionText = ({
   //   return value;
   // };
 
+  // If translation is selected then show both local and remote in that translated language
   const displayTranslatedViewText = getUserTranslatedText(
     value,
     translations,
-    viewerSourceLanguage,
-    speakerUid,
-    userLocalUid,
+    globalSourceLanguage,
+    selectedTranslationLanguageRef.current,
   );
+  // const displayTranslatedViewText = {
+  //   value,
+  //   langCode: getLanguageLabel([globalSourceLanguage]) || '',
+  // };
 
   /**
    * ROBUST TEXT EXTRACTION LOGIC
@@ -131,7 +133,9 @@ const CaptionText = ({
    * - Without translation: 3 lines source (~150-180 chars)
    */
   const getLatestTextPortion = (text: string, maxChars: number) => {
-    if (!text || text.length <= maxChars) return text;
+    if (!text || text.length <= maxChars) {
+      return text;
+    }
 
     // Take last maxChars, try to find sentence boundary for cleaner cut
     const portion = text.slice(-maxChars);
@@ -211,24 +215,26 @@ const CaptionText = ({
             isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
             captionTextStyle,
           ]}>
+          {/* View mode when "Original and Translated" is selected - show original on top*/}
+          {selectedTranslationLanguageRef.current &&
+            captionViewMode === 'original-and-translated' && (
+              <>
+                <Text style={styles.languageLabel}>
+                  ({getLanguageLabel([globalSourceLanguage])}){' '}
+                </Text>
+                {getLatestTextPortion(value, sourceCharLimit)}
+                {'\n'}
+              </>
+            )}
+
           {/* Default view when view mode is : translated */}
           <Text style={styles.languageLabel}>
-            ({displayTranslatedViewText.langCode}
-            ):{' '}
+            ({displayTranslatedViewText.langLabel}){' '}
           </Text>
           {getLatestTextPortion(
             displayTranslatedViewText.value,
             sourceCharLimit,
           )}
-          {/* View mode when "Original and Translated" is selected - show original for remote users only */}
-          {speakerUid !== userLocalUid &&
-            captionViewMode === 'original-and-translated' && (
-              <>
-                {'\n'}
-                <Text style={styles.languageLabel}>(Original): </Text>
-                {getLatestTextPortion(value, sourceCharLimit)}
-              </>
-            )}
         </Text>
       </View>
     </View>

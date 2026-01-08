@@ -1,34 +1,25 @@
 import {
   StyleSheet,
-  Text,
   TextStyle,
   useWindowDimensions,
   View,
   ViewStyle,
 } from 'react-native';
 import React from 'react';
-
+import {useRoomInfo} from 'customization-api';
 import Caption from './Caption';
-import {useCaption, LanguageTranslationConfig} from './useCaption';
+import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
 import {
   calculatePosition,
   isMobileUA,
-  isWeb,
   isWebInternal,
   useIsDesktop,
   useIsSmall,
 } from '../../utils/common';
 import IconButton from '../../../src/atoms/IconButton';
-
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
-
 import LanguageSelectorPopup from './LanguageSelectorPopup';
-import useSTTAPI from './useSTTAPI';
-import useGetName from '../../utils/useGetName';
-import {useRoomInfo} from 'customization-api';
-import {useLocalUid} from '../../../agora-rn-uikit';
-import {getLanguageLabel} from './utils';
 import {
   SIDE_PANEL_MAX_WIDTH,
   SIDE_PANEL_GAP,
@@ -37,7 +28,7 @@ import {
   MOBILE_CAPTION_CONTAINER_HEIGHT,
 } from '../../../src/components/CommonStyles';
 import useCaptionWidth from './useCaptionWidth';
-import {LanguageType, langData, mergeTranslationConfigs} from './utils';
+import {getLanguageLabel, LanguageType} from './utils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
 import {
@@ -47,6 +38,7 @@ import {
   toolbarItemCaptionText,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import {TranslateActionMenu} from './TranslateActionMenu';
 
 interface CaptionContainerProps {
   containerStyle?: ViewStyle;
@@ -60,11 +52,9 @@ const CaptionContainer: React.FC<CaptionContainerProps> = ({
   captionTextStyle = {},
 }) => {
   const moreIconRef = React.useRef<View>(null);
-  const langSelectIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
-  const [langActionMenuVisible, setLangActionMenuVisible] =
-    React.useState<boolean>(false);
+  React.useState<boolean>(false);
   const [isHovered, setIsHovered] = React.useState<boolean>(false);
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
@@ -277,13 +267,9 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {
     setIsCaptionON,
-    // language: prevLang,
     isLangChangeInProgress,
-    // setLanguage,
-    // selectedTranslationLanguage,
-    updateSTTBotSession,
-    translationConfig,
-    handleTranslateConfigChange,
+    selectedTranslationLanguage,
+    confirmSpokenLanguageChange,
     captionViewMode,
     setCaptionViewMode,
   } = useCaption();
@@ -293,49 +279,48 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
+  const [isTranslateMenuOpen, setTranslateMenuOpen] =
+    React.useState<boolean>(false);
+
   // const {restart} = useSTTAPI();
   // const username = useGetName();
-  // const {
-  //   data: {isHost},
-  //   sttLanguage,
-  // } = useRoomInfo();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
 
-  const changeSpokenLangLabel = useString<boolean>(
+  const updateSpokenLangLabel = useString<boolean>(
     sttChangeSpokenLanguageText,
   )();
-  const sttStopTranslationLabel = useString<boolean>(sttStopTranslationText)();
   const sttOriginalTranslatedLabel = useString(sttOriginalTranslatedText)();
 
   const hideCaptionLabel = useString<boolean>(toolbarItemCaptionText)(true);
 
   // Anyone can start/stop stt
-  actionMenuitems.push({
-    icon: 'globe',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: changeSpokenLangLabel + ' ',
-    disabled: isLangChangeInProgress,
-    onPress: () => {
-      setActionMenuVisible(false);
-      setLanguagePopup(true);
-    },
-  });
+  isHost &&
+    actionMenuitems.push({
+      icon: 'globe',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: updateSpokenLangLabel + ' ',
+      disabled: isLangChangeInProgress,
+      onPress: () => {
+        setActionMenuVisible(false);
+        setLanguagePopup(true);
+      },
+    });
 
   // Stop Translation (not STT bot, pass empty targets)
-  actionMenuitems.push({
-    icon: 'lang-select',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: sttStopTranslationLabel,
-    disabled: isLangChangeInProgress,
-    onPress: async () => {
-      setActionMenuVisible(false);
-      await updateSTTBotSession({
-        source: translationConfig.source,
-        targets: [], // Empty targets = no translation
-      });
-    },
-  });
+  // actionMenuitems.push({
+  //   icon: 'lang-select',
+  //   iconColor: $config.SECONDARY_ACTION_COLOR,
+  //   textColor: $config.FONT_COLOR,
+  //   title: sttStopTranslationLabel,
+  //   disabled: isLangChangeInProgress,
+  //   onPress: async () => {
+  //     setSelectedTranslationLanguage(null);
+  //     setActionMenuVisible(false);
+  //   },
+  // });
 
   // Hide Caption Panel
   actionMenuitems.push({
@@ -349,31 +334,49 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  // View Mode Options
   actionMenuitems.push({
-    icon: 'lang-translate',
+    icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
-    endIcon:
-      captionViewMode === 'original-and-translated' ? 'tick-fill' : undefined,
-    endIconColor: $config.SEMANTIC_SUCCESS,
     textColor: $config.FONT_COLOR,
-    title: sttOriginalTranslatedLabel,
+    title: `Translate to: ${
+      selectedTranslationLanguage
+        ? getLanguageLabel([selectedTranslationLanguage])
+        : 'OFF'
+    }`,
+    endIcon: 'arrow-right',
+    endIconColor: $config.SECONDARY_ACTION_COLOR,
+    disabled: isLangChangeInProgress,
     onPress: () => {
-      setCaptionViewMode(
-        captionViewMode === 'translated'
-          ? 'original-and-translated'
-          : 'translated',
-      );
       setActionMenuVisible(false);
+      setTranslateMenuOpen(true);
     },
   });
 
-  const onLanguageChange = async (
-    inputTranslateConfig: LanguageTranslationConfig,
-  ) => {
+  // View Mode Options
+  selectedTranslationLanguage &&
+    actionMenuitems.push({
+      icon: 'lang-translate',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      endIcon:
+        captionViewMode === 'original-and-translated' ? 'tick-fill' : undefined,
+      endIconColor: $config.SEMANTIC_SUCCESS,
+      textColor: $config.FONT_COLOR,
+      title: sttOriginalTranslatedLabel,
+      disabled: isLangChangeInProgress,
+      onPress: () => {
+        setCaptionViewMode(
+          captionViewMode === 'translated'
+            ? 'original-and-translated'
+            : 'translated',
+        );
+        setActionMenuVisible(false);
+      },
+    });
+
+  const onLanguageChange = async (newSpokenLang: LanguageType) => {
     setLanguagePopup(false);
     try {
-      await handleTranslateConfigChange(inputTranslateConfig);
+      await confirmSpokenLanguageChange(newSpokenLang);
     } catch (error) {}
   };
 
@@ -413,193 +416,202 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
         modalPosition={modalPosition}
         items={actionMenuitems}
       />
-      <LanguageSelectorPopup
-        modalVisible={isLanguagePopupOpen}
-        setModalVisible={setLanguagePopup}
-        onConfirm={onLanguageChange}
-      />
+      {isLanguagePopupOpen && (
+        <LanguageSelectorPopup
+          modalVisible={isLanguagePopupOpen}
+          setModalVisible={setLanguagePopup}
+          onConfirm={onLanguageChange}
+        />
+      )}
+      {isTranslateMenuOpen && (
+        <TranslateActionMenu
+          actionMenuVisible={isTranslateMenuOpen}
+          setActionMenuVisible={setTranslateMenuOpen}
+          btnRef={btnRef}
+        />
+      )}
     </>
   );
 };
 
-export interface TranslateActionMenuProps {
-  actionMenuVisible: boolean;
-  setActionMenuVisible: (actionMenuVisible: boolean) => void;
-  btnRef: React.RefObject<View>;
-}
+// export interface TranslateActionMenuProps {
+//   actionMenuVisible: boolean;
+//   setActionMenuVisible: (actionMenuVisible: boolean) => void;
+//   btnRef: React.RefObject<View>;
+// }
 
-export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
-  const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
-  const [modalPosition, setModalPosition] = React.useState({});
-  const [isPosCalculated, setIsPosCalculated] = React.useState(false);
-  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
-  const {
-    language: currentSpokenLanguages,
-    selectedTranslationLanguage,
-    setSelectedTranslationLanguage,
-    setMeetingTranscript,
-    translationConfig,
-  } = useCaption();
-  const {update} = useSTTAPI();
-  const localUid = useLocalUid();
-  const {sttLanguage} = useRoomInfo();
+// export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
+//   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
+//   const [modalPosition, setModalPosition] = React.useState({});
+//   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
+//   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+//   const {
+//     language: currentSpokenLanguages,
+//     selectedTranslationLanguage,
+//     setSelectedTranslationLanguage,
+//     setMeetingTranscript,
+//     translationConfig,
+//   } = useCaption();
+//   const {update} = useSTTAPI();
+//   const localUid = useLocalUid();
+//   const {sttLanguage} = useRoomInfo();
 
-  // Reset selected translation language if there are no targets configured
-  const targetLanguages = translationConfig?.targets || [];
-  React.useEffect(() => {
-    if (targetLanguages.length === 0 && selectedTranslationLanguage !== '') {
-      setSelectedTranslationLanguage('');
-    }
-  }, [
-    targetLanguages.length,
-    selectedTranslationLanguage,
-    setSelectedTranslationLanguage,
-  ]);
+//   // Reset selected translation language if there are no targets configured
+//   const targetLanguages = translationConfig?.targets || [];
+//   React.useEffect(() => {
+//     if (targetLanguages.length === 0 && selectedTranslationLanguage !== '') {
+//       setSelectedTranslationLanguage('');
+//     }
+//   }, [
+//     targetLanguages.length,
+//     selectedTranslationLanguage,
+//     setSelectedTranslationLanguage,
+//   ]);
 
-  const actionMenuitems: ActionMenuItem[] = [];
+//   const actionMenuitems: ActionMenuItem[] = [];
 
-  actionMenuitems.push({
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Add Another Translation',
-    iconPosition: 'end',
-    disabled: true,
-    onPress: () => {},
-  });
+//   actionMenuitems.push({
+//     iconColor: $config.SECONDARY_ACTION_COLOR,
+//     textColor: $config.FONT_COLOR,
+//     title: 'Add Another Translation',
+//     iconPosition: 'end',
+//     disabled: true,
+//     onPress: () => {},
+//   });
 
-  const handleTranslationToggle = (targetLanguage: string) => {
-    // Simply update the selected translation language locally
-    // No API call needed - we're just switching between already-configured target languages
-    // const prevTranslationLanguage = selectedTranslationLanguage;
-    setSelectedTranslationLanguage(targetLanguage);
+//   const handleTranslationToggle = (targetLanguage: string) => {
+//     // Simply update the selected translation language locally
+//     // No API call needed - we're just switching between already-configured target languages
+//     // const prevTranslationLanguage = selectedTranslationLanguage;
+//     setSelectedTranslationLanguage(targetLanguage);
 
-    // // Add translation language change notification to transcript
-    // const getLanguageName = (langCode: string) => {
-    //   if (!langCode) return '';
-    //   const lang = langData.find(data => data.value === langCode);
-    //   return lang ? lang.label : langCode;
-    // };
+//     // // Add translation language change notification to transcript
+//     // const getLanguageName = (langCode: string) => {
+//     //   if (!langCode) return '';
+//     //   const lang = langData.find(data => data.value === langCode);
+//     //   return lang ? lang.label : langCode;
+//     // };
 
-    // const actionText =
-    //   targetLanguage === ''
-    //     ? 'turned off translation'
-    //     : prevTranslationLanguage === ''
-    //     ? `set the translation language to "${getLanguageName(targetLanguage)}"`
-    //     : `changed the translation language from "${getLanguageName(
-    //         prevTranslationLanguage,
-    //       )}" to "${getLanguageName(targetLanguage)}"`;
+//     // const actionText =
+//     //   targetLanguage === ''
+//     //     ? 'turned off translation'
+//     //     : prevTranslationLanguage === ''
+//     //     ? `set the translation language to "${getLanguageName(targetLanguage)}"`
+//     //     : `changed the translation language from "${getLanguageName(
+//     //         prevTranslationLanguage,
+//     //       )}" to "${getLanguageName(targetLanguage)}"`;
 
-    // setMeetingTranscript(prev => [
-    //   ...prev,
-    //   {
-    //     name: 'translationUpdate',
-    //     time: new Date().getTime(),
-    //     uid: `translationUpdate-${localUid}`,
-    //     text: actionText,
-    //   },
-    // ]);
+//     // setMeetingTranscript(prev => [
+//     //   ...prev,
+//     //   {
+//     //     name: 'translationUpdate',
+//     //     time: new Date().getTime(),
+//     //     uid: `translationUpdate-${localUid}`,
+//     //     text: actionText,
+//     //   },
+//     // ]);
 
-    setActionMenuVisible(false);
-  };
+//     setActionMenuVisible(false);
+//   };
 
-  // Check if there are any target languages configured
-  if (targetLanguages.length === 0) {
-    // No target languages - show a disabled message
-    actionMenuitems.push({
-      icon: undefined,
-      iconColor: $config.FONT_COLOR,
-      textColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
-      title: 'No languages configured',
-      iconPosition: 'end',
-      disabled: true,
-      onPress: () => {},
-    });
-  } else {
-    // Show "Off" option and target languages
-    actionMenuitems.push({
-      icon: selectedTranslationLanguage === '' ? 'tick-fill' : undefined,
-      iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'Off',
-      iconPosition: 'end',
-      onPress: () => handleTranslationToggle(''),
-    });
+//   // Check if there are any target languages configured
+//   if (targetLanguages.length === 0) {
+//     // No target languages - show a disabled message
+//     actionMenuitems.push({
+//       icon: undefined,
+//       iconColor: $config.FONT_COLOR,
+//       textColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
+//       title: 'No languages configured',
+//       iconPosition: 'end',
+//       disabled: true,
+//       onPress: () => {},
+//     });
+//   } else {
+//     // Show "Off" option and target languages
+//     actionMenuitems.push({
+//       icon: selectedTranslationLanguage === '' ? 'tick-fill' : undefined,
+//       iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+//       textColor: $config.FONT_COLOR,
+//       title: 'Off',
+//       iconPosition: 'end',
+//       onPress: () => handleTranslationToggle(''),
+//     });
 
-    // Add selected translation language right after "Off" if one is selected
-    if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
-      const selectedLanguage = langData.find(
-        lang => lang.value === selectedTranslationLanguage,
-      );
-      if (selectedLanguage) {
-        actionMenuitems.push({
-          icon: 'tick-fill',
-          iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-          textColor: $config.FONT_COLOR,
-          title: selectedLanguage.label,
-          iconPosition: 'end',
-          onPress: () => handleTranslationToggle(selectedLanguage.value),
-        });
-      }
-    }
+//     // Add selected translation language right after "Off" if one is selected
+//     if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
+//       const selectedLanguage = langData.find(
+//         lang => lang.value === selectedTranslationLanguage,
+//       );
+//       if (selectedLanguage) {
+//         actionMenuitems.push({
+//           icon: 'tick-fill',
+//           iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+//           textColor: $config.FONT_COLOR,
+//           title: selectedLanguage.label,
+//           iconPosition: 'end',
+//           onPress: () => handleTranslationToggle(selectedLanguage.value),
+//         });
+//       }
+//     }
 
-    // Add remaining Translation language options from translationConfig.targets (excluding the selected one)
-    targetLanguages.forEach(targetLangCode => {
-      if (targetLangCode !== selectedTranslationLanguage) {
-        const language = langData.find(lang => lang.value === targetLangCode);
-        if (language) {
-          actionMenuitems.push({
-            icon: undefined,
-            iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-            textColor: $config.FONT_COLOR,
-            title: language.label,
-            iconPosition: 'end',
-            onPress: () => handleTranslationToggle(language.value),
-          });
-        }
-      }
-    });
-  }
+//     // Add remaining Translation language options from translationConfig.targets (excluding the selected one)
+//     targetLanguages.forEach(targetLangCode => {
+//       if (targetLangCode !== selectedTranslationLanguage) {
+//         const language = langData.find(lang => lang.value === targetLangCode);
+//         if (language) {
+//           actionMenuitems.push({
+//             icon: undefined,
+//             iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+//             textColor: $config.FONT_COLOR,
+//             title: language.label,
+//             iconPosition: 'end',
+//             onPress: () => handleTranslationToggle(language.value),
+//           });
+//         }
+//       }
+//     });
+//   }
 
-  React.useEffect(() => {
-    if (actionMenuVisible) {
-      btnRef?.current?.measure(
-        (
-          _fx: number,
-          _fy: number,
-          localWidth: number,
-          localHeight: number,
-          px: number,
-          py: number,
-        ) => {
-          const data = calculatePosition({
-            px,
-            py,
-            localWidth,
-            localHeight,
-            globalHeight,
-            globalWidth,
-          });
-          setModalPosition(data);
-          setIsPosCalculated(true);
-        },
-      );
-    }
-  }, [actionMenuVisible]);
+//   React.useEffect(() => {
+//     if (actionMenuVisible) {
+//       btnRef?.current?.measure(
+//         (
+//           _fx: number,
+//           _fy: number,
+//           localWidth: number,
+//           localHeight: number,
+//           px: number,
+//           py: number,
+//         ) => {
+//           const data = calculatePosition({
+//             px,
+//             py,
+//             localWidth,
+//             localHeight,
+//             globalHeight,
+//             globalWidth,
+//           });
+//           setModalPosition(data);
+//           setIsPosCalculated(true);
+//         },
+//       );
+//     }
+//   }, [actionMenuVisible]);
 
-  return (
-    <ActionMenu
-      from={'translation'}
-      actionMenuVisible={actionMenuVisible && isPosCalculated}
-      setActionMenuVisible={setActionMenuVisible}
-      modalPosition={modalPosition}
-      items={actionMenuitems}
-      containerStyle={{
-        maxHeight: Math.min(440, globalHeight * 0.6),
-        width: 220,
-      }}
-    />
-  );
-};
+//   return (
+//     <ActionMenu
+//       from={'translation'}
+//       actionMenuVisible={actionMenuVisible && isPosCalculated}
+//       setActionMenuVisible={setActionMenuVisible}
+//       modalPosition={modalPosition}
+//       items={actionMenuitems}
+//       containerStyle={{
+//         maxHeight: Math.min(440, globalHeight * 0.6),
+//         width: 220,
+//       }}
+//     />
+//   );
+// };
 
 export default CaptionContainer;
 

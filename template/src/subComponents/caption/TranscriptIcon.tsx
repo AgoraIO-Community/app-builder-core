@@ -3,11 +3,11 @@ import React from 'react';
 import {SidePanelType, useSidePanel} from 'customization-api';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
-import {LanguageTranslationConfig, useCaption} from './useCaption';
-import useSTTAPI from './useSTTAPI';
+import {useCaption} from './useCaption';
 import {useString} from '../../utils/useString';
 import {toolbarItemTranscriptText} from '../../language/default-labels/videoCallScreenLabels';
 import {useToolbarProps} from '../../atoms/ToolbarItem';
+import {LanguageType} from './utils';
 
 interface TranscriptIconProps {
   plainIconHoverEffect?: boolean;
@@ -31,7 +31,8 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   } = props;
 
   // const {start, restart, isAuthorizedTranscriptUser} = useSTTAPI();
-  const {isSTTActive, isSTTError, handleTranslateConfigChange} = useCaption();
+  const {isSTTActive, isSTTError, sttDepsReady, confirmSpokenLanguageChange} =
+    useCaption();
   // const isDisabled = !isAuthorizedTranscriptUser();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -61,7 +62,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
-    disabled: false,
+    disabled: !sttDepsReady,
     btnTextProps: {
       text: showLabel
         ? isOnActionSheet
@@ -77,7 +78,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     iconButtonProps.toolTipMessage = label(isTranscriptON);
   }
 
-  const onConfirm = async (inputTranslateConfig: LanguageTranslationConfig) => {
+  const onConfirm = async (newSpokenLang: LanguageType) => {
     // isFirstTimePopupOpen.current = false;
     // const method = isTranscriptON ? 'stop' : 'start';
     // if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
@@ -89,7 +90,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
       //   // channel is already started now restart
       //   await restart(language, userOwnLanguages);
       // }
-      await handleTranslateConfigChange(inputTranslateConfig);
+      await confirmSpokenLanguageChange(newSpokenLang);
       if (!isTranscriptON) {
         setSidePanel(SidePanelType.Transcript);
       } else {
