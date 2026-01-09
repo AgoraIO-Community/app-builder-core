@@ -333,7 +333,15 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   React.useEffect(() => {
     if (sttDepsReadyRef.current && !hasFlushedSttQueueRef.current) {
       hasFlushedSttQueueRef.current = true;
-      processSttEventQueue();
+      // Add delay to allow persisted STT_GLOBAL_STATE events to be processed first
+      // This prevents second host from auto-starting when first host has already started STT
+      const timeoutId = setTimeout(() => {
+        processSttEventQueue();
+      }, 1000);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
     }
     // When deps become ready → flush queue once
   }, [sttDepsReady]);
@@ -745,13 +753,18 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     }
     isProcessingSttEventRef.current = true;
     // 2. stt auto start check
+    // If queue has events (e.g., Host A's persisted STT_GLOBAL_STATE when Host B joins),those events will be processed first, preventing duplicate auto-start
     if (
       $config.STT_AUTO_START &&
       sttDepsReadyRef.current &&
       !sttAutoStartGuardRef.current
     ) {
-      if (isHostRef.current && !globalSttStateRef.current.globalSttEnabled) {
-        console.log('[STT] AUTO_START →supriya injecting start state');
+      if (
+        isHostRef.current &&
+        !globalSttStateRef.current.globalSttEnabled &&
+        sttEventQueueRef.current.length === 0
+      ) {
+        console.log('[STT] AUTO_START  injecting auto start state');
 
         sttAutoStartGuardRef.current = true;
 
