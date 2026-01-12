@@ -333,14 +333,24 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   React.useEffect(() => {
     if (sttDepsReadyRef.current && !hasFlushedSttQueueRef.current) {
       hasFlushedSttQueueRef.current = true;
-      // Add delay to allow persisted STT_GLOBAL_STATE events to be processed first
-      // This prevents second host from auto-starting when first host has already started STT
-      const timeoutId = setTimeout(() => {
+
+      let timeoutId;
+      // Add delay if STT_AUTO_START is enabled,
+      // The delay allows persisted STT_GLOBAL_STATE events to be processed first,
+      // preventing second host from auto-starting when first host has already started STT
+      if ($config.STT_AUTO_START) {
+        timeoutId = setTimeout(() => {
+          processSttEventQueue();
+        }, 1000);
+      } else {
+        // No auto-start, process queue immediately
         processSttEventQueue();
-      }, 1000);
+      }
 
       return () => {
-        clearTimeout(timeoutId);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
       };
     }
     // When deps become ready → flush queue once
