@@ -333,7 +333,25 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   React.useEffect(() => {
     if (sttDepsReadyRef.current && !hasFlushedSttQueueRef.current) {
       hasFlushedSttQueueRef.current = true;
-      processSttEventQueue();
+
+      let timeoutId;
+      // Add delay if STT_AUTO_START is enabled,
+      // The delay allows persisted STT_GLOBAL_STATE events to be processed first,
+      // preventing second host from auto-starting when first host has already started STT
+      if ($config.STT_AUTO_START) {
+        timeoutId = setTimeout(() => {
+          processSttEventQueue();
+        }, 1000);
+      } else {
+        // No auto-start, process queue immediately
+        processSttEventQueue();
+      }
+
+      return () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+      };
     }
     // When deps become ready → flush queue once
   }, [sttDepsReady]);
@@ -453,6 +471,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           text1: startErrorLabel,
           text2: result.error?.message || 'Unknown error occurred',
           visibilityTime: 4000,
+          primaryBtn: null,
+          secondaryBtn: null,
         });
       }
       setIsLangChangeInProgress(false);
@@ -468,6 +488,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         text1: startErrorLabel,
         text2: error?.message || 'Unknown error occurred',
         visibilityTime: 4000,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
       return {
         success: false,
@@ -521,6 +543,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           text1: updateErrorLabel,
           text2: result.error?.message || 'Unknown error occurred',
           visibilityTime: 4000,
+          primaryBtn: null,
+          secondaryBtn: null,
         });
       }
       setIsLangChangeInProgress(false);
@@ -536,6 +560,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         text1: updateErrorLabel,
         text2: error?.message || 'Unknown error occurred',
         visibilityTime: 4000,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
       return {
         success: false,
@@ -737,13 +763,18 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     }
     isProcessingSttEventRef.current = true;
     // 2. stt auto start check
+    // If queue has events (e.g., Host A's persisted STT_GLOBAL_STATE when Host B joins),those events will be processed first, preventing duplicate auto-start
     if (
       $config.STT_AUTO_START &&
       sttDepsReadyRef.current &&
       !sttAutoStartGuardRef.current
     ) {
-      if (isHostRef.current && !globalSttStateRef.current.globalSttEnabled) {
-        console.log('[STT] AUTO_START →supriya injecting start state');
+      if (
+        isHostRef.current &&
+        !globalSttStateRef.current.globalSttEnabled &&
+        sttEventQueueRef.current.length === 0
+      ) {
+        console.log('[STT] AUTO_START  injecting auto start state');
 
         sttAutoStartGuardRef.current = true;
 
@@ -834,6 +865,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
                 text1: heading('Set'),
                 text2: `Live transcription are automatically enabled for this meeting in "${spokenLangLabel}"`,
                 visibilityTime: 3000,
+                primaryBtn: null,
+                secondaryBtn: null,
               });
             } else {
               Toast.show({
@@ -845,6 +878,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
                   newLanguage: spokenLangLabel,
                 }),
                 visibilityTime: 3000,
+                primaryBtn: null,
+                secondaryBtn: null,
               });
             }
           } else {
@@ -859,6 +894,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               text1: heading('Set'),
               text2: subheading(subheadingObj),
               visibilityTime: 3000,
+              primaryBtn: null,
+              secondaryBtn: null,
             });
           }
 
@@ -912,6 +949,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               //   newConfig.source,
               // )}`,
               visibilityTime: 3000,
+              primaryBtn: null,
+              secondaryBtn: null,
             });
           }
           if (isLocal) {
