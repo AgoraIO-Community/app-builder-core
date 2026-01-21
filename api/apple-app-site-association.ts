@@ -5,7 +5,7 @@ export default function handler(_req: any, res: any) {
       apps: [],
       details: [
         {
-          appID: "TEAMID.org.reactjs.native.example.HelloWorld--one",
+          appID: "58D77G87LU.org.reactjs.native.example.HelloWorld--one",
           paths: ["/[0-9a-fA-F-]{36}"],
         },
       ],
