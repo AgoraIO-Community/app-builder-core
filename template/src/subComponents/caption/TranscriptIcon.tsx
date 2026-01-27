@@ -39,6 +39,8 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   // const isFirstTimePopupOpen = React.useRef(false);
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
+  const isDisabled = !sttDepsReady || props?.disabled;
+
   const onPress = () => {
     if (isSTTError || !isSTTActive) {
       setLanguagePopup(true);
@@ -53,23 +55,25 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   const label = useString<boolean>(toolbarItemTranscriptText);
   const iconButtonProps: IconButtonProps = {
     onPress: onPressCustom || onPress,
+    disabled: isDisabled,
     iconProps: {
       name: 'transcript',
       iconBackgroundColor: isTranscriptON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: isTranscriptON
+      tintColor: isDisabled
+        ? $config.SEMANTIC_NEUTRAL
+        : isTranscriptON
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
-    disabled: !sttDepsReady,
     btnTextProps: {
       text: showLabel
         ? isOnActionSheet
           ? labelCustom || label(isTranscriptON)?.replace(' ', '\n')
           : labelCustom || label(isTranscriptON)
         : '',
-      textColor: $config.FONT_COLOR,
+      textColor: isDisabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
       numberOfLines: 2,
     },
   };
