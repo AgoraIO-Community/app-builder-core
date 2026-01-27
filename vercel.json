@@ -4,11 +4,25 @@
       "source": "/.well-known/apple-app-site-association",
       "destination": "/api/apple-app-site-association"
     },
+    {
+      "source": "/apple-app-site-association",
+      "destination": "/api/apple-app-site-association"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
       "source": "/.well-known/apple-app-site-association",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/apple-app-site-association",
       "headers": [
         {
           "key": "Content-Type",
