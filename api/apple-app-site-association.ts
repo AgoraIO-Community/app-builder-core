@@ -6,7 +6,7 @@ export default function handler(_req: any, res: any) {
       details: [
         {
           appID: "58D77G87LU.io.agora.conferencing.supriya.helloworld",
-          paths: ["/[0-9a-fA-F-]{36}"],
+          paths: ["*", "/"],
         },
       ],
     },
