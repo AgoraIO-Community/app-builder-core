@@ -4,7 +4,8 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:FRONTEND_ENDPOINT_BASE</string>
+		<string>applinks:https://app-builder-core-git-preprod-agoraio.vercel.app</string>
+		<string>applinks:conferencing.agora.io</string>
 	</array>
 </dict>
 </plist>
