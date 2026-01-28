@@ -8,6 +8,10 @@
       "source": "/apple-app-site-association",
       "destination": "/api/apple-app-site-association"
     },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "destination": "/api/assetlinks.json"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
@@ -23,6 +27,16 @@
     },
     {
       "source": "/apple-app-site-association",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
       "headers": [
         {
           "key": "Content-Type",
