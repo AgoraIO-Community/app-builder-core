@@ -10,6 +10,15 @@
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
+			<!-- Deep Link / App Link Intent Filter -->
+			<intent-filter android:autoVerify="true">
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data
+					android:scheme="https"
+					android:host="app-builder-core-git-feature-add-deep-link-in-na-991f4e-agoraio.vercel.app" />
+			</intent-filter>
 		</activity>
 		<activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
 		<meta-data android:name="com.supersami.foregroundservice.notification_channel_name" android:value="AppBuilder"/>
