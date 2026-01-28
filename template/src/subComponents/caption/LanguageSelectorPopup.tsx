@@ -15,7 +15,8 @@ import {useString} from '../../utils/useString';
 import {
   sttChangeLanguagePopupHeading,
   sttChangeLanguagePopupPrimaryBtnText,
-  sttLanguageChangeInProgress,
+  sttSpokenLanguageChangeInProgress,
+  sttTranslationLanguageChangeInProgress,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {cancelText} from '../../language/default-labels/commonLabels';
 
@@ -30,9 +31,14 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const heading = useString<boolean>(sttChangeLanguagePopupHeading);
   const cancelBtnLabel = useString(cancelText)();
   const ConfirmBtnLabel = useString(sttChangeLanguagePopupPrimaryBtnText)();
-  const languageChangeInProgress = useString(sttLanguageChangeInProgress)();
+  const spokenLanguageChangeInProgress = useString<boolean>(
+    sttSpokenLanguageChangeInProgress,
+  );
+  const translationLanguageChangeInProgress = useString<boolean>(
+    sttTranslationLanguageChangeInProgress,
+  );
 
-  const {globalSttState, isLangChangeInProgress} = useCaption();
+  const {globalSttState, isLangChangeInProgress, langChangeType} = useCaption();
 
   const [draftSpokenLanguage, setDraftSpokenLanguage] = useState<LanguageType>(
     globalSttState?.globalSpokenLanguage || 'en-US',
@@ -64,7 +70,15 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
       {isLangChangeInProgress ? (
         <View style={styles.changeInProgress}>
           <Loading
-            text={languageChangeInProgress}
+            text={
+              langChangeType === 'translation'
+                ? translationLanguageChangeInProgress(
+                    globalSttState?.globalSttEnabled,
+                  )
+                : spokenLanguageChangeInProgress(
+                    globalSttState?.globalSttEnabled,
+                  )
+            }
             background="transparent"
             indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
             textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
