@@ -135,6 +135,14 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
   }, [store?.token]);
 
+  // Handle navigation in native apps when authentication completes with pending returnTo
+  useEffect(() => {
+    if (authenticated && returnTo && (isAndroid() || isIOS())) {
+      history.push(returnTo);
+      setReturnTo('');
+    }
+  }, [authenticated, returnTo]);
+
   const deepLinkUrl = (link: string | null) => {
     if (link !== null) {
       //deeplinking handling with authentication enabled
@@ -201,7 +209,7 @@ const AuthProvider = (props: AuthProviderProps) => {
           history.push('/');
         }
       } else {
-        //deeplinking handling with authentication enabled
+        //deeplinking handling with authentication disabled
         const url = processDeepLinkURI(link);
         setReturnTo(url);
       }
