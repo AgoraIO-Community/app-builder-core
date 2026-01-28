@@ -12,7 +12,10 @@
 
 import React, {useContext, useState} from 'react';
 import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
-import {Room, RoomState} from 'white-web-sdk';
+// import {Room, RoomState} from 'white-web-sdk';
+// Commented out for fastboard migration
+type Room = any;
+type RoomState = any;
 import {
   IconButton,
   useContent,

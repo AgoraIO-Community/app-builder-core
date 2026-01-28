@@ -17,7 +17,15 @@ import {
   whiteboardPaper,
 } from './WhiteboardConfigure';
 import {StyleSheet, View, Text} from 'react-native';
-import {RoomPhase, ApplianceNames} from 'white-web-sdk';
+// import {RoomPhase, ApplianceNames} from 'white-web-sdk';
+// Commented out for fastboard migration
+enum RoomPhase {
+  Connecting = 'connecting',
+  Connected = 'connected',
+  Reconnecting = 'reconnecting',
+  Disconnecting = 'disconnecting',
+  Disconnected = 'disconnected',
+}
 import WhiteboardToolBox from './WhiteboardToolBox';
 import WhiteboardWidget from './WhiteboardWidget';
 

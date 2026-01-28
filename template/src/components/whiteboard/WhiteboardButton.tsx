@@ -7,7 +7,15 @@ import {
   useRoomInfo,
 } from 'customization-api';
 import {whiteboardContext} from './WhiteboardConfigure';
-import {RoomPhase} from 'white-web-sdk';
+// import {RoomPhase} from 'white-web-sdk';
+// Commented out for fastboard migration
+enum RoomPhase {
+  Connecting = 'connecting',
+  Connected = 'connected',
+  Reconnecting = 'reconnecting',
+  Disconnecting = 'disconnecting',
+  Disconnected = 'disconnected',
+}
 import IconButton from '../../atoms/IconButton';
 import {EventNames} from '../../rtm-events';
 

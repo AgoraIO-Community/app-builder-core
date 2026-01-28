@@ -16,7 +16,15 @@ import {useCaption} from '../src/subComponents/caption/useCaption';
 import useMuteToggleLocal, {
   MUTE_LOCAL_TYPE,
 } from '../src/utils/useMuteToggleLocal';
-import {RoomPhase} from 'white-web-sdk';
+// import {RoomPhase} from 'white-web-sdk';
+// Commented out for fastboard migration
+enum RoomPhase {
+  Connecting = 'connecting',
+  Connected = 'connected',
+  Reconnecting = 'reconnecting',
+  Disconnecting = 'disconnecting',
+  Disconnected = 'disconnected',
+}
 import {useScreenContext} from '../src/components/contexts/ScreenShareContext';
 import {filterObject} from '../src/utils/index';
 import {useToggleWhiteboard} from '../src/components/Controls';
