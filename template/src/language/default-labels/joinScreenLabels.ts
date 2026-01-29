@@ -30,9 +30,9 @@ export const JoinScreenLabels: I18nJoinScreenLabelsInterface = {
   },
   [joinRoomInputLabel]: ({eventMode}) => {
     if (eventMode) {
-      return 'Stream ID';
-    } else {
       return 'Room ID';
+    } else {
+      return 'Stream ID';
     }
   },
   [joinRoomInputPlaceHolderText]: ({eventMode}) => {
