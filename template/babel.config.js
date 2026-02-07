@@ -10,11 +10,11 @@
 *********************************************
 */
 const configVars = require('./configTransform');
-const { getCustomizationApiPath } =  require('./customization.config');
+const {getCustomizationApiPath} = require('./customization.config');
 
 // This file is read only by react native for IOS & Android. Doesn't apply to electron, Web targets
 module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
+  presets: ['@react-native/babel-preset'],
   plugins: [
     ['transform-define', configVars],
     [
@@ -29,6 +29,6 @@ module.exports = {
         },
       },
     ],
-    'react-native-reanimated/plugin'
+    'react-native-reanimated/plugin',
   ],
 };

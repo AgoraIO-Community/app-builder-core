@@ -132,6 +132,12 @@ module.exports = {
         },
       },
       {
+        test: /\.m?js/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
+      {
         test: /\.(mp4|png|jpe?g|gif)$/i,
         use: [
           {
