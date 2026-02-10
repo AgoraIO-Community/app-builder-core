@@ -16,27 +16,14 @@ const getOrientation = (): Orientation => {
 };
 
 export const getDeviceClass = (): DeviceClass => {
-  // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/maxTouchPoints
-  const isTouch = window.navigator.maxTouchPoints > 0;
+  const minDim = Math.min(screen.width, screen.height);
 
-  // Mouse-only devices
-  if (!isTouch) {
-    return 'desktop';
-  }
-  //iPadOS mini detection ( when width < 768)
-  const isIPadOS =
-    navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent);
-
-  if (isIPadOS) {
-    return 'tablet';
-  }
-
-  const minDim = Math.min(window.screen.width, window.screen.height);
-  // Touch + small screen → phone
+  // Phones only
   if (minDim < 600) {
     return 'phone';
   }
-  // Touch + large screen → tablet
+
+  // Everything else (tablet + desktop)
   return 'tablet';
 };
 
