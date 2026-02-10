@@ -8,7 +8,7 @@ export const getDeviceClass = (): DeviceClass => {
   const minDim = Math.min(width, height);
 
   // Touch + small screen → phone
-  if (minDim < 768) {
+  if (minDim < 600) {
     return 'phone';
   }
   // Touch + large screen → tablet
