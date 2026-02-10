@@ -1,59 +1,53 @@
-import {useState, useEffect} from 'react';
-import {Keyboard, Platform} from 'react-native';
+import {useEffect, useState} from 'react';
+
+type Orientation = 'PORTRAIT' | 'LANDSCAPE';
+export type DeviceClass = 'phone' | 'tablet' | 'desktop';
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Screen_Orientation_API
+
+const getOrientation = (): Orientation => {
+  // This gives the device hardware orientation
+  const type = window.screen?.orientation?.type;
+  if (type) {
+    return type.startsWith('portrait') ? 'PORTRAIT' : 'LANDSCAPE';
+  }
+  // In case above api does not exist -> use the physical device height and width
+  return window.screen.height >= window.screen.width ? 'PORTRAIT' : 'LANDSCAPE';
+};
+
+export const getDeviceClass = (): DeviceClass => {
+  const minDim = Math.min(screen.width, screen.height);
+
+  // Phones only
+  if (minDim < 600) {
+    return 'phone';
+  }
+
+  // Everything else (tablet + desktop)
+  return 'tablet';
+};
 
 export function useOrientation() {
-  const [orientation, setOrientation] = useState<'PORTRAIT' | 'LANDSCAPE'>(
-    window.matchMedia('(orientation: portrait)').matches
-      ? 'PORTRAIT'
-      : 'LANDSCAPE',
-  );
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [orientation, setOrientation] = useState<Orientation>(getOrientation());
 
   useEffect(() => {
     console.log('screen orientation changed', orientation);
   }, [orientation]);
 
   useEffect(() => {
-    const handleOrientationChange = () => {
-      if (keyboardVisible && Platform.OS === 'ios') {
-        return; // Avoid changing orientation if the keyboard is visible on iOS
-      }
-      setOrientation(
-        window.matchMedia('(orientation: portrait)').matches
-          ? 'PORTRAIT'
-          : 'LANDSCAPE',
-      );
-    };
+    const update = () => setOrientation(getOrientation());
 
-    const handleResize = () => {
-      if (!keyboardVisible) {
-        handleOrientationChange();
-      }
-    };
+    window.addEventListener('resize', update);
 
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        setKeyboardVisible(true);
-      },
-    );
-
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardVisible(false);
-        handleOrientationChange(); // Recheck orientation after the keyboard is hidden
-      },
-    );
-
-    window.addEventListener('resize', handleResize);
+    // https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation/change_event
+    const screenOrientation = window.screen?.orientation;
+    screenOrientation?.addEventListener?.('change', update);
 
     return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', update);
+      screenOrientation?.removeEventListener?.('change', update);
     };
-  }, [keyboardVisible]);
+  }, []);
 
   return orientation;
 }

@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {useOrientation} from '../utils/useOrientation';
+import {useOrientation, getDeviceClass} from '../utils/useOrientation';
 import ThemeConfig from '../theme';
-import {isMobileUA} from '../utils/common';
 import Popup from './../atoms/Popup';
 import {useString} from '../utils/useString';
 import {blockLandscapeModeMessageText} from '../language/default-labels/videoCallScreenLabels';
+import {logger, LogSource} from '../logger/AppBuilderLogger';
 
 export default function BlockUI() {
   const blockLandscapeModeMessageTextLabel = useString(
@@ -15,10 +15,20 @@ export default function BlockUI() {
   const [isBlockModalVisible, setBlockModalVisible] = useState(true);
 
   const orientation = useOrientation();
-  if (!isMobileUA()) {
-    return <></>;
-  }
-  if (orientation === 'PORTRAIT') {
+  const deviceClass = getDeviceClass();
+  const shouldBlock = deviceClass === 'phone' && orientation === 'LANDSCAPE';
+
+  logger.log(
+    LogSource.Internals,
+    'CREATE_MEETING',
+    'current device orientation is',
+    {
+      orientation,
+      device: deviceClass,
+      shouldBlockLandscape: shouldBlock,
+    },
+  );
+  if (!shouldBlock) {
     return <></>;
   }
   return (
