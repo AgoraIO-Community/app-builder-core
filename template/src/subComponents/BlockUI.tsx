@@ -5,6 +5,7 @@ import ThemeConfig from '../theme';
 import Popup from './../atoms/Popup';
 import {useString} from '../utils/useString';
 import {blockLandscapeModeMessageText} from '../language/default-labels/videoCallScreenLabels';
+import {logger, LogSource} from '../logger/AppBuilderLogger';
 
 export default function BlockUI() {
   const blockLandscapeModeMessageTextLabel = useString(
@@ -14,12 +15,19 @@ export default function BlockUI() {
   const [isBlockModalVisible, setBlockModalVisible] = useState(true);
 
   const orientation = useOrientation();
-  console.log('supriya-orientation: ', orientation);
   const deviceClass = getDeviceClass();
-  console.log('supriya-deviceClass: ', deviceClass);
-
   const shouldBlock = deviceClass === 'phone' && orientation === 'LANDSCAPE';
-  console.log('supriya-shouldBlock: ', shouldBlock);
+
+  logger.log(
+    LogSource.Internals,
+    'CREATE_MEETING',
+    'current device orientation is',
+    {
+      orientation,
+      device: deviceClass,
+      shouldBlockLandscape: shouldBlock,
+    },
+  );
   if (!shouldBlock) {
     return <></>;
   }

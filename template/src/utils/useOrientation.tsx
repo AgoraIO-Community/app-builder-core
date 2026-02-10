@@ -33,6 +33,7 @@ export function useOrientation() {
   useEffect(() => {
     console.log('screen orientation changed', orientation);
   }, [orientation]);
+
   useEffect(() => {
     const update = () => setOrientation(getOrientation());
 
