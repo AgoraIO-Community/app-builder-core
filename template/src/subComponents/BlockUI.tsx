@@ -1,28 +1,11 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {useOrientation} from '../utils/useOrientation';
+import {useOrientation, getDeviceClass} from '../utils/useOrientation';
 import ThemeConfig from '../theme';
 import Popup from './../atoms/Popup';
 import {useString} from '../utils/useString';
 import {blockLandscapeModeMessageText} from '../language/default-labels/videoCallScreenLabels';
 
-export type DeviceClass = 'phone' | 'tablet' | 'desktop';
-
-export const getDeviceClass = (): DeviceClass => {
-  // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/maxTouchPoints
-  // const isTouch = window.navigator.maxTouchPoints > 0;
-  const minDim = Math.min(window.screen.width, window.screen.height);
-  // Mouse-only devices
-  // if (!isTouch) {
-  //   return 'desktop';
-  // }
-  // Touch + small screen → phone
-  if (minDim < 768) {
-    return 'phone';
-  }
-  // Touch + large screen → tablet
-  return 'tablet';
-};
 export default function BlockUI() {
   const blockLandscapeModeMessageTextLabel = useString(
     blockLandscapeModeMessageText,
