@@ -14,9 +14,12 @@ export default function BlockUI() {
   const [isBlockModalVisible, setBlockModalVisible] = useState(true);
 
   const orientation = useOrientation();
+  console.log('supriya-orientation: ', orientation);
   const deviceClass = getDeviceClass();
+  console.log('supriya-deviceClass: ', deviceClass);
 
   const shouldBlock = deviceClass === 'phone' && orientation === 'LANDSCAPE';
+  console.log('supriya-shouldBlock: ', shouldBlock);
   if (!shouldBlock) {
     return <></>;
   }
