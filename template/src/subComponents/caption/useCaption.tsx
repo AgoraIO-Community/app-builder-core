@@ -132,6 +132,8 @@ export const CaptionContext = React.createContext<{
   isLangChangeInProgress: boolean;
   setIsLangChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 
+  // holds the type of language change in progress ('spoken' | 'translation' | null)
+  langChangeType: 'spoken' | 'translation' | null;
   // holds live captions
   captionObj: CaptionObj;
   setCaptionObj: React.Dispatch<React.SetStateAction<CaptionObj>>;
@@ -182,6 +184,7 @@ export const CaptionContext = React.createContext<{
   setMeetingTranscript: () => {},
   isLangChangeInProgress: false,
   setIsLangChangeInProgress: () => {},
+  langChangeType: null,
   captionObj: {},
   setCaptionObj: () => {},
   isSTTListenerAdded: false,
@@ -234,6 +237,9 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const [isSTTError, setIsSTTError] = React.useState<boolean>(false);
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
     React.useState<boolean>(false);
+  const [langChangeType, setLangChangeType] = React.useState<
+    'spoken' | 'translation' | null
+  >(null);
 
   const [captionObj, setCaptionObj] = React.useState<CaptionObj>({});
   const [meetingTranscript, setMeetingTranscript] = React.useState<
@@ -446,6 +452,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   ): Promise<STTAPIResponse> => {
     try {
       setIsLangChangeInProgress(true);
+      setLangChangeType('spoken');
       const result = await start(localBotUidRef.current, newConfig);
       console.log('[STT] start result: ', result);
       if (result.success || result.error?.code === 610) {
@@ -476,9 +483,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         });
       }
       setIsLangChangeInProgress(false);
+      setLangChangeType(null);
       return result;
     } catch (error: any) {
       setIsLangChangeInProgress(false);
+      setLangChangeType(null);
       setIsSTTError(true);
       logger.error(LogSource.NetworkRest, 'stt', 'STT start error', error);
       // Show error toast: text1 = translated label, text2 = exception error
@@ -504,7 +513,16 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     targetChange?: TargetChange,
   ): Promise<STTAPIResponse> => {
     try {
-      isLocal && setIsLangChangeInProgress(true);
+      if (isLocal) {
+        setIsLangChangeInProgress(true);
+        // If targetChange exists and prev/next differ, it's a translation change
+        // Otherwise it's a spoken language change
+        setLangChangeType(
+          targetChange && targetChange.prev !== targetChange.next
+            ? 'translation'
+            : 'spoken',
+        );
+      }
       const result = await update(localBotUidRef.current, newConfig);
       if (result.success) {
         setIsSTTError(false);
@@ -548,9 +566,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         });
       }
       setIsLangChangeInProgress(false);
+      setLangChangeType(null);
       return result;
     } catch (error: any) {
       setIsLangChangeInProgress(false);
+      setLangChangeType(null);
       setIsSTTError(true);
       logger.error(LogSource.NetworkRest, 'stt', 'STT update error', error);
       // Show error toast: text1 = translated label, text2 = exception error
@@ -1035,6 +1055,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setMeetingTranscript,
         isLangChangeInProgress,
         setIsLangChangeInProgress,
+        langChangeType,
         captionObj,
         setCaptionObj,
         isSTTListenerAdded,

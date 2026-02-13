@@ -40,6 +40,8 @@ import {
   sttTranscriptPanelNoSearchResultsFoundText,
   sttTranscriptPanelSearchText,
   sttTranscriptPanelViewLatestText,
+  sttSpokenLanguageChangeInProgress,
+  sttTranslationLanguageChangeInProgress,
 } from '../../../src/language/default-labels/videoCallScreenLabels';
 
 export interface TranscriptProps {
@@ -57,6 +59,7 @@ const Transcript = (props: TranscriptProps) => {
   const {
     meetingTranscript,
     isLangChangeInProgress,
+    langChangeType,
     isSTTListenerAdded,
     setIsSTTListenerAdded,
     getBotOwnerUid,
@@ -69,6 +72,12 @@ const Transcript = (props: TranscriptProps) => {
   const settingTranslationLanguageLabel = useString<boolean>(
     sttSettingTranslationLanguageText,
   )(isSTTActive);
+  const spokenLanguageChangeInProgress = useString<boolean>(
+    sttSpokenLanguageChangeInProgress,
+  );
+  const translationLanguageChangeInProgress = useString<boolean>(
+    sttTranslationLanguageChangeInProgress,
+  );
   const searchText = useString(sttTranscriptPanelSearchText)();
   const noresults = useString(sttTranscriptPanelNoSearchResultsFoundText)();
   const viewlatest = useString(sttTranscriptPanelViewLatestText)();
@@ -339,7 +348,11 @@ const Transcript = (props: TranscriptProps) => {
       {isLangChangeInProgress ? (
         <View style={{flex: 1}}>
           <Loading
-            text={settingTranslationLanguageLabel}
+            text={
+              langChangeType === 'translation'
+                ? translationLanguageChangeInProgress(isSTTActive)
+                : spokenLanguageChangeInProgress(isSTTActive)
+            }
             background="transparent"
             indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
             textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
