@@ -28,7 +28,7 @@ interface SetRoomInfoProviderProps {
 
 const SetRoomInfoProvider = (props: SetRoomInfoProviderProps) => {
   return (
-    <SetRoomInfoContext.Provider value={{...props.value}}>
+    <SetRoomInfoContext.Provider value={props.value}>
       {props.children}
     </SetRoomInfoContext.Provider>
   );

@@ -25,20 +25,29 @@ import {isValidReactComponent} from './utils/common';
 import ErrorBoundary from './components/ErrorBoundary';
 import {ErrorBoundaryFallback} from './components/ErrorBoundaryFallback';
 import VideoCallStateWrapper from './pages/video-call/VideoCallStateWrapper';
+import {RtcPropsComposer} from './components/rtc/RtcPropsComposer';
 
 function VideoCallWrapper(props) {
   const {isRecordingBot} = useIsRecordingBot();
+
+  // RtcPropsComposer derives RTC config from the app-level RoomInfoManager
+  const content = (
+    <RtcPropsComposer>
+      <VideoCallStateWrapper />
+    </RtcPropsComposer>
+  );
+
   const ErrorBoundaryFallbackComponent = <ErrorBoundaryFallback />;
   return isRecordingBot ? (
     <RecordingBotRoute history={props.history}>
       <ErrorBoundary fallback={ErrorBoundaryFallbackComponent}>
-        <VideoCallStateWrapper />
+        {content}
       </ErrorBoundary>
     </RecordingBotRoute>
   ) : (
     <AuthRoute>
       <ErrorBoundary fallback={ErrorBoundaryFallbackComponent}>
-        <VideoCallStateWrapper />
+        {content}
       </ErrorBoundary>
     </AuthRoute>
   );

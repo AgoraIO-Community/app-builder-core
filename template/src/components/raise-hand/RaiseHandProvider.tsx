@@ -17,14 +17,13 @@ import React, {
   useEffect,
   useCallback,
 } from 'react';
-import {useCurrentRoomInfo} from '../room-info/useCurrentRoomInfo';
 import {useLocalUid} from '../../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import Toast from '../../../react-native-toast-message';
 import {useMainRoomUserDisplayName} from '../../rtm/hooks/useMainRoomUserDisplayName';
 import {EventNames} from '../../rtm-events';
 import {useRoomInfo} from '../room-info/useRoomInfo';
-import {useBreakoutRoomInfo} from '../room-info/useSetBreakoutRoomInfo';
+import {useRoomLifecycle} from '../room-info/RoomLifecycleContext';
 
 interface RaiseHandData {
   raised: boolean;
@@ -65,10 +64,9 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
   const localUid = useLocalUid();
   const getDisplayName = useMainRoomUserDisplayName();
   const {
-    data: {channel: mainChannelId},
+    data: {meetingTitle: currentRoomName},
   } = useRoomInfo();
-  const {isInBreakoutRoute} = useCurrentRoomInfo();
-  const {breakoutRoomChannelData} = useBreakoutRoomInfo();
+  const {isInBreakoutRoom, mainRoomInfo} = useRoomLifecycle();
 
   // Get current user's hand state
   const isHandRaised = raisedHands[localUid]?.raised || false;
@@ -122,22 +120,21 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
       PersistanceLevel.Sender,
     );
 
-    // 2. Send cross-room notification to main room (if in breakout room)
-    if (isInBreakoutRoute) {
+    // 2. Send cross-room notification to main room (only when in breakout)
+    if (isInBreakoutRoom) {
       try {
-        // Get current active channel to restore later
         events.send(
           EventNames.CROSS_ROOM_RAISE_HAND_NOTIFICATION,
           JSON.stringify({
             type: 'raise_hand',
             uid: localUid,
             userName: userName,
-            roomName: breakoutRoomChannelData?.room_name || '',
+            roomName: currentRoomName || '',
             timestamp,
           }),
           PersistanceLevel.None,
           -1, // send in channel
-          mainChannelId, // send to main channel
+          mainRoomInfo?.data?.channel, // send to main channel
         );
       } catch (error) {
         console.error(
@@ -158,9 +155,9 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
     isHandRaised,
     localUid,
     getDisplayName,
-    isInBreakoutRoute,
-    mainChannelId,
-    breakoutRoomChannelData?.room_name,
+    isInBreakoutRoom,
+    currentRoomName,
+    mainRoomInfo?.data?.channel,
   ]);
 
   // Lower hand action
@@ -240,7 +237,7 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
         const {type, uid, userName, roomName} = eventData;
 
         // Only show notifications for other users and only in main room
-        if (uid !== localUid && !isInBreakoutRoute) {
+        if (uid !== localUid && !isInBreakoutRoom) {
           if (type === 'raise_hand') {
             Toast.show({
               type: 'info',
@@ -273,7 +270,7 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
         handleCrossRoomNotification,
       );
     };
-  }, [localUid, getDisplayName, isInBreakoutRoute]);
+  }, [localUid, getDisplayName, isInBreakoutRoom]);
 
   // Clear raised hands when room changes (optional: could be handled by RTM attribute clearing)
   useEffect(() => {

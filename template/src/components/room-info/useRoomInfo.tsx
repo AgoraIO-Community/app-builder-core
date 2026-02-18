@@ -171,7 +171,7 @@ interface RoomInfoProviderProps {
 
 const RoomInfoProvider = (props: RoomInfoProviderProps) => {
   return (
-    <RoomInfoContext.Provider value={{...props.value}}>
+    <RoomInfoContext.Provider value={props.value}>
       {props.children}
     </RoomInfoContext.Provider>
   );

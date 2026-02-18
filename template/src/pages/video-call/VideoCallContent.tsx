@@ -14,43 +14,50 @@ import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {useParams, useLocation, useHistory} from '../../components/Router';
 import events from '../../rtm-events-api';
 import {BreakoutChannelJoinEventPayload} from '../../components/breakout-room/state/types';
-import {CallbacksInterface, RtcPropsInterface} from '../../../agora-rn-uikit';
 import VideoCall from '../VideoCall';
 import BreakoutVideoCall from './BreakoutVideoCall';
+import {useRtcProps} from '../../components/rtc/RtcPropsComposer';
 import {BreakoutRoomEventNames} from '../../components/breakout-room/events/constants';
 import BreakoutRoomTransition from '../../components/breakout-room/ui/BreakoutRoomTransition';
 import Toast from '../../../react-native-toast-message';
 import {useMainRoomUserDisplayName} from '../../rtm/hooks/useMainRoomUserDisplayName';
+import {useRoomLifecycle} from '../../components/room-info/RoomLifecycleContext';
 import {
-  useSetBreakoutRoomInfo,
-  BreakoutRoomInfoProvider,
-} from '../../components/room-info/useSetBreakoutRoomInfo';
+  RoomInfoContextInterface,
+  useRoomInfo,
+  WaitingRoomStatus,
+} from '../../components/room-info/useRoomInfo';
 
 export interface VideoCallContentProps {
   callActive: boolean;
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
-  rtcProps: RtcPropsInterface;
-  setRtcProps: React.Dispatch<React.SetStateAction<Partial<RtcPropsInterface>>>;
-  callbacks: CallbacksInterface;
-  styleProps: any;
 }
 
 const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   const {phrase} = useParams<{phrase: string}>();
   const location = useLocation();
   const history = useHistory();
-
-  // Room Info:
-  const {setBreakoutRoomChannelInfo, clearBreakoutRoomChannelInfo} =
-    useSetBreakoutRoomInfo();
+  // RTC props from composer (rtcProps auto-updates when active room switches)
+  const {rtcProps} = useRtcProps();
+  const {enterBreakoutRoom, exitBreakoutRoom} = useRoomLifecycle();
+  // Snapshot of main room info — used as base when constructing breakout RoomInfo.
+  // Ref keeps it fresh inside the CHAN_JOIN event closure without re-subscribing.
+  const mainRoomInfo = useRoomInfo();
+  const mainRoomInfoRef = useRef(mainRoomInfo);
+  useEffect(() => {
+    mainRoomInfoRef.current = mainRoomInfo;
+  }, [mainRoomInfo]);
 
   // Parse URL to determine current mode
   const searchParams = new URLSearchParams(location.search);
   const isBreakoutMode = searchParams.get('breakout') === 'true';
 
   const breakoutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Flag to indicate a legitimate breakout transition is in progress
+  const breakoutTransitionInProgressRef = useRef(false);
 
-  const mainRoomLocalUid = props.rtcProps.uid;
+  const mainRoomLocalUid = rtcProps.uid;
   const getDisplayName = useMainRoomUserDisplayName();
 
   // Breakout channel details (populated by RTM events)
@@ -76,23 +83,76 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
         const data: BreakoutChannelJoinEventPayload = JSON.parse(payload);
         console.log('Breakout room join event received', data);
         if (data?.data?.act === 'CHAN_JOIN') {
-          const {channel_name, mainUser, screenShare, chat, room_name} =
-            data.data.data;
-
+          const {room_name} = data.data.data;
           // Set transition flag - component will unmount/remount when entering breakout
           sessionStorage.setItem('breakout_room_transition', 'true');
           console.log('Set breakout transition flag for channel join');
 
           // Set breakout state active
+          breakoutTransitionInProgressRef.current = true;
           history.push(`/${phrase}?breakout=true`);
           setBreakoutJoinChannelDetails(null);
           setTransitionDirection('enter'); // Set direction for entering
           // Add state after a delay to show transitioning screen
           breakoutTimeoutRef.current = setTimeout(() => {
+            const breakoutChannelData = data.data.data;
             setBreakoutJoinChannelDetails(prev => ({
               ...prev,
-              ...data.data.data,
+              ...breakoutChannelData,
             }));
+            // Switch RoomInfoManager to breakout — start from mainRoomInfo
+            // snapshot and override only what the breakout join event provides
+            const mainSnapshot = mainRoomInfoRef.current;
+            const isHost = mainSnapshot.data?.isHost ?? false;
+            console.log('supriya-debugroom: ', isHost);
+            const breakoutRoomInfo: RoomInfoContextInterface = {
+              ...mainSnapshot,
+              // Reset transient state for the new room
+              isInWaitingRoom: false,
+              waitingRoomStatus: WaitingRoomStatus.NOT_REQUESTED,
+              isWhiteBoardOn: false,
+              sttLanguage: null,
+              isSTTActive: false,
+              isJoinDataFetched: true,
+              data: {
+                ...mainSnapshot.data,
+                // Override with breakout-specific data from the event
+                meetingTitle: breakoutChannelData.room_name,
+                channel: breakoutChannelData.channel_name,
+                uid: breakoutChannelData.mainUser.uid,
+                token: breakoutChannelData.mainUser.rtc,
+                rtmToken: breakoutChannelData.mainUser.rtm,
+                screenShareUid: breakoutChannelData.screenShare?.uid
+                  ? String(breakoutChannelData.screenShare.uid)
+                  : undefined,
+                screenShareToken: breakoutChannelData.screenShare?.rtc,
+                roomId: isHost
+                  ? {
+                      host: breakoutChannelData.passphrase,
+                      attendee: '',
+                    }
+                  : {
+                      host: '',
+                      attendee: breakoutChannelData.passphrase,
+                    },
+                isSeparateHostLink: false,
+                ...(breakoutChannelData.whiteboard && {
+                  whiteboard: {
+                    room_uuid: breakoutChannelData.whiteboard.room_uuid,
+                    room_token: breakoutChannelData.whiteboard.room_token,
+                  },
+                }),
+                ...(breakoutChannelData.chat && {
+                  chat: {
+                    user_token: breakoutChannelData.chat.userToken,
+                    group_id: breakoutChannelData.chat.groupId,
+                    is_group_owner: breakoutChannelData.chat.isGroupOwner,
+                  },
+                }),
+              },
+            };
+            enterBreakoutRoom(breakoutRoomInfo);
+            breakoutTransitionInProgressRef.current = false;
             breakoutTimeoutRef.current = null;
           }, 800);
           let joinMessage = '';
@@ -103,13 +163,14 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
           } else {
             joinMessage = `Host: ${senderName} has moved you to room "${room_name}".`;
           }
-          setTimeout(() => {
+          toastTimeoutRef.current = setTimeout(() => {
             Toast.show({
               leadingIconName: 'open-room',
               type: 'success',
               text1: joinMessage,
               visibilityTime: 3000,
             });
+            toastTimeoutRef.current = null;
           }, 500);
         }
       } catch (error) {
@@ -130,19 +191,16 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
         handleBreakoutJoin,
       );
     };
-  }, [
-    phrase,
-    getDisplayName,
-    mainRoomLocalUid,
-    setBreakoutRoomChannelInfo,
-    history,
-  ]);
+  }, [phrase, getDisplayName, mainRoomLocalUid, enterBreakoutRoom, history]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (breakoutTimeoutRef.current) {
         clearTimeout(breakoutTimeoutRef.current);
+      }
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
       }
     };
   }, []);
@@ -151,8 +209,9 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   const handleLeaveBreakout = useCallback(() => {
     console.log('Leaving breakout room, returning to main room');
 
-    // Clear breakout room info to return to main room
-    clearBreakoutRoomChannelInfo();
+    // Switch RoomInfoManager back to main room — useRoomInfo() will
+    // immediately start returning main room data again
+    exitBreakoutRoom();
 
     // Set direction for exiting
     setTransitionDirection('exit');
@@ -162,19 +221,19 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
     setTimeout(() => {
       history.push(`/${phrase}`);
     }, 800);
-  }, [history, phrase, clearBreakoutRoomChannelInfo]);
+  }, [history, phrase, exitBreakoutRoom]);
 
   // Route protection: Prevent direct navigation to breakout route
   useEffect(() => {
-    if (isBreakoutMode && !breakoutJoinChannelDetails) {
-      // If user navigated to breakout route without valid channel details,
-      // redirect to main room after a short delay to prevent infinite loops
-      const redirectTimer = setTimeout(() => {
-        console.log('Invalid breakout route access, redirecting to main room');
-        history.replace(`/${phrase}`); // Use replace to prevent back navigation
-      }, 2000); // Give 2s for legitimate transitions
-
-      return () => clearTimeout(redirectTimer);
+    if (
+      isBreakoutMode &&
+      !breakoutJoinChannelDetails &&
+      !breakoutTransitionInProgressRef.current
+    ) {
+      // User navigated to breakout route without valid channel details
+      // and no legitimate transition is in progress — redirect to main room
+      console.log('Invalid breakout route access, redirecting to main room');
+      history.replace(`/${phrase}`);
     }
   }, [isBreakoutMode, breakoutJoinChannelDetails, history, phrase]);
 
@@ -184,14 +243,11 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
       {isBreakoutMode ? (
         breakoutJoinChannelDetails?.channel_name ? (
           // Breakout Room Mode - Fresh component instance
-          <BreakoutRoomInfoProvider>
-            <BreakoutVideoCall
-              key={`breakout-${breakoutJoinChannelDetails.channel_name}`}
-              breakoutJoinChannelDetails={breakoutJoinChannelDetails}
-              onLeave={handleLeaveBreakout}
-              {...props}
-            />
-          </BreakoutRoomInfoProvider>
+          <BreakoutVideoCall
+            key={`breakout-${breakoutJoinChannelDetails.channel_name}`}
+            onLeave={handleLeaveBreakout}
+            callActive={props.callActive}
+          />
         ) : (
           <BreakoutRoomTransition
             direction={transitionDirection}
@@ -202,7 +258,11 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
         )
       ) : (
         // Main Room Mode - Fresh component instance
-        <VideoCall key={`main-${phrase}`} {...props} />
+        <VideoCall
+          key={`main-${phrase}`}
+          callActive={props.callActive}
+          setCallActive={props.setCallActive}
+        />
       )}
     </>
   );
