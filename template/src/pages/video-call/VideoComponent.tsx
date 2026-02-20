@@ -12,6 +12,7 @@ import Spacer from '../../atoms/Spacer';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {useCustomization} from 'customization-implementation';
 import useMount from '../../components/useMount';
+import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -23,6 +24,7 @@ const VideoComponent = () => {
   const isDesktop = useIsDesktop();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const [showNoUserInfo, setShowNoUserInfo] = useState(false);
+  const canSeeInviteTile = useControlPermissionMatrix('showInviteTile');
   const isCustomLayoutUsed = useCustomization(config => {
     if (
       typeof config?.components?.videoCall === 'object' &&
@@ -80,10 +82,7 @@ const VideoComponent = () => {
   }, [currentLayout]);
 
   const showInviteTile = () => {
-    if (
-      $config.EVENT_MODE &&
-      rtcProps.role == ClientRoleType.ClientRoleAudience
-    ) {
+    if (!canSeeInviteTile) {
       return false;
     }
     if (activeUids.length == 1) return true;

@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
+import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {
   SHARE_LINK_CONTENT_TYPE,
@@ -22,15 +22,11 @@ import TertiaryButton from '../../atoms/TertiaryButton';
 import ThemeConfig from '../../theme';
 import {CopyMeetingInfo} from '../../components/Share';
 import {
-  AuthErrorCodes,
   isMobileUA,
   isValidReactComponent,
   useIsDesktop,
 } from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
-import {useParams} from '../Router';
-import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
-import {ErrorContext} from '../common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../../utils/useString';
 import {
@@ -38,32 +34,11 @@ import {
   invitePopupHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {cancelText} from '../../language/default-labels/commonLabels';
-import {logger, LogSource} from '../../logger/AppBuilderLogger';
-import isSDK from '../../utils/isSDK';
-import SDKEvents from '../../utils/SdkEvents';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
   const isDesktop = useIsDesktop();
   const {copyShareLinkToClipboard} = useShareLink();
-  const {phrase} = useParams<{phrase: string}>();
-  const {setGlobalErrorMessage} = useContext(ErrorContext);
-  const getMeeting = useGetMeetingPhrase();
-  useEffect(() => {
-    getMeeting(phrase).catch(error => {
-      const errorCode = error?.networkError?.result?.error?.code;
-      if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
-        SDKEvents.emit('unauthorized', error?.networkError?.result?.error);
-      }
-      logger.error(
-        LogSource.Internals,
-        'GET_MEETING_PHRASE',
-        'unable to fetch meeting details',
-        JSON.stringify(error || {}),
-      );
-      setGlobalErrorMessage(error);
-    });
-  }, [phrase]);
 
   const {InvitePopupContent, InvitePopupTitle} = useCustomization(data => {
     let components: {

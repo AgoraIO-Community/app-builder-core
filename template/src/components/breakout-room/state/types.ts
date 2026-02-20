@@ -14,10 +14,15 @@ export interface BreakoutChannelJoinEventPayload {
       room_id: number;
       room_name: string;
       channel_name: string;
+      passphrase: string;
       mainUser: {
         rtc: string;
         uid: number;
         rtm: string;
+      };
+      whiteboard: {
+        room_token: string;
+        room_uuid: string;
       };
       screenShare: {
         rtc: string;

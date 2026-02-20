@@ -11,17 +11,10 @@
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
-import {useCustomization} from 'customization-implementation';
-import {
-  ClientRoleType,
-  UidType,
-  CallbacksInterface,
-} from '../../../agora-rn-uikit';
-import styles from '../../components/styles';
+import {ClientRoleType} from '../../../agora-rn-uikit';
 import {ErrorContext} from '../../components/common/index';
 import {useWakeLock} from '../../components/useWakeLock';
 import {useParams, useHistory} from '../../components/Router';
-import StorageContext from '../../components/StorageContext';
 import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
 import {SdkApiContext} from '../../components/SdkApiContext';
 import {
@@ -33,66 +26,18 @@ import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot
 import Logo from '../../subComponents/Logo';
 import SDKEvents from '../../utils/SdkEvents';
 import isSDK from '../../utils/isSDK';
-import {useHasBrandLogo} from '../../utils/common';
+import {useHasBrandLogo, AuthErrorCodes} from '../../utils/common';
 import useJoinRoom from '../../utils/useJoinRoom';
+import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
 import {useString} from '../../utils/useString';
-import {AuthErrorCodes} from '../../utils/common';
-import {
-  userBannedText,
-  videoRoomStartingCallText,
-} from '../../language/default-labels/videoCallScreenLabels';
+import {videoRoomStartingCallText} from '../../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
-import Toast from '../../../react-native-toast-message';
 import {RTMCoreProvider} from '../../rtm/RTMCoreProvider';
 import {videoView} from '../../../theme.json';
 import VideoCallContent from './VideoCallContent';
 import RTMGlobalStateProvider from '../../rtm/RTMGlobalStateProvider';
 import UserGlobalPreferenceProvider from '../../components/UserGlobalPreferenceProvider';
-
-export enum RnEncryptionEnum {
-  /**
-   * @deprecated
-   * 0: This mode is deprecated.
-   */
-  None = 0,
-  /**
-   * 1: (Default) 128-bit AES encryption, XTS mode.
-   */
-  AES128XTS = 1,
-  /**
-   * 2: 128-bit AES encryption, ECB mode.
-   */
-  AES128ECB = 2,
-  /**
-   * 3: 256-bit AES encryption, XTS mode.
-   */
-  AES256XTS = 3,
-  /**
-   * 4: 128-bit SM4 encryption, ECB mode.
-   *
-   * @since v3.1.2.
-   */
-  SM4128ECB = 4,
-  /**
-   * 6: 256-bit AES encryption, GCM mode.
-   *
-   * @since v3.1.2.
-   */
-  AES256GCM = 6,
-
-  /**
-   * 7:  128-bit GCM encryption, GCM mode.
-   *
-   * @since v3.4.5
-   */
-  AES128GCM2 = 7,
-  /**
-   * 8: 256-bit GCM encryption, GCM mode.
-   * @since v3.1.2.
-   * Compared to AES256GCM encryption mode, AES256GCM2 encryption mode is more secure and requires you to set the salt (encryptionKdfSalt).
-   */
-  AES256GCM2 = 8,
-}
+import {useRtcProps} from '../../components/rtc/RtcPropsComposer';
 
 const VideoCallStateWrapper = () => {
   const hasBrandLogo = useHasBrandLogo();
@@ -100,7 +45,6 @@ const VideoCallStateWrapper = () => {
   const {isRecordingBot} = useIsRecordingBot();
   const {setRoomInfo} = useSetRoomInfo();
   const {setGlobalErrorMessage} = useContext(ErrorContext);
-  const bannedUserText = useString(userBannedText)();
 
   /**
    *  Should we set the callscreen to active ??
@@ -122,45 +66,19 @@ const VideoCallStateWrapper = () => {
     useState(false);
   const {isJoinDataFetched, data, isInWaitingRoom, waitingRoomStatus} =
     useRoomInfo();
-  const {store} = useContext(StorageContext);
-  const {
-    join: SdkJoinState,
-    microphoneDevice: sdkMicrophoneDevice,
-    cameraDevice: sdkCameraDevice,
-    clearState,
-  } = useContext(SdkApiContext);
+  const {join: SdkJoinState} = useContext(SdkApiContext);
   const useJoin = useJoinRoom();
+  const getMeetingPhrase = useGetMeetingPhrase();
 
   const {phrase} = useParams<{phrase: string}>();
   const history = useHistory();
   const currentMeetingPhrase = useRef(history.location.pathname);
   const {awake, release} = useWakeLock();
 
-  const [rtcProps, setRtcProps] = React.useState({
-    appId: $config.APP_ID,
-    channel: null,
-    uid: null,
-    token: null,
-    rtm: null,
-    screenShareUid: null,
-    screenShareToken: null,
-    profile: $config.PROFILE,
-    screenShareProfile: $config.SCREEN_SHARE_PROFILE,
-    dual: true,
-    encryption: $config.ENCRYPTION_ENABLED
-      ? {key: null, mode: RnEncryptionEnum.AES128GCM2, screenKey: null}
-      : false,
-    role: ClientRoleType.ClientRoleBroadcaster,
-    geoFencing: $config.GEO_FENCING,
-    audioRoom: $config.AUDIO_ROOM,
-    activeSpeaker: $config.ACTIVE_SPEAKER,
-    preferredCameraId:
-      sdkCameraDevice.deviceId || store?.activeDeviceId?.videoinput || null,
-    preferredMicrophoneId:
-      sdkMicrophoneDevice.deviceId || store?.activeDeviceId?.audioinput || null,
-    recordingBot: isRecordingBot ? true : false,
-  });
+  // Use RtcPropsComposer - rtcProps automatically derived from roomInfo
+  const {rtcProps, setRtcPropsOverrides} = useRtcProps();
 
+  // Handle waiting room preventJoin logic
   React.useEffect(() => {
     if (
       //isJoinDataFetched === true && (!queryComplete || !isInWaitingRoom)
@@ -180,34 +98,21 @@ const VideoCallStateWrapper = () => {
         (!queryComplete || !isInWaitingRoom) &&
         !waitingRoomAttendeeJoined)
     ) {
-      setRtcProps(prevRtcProps => ({
-        ...prevRtcProps,
-        channel: data.channel,
-        uid: data.uid,
-        token: data.token,
-        rtm: data.rtmToken,
-        encryption: $config.ENCRYPTION_ENABLED
-          ? {
-              key: data.encryptionSecret,
-              mode: data.encryptionMode,
-              screenKey: data.encryptionSecret,
-              salt: data.encryptionSecretSalt,
-            }
-          : false,
-        screenShareUid: data.screenShareUid,
-        screenShareToken: data.screenShareToken,
-        role: data.isHost
-          ? ClientRoleType.ClientRoleBroadcaster
-          : ClientRoleType.ClientRoleAudience,
-        preventJoin:
-          !$config.ENABLE_WAITING_ROOM ||
-          ($config.ENABLE_WAITING_ROOM && data.isHost) ||
-          ($config.ENABLE_WAITING_ROOM &&
-            !data.isHost &&
-            waitingRoomStatus === WaitingRoomStatus.APPROVED)
-            ? false
-            : true,
-      }));
+      // Only override preventJoin - all other props derived from roomInfo
+      /**
+       * Return true (block / keep waiting) only if:
+       *   a) Waiting room is enabled
+       *   b) User is NOT the host
+       *   c) User is NOT approved
+       * else All other cases → allow entry
+       */
+      const shouldPreventJoin =
+        $config.ENABLE_WAITING_ROOM &&
+        !data.isHost &&
+        waitingRoomStatus !== WaitingRoomStatus.APPROVED;
+
+      setRtcPropsOverrides({preventJoin: shouldPreventJoin});
+
       if (
         $config.ENABLE_WAITING_ROOM &&
         !data.isHost &&
@@ -219,9 +124,27 @@ const VideoCallStateWrapper = () => {
       // if (data.username) {
       //   setUsername(data.username);
       // }
+
       setQueryComplete(true);
     }
-  }, [isJoinDataFetched, data, queryComplete]);
+  }, [isJoinDataFetched, data, queryComplete, waitingRoomStatus]);
+
+  // Fetch share data (roomId, pstn) once after join succeeds
+  const shareFetchedRef = useRef(false);
+  useEffect(() => {
+    if (!isJoinDataFetched || shareFetchedRef.current) {
+      return;
+    }
+    shareFetchedRef.current = true;
+    getMeetingPhrase(phrase).catch(error => {
+      logger.error(
+        LogSource.Internals,
+        'GET_MEETING_PHRASE',
+        'Unable to fetch meeting phrase details',
+        JSON.stringify(error || {}),
+      );
+    });
+  }, [isJoinDataFetched, phrase]);
 
   useEffect(() => {
     if (!isJoinDataFetched) {
@@ -342,71 +265,6 @@ const VideoCallStateWrapper = () => {
     };
   }, []);
 
-  // commented for v1 release
-  const afterEndCall = useCustomization(
-    data =>
-      data?.lifecycle?.useAfterEndCall && data?.lifecycle?.useAfterEndCall(),
-  );
-
-  const callbacks: CallbacksInterface = {
-    // RtcLeft: () => {},
-    // RtcJoined: () => {
-    //   if (SdkJoinState.phrase && SdkJoinState.skipPrecall) {
-    //     SdkJoinState.promise?.res();
-    //   }
-    // },
-    EndCall: () => {
-      clearState('join');
-      setTimeout(() => {
-        // TODO: These callbacks are being called twice
-        SDKEvents.emit('leave');
-        if (afterEndCall) {
-          afterEndCall(data.isHost, history as unknown as History);
-        } else {
-          history.push('/');
-        }
-      }, 0);
-    },
-    // @ts-ignore
-    UserJoined: (uid: UidType) => {
-      console.log('UIKIT Callback: UserJoined', uid);
-      SDKEvents.emit('rtc-user-joined', uid);
-    },
-    // @ts-ignore
-    UserOffline: (uid: UidType) => {
-      console.log('UIKIT Callback: UserOffline', uid);
-      SDKEvents.emit('rtc-user-left', uid);
-    },
-    // @ts-ignore
-    RemoteAudioStateChanged: (uid: UidType, status: 0 | 2) => {
-      console.log('UIKIT Callback: RemoteAudioStateChanged', uid, status);
-      if (status === 0) {
-        SDKEvents.emit('rtc-user-unpublished', uid, 'audio');
-      } else {
-        SDKEvents.emit('rtc-user-published', uid, 'audio');
-      }
-    },
-    // @ts-ignore
-    RemoteVideoStateChanged: (uid: UidType, status: 0 | 2) => {
-      console.log('UIKIT Callback: RemoteVideoStateChanged', uid, status);
-      if (status === 0) {
-        SDKEvents.emit('rtc-user-unpublished', uid, 'video');
-      } else {
-        SDKEvents.emit('rtc-user-published', uid, 'video');
-      }
-    },
-    // @ts-ignore
-    UserBanned(isBanned) {
-      console.log('UIKIT Callback: UserBanned', isBanned);
-      Toast.show({
-        leadingIconName: 'alert',
-        type: 'error',
-        text1: bannedUserText,
-        visibilityTime: 3000,
-      });
-    },
-  };
-
   return (
     <>
       {queryComplete ? (
@@ -427,10 +285,6 @@ const VideoCallStateWrapper = () => {
                 <VideoCallContent
                   callActive={callActive}
                   setCallActive={setCallActive}
-                  rtcProps={rtcProps}
-                  setRtcProps={setRtcProps}
-                  styleProps={styleProps}
-                  callbacks={callbacks}
                 />
               </UserGlobalPreferenceProvider>
             </RTMGlobalStateProvider>
@@ -448,29 +302,6 @@ const VideoCallStateWrapper = () => {
   );
 };
 
-const styleProps = {
-  maxViewStyles: styles.temp,
-  minViewStyles: styles.temp,
-  localBtnContainer: styles.bottomBar,
-  localBtnStyles: {
-    muteLocalAudio: styles.localButton,
-    muteLocalVideo: styles.localButton,
-    switchCamera: styles.localButton,
-    endCall: styles.endCall,
-    fullScreen: styles.localButton,
-    recording: styles.localButton,
-    screenshare: styles.localButton,
-  },
-  theme: $config.PRIMARY_ACTION_BRAND_COLOR,
-  remoteBtnStyles: {
-    muteRemoteAudio: styles.remoteButton,
-    muteRemoteVideo: styles.remoteButton,
-    remoteSwap: styles.remoteButton,
-    minCloseBtnStyles: styles.minCloseBtn,
-    liveStreamHostControlBtns: styles.liveStreamHostControlBtns,
-  },
-  BtnStyles: styles.remoteButton,
-};
 //change these to inline styles or sth
 const style = StyleSheet.create({
   full: {

@@ -9,13 +9,11 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useMemo} from 'react';
 import {
   RtcConfigure,
   PropsProvider,
-  ChannelProfileType,
   LocalUserContext,
-  RtcPropsInterface,
 } from '../../../agora-rn-uikit';
 import RtmConfigure from '../../components/RTMConfigure';
 import RTMConfigureBreakoutRoomProvider from '../../rtm/RTMConfigureBreakoutRoomProvider';
@@ -50,61 +48,45 @@ import {BeautyEffectProvider} from '../../components/beauty-effect/useBeautyEffe
 import {UserActionMenuProvider} from '../../components/useUserActionMenu';
 import {RaiseHandProvider} from '../../components/raise-hand';
 import {BreakoutRoomProvider} from '../../components/breakout-room/context/BreakoutRoomContext';
-import {useSetBreakoutRoomInfo} from '../../components/room-info/useSetBreakoutRoomInfo';
-import {VideoCallContentProps} from './VideoCallContent';
 import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
 import {RTM_ROOMS} from '../../rtm/constants';
-import {BreakoutChannelJoinEventPayload} from '../../components/breakout-room/state/types';
+import {useRtcProps} from '../../components/rtc/RtcPropsComposer';
+import {useRoomLifecycle} from '../../components/room-info/RoomLifecycleContext';
 
-interface BreakoutVideoCallProps extends VideoCallContentProps {
-  rtcProps: RtcPropsInterface;
-  breakoutJoinChannelDetails: BreakoutChannelJoinEventPayload['data']['data'];
+interface BreakoutVideoCallProps {
   onLeave: () => void;
+  callActive: boolean;
 }
 
 const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
-  rtcProps,
-  breakoutJoinChannelDetails,
   onLeave,
   callActive,
-  callbacks,
-  styleProps,
 }) => {
-  const {setBreakoutRoomChannelInfo} = useSetBreakoutRoomInfo();
+  // rtcProps automatically point to breakout channel after enterBreakoutRoom()
+  const {rtcProps, setRtcPropsOverrides, callbacks, styleProps, mode} =
+    useRtcProps();
+  // Main room channel name — stable even while active room is breakout
+  const {mainRoomInfo} = useRoomLifecycle();
+  const mainChannelName = mainRoomInfo?.data?.channel || '';
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
   const [recordingAutoStarted, setRecordingAutoStarted] = useState(false);
-  const [breakoutRoomRTCProps, setBreakoutRoomRtcProps] = useState({
-    ...rtcProps,
-    channel: breakoutJoinChannelDetails.channel_name,
-    uid: breakoutJoinChannelDetails.mainUser.uid as number,
-    token: breakoutJoinChannelDetails.mainUser.rtc,
-    rtm: breakoutJoinChannelDetails.mainUser.rtm,
-    screenShareUid: breakoutJoinChannelDetails?.screenShare.uid as number,
-    screenShareToken: breakoutJoinChannelDetails?.screenShare.rtc,
-  });
 
-  // Set breakout room data when component mounts
-  useEffect(() => {
-    setBreakoutRoomChannelInfo({
-      isBreakoutMode: true,
-      ...breakoutJoinChannelDetails,
-    });
-  }, [breakoutJoinChannelDetails]);
+  const propsProviderValue = useMemo(
+    () => ({
+      rtcProps: {
+        ...rtcProps,
+        callActive,
+      },
+      callbacks,
+      styleProps,
+      mode,
+    }),
+    [rtcProps, callActive, callbacks],
+  );
 
   return (
-    <PropsProvider
-      value={{
-        rtcProps: {
-          ...breakoutRoomRTCProps,
-          callActive,
-        },
-        callbacks,
-        styleProps,
-        mode: $config.EVENT_MODE
-          ? ChannelProfileType.ChannelProfileLiveBroadcasting
-          : ChannelProfileType.ChannelProfileCommunication,
-      }}>
+    <PropsProvider value={propsProviderValue}>
       <RtcConfigure>
         <DeviceConfigure>
           <NoiseSupressionProvider callActive={callActive}>
@@ -118,7 +100,7 @@ const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
                           <ScreenShareProvider>
                             <RTMConfigureBreakoutRoomProvider
                               callActive={callActive}
-                              currentChannel={breakoutRoomRTCProps.channel}>
+                              currentChannel={rtcProps.channel}>
                               <RtmConfigure room={RTM_ROOMS.BREAKOUT}>
                                 <UserPreferenceProvider callActive={callActive}>
                                   <CaptionProvider>
@@ -131,16 +113,27 @@ const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
                                           isRecordingActive={isRecordingActive}>
                                           <LiveStreamContextProvider
                                             value={{
-                                              setRtcProps:
-                                                setBreakoutRoomRtcProps,
-                                              rtcProps: breakoutRoomRTCProps,
+                                              // LiveStream only mutates role —
+                                              // forward via setRtcPropsOverrides
+                                              setRtcProps: (updater: any) => {
+                                                const updated =
+                                                  typeof updater === 'function'
+                                                    ? updater(rtcProps)
+                                                    : updater;
+                                                if (
+                                                  updated.role !== undefined
+                                                ) {
+                                                  setRtcPropsOverrides({
+                                                    role: updated.role,
+                                                  });
+                                                }
+                                              },
+                                              rtcProps,
                                               callActive,
                                             }}>
                                             <LiveStreamDataProvider>
                                               <LocalUserContext
-                                                localUid={
-                                                  breakoutRoomRTCProps?.uid
-                                                }>
+                                                localUid={rtcProps?.uid}>
                                                 <RecordingProvider
                                                   value={{
                                                     setRecordingActive,
@@ -163,15 +156,12 @@ const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
                                                                   <RaiseHandProvider>
                                                                     <BreakoutRoomProvider
                                                                       mainChannel={
-                                                                        rtcProps.channel
+                                                                        mainChannelName
                                                                       }
                                                                       handleLeaveBreakout={
                                                                         onLeave
                                                                       }>
-                                                                      <BreakoutRoomEventsConfigure
-                                                                        mainChannelName={
-                                                                          rtcProps.channel
-                                                                        }>
+                                                                      <BreakoutRoomEventsConfigure>
                                                                         <VideoCallScreenWrapper />
                                                                       </BreakoutRoomEventsConfigure>
                                                                     </BreakoutRoomProvider>

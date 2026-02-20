@@ -39,6 +39,7 @@ import {
   RTMUserData,
   useRTMGlobalState,
 } from '../../../rtm/RTMGlobalStateProvider';
+import {useRoomLifecycle} from '../../room-info/RoomLifecycleContext';
 
 const HOST_BROADCASTED_OPERATIONS = [
   BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
@@ -286,8 +287,11 @@ const BreakoutRoomProvider = ({
   const {mainRoomRTMUsers} = useRTMGlobalState();
   const localUid = useLocalUid();
   const {
-    data: {isHost, roomId: joinRoomId},
+    data: {isHost},
   } = useRoomInfo();
+  const {mainRoomInfo} = useRoomLifecycle();
+  const mainRoomId = mainRoomInfo?.data?.roomId;
+
   const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
   const [state, baseDispatch] = useReducer(
     breakoutRoomReducer,
@@ -691,7 +695,7 @@ const BreakoutRoomProvider = ({
   const checkIfBreakoutRoomSessionExistsAPI =
     useCallback(async (): Promise<boolean> => {
       // Skip API call if roomId is not available or if API update is in progress
-      if (!joinRoomId?.host && !joinRoomId?.attendee) {
+      if (!mainRoomId?.host && !mainRoomId?.attendee) {
         logger.debug(
           LogSource.Internals,
           'BREAKOUT_ROOM',
@@ -714,7 +718,7 @@ const BreakoutRoomProvider = ({
       const url = `${
         $config.BACKEND_ENDPOINT
       }/v1/channel/breakout-room?passphrase=${
-        isHostRef.current ? joinRoomId.host : joinRoomId.attendee
+        isHostRef.current ? mainRoomId?.host : mainRoomId?.attendee
       }`;
 
       logger.log(
@@ -803,11 +807,11 @@ const BreakoutRoomProvider = ({
         );
         return false;
       }
-    }, [isBreakoutUpdateInFlight, joinRoomId, store.token]);
+    }, [isBreakoutUpdateInFlight, mainRoomId, store.token]);
 
   // Initial session check with delayed start
   useEffect(() => {
-    if (!joinRoomId?.host && !joinRoomId?.attendee) {
+    if (!mainRoomId?.host && !mainRoomId?.attendee) {
       return;
     }
     const loadInitialData = async () => {
@@ -843,7 +847,7 @@ const BreakoutRoomProvider = ({
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [joinRoomId, checkIfBreakoutRoomSessionExistsAPI]);
+  }, [mainRoomId, checkIfBreakoutRoomSessionExistsAPI]);
 
   // Upsert API
   const upsertBreakoutRoomAPI = useCallback(
@@ -881,7 +885,9 @@ const BreakoutRoomProvider = ({
           stateRef.current.breakoutSessionId || randomNameGenerator(6);
 
         const payload: UpsertPayload = {
-          passphrase: isHostRef.current ? joinRoomId.host : joinRoomId.attendee,
+          passphrase: isHostRef.current
+            ? mainRoomId?.host
+            : mainRoomId?.attendee,
           switch_room: stateRef.current.canUserSwitchRoom,
           session_id: sessionId,
           assignment_type: stateRef.current.assignmentStrategy,
@@ -1047,11 +1053,11 @@ const BreakoutRoomProvider = ({
       }
     },
     [
-      joinRoomId.host,
+      mainRoomId?.host,
+      mainRoomId?.attendee,
       store.token,
       dispatch,
       selfJoinRoomId,
-      joinRoomId.attendee,
       mainRoomRTMUsers,
     ],
   );
