@@ -331,7 +331,16 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     try {
       const index = randomIntFromInterval(0, 9);
       setWhiteboardRoomState(RoomPhase.Connecting);
-      logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room');
+      logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room', {
+        cursorAdapter: cursorAdapter,
+        uuid: room_uuid,
+        roomToken: room_token,
+        whiteboardUidRef: whiteboardUidRef.current,
+        isWritable: isHost && !isMobileUA(),
+        cursorName: name,
+        cursorColor: CursorColor[index].cursorColor,
+        textColor: CursorColor[index].textColor,
+      });
       whiteWebSdkClient.current
         .joinRoom({
           cursorAdapter: cursorAdapter,

@@ -1,17 +1,18 @@
 import React from 'react';
 import {useContext} from 'react';
-import {ClientRoleType, PropsContext} from '../../../agora-rn-uikit/src';
+import {ClientRoleType, PropsContext} from '../../../agora-rn-uikit';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import {joinRoomPreference} from '../../utils/useJoinRoom';
 import {isWeb, isWebInternal} from '../../utils/common';
 import {ENABLE_AUTH} from '../../auth/config';
-import {useBreakoutRoomInfo} from '../room-info/useSetBreakoutRoomInfo';
+import {useRoomLifecycle} from '../room-info/RoomLifecycleContext';
 
 /**
  * ControlPermissionKey represents the different keys
  * for meeting control permissions.
  */
 export type ControlPermissionKey =
+  | 'showInviteTile'
   | 'chatControl'
   | 'inviteControl'
   | 'participantControl'
@@ -38,24 +39,35 @@ export const controlPermissionMatrix: Record<
   ControlPermissionKey,
   (rule: ControlPermissionRule) => boolean
 > = {
+  // Layout
+  showInviteTile: ({role, isInBreakoutRoom}) => {
+    // Audience in event mode should NEVER see invite tile
+    if ($config.EVENT_MODE && role === ClientRoleType.ClientRoleAudience) {
+      return false;
+    }
+    // Users inside breakout rooms should not see invite tile
+    if (isInBreakoutRoom) {
+      return false;
+    }
+    // Otherwise show
+    return true;
+  },
+  // More Menu controls
   chatControl: ({preference}) => $config.CHAT && !preference.disableChat,
   inviteControl: ({preference}) => !preference.disableInvite,
   participantControl: ({preference}) => !preference.disableParticipants,
   settingsControl: ({preference}) => !preference.disableSettings,
   screenshareControl: ({preference}) =>
     $config.SCREEN_SHARING && !preference.disableScreenShare,
-
   viewAllTextTracksControl: ({isHost, isInBreakoutRoom}) =>
     isHost &&
     $config.ENABLE_STT &&
     $config.ENABLE_MEETING_TRANSCRIPT &&
     $config.ENABLE_TEXT_TRACKS &&
-    isWeb() &&
-    !isInBreakoutRoom,
-  whiteboardControl: ({isHost, isInBreakoutRoom}) =>
-    isHost && $config.ENABLE_WHITEBOARD && isWebInternal() && !isInBreakoutRoom,
-  recordingControl: ({isHost, isInBreakoutRoom}) =>
-    isHost && $config.CLOUD_RECORDING && !isInBreakoutRoom,
+    isWeb(),
+  whiteboardControl: ({isHost}) =>
+    isHost && $config.ENABLE_WHITEBOARD && isWebInternal(),
+  recordingControl: ({isHost}) => isHost && $config.CLOUD_RECORDING,
   captionsControl: ({isInBreakoutRoom}) =>
     $config.ENABLE_STT && $config.ENABLE_CAPTION && !isInBreakoutRoom,
   transcriptsControl: ({isInBreakoutRoom}) =>
@@ -75,14 +87,14 @@ export const useControlPermissionMatrix = (
 ): boolean => {
   const {data: roomData, roomPreference} = useRoomInfo();
   const {rtcProps} = useContext(PropsContext);
-  const {breakoutRoomChannelData} = useBreakoutRoomInfo();
+  const {isInBreakoutRoom} = useRoomLifecycle();
 
   // Build the permission rule context for the current user.
   const rule: ControlPermissionRule = {
     isHost: roomData?.isHost || false,
     role: rtcProps.role,
     preference: {...roomPreference},
-    isInBreakoutRoom: breakoutRoomChannelData?.isBreakoutMode || false,
+    isInBreakoutRoom: isInBreakoutRoom,
   };
   // Retrieve the permission function for the given key and evaluate it.
   const permissionFn = controlPermissionMatrix[key];
