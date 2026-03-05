@@ -56,7 +56,7 @@ const PollSidebar = () => {
             )}
             <Text style={style.emptyText}>
               {isHost
-                ? isWebOnly
+                ? isWebOnly()
                   ? 'Visit our web platform to create and manage polls.'
                   : 'Create a new poll and boost interaction with your audience.'
                 : 'No polls here yet...'}
