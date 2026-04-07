@@ -326,37 +326,79 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     };
   }, []);
 
-  const join = () => {
+  const join = (isStartedFirst: boolean = false) => {
     const InitState = whiteboardRoomState;
     try {
       const index = randomIntFromInterval(0, 9);
       setWhiteboardRoomState(RoomPhase.Connecting);
       logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room');
       whiteWebSdkClient.current
-        .joinRoom({
-          cursorAdapter: cursorAdapter,
-          uid: `${whiteboardUidRef.current}`,
-          uuid: room_uuid,
-          roomToken: room_token,
-          floatBar: true,
-          isWritable: isHost && !isMobileUA(),
-          userPayload: {
-            cursorName: name,
-            cursorColor: CursorColor[index].cursorColor,
-            textColor: CursorColor[index].textColor,
+        .joinRoom(
+          {
+            cursorAdapter: cursorAdapter,
+            uid: `${whiteboardUidRef.current}`,
+            uuid: room_uuid,
+            roomToken: room_token,
+            floatBar: true,
+            isWritable: isHost && !isMobileUA(),
+            userPayload: {
+              cursorName: name,
+              cursorColor: CursorColor[index].cursorColor,
+              textColor: CursorColor[index].textColor,
+            },
           },
-        })
+          {
+            // In livestream, if the Broadcaster drops, the next host to detect it claims Broadcaster.
+            onRoomStateChanged:
+              $config.EVENT_MODE && isHost
+                ? modifyState => {
+                    console.log(
+                      '[Whiteboard-LiveStream] onRoomStateChanged',
+                      modifyState.broadcastState,
+                    );
+                    if (
+                      modifyState.broadcastState !== undefined &&
+                      modifyState.broadcastState.broadcasterId === undefined
+                    ) {
+                      console.log(
+                        '[Whiteboard-LiveStream] Broadcaster dropped, claiming Broadcaster role',
+                      );
+                      whiteboardRoom.current?.setViewMode(ViewMode.Broadcaster);
+                    }
+                  }
+                : undefined,
+          },
+        )
         .then(room => {
-          logger.log(LogSource.Internals, 'WHITEBOARD', 'Join room successful');
+          logger.log(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'Join room successful',
+            isHost,
+            $config.EVENT_MODE,
+          );
           whiteboardRoom.current = room;
           cursorAdapter.setRoom(room);
-          whiteboardRoom.current?.setViewMode(
-            $config.EVENT_MODE
-              ? isHost
+          // In livestream: host who starts the whiteboard is Broadcaster (attendees follow their viewport),
+          // co-hosts get Freedom (can draw independently), attendees are Followers.
+          // If no Broadcaster exists in the room (e.g. all hosts dropped and rejoined), first host to join claims it.
+          // In meeting: everyone gets Freedom (independent viewport).
+          const noBroadcasterInRoom =
+            room.state.broadcastState.broadcasterId === undefined;
+          const viewMode = $config.EVENT_MODE
+            ? isHost
+              ? isStartedFirst || noBroadcasterInRoom
                 ? ViewMode.Broadcaster
-                : ViewMode.Follower
-              : ViewMode.Freedom,
-          );
+                : ViewMode.Freedom
+              : ViewMode.Follower
+            : ViewMode.Freedom;
+          console.log('[Whiteboard]-LiveStream Setting ViewMode:', viewMode, {
+            isHost,
+            isStartedFirst,
+            noBroadcasterInRoom,
+            EVENT_MODE: $config.EVENT_MODE,
+          });
+          whiteboardRoom.current?.setViewMode(viewMode);
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
           if (isHost && !isMobileUA()) {
             whiteboardRoom.current?.setMemberState({
@@ -421,10 +463,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         appIdentifier: appIdentifier,
         region: $config.WHITEBOARD_REGION,
       });
-      join();
+      join(true);
       setWhiteboardStartedFirst(true);
     } else if (whiteboardActive) {
-      join();
+      join(false);
     } else {
       if (
         whiteboardRoom.current &&
