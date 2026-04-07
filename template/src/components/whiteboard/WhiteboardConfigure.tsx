@@ -350,7 +350,13 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           logger.log(LogSource.Internals, 'WHITEBOARD', 'Join room successful');
           whiteboardRoom.current = room;
           cursorAdapter.setRoom(room);
-          whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
+          whiteboardRoom.current?.setViewMode(
+            $config.EVENT_MODE
+              ? isHost
+                ? ViewMode.Broadcaster
+                : ViewMode.Follower
+              : ViewMode.Freedom,
+          );
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
           if (isHost && !isMobileUA()) {
             whiteboardRoom.current?.setMemberState({
