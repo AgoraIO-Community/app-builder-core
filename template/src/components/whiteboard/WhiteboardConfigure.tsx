@@ -326,7 +326,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     };
   }, []);
 
-  const join = (isStartedFirst: boolean = false) => {
+  const join = () => {
     const InitState = whiteboardRoomState;
     try {
       const index = randomIntFromInterval(0, 9);
@@ -388,14 +388,13 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
             room.state.broadcastState.broadcasterId === undefined;
           const viewMode = $config.EVENT_MODE
             ? isHost
-              ? isStartedFirst || noBroadcasterInRoom
+              ? noBroadcasterInRoom
                 ? ViewMode.Broadcaster
                 : ViewMode.Follower
               : ViewMode.Follower
             : ViewMode.Freedom;
           console.log('[Whiteboard-LiveStream] Setting ViewMode:', viewMode, {
             isHost,
-            isStartedFirst,
             noBroadcasterInRoom,
             EVENT_MODE: $config.EVENT_MODE,
           });
@@ -464,10 +463,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         appIdentifier: appIdentifier,
         region: $config.WHITEBOARD_REGION,
       });
-      join(true);
+      join();
       setWhiteboardStartedFirst(true);
     } else if (whiteboardActive) {
-      join(false);
+      join();
     } else {
       if (
         whiteboardRoom.current &&
