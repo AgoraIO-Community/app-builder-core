@@ -380,7 +380,8 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           whiteboardRoom.current = room;
           cursorAdapter.setRoom(room);
           // In livestream: host who starts the whiteboard is Broadcaster (attendees follow their viewport),
-          // co-hosts get Freedom (can draw independently), attendees are Followers.
+          // co-hosts are Followers (follow Broadcaster, auto-switch to Freedom when they interact with the board),
+          // attendees are Followers (no whiteboard controls).
           // If no Broadcaster exists in the room (e.g. all hosts dropped and rejoined), first host to join claims it.
           // In meeting: everyone gets Freedom (independent viewport).
           const noBroadcasterInRoom =
@@ -389,10 +390,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
             ? isHost
               ? isStartedFirst || noBroadcasterInRoom
                 ? ViewMode.Broadcaster
-                : ViewMode.Freedom
+                : ViewMode.Follower
               : ViewMode.Follower
             : ViewMode.Freedom;
-          console.log('[Whiteboard]-LiveStream Setting ViewMode:', viewMode, {
+          console.log('[Whiteboard-LiveStream] Setting ViewMode:', viewMode, {
             isHost,
             isStartedFirst,
             noBroadcasterInRoom,
