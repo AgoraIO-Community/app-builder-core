@@ -84,7 +84,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
     isWhiteboardOnFullScreen,
   } = useContext(whiteboardContext);
   const {
-    data: {whiteboard: {room_uuid} = {}},
+    data: {isHost, whiteboard: {room_uuid} = {}},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
 
@@ -267,7 +267,11 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
           ) : (
             <></>
           )}
-          {isWebInternal() && !isMobileUA() ? (
+          {/* In livestream, hide all whiteboard controls for attendees — they are Followers
+              and interacting with the board (zoom/pan) would break viewport sync with the host */}
+          {isWebInternal() &&
+          !isMobileUA() &&
+          !($config.EVENT_MODE && !isHost) ? (
             <View style={style.widgetContainer}>
               {whiteboardRoom.current?.isWritable ? (
                 <>

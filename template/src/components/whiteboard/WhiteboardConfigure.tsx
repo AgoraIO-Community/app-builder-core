@@ -333,30 +333,72 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
       setWhiteboardRoomState(RoomPhase.Connecting);
       logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room');
       whiteWebSdkClient.current
-        .joinRoom({
-          cursorAdapter: cursorAdapter,
-          uid: `${whiteboardUidRef.current}`,
-          uuid: room_uuid,
-          roomToken: room_token,
-          floatBar: true,
-          isWritable: isHost && !isMobileUA(),
-          userPayload: {
-            cursorName: name,
-            cursorColor: CursorColor[index].cursorColor,
-            textColor: CursorColor[index].textColor,
+        .joinRoom(
+          {
+            cursorAdapter: cursorAdapter,
+            uid: `${whiteboardUidRef.current}`,
+            uuid: room_uuid,
+            roomToken: room_token,
+            floatBar: true,
+            isWritable: isHost && !isMobileUA(),
+            userPayload: {
+              cursorName: name,
+              cursorColor: CursorColor[index].cursorColor,
+              textColor: CursorColor[index].textColor,
+            },
           },
-        })
+          {
+            // In livestream, if the Broadcaster drops, the next host to detect it claims Broadcaster.
+            onRoomStateChanged:
+              $config.EVENT_MODE && isHost
+                ? modifyState => {
+                    console.log(
+                      '[Whiteboard-LiveStream] onRoomStateChanged',
+                      modifyState.broadcastState,
+                    );
+                    if (
+                      modifyState.broadcastState !== undefined &&
+                      modifyState.broadcastState.broadcasterId === undefined
+                    ) {
+                      console.log(
+                        '[Whiteboard-LiveStream] Broadcaster dropped, claiming Broadcaster role',
+                      );
+                      whiteboardRoom.current?.setViewMode(ViewMode.Broadcaster);
+                    }
+                  }
+                : undefined,
+          },
+        )
         .then(room => {
-          logger.log(LogSource.Internals, 'WHITEBOARD', 'Join room successful');
+          logger.log(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'Join room successful',
+            isHost,
+            $config.EVENT_MODE,
+          );
           whiteboardRoom.current = room;
           cursorAdapter.setRoom(room);
-          whiteboardRoom.current?.setViewMode(
-            $config.EVENT_MODE
-              ? isHost
+          // In livestream: host who starts the whiteboard is Broadcaster (attendees follow their viewport),
+          // co-hosts are Followers (follow Broadcaster, auto-switch to Freedom when they interact with the board),
+          // attendees are Followers (no whiteboard controls).
+          // If no Broadcaster exists in the room (e.g. all hosts dropped and rejoined), first host to join claims it.
+          // In meeting: everyone gets Freedom (independent viewport).
+          const noBroadcasterInRoom =
+            room.state.broadcastState.broadcasterId === undefined;
+          const viewMode = $config.EVENT_MODE
+            ? isHost
+              ? noBroadcasterInRoom
                 ? ViewMode.Broadcaster
                 : ViewMode.Follower
-              : ViewMode.Freedom,
-          );
+              : ViewMode.Follower
+            : ViewMode.Freedom;
+          console.log('[Whiteboard-LiveStream] Setting ViewMode:', viewMode, {
+            isHost,
+            noBroadcasterInRoom,
+            EVENT_MODE: $config.EVENT_MODE,
+          });
+          whiteboardRoom.current?.setViewMode(viewMode);
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
           if (isHost && !isMobileUA()) {
             whiteboardRoom.current?.setMemberState({
