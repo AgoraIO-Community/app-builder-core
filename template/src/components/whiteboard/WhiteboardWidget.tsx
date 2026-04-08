@@ -267,7 +267,11 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
           ) : (
             <></>
           )}
-          {isWebInternal() && !isMobileUA() ? (
+          {/* In livestream, hide all whiteboard controls for attendees — they are Followers
+              and interacting with the board (zoom/pan) would break viewport sync with the host */}
+          {isWebInternal() &&
+          !isMobileUA() &&
+          !($config.EVENT_MODE && !isHost) ? (
             <View style={style.widgetContainer}>
               {whiteboardRoom.current?.isWritable ? (
                 <>
@@ -312,16 +316,12 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
               ) : (
                 <></>
               )}
-              {/* In livestream, hide zoom/fit controls for attendees to prevent them from
-                  breaking out of Follower mode by triggering a camera move */}
-              {$config.EVENT_MODE && !isHost ? null : (
-                <ScaleController
-                  room={whiteboardRoom.current}
-                  zoomInLabel={zoominlabel}
-                  zoomOutLabel={zoomoutlabel}
-                  fitToScreenLabel={fittoscreenlabel}
-                />
-              )}
+              <ScaleController
+                room={whiteboardRoom.current}
+                zoomInLabel={zoominlabel}
+                zoomOutLabel={zoomoutlabel}
+                fitToScreenLabel={fittoscreenlabel}
+              />
               {whiteboardRoom.current?.isWritable &&
               $config.ENABLE_WHITEBOARD_FILE_UPLOAD ? (
                 <>
