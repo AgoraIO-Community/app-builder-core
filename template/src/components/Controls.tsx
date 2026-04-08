@@ -227,8 +227,13 @@ export const WhiteboardListener = () => {
   };
 
   useEffect(() => {
-    whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
-  }, []);
+    if (whiteboardActive) {
+      dispatch({type: 'UserPin', value: [getWhiteboardUid()]});
+      if (currentLayout !== 'pinned') {
+        setLayout('pinned');
+      }
+    }
+  }, [whiteboardActive]);
 
   const toggleWhiteboard = (
     whiteboardActive: boolean,
@@ -420,8 +425,13 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   };
 
   useEffect(() => {
-    whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
-  }, []);
+    if (whiteboardActive) {
+      dispatch({type: 'UserPin', value: [getWhiteboardUid()]});
+      if (currentLayout !== 'pinned') {
+        setLayout('pinned');
+      }
+    }
+  }, [whiteboardActive]);
 
   const WhiteboardCallBack = ({status}) => {
     if (status) {

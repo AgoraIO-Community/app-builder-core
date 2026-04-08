@@ -408,6 +408,14 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
                 : ViewMode.Follower
               : ViewMode.Follower
             : ViewMode.Freedom;
+          console.log('[whiteboard-view-mode] initial', {
+            isHost,
+            eventMode: $config.EVENT_MODE,
+            whiteboardUid: `${whiteboardUidRef.current}`,
+            broadcasterId: room.state.broadcastState.broadcasterId,
+            noBroadcasterInRoom,
+            viewMode,
+          });
           room.setViewMode(viewMode);
           // In livestream, lock camera gestures for followers so touchpad pan/zoom
           // cannot kick them out of follower mode into freedom.
@@ -444,6 +452,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
                 hasSeenBroadcaster &&
                 currentBroadcastState?.broadcasterId === undefined
               ) {
+                console.log('[whiteboard-view-mode] promote-to-broadcaster', {
+                  isHost,
+                  whiteboardUid: `${whiteboardUidRef.current}`,
+                });
                 console.log(' supriya setViewMode: ', ViewMode.Broadcaster);
 
                 room.setViewMode(ViewMode.Broadcaster);

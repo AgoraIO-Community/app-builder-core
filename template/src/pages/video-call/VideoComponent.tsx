@@ -12,6 +12,7 @@ import Spacer from '../../atoms/Spacer';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {useCustomization} from 'customization-implementation';
 import useMount from '../../components/useMount';
+import {whiteboardContext} from '../../components/whiteboard/WhiteboardConfigure';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -19,6 +20,7 @@ const VideoComponent = () => {
   const layoutsData = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
   const {activeUids, pinnedUid} = useContent();
+  const {whiteboardActive} = useContext(whiteboardContext);
   const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
@@ -58,7 +60,12 @@ const VideoComponent = () => {
   const currentLayoutRef = useRef(currentLayout);
   const gridLayoutName = getGridLayoutName();
   useEffect(() => {
-    if (activeUids && activeUids.length === 1 && !isCustomLayoutUsed) {
+    // When only one participant is visible, reset pinning and revert to grid layout.
+    // Skip this reset when whiteboard is active: in EVENT_MODE the audience's own uid is
+    // filtered from activeUids, so activeUids.length === 1 (host only) even while the
+    // whiteboard uid is being added. Without this guard the effect would clear pinnedUid
+    // and switch to grid, preventing the whiteboard from appearing in the max/pinned slot.
+    if (activeUids && activeUids.length === 1 && !isCustomLayoutUsed && !whiteboardActive) {
       if (pinnedUid) {
         dispatch({type: 'UserPin', value: [0]});
         dispatch({type: 'UserSecondaryPin', value: [0]});
@@ -67,7 +74,7 @@ const VideoComponent = () => {
         setLayout(gridLayoutName);
       }
     }
-  }, [activeUids, isCustomLayoutUsed]);
+  }, [activeUids, isCustomLayoutUsed, whiteboardActive]);
 
   useEffect(() => {
     currentLayoutRef.current = currentLayout;
