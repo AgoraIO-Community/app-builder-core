@@ -431,6 +431,15 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           }
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
           whiteboardRoom.current?.refreshViewSize?.();
+          if ($config.EVENT_MODE && viewMode === ViewMode.Follower) {
+            // Late followers can occasionally mount before the broadcaster viewport
+            // is fully applied. Re-applying follower mode after the first bind/size
+            // refresh nudges Netless to sync the current broadcaster view immediately.
+            requestAnimationFrame(() => {
+              room.refreshViewSize?.();
+              room.setViewMode(ViewMode.Follower);
+            });
+          }
           if (isHost && !isMobileUA()) {
             whiteboardRoom.current?.setMemberState({
               strokeColor: [0, 0, 0],
