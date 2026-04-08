@@ -37,7 +37,9 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
     }
 
     return () => {
-      // unBindRoom();
+      if (whiteboardPaper?.parentElement === wbSurfaceRef?.current) {
+        wbSurfaceRef?.current?.removeChild(whiteboardPaper);
+      }
     };
   }, []);
 

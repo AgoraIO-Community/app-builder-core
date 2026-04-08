@@ -201,7 +201,7 @@ export const WhiteboardListener = () => {
       );
 
       return () => {
-        LocalEventEmitter.on(
+        LocalEventEmitter.off(
           LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL,
           WhiteboardCallBack,
         );
