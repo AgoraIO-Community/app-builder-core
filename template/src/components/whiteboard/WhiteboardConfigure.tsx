@@ -351,7 +351,14 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     const InitState = whiteboardRoomState;
     try {
       const index = randomIntFromInterval(0, 9);
+      const joinStartTs = Date.now();
       setWhiteboardRoomState(RoomPhase.Connecting);
+      console.log('[whiteboard-lag] join:start', {
+        ts: joinStartTs,
+        isHost,
+        eventMode: $config.EVENT_MODE,
+        whiteboardUid: `${whiteboardUidRef.current}`,
+      });
       logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room');
       whiteWebSdkClient.current
         .joinRoom({
@@ -368,6 +375,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           },
         })
         .then(room => {
+          const joinSuccessTs = Date.now();
           logger.log(
             LogSource.Internals,
             'WHITEBOARD',
@@ -375,6 +383,13 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
             isHost,
             $config.EVENT_MODE,
           );
+          console.log('[whiteboard-lag] join:success', {
+            ts: joinSuccessTs,
+            latencyMs: joinSuccessTs - joinStartTs,
+            isHost,
+            eventMode: $config.EVENT_MODE,
+            whiteboardUid: `${whiteboardUidRef.current}`,
+          });
           whiteboardRoom.current = room;
           if (shouldUseCursorAdapter) {
             cursorAdapter.setRoom(room);
@@ -398,6 +413,13 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           // cannot kick them out of follower mode into freedom.
           room.disableCameraTransform =
             $config.EVENT_MODE && viewMode === ViewMode.Follower;
+          console.log('[whiteboard-lag] viewmode:applied', {
+            ts: Date.now(),
+            isHost,
+            viewMode,
+            disableCameraTransform: room.disableCameraTransform,
+            broadcasterId: room.state.broadcastState.broadcasterId,
+          });
           console.log('supriya viewMode', viewMode);
 
           // In livestream, if the Broadcaster drops, the next host to detect it claims Broadcaster.
@@ -430,14 +452,32 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
             });
           }
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
+          console.log('[whiteboard-lag] bindHtmlElement', {
+            ts: Date.now(),
+            isHost,
+            viewMode,
+          });
           whiteboardRoom.current?.refreshViewSize?.();
+          console.log('[whiteboard-lag] refreshViewSize:after-bind', {
+            ts: Date.now(),
+            isHost,
+            viewMode,
+          });
           if ($config.EVENT_MODE && viewMode === ViewMode.Follower) {
             // Late followers can occasionally mount before the broadcaster viewport
             // is fully applied. Re-applying follower mode after the first bind/size
             // refresh nudges Netless to sync the current broadcaster view immediately.
             requestAnimationFrame(() => {
+              console.log('[whiteboard-lag] follower-resync:start', {
+                ts: Date.now(),
+                isHost,
+              });
               room.refreshViewSize?.();
               room.setViewMode(ViewMode.Follower);
+              console.log('[whiteboard-lag] follower-resync:done', {
+                ts: Date.now(),
+                isHost,
+              });
             });
           }
           if (isHost && !isMobileUA()) {
@@ -446,6 +486,12 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
             });
           }
           setWhiteboardRoomState(RoomPhase.Connected);
+          console.log('[whiteboard-lag] roomPhase:connected', {
+            ts: Date.now(),
+            isHost,
+            viewMode,
+            totalJoinLatencyMs: Date.now() - joinStartTs,
+          });
         })
         .catch(err => {
           setWhiteboardRoomState(InitState);
