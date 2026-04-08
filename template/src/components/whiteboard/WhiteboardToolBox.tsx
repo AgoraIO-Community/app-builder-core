@@ -261,6 +261,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   const [isColorContainerHovered, setColorContainerHovered] = useState(false);
   const [isPencilBtnHovered, setPencilBtnHovered] = useState(false);
   const [isPencilContainerHovered, setPencilContainerHovered] = useState(false);
+  const roomStateChangedRef = React.useRef(null);
+  const clearWhiteboardRef = React.useRef(null);
   const handleSelect = (applicanceName: ApplianceNames) => {
     if (applicanceName !== ApplianceNames.selector) {
       setCursorColor(ColorPickerValues[selectedColor].rgb);
@@ -272,17 +274,41 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   };
 
   useEffect(() => {
-    whiteboardRoom?.current?.callbacks.on('onRoomStateChanged', modifyState => {
+    roomStateChangedRef.current = modifyState => {
       setRoomState({
         ...whiteboardRoom?.current?.state,
         ...modifyState,
       });
-    });
-    LocalEventEmitter.on(LocalEventsEnum.CLEAR_WHITEBOARD, () => {
+    };
+    clearWhiteboardRef.current = () => {
       whiteboardRoom.current?.cleanCurrentScene();
       setShowWhiteboardClearAllPopup(false);
       clearAllCallback();
-    });
+    };
+
+    whiteboardRoom?.current?.callbacks?.on(
+      'onRoomStateChanged',
+      roomStateChangedRef.current,
+    );
+    LocalEventEmitter.on(
+      LocalEventsEnum.CLEAR_WHITEBOARD,
+      clearWhiteboardRef.current,
+    );
+
+    return () => {
+      if (roomStateChangedRef.current) {
+        whiteboardRoom?.current?.callbacks?.off(
+          'onRoomStateChanged',
+          roomStateChangedRef.current,
+        );
+      }
+      if (clearWhiteboardRef.current) {
+        LocalEventEmitter.off(
+          LocalEventsEnum.CLEAR_WHITEBOARD,
+          clearWhiteboardRef.current,
+        );
+      }
+    };
   }, []);
 
   useEffect(() => {
