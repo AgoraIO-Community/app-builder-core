@@ -84,7 +84,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
     isWhiteboardOnFullScreen,
   } = useContext(whiteboardContext);
   const {
-    data: {whiteboard: {room_uuid} = {}},
+    data: {isHost, whiteboard: {room_uuid} = {}},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
 
@@ -312,12 +312,16 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
               ) : (
                 <></>
               )}
-              <ScaleController
-                room={whiteboardRoom.current}
-                zoomInLabel={zoominlabel}
-                zoomOutLabel={zoomoutlabel}
-                fitToScreenLabel={fittoscreenlabel}
-              />
+              {/* In livestream, hide zoom/fit controls for attendees to prevent them from
+                  breaking out of Follower mode by triggering a camera move */}
+              {$config.EVENT_MODE && !isHost ? null : (
+                <ScaleController
+                  room={whiteboardRoom.current}
+                  zoomInLabel={zoominlabel}
+                  zoomOutLabel={zoomoutlabel}
+                  fitToScreenLabel={fittoscreenlabel}
+                />
+              )}
               {whiteboardRoom.current?.isWritable &&
               $config.ENABLE_WHITEBOARD_FILE_UPLOAD ? (
                 <>
