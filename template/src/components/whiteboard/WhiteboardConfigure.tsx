@@ -183,15 +183,20 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         error,
       );
     }
-  }, [currentLayout, isHost, whiteboardRoomState, activeUids, pinnedUid]);
+  // activeUids[0] (the max-slot uid) is the only element checked in the condition above —
+  // using the full activeUids array would re-run setWritable on every participant join/leave,
+  // briefly stalling the SDK draw queue and causing cumulative lag for attendees.
+  }, [currentLayout, isHost, whiteboardRoomState, activeUids?.[0], pinnedUid]);
 
   useEffect(() => {
     if (whiteboardRoomState === RoomPhase.Connected) {
-      // Netless reads the bound element size for viewport math. Refresh after
-      // layout/pin/participant changes so late joiners and pinned mode use the current size.
+      // Netless reads the bound element size for viewport math. Refresh when layout or
+      // pin state changes (those affect the whiteboard container size). Participant
+      // count changes do not affect container size in pinned layout, so activeUids.length
+      // is intentionally excluded to avoid redundant refreshes on every join.
       whiteboardRoom.current?.refreshViewSize?.();
     }
-  }, [whiteboardRoomState, currentLayout, pinnedUid, activeUids?.length]);
+  }, [whiteboardRoomState, currentLayout, pinnedUid]);
 
   const BoardColorChangedCallBack = ({boardColor}) => {
     setBoardColor(boardColor);
