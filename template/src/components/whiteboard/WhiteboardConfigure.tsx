@@ -183,9 +183,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         error,
       );
     }
-  // activeUids[0] (the max-slot uid) is the only element checked in the condition above —
-  // using the full activeUids array would re-run setWritable on every participant join/leave,
-  // briefly stalling the SDK draw queue and causing cumulative lag for attendees.
+    // activeUids[0] (the max-slot uid) is the only element checked in the condition above —
+    // using the full activeUids array would re-run setWritable on every participant join/leave,
+    // briefly stalling the SDK draw queue and causing cumulative lag for attendees.
   }, [currentLayout, isHost, whiteboardRoomState, activeUids?.[0], pinnedUid]);
 
   useEffect(() => {
@@ -405,7 +405,6 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           // In meeting: everyone gets Freedom (independent viewport).
           const noBroadcasterInRoom =
             room.state.broadcastState.broadcasterId === undefined;
-          console.log('supriya noBroadcasterInRoom', noBroadcasterInRoom);
           const viewMode = $config.EVENT_MODE
             ? isHost
               ? noBroadcasterInRoom
@@ -433,7 +432,6 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
             disableCameraTransform: room.disableCameraTransform,
             broadcasterId: room.state.broadcastState.broadcasterId,
           });
-          console.log('supriya viewMode', viewMode);
 
           // In livestream, if the Broadcaster drops, the next host to detect it claims Broadcaster.
           // hasSeenBroadcaster ensures we only react to an actual drop (not the transient
@@ -442,15 +440,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
             let hasSeenBroadcaster = false;
             room.callbacks.on('onRoomStateChanged', modifyState => {
               const currentBroadcastState = room.state?.broadcastState;
-              console.log(
-                'supriya currentBroadcastState: ',
-                currentBroadcastState,
-              );
               if (currentBroadcastState?.broadcasterId !== undefined) {
                 hasSeenBroadcaster = true;
               }
-              console.log(' supriya hasSeenBroadcaster: ', hasSeenBroadcaster);
-
               // broadcasterId becomes undefined only after a clean disconnect (unmount cleanup
               // guarantees this), so this is a reliable signal that the Broadcaster dropped.
               if (
@@ -461,8 +453,6 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
                   isHost,
                   whiteboardUid: `${whiteboardUidRef.current}`,
                 });
-                console.log(' supriya setViewMode: ', ViewMode.Broadcaster);
-
                 room.setViewMode(ViewMode.Broadcaster);
                 room.disableCameraTransform = false;
               }
