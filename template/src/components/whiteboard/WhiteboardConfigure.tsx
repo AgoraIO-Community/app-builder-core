@@ -123,6 +123,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   useEffect(() => {
     if (
       whiteboardRoomState === RoomPhase.Connected &&
+      // In livestream, don't recenter the camera locally when whiteboard gets pinned.
+      // Followers must inherit the broadcaster's current viewport instead.
+      !$config.EVENT_MODE &&
       pinnedUid &&
       pinnedUid == whiteboardUidRef.current
     ) {
@@ -141,10 +144,20 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     boardColor: boardColorRemote,
     whiteboardLastImageUploadPosition: whiteboardLastImageUploadPositionRemote,
   } = useRoomInfo();
+  const shouldUseCursorAdapter = !($config.EVENT_MODE && !isHost);
   const {currentLayout} = useLayout();
 
   useEffect(() => {
     try {
+      const setWritable =
+        typeof whiteboardRoom?.current?.setWritable === 'function'
+          ? whiteboardRoom.current.setWritable.bind(whiteboardRoom.current)
+          : undefined;
+
+      if (!setWritable) {
+        return;
+      }
+
       if (
         whiteboardRoomState === RoomPhase.Connected &&
         isHost &&
@@ -157,9 +170,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           (activeUids[0] === getWhiteboardUid() ||
             pinnedUid === getWhiteboardUid())
         ) {
-          whiteboardRoom?.current?.setWritable(true);
+          setWritable(true);
         } else {
-          whiteboardRoom?.current?.setWritable(false);
+          setWritable(false);
         }
       }
     } catch (error) {
@@ -170,7 +183,20 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         error,
       );
     }
-  }, [currentLayout, isHost, whiteboardRoomState, activeUids, pinnedUid]);
+    // activeUids[0] (the max-slot uid) is the only element checked in the condition above —
+    // using the full activeUids array would re-run setWritable on every participant join/leave,
+    // briefly stalling the SDK draw queue and causing cumulative lag for attendees.
+  }, [currentLayout, isHost, whiteboardRoomState, activeUids?.[0], pinnedUid]);
+
+  useEffect(() => {
+    if (whiteboardRoomState === RoomPhase.Connected) {
+      // Netless reads the bound element size for viewport math. Refresh when layout or
+      // pin state changes (those affect the whiteboard container size). Participant
+      // count changes do not affect container size in pinned layout, so activeUids.length
+      // is intentionally excluded to avoid redundant refreshes on every join.
+      whiteboardRoom.current?.refreshViewSize?.();
+    }
+  }, [whiteboardRoomState, currentLayout, pinnedUid]);
 
   const BoardColorChangedCallBack = ({boardColor}) => {
     setBoardColor(boardColor);
@@ -330,11 +356,18 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     const InitState = whiteboardRoomState;
     try {
       const index = randomIntFromInterval(0, 9);
+      const joinStartTs = Date.now();
       setWhiteboardRoomState(RoomPhase.Connecting);
+      console.log('[whiteboard-lag] join:start', {
+        ts: joinStartTs,
+        isHost,
+        eventMode: $config.EVENT_MODE,
+        whiteboardUid: `${whiteboardUidRef.current}`,
+      });
       logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room');
       whiteWebSdkClient.current
         .joinRoom({
-          cursorAdapter: cursorAdapter,
+          cursorAdapter: shouldUseCursorAdapter ? cursorAdapter : undefined,
           uid: `${whiteboardUidRef.current}`,
           uuid: room_uuid,
           roomToken: room_token,
@@ -347,17 +380,125 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           },
         })
         .then(room => {
-          logger.log(LogSource.Internals, 'WHITEBOARD', 'Join room successful');
+          const joinSuccessTs = Date.now();
+          logger.log(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'Join room successful',
+            isHost,
+            $config.EVENT_MODE,
+          );
+          console.log('[whiteboard-lag] join:success', {
+            ts: joinSuccessTs,
+            latencyMs: joinSuccessTs - joinStartTs,
+            isHost,
+            eventMode: $config.EVENT_MODE,
+            whiteboardUid: `${whiteboardUidRef.current}`,
+          });
           whiteboardRoom.current = room;
-          cursorAdapter.setRoom(room);
-          whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
+          if (shouldUseCursorAdapter) {
+            cursorAdapter.setRoom(room);
+          }
+          // In livestream: host who starts the whiteboard is Broadcaster (attendees follow their viewport),
+          // co-hosts are Followers (follow Broadcaster, auto-switch to Freedom when they interact with the board),
+          // If no Broadcaster exists in the room (e.g. all hosts dropped and rejoined), first host to join claims it.
+          // In meeting: everyone gets Freedom (independent viewport).
+          const noBroadcasterInRoom =
+            room.state.broadcastState.broadcasterId === undefined;
+          const viewMode = $config.EVENT_MODE
+            ? isHost
+              ? noBroadcasterInRoom
+                ? ViewMode.Broadcaster
+                : ViewMode.Follower
+              : ViewMode.Follower
+            : ViewMode.Freedom;
+          console.log('[whiteboard-view-mode] initial', {
+            isHost,
+            eventMode: $config.EVENT_MODE,
+            whiteboardUid: `${whiteboardUidRef.current}`,
+            broadcasterId: room.state.broadcastState.broadcasterId,
+            noBroadcasterInRoom,
+            viewMode,
+          });
+          room.setViewMode(viewMode);
+          // In livestream, lock camera gestures for followers so touchpad pan/zoom
+          // cannot kick them out of follower mode into freedom.
+          room.disableCameraTransform =
+            $config.EVENT_MODE && viewMode === ViewMode.Follower;
+          console.log('[whiteboard-lag] viewmode:applied', {
+            ts: Date.now(),
+            isHost,
+            viewMode,
+            disableCameraTransform: room.disableCameraTransform,
+            broadcasterId: room.state.broadcastState.broadcasterId,
+          });
+
+          // In livestream, if the Broadcaster drops, the next host to detect it claims Broadcaster.
+          // hasSeenBroadcaster ensures we only react to an actual drop (not the transient
+          // undefined state during initial room sync before the Broadcaster is propagated).
+          if ($config.EVENT_MODE && isHost) {
+            let hasSeenBroadcaster = false;
+            room.callbacks.on('onRoomStateChanged', modifyState => {
+              const currentBroadcastState = room.state?.broadcastState;
+              if (currentBroadcastState?.broadcasterId !== undefined) {
+                hasSeenBroadcaster = true;
+              }
+              // broadcasterId becomes undefined only after a clean disconnect (unmount cleanup
+              // guarantees this), so this is a reliable signal that the Broadcaster dropped.
+              if (
+                hasSeenBroadcaster &&
+                currentBroadcastState?.broadcasterId === undefined
+              ) {
+                console.log('[whiteboard-view-mode] promote-to-broadcaster', {
+                  isHost,
+                  whiteboardUid: `${whiteboardUidRef.current}`,
+                });
+                room.setViewMode(ViewMode.Broadcaster);
+                room.disableCameraTransform = false;
+              }
+            });
+          }
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
+          console.log('[whiteboard-lag] bindHtmlElement', {
+            ts: Date.now(),
+            isHost,
+            viewMode,
+          });
+          whiteboardRoom.current?.refreshViewSize?.();
+          console.log('[whiteboard-lag] refreshViewSize:after-bind', {
+            ts: Date.now(),
+            isHost,
+            viewMode,
+          });
+          if ($config.EVENT_MODE && viewMode === ViewMode.Follower) {
+            // Late followers can occasionally mount before the broadcaster viewport
+            // is fully applied. Re-applying follower mode after the first bind/size
+            // refresh nudges Netless to sync the current broadcaster view immediately.
+            requestAnimationFrame(() => {
+              console.log('[whiteboard-lag] follower-resync:start', {
+                ts: Date.now(),
+                isHost,
+              });
+              room.refreshViewSize?.();
+              room.setViewMode(ViewMode.Follower);
+              console.log('[whiteboard-lag] follower-resync:done', {
+                ts: Date.now(),
+                isHost,
+              });
+            });
+          }
           if (isHost && !isMobileUA()) {
             whiteboardRoom.current?.setMemberState({
               strokeColor: [0, 0, 0],
             });
           }
           setWhiteboardRoomState(RoomPhase.Connected);
+          console.log('[whiteboard-lag] roomPhase:connected', {
+            ts: Date.now(),
+            isHost,
+            viewMode,
+            totalJoinLatencyMs: Date.now() - joinStartTs,
+          });
         })
         .catch(err => {
           setWhiteboardRoomState(InitState);
@@ -378,11 +519,13 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     const InitState = whiteboardRoomState;
     try {
       setWhiteboardRoomState(RoomPhase.Disconnecting);
-      whiteboardRoom.current
+      const room = whiteboardRoom.current;
+      room
         ?.disconnect()
         .then(() => {
+          room?.bindHtmlElement(null);
+          whiteboardRoom.current = {} as Room;
           whiteboardUidRef.current = Date.now();
-          whiteboardRoom.current?.bindHtmlElement(null);
           setWhiteboardRoomState(RoomPhase.Disconnected);
         })
         .catch(err => {
@@ -428,6 +571,20 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
       }
     }
   }, [whiteboardActive]);
+
+  // Disconnect from whiteboard room when component unmounts (e.g. user leaves the call abruptly)
+  useEffect(() => {
+    return () => {
+      if (
+        whiteboardRoom.current &&
+        Object.keys(whiteboardRoom.current)?.length
+      ) {
+        whiteboardRoom.current?.bindHtmlElement(null);
+        whiteboardRoom.current?.disconnect();
+        whiteboardRoom.current = {} as Room;
+      }
+    };
+  }, []);
 
   const getWhiteboardUid = () => {
     return whiteboardUidRef?.current;

@@ -16,7 +16,7 @@ import {
   whiteboardContext,
   whiteboardPaper,
 } from './WhiteboardConfigure';
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text, ActivityIndicator} from 'react-native';
 import {RoomPhase, ApplianceNames} from 'white-web-sdk';
 import WhiteboardToolBox from './WhiteboardToolBox';
 import WhiteboardWidget from './WhiteboardWidget';
@@ -28,7 +28,8 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
   showToolbox,
 }) => {
   const wbSurfaceRef = useRef();
-  const {whiteboardRoom, boardColor} = useContext(whiteboardContext);
+  const {whiteboardRoom, boardColor, whiteboardRoomState} =
+    useContext(whiteboardContext);
 
   useEffect(function () {
     if (whiteboardPaper) {
@@ -37,12 +38,22 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
     }
 
     return () => {
-      // unBindRoom();
+      if (whiteboardPaper?.parentElement === wbSurfaceRef?.current) {
+        wbSurfaceRef?.current?.removeChild(whiteboardPaper);
+      }
     };
   }, []);
 
+  const isSyncing = whiteboardRoomState === RoomPhase.Connecting;
+
   return (
     <>
+      {isSyncing && (
+        <View style={style.syncingOverlay}>
+          <ActivityIndicator size="large" color="#fff" />
+          <Text style={style.syncingText}>Syncing whiteboard...</Text>
+        </View>
+      )}
       <WhiteboardWidget whiteboardRoom={whiteboardRoom} />
       {showToolbox &&
       //@ts-ignore
@@ -93,6 +104,22 @@ const style = StyleSheet.create({
     position: 'absolute',
     paddingTop: 50,
     paddingLeft: 20,
+  },
+  syncingOverlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 20,
+    borderRadius: 4,
+  },
+  syncingText: {
+    color: '#fff',
+    marginTop: 12,
+    fontSize: 14,
   },
 });
 
