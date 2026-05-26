@@ -100,13 +100,21 @@ const css = `
 }
 .live-reaction-stage-item {
   position: absolute;
-  width: var(--reaction-size);
-  height: var(--reaction-size);
+  width: 64px;
+  height: 64px;
   left: var(--reaction-left);
   bottom: 18px;
   opacity: 0;
   animation: live-reaction-float var(--reaction-duration) cubic-bezier(.18,.72,.22,1) forwards;
   will-change: transform, opacity, bottom;
+}
+.live-reaction-stage-item-content {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 .live-reaction-stage-item img {
   width: 100%;
@@ -115,8 +123,19 @@ const css = `
   display: block;
 }
 .live-reaction-clap {
-  width: 100%;
-  height: 100%;
+  width: 48px;
+  height: 48px;
+}
+.live-reaction-sender-name {
+  margin-top: 2px;
+  max-width: 64px;
+  font-size: 11px;
+  line-height: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 @keyframes live-reaction-float {
   0% {
@@ -227,12 +246,14 @@ const LiveReactionStageOverlay = () => {
         {isDebugVisible ? (
           <div className="live-reaction-debug-guides" aria-hidden="true">
             <div className="live-reaction-debug-lanes">
-              {Array.from({length: LIVE_REACTION_LANE_COUNT}).map((_, index) => (
-                <div
-                  key={`debug-lane-${index}`}
-                  className="live-reaction-debug-lane"
-                />
-              ))}
+              {Array.from({length: LIVE_REACTION_LANE_COUNT}).map(
+                (_, index) => (
+                  <div
+                    key={`debug-lane-${index}`}
+                    className="live-reaction-debug-lane"
+                  />
+                ),
+              )}
             </div>
             <div className="live-reaction-debug-start-line" />
             <div className="live-reaction-debug-mid-line" />
@@ -258,7 +279,9 @@ const LiveReactionStageOverlay = () => {
               ? reaction.lane
               : index % LIVE_REACTION_LANE_COUNT;
           const left = `${16 + lane * 48}px`;
-          const drift = `${((hashReactionId(reaction.reactionId) % 3) - 1) * 10}px`;
+          const drift = `${
+            ((hashReactionId(reaction.reactionId) % 3) - 1) * 10
+          }px`;
           return (
             <div
               key={reaction.reactionId}
@@ -271,10 +294,17 @@ const LiveReactionStageOverlay = () => {
                   '--reaction-size': '48px',
                 } as React.CSSProperties
               }>
-              <ReactionArt
-                fallbackSrc={reactionDefinition.asset}
-                lottieData={reactionDefinition.lottieData}
-              />
+              <div className="live-reaction-stage-item-content">
+                <ReactionArt
+                  fallbackSrc={reactionDefinition.asset}
+                  lottieData={reactionDefinition.lottieData}
+                />
+                <div
+                  className="live-reaction-sender-name"
+                  title={reaction.senderDisplayName || reaction.senderUid}>
+                  {reaction.senderDisplayName || reaction.senderUid}
+                </div>
+              </div>
             </div>
           );
         })}

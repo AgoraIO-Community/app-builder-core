@@ -33,6 +33,7 @@ import events from '../rtm-events-api';
 import {PersistanceLevel} from '../rtm-events-api/types';
 import {EventNames} from '../rtm-events';
 import {nanoid} from 'nanoid/non-secure';
+import {useUserPreference} from './useUserPreference';
 import {
   LIVE_REACTION_BADGE_DURATION,
   LIVE_REACTION_FLOAT_DURATION,
@@ -105,6 +106,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const {join, enterRoom} = useContext(SdkApiContext);
   const roomInfo = useRoomInfo();
   const localUser = useLocalUserInfo();
+  const {uids} = useUserPreference();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
   //const videoTileInViewPortStateRef = useRef({});
@@ -112,9 +114,9 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const [latestReactionByUid, setLatestReactionByUid] = useState<
     Record<string, LiveReactionEvent>
   >({});
-  const [floatingReactions, setFloatingReactions] = useState<LiveReactionEvent[]>(
-    [],
-  );
+  const [floatingReactions, setFloatingReactions] = useState<
+    LiveReactionEvent[]
+  >([]);
   const reactionBadgeTimeoutsRef = useRef<
     Record<string, ReturnType<typeof setTimeout>>
   >({});
@@ -122,19 +124,14 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
     Record<string, ReturnType<typeof setTimeout>>
   >({});
   const processedReactionIdsRef = useRef<Set<string>>(new Set());
-  const nextReactionLaneRef = useRef(0);
 
-  const assignReactionLane = useCallback(
-    (reaction: LiveReactionEvent) => {
-      if (typeof reaction.lane === 'number') {
-        return reaction;
-      }
-      const lane = nextReactionLaneRef.current;
-      nextReactionLaneRef.current = (nextReactionLaneRef.current + 1) % 5;
-      return {...reaction, lane};
-    },
-    [],
-  );
+  const assignReactionLane = useCallback((reaction: LiveReactionEvent) => {
+    if (typeof reaction.lane === 'number') {
+      return reaction;
+    }
+    const lane = Math.floor(Math.random() * 5);
+    return {...reaction, lane};
+  }, []);
 
   const setVideoTileInViewPortState = (uid: UidType, visible: boolean) => {
     //videoTileInViewPortStateRef.current[uid] = visible;
@@ -183,17 +180,23 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         [nextReaction.senderUid]: nextReaction,
       }));
       cleanupReactionBadgeTimeout(nextReaction.senderUid);
-      reactionBadgeTimeoutsRef.current[nextReaction.senderUid] = setTimeout(() => {
-        setLatestReactionByUid(prev => {
-          if (prev[nextReaction.senderUid]?.reactionId !== nextReaction.reactionId) {
-            return prev;
-          }
-          const next = {...prev};
-          delete next[nextReaction.senderUid];
-          return next;
-        });
-        cleanupReactionBadgeTimeout(nextReaction.senderUid);
-      }, LIVE_REACTION_BADGE_DURATION);
+      reactionBadgeTimeoutsRef.current[nextReaction.senderUid] = setTimeout(
+        () => {
+          setLatestReactionByUid(prev => {
+            if (
+              prev[nextReaction.senderUid]?.reactionId !==
+              nextReaction.reactionId
+            ) {
+              return prev;
+            }
+            const next = {...prev};
+            delete next[nextReaction.senderUid];
+            return next;
+          });
+          cleanupReactionBadgeTimeout(nextReaction.senderUid);
+        },
+        LIVE_REACTION_BADGE_DURATION,
+      );
 
       setFloatingReactions(prev => {
         const next = [...prev, nextReaction];
@@ -202,24 +205,36 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
           : next;
       });
       cleanupFloatingReactionTimeout(nextReaction.reactionId);
-      floatingReactionTimeoutsRef.current[nextReaction.reactionId] = setTimeout(() => {
-        setFloatingReactions(prev =>
-          prev.filter(item => item.reactionId !== nextReaction.reactionId),
-        );
-        cleanupFloatingReactionTimeout(nextReaction.reactionId);
-      }, LIVE_REACTION_FLOAT_DURATION);
+      floatingReactionTimeoutsRef.current[nextReaction.reactionId] = setTimeout(
+        () => {
+          setFloatingReactions(prev =>
+            prev.filter(item => item.reactionId !== nextReaction.reactionId),
+          );
+          cleanupFloatingReactionTimeout(nextReaction.reactionId);
+        },
+        LIVE_REACTION_FLOAT_DURATION,
+      );
     },
-    [assignReactionLane, cleanupFloatingReactionTimeout, cleanupReactionBadgeTimeout],
+    [
+      assignReactionLane,
+      cleanupFloatingReactionTimeout,
+      cleanupReactionBadgeTimeout,
+    ],
   );
 
   const emitLiveReaction = useCallback(
     (reaction: LiveReactionDefinition) => {
-      const reactionId = `${localUser.uid}-${reaction.key}-${Date.now()}-${nanoid(4)}`;
+      const reactionId = `${localUser.uid}-${
+        reaction.key
+      }-${Date.now()}-${nanoid(4)}`;
+      const senderDisplayName =
+        uids[String(localUser.uid)]?.name || String(localUser.uid);
       const nextReaction: LiveReactionEvent = {
         reactionId,
         assetKey: reaction.key,
         emoji: reaction.emoji,
         senderUid: String(localUser.uid),
+        senderDisplayName,
         timestamp: Date.now(),
       };
 
@@ -231,12 +246,13 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
           reactionId: nextReaction.reactionId,
           assetKey: nextReaction.assetKey,
           emoji: nextReaction.emoji,
+          senderDisplayName: nextReaction.senderDisplayName,
           timestamp: nextReaction.timestamp,
         }),
         PersistanceLevel.None,
       );
     },
-    [ingestReaction, localUser.uid],
+    [ingestReaction, localUser.uid, uids],
   );
 
   useEffect(() => {
@@ -264,7 +280,9 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
     const unsubscribe = events.on(EventNames.LIVE_REACTION, data => {
       try {
         const payload =
-          typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
+          typeof data.payload === 'string'
+            ? JSON.parse(data.payload)
+            : data.payload;
         console.log('reactions-debug', 'rtm-reaction-received', {
           sender: data.sender,
           ts: data.ts,
@@ -275,6 +293,8 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
           assetKey: payload.assetKey,
           emoji: payload.emoji,
           senderUid: String(data.sender),
+          senderDisplayName:
+            payload.senderDisplayName || uids[String(data.sender)]?.name || '',
           timestamp: payload.timestamp || data.ts || Date.now(),
         });
       } catch (error) {
@@ -285,7 +305,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
     return () => {
       unsubscribe();
     };
-  }, [ingestReaction]);
+  }, [ingestReaction, uids]);
 
   useEffect(() => {
     return () => {

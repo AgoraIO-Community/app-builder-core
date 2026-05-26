@@ -10,6 +10,7 @@ export interface LiveReactionEvent {
   assetKey: string;
   emoji: string;
   senderUid: string;
+  senderDisplayName?: string;
   timestamp: number;
   lane?: number;
 }
