@@ -13,6 +13,7 @@
 import React, {
   SetStateAction,
   useState,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -23,11 +24,22 @@ import StopRecordingPopup from './popups/StopRecordingPopup';
 import StartScreenSharePopup from './popups/StartScreenSharePopup';
 import StopScreenSharePopup from './popups/StopScreenSharePopup';
 import {SdkApiContext} from './SdkApiContext';
-import {UidType, useRoomInfo} from 'customization-api';
+import {UidType, useLocalUserInfo, useRoomInfo} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
 import DeviceContext from './DeviceContext';
 import useSetName from '../utils/useSetName';
 import WhiteboardClearAllPopup from './popups/WhiteboardClearAllPopup';
+import events from '../rtm-events-api';
+import {PersistanceLevel} from '../rtm-events-api/types';
+import {EventNames} from '../rtm-events';
+import {nanoid} from 'nanoid/non-secure';
+import {
+  LIVE_REACTION_BADGE_DURATION,
+  LIVE_REACTION_FLOAT_DURATION,
+  LIVE_REACTION_MAX_FLOATING_ITEMS,
+  LiveReactionDefinition,
+  LiveReactionEvent,
+} from './reactions/catalog';
 
 interface InViewPortState {
   [key: number]: boolean;
@@ -49,6 +61,9 @@ export interface VideoCallContextInterface {
   setVideoTileInViewPortState: (uid: UidType, visible: boolean) => void;
   showWhiteboardClearAllPopup: boolean;
   setShowWhiteboardClearAllPopup: React.Dispatch<SetStateAction<boolean>>;
+  latestReactionByUid: Record<string, LiveReactionEvent>;
+  floatingReactions: LiveReactionEvent[];
+  emitLiveReaction: (reaction: LiveReactionDefinition) => void;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
@@ -68,6 +83,9 @@ const VideoCallContext = React.createContext<VideoCallContextInterface>({
   setVideoTileInViewPortState: () => {},
   showWhiteboardClearAllPopup: false,
   setShowWhiteboardClearAllPopup: () => {},
+  latestReactionByUid: {},
+  floatingReactions: [],
+  emitLiveReaction: () => {},
 });
 
 interface VideoCallProviderProps {
@@ -86,10 +104,37 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
     useState(false);
   const {join, enterRoom} = useContext(SdkApiContext);
   const roomInfo = useRoomInfo();
+  const localUser = useLocalUserInfo();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
   //const videoTileInViewPortStateRef = useRef({});
   const [videoTileInViewPortState, setVideoTileInViewPortStateL] = useState({});
+  const [latestReactionByUid, setLatestReactionByUid] = useState<
+    Record<string, LiveReactionEvent>
+  >({});
+  const [floatingReactions, setFloatingReactions] = useState<LiveReactionEvent[]>(
+    [],
+  );
+  const reactionBadgeTimeoutsRef = useRef<
+    Record<string, ReturnType<typeof setTimeout>>
+  >({});
+  const floatingReactionTimeoutsRef = useRef<
+    Record<string, ReturnType<typeof setTimeout>>
+  >({});
+  const processedReactionIdsRef = useRef<Set<string>>(new Set());
+  const nextReactionLaneRef = useRef(0);
+
+  const assignReactionLane = useCallback(
+    (reaction: LiveReactionEvent) => {
+      if (typeof reaction.lane === 'number') {
+        return reaction;
+      }
+      const lane = nextReactionLaneRef.current;
+      nextReactionLaneRef.current = (nextReactionLaneRef.current + 1) % 5;
+      return {...reaction, lane};
+    },
+    [],
+  );
 
   const setVideoTileInViewPortState = (uid: UidType, visible: boolean) => {
     //videoTileInViewPortStateRef.current[uid] = visible;
@@ -100,6 +145,99 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
       };
     });
   };
+
+  const cleanupReactionBadgeTimeout = useCallback((uid: string) => {
+    if (reactionBadgeTimeoutsRef.current[uid]) {
+      clearTimeout(reactionBadgeTimeoutsRef.current[uid]);
+      delete reactionBadgeTimeoutsRef.current[uid];
+    }
+  }, []);
+
+  const cleanupFloatingReactionTimeout = useCallback((reactionId: string) => {
+    if (floatingReactionTimeoutsRef.current[reactionId]) {
+      clearTimeout(floatingReactionTimeoutsRef.current[reactionId]);
+      delete floatingReactionTimeoutsRef.current[reactionId];
+    }
+  }, []);
+
+  const ingestReaction = useCallback(
+    (reaction: LiveReactionEvent) => {
+      if (!$config.ENABLE_LIVE_REACTIONS) {
+        return;
+      }
+      if (processedReactionIdsRef.current.has(reaction.reactionId)) {
+        console.log('reactions-debug', 'skip-duplicate-reaction', reaction);
+        return;
+      }
+      const nextReaction = assignReactionLane(reaction);
+      console.log('reactions-debug', 'ingest-reaction', nextReaction);
+      processedReactionIdsRef.current.add(nextReaction.reactionId);
+      if (processedReactionIdsRef.current.size > 200) {
+        processedReactionIdsRef.current = new Set(
+          Array.from(processedReactionIdsRef.current).slice(-100),
+        );
+      }
+
+      setLatestReactionByUid(prev => ({
+        ...prev,
+        [nextReaction.senderUid]: nextReaction,
+      }));
+      cleanupReactionBadgeTimeout(nextReaction.senderUid);
+      reactionBadgeTimeoutsRef.current[nextReaction.senderUid] = setTimeout(() => {
+        setLatestReactionByUid(prev => {
+          if (prev[nextReaction.senderUid]?.reactionId !== nextReaction.reactionId) {
+            return prev;
+          }
+          const next = {...prev};
+          delete next[nextReaction.senderUid];
+          return next;
+        });
+        cleanupReactionBadgeTimeout(nextReaction.senderUid);
+      }, LIVE_REACTION_BADGE_DURATION);
+
+      setFloatingReactions(prev => {
+        const next = [...prev, nextReaction];
+        return next.length > LIVE_REACTION_MAX_FLOATING_ITEMS
+          ? next.slice(next.length - LIVE_REACTION_MAX_FLOATING_ITEMS)
+          : next;
+      });
+      cleanupFloatingReactionTimeout(nextReaction.reactionId);
+      floatingReactionTimeoutsRef.current[nextReaction.reactionId] = setTimeout(() => {
+        setFloatingReactions(prev =>
+          prev.filter(item => item.reactionId !== nextReaction.reactionId),
+        );
+        cleanupFloatingReactionTimeout(nextReaction.reactionId);
+      }, LIVE_REACTION_FLOAT_DURATION);
+    },
+    [assignReactionLane, cleanupFloatingReactionTimeout, cleanupReactionBadgeTimeout],
+  );
+
+  const emitLiveReaction = useCallback(
+    (reaction: LiveReactionDefinition) => {
+      const reactionId = `${localUser.uid}-${reaction.key}-${Date.now()}-${nanoid(4)}`;
+      const nextReaction: LiveReactionEvent = {
+        reactionId,
+        assetKey: reaction.key,
+        emoji: reaction.emoji,
+        senderUid: String(localUser.uid),
+        timestamp: Date.now(),
+      };
+
+      console.log('reactions-debug', 'emit-local-reaction', nextReaction);
+      ingestReaction(nextReaction);
+      events.send(
+        EventNames.LIVE_REACTION,
+        JSON.stringify({
+          reactionId: nextReaction.reactionId,
+          assetKey: nextReaction.assetKey,
+          emoji: nextReaction.emoji,
+          timestamp: nextReaction.timestamp,
+        }),
+        PersistanceLevel.None,
+      );
+    },
+    [ingestReaction, localUser.uid],
+  );
 
   useEffect(() => {
     if (join.initialized && join.phrase) {
@@ -118,6 +256,47 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
       roomInfo.data.isHost,
     );
   }, []);
+
+  useEffect(() => {
+    if (!$config.ENABLE_LIVE_REACTIONS) {
+      return;
+    }
+    const unsubscribe = events.on(EventNames.LIVE_REACTION, data => {
+      try {
+        const payload =
+          typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
+        console.log('reactions-debug', 'rtm-reaction-received', {
+          sender: data.sender,
+          ts: data.ts,
+          payload,
+        });
+        ingestReaction({
+          reactionId: payload.reactionId,
+          assetKey: payload.assetKey,
+          emoji: payload.emoji,
+          senderUid: String(data.sender),
+          timestamp: payload.timestamp || data.ts || Date.now(),
+        });
+      } catch (error) {
+        console.warn('Failed to parse live reaction payload', error);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [ingestReaction]);
+
+  useEffect(() => {
+    return () => {
+      Object.keys(reactionBadgeTimeoutsRef.current).forEach(uid => {
+        cleanupReactionBadgeTimeout(uid);
+      });
+      Object.keys(floatingReactionTimeoutsRef.current).forEach(reactionId => {
+        cleanupFloatingReactionTimeout(reactionId);
+      });
+    };
+  }, [cleanupFloatingReactionTimeout, cleanupReactionBadgeTimeout]);
   return (
     <VideoCallContext.Provider
       value={{
@@ -138,6 +317,9 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         videoTileInViewPortState,
         showWhiteboardClearAllPopup,
         setShowWhiteboardClearAllPopup,
+        latestReactionByUid,
+        floatingReactions,
+        emitLiveReaction,
       }}>
       <StartScreenSharePopup />
       <StopScreenSharePopup />
