@@ -8,7 +8,8 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import {PropsContext} from '../../../agora-rn-uikit';
+import {ClientRoleType, PropsContext} from '../../../agora-rn-uikit';
+import {useRoomInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useToolbarProps} from '../../atoms/ToolbarItem';
 import {useActionSheet} from '../../utils/useActionSheet';
@@ -63,18 +64,15 @@ const ReactionTray = ({
 };
 
 const LiveReactionButton = () => {
-  const {
-    label = null,
-    iconSize,
-    containerStyle,
-  } = useToolbarProps();
+  const {label = null, iconSize, containerStyle} = useToolbarProps();
   const {emitLiveReaction} = useVideoCall();
   const {isOnActionSheet, showLabel} = useActionSheet();
   const reactionLabel = useString(toolbarItemReactionText)();
   const {width: windowWidth} = useWindowDimensions();
+  const {rtcProps} = React.useContext(PropsContext);
   const {
-    rtcProps: {callActive},
-  } = React.useContext(PropsContext);
+    data: {isHost},
+  } = useRoomInfo();
   const buttonRef = React.useRef<any>(null);
   const [isTrayOpen, setIsTrayOpen] = React.useState(false);
   const [trayPosition, setTrayPosition] = React.useState<{
@@ -85,6 +83,12 @@ const LiveReactionButton = () => {
   if (!$config.ENABLE_LIVE_REACTIONS) {
     return null;
   }
+
+  const isLiveStreamAudienceReactionDisabled =
+    $config.EVENT_MODE &&
+    $config.RAISE_HAND &&
+    !isHost &&
+    rtcProps.role === ClientRoleType.ClientRoleAudience;
 
   const closeTray = React.useCallback(() => {
     setIsTrayOpen(false);
@@ -134,7 +138,9 @@ const LiveReactionButton = () => {
     iconProps: {
       iconSize: iconSize || 24,
       name: 'add_reaction',
-      tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
+      tintColor: isLiveStreamAudienceReactionDisabled
+        ? $config.SEMANTIC_NEUTRAL
+        : $config.PRIMARY_ACTION_TEXT_COLOR,
     },
     btnTextProps: {
       text:
@@ -142,13 +148,14 @@ const LiveReactionButton = () => {
           ? ''
           : isOnActionSheet
           ? label || reactionLabel
-          : showLabel && callActive && !isMobileUA()
+          : showLabel && rtcProps.callActive && !isMobileUA()
           ? label || reactionLabel
           : '',
       textColor: $config.FONT_COLOR,
     },
     containerStyle,
     isOnActionSheet,
+    disabled: isLiveStreamAudienceReactionDisabled,
   };
 
   if (isOnActionSheet) {
@@ -162,7 +169,9 @@ const LiveReactionButton = () => {
     };
   }
 
-  iconButtonProps.onPress = toggleTray;
+  iconButtonProps.onPress = isLiveStreamAudienceReactionDisabled
+    ? undefined
+    : toggleTray;
 
   const tray = (
     <ReactionTray
