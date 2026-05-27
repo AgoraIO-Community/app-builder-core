@@ -65,7 +65,6 @@ const ReactionTray = ({
 const LiveReactionButton = () => {
   const {
     label = null,
-    iconBGColor,
     iconSize,
     containerStyle,
   } = useToolbarProps();
@@ -138,11 +137,14 @@ const LiveReactionButton = () => {
       tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
     },
     btnTextProps: {
-      text: isOnActionSheet
-        ? label || reactionLabel
-        : showLabel && callActive && !isMobileUA()
-        ? label || reactionLabel
-        : '',
+      text:
+        isOnActionSheet && isMobileUA()
+          ? ''
+          : isOnActionSheet
+          ? label || reactionLabel
+          : showLabel && callActive && !isMobileUA()
+          ? label || reactionLabel
+          : '',
       textColor: $config.FONT_COLOR,
     },
     containerStyle,
@@ -234,10 +236,13 @@ const styles = StyleSheet.create({
     padding: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'visible',
   },
   reactionEmoji: {
     fontSize: 24,
-    lineHeight: 24,
+    lineHeight: 30,
+    textAlign: 'center',
+    includeFontPadding: false,
   },
 });
 
