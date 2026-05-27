@@ -229,6 +229,7 @@ const styles = StyleSheet.create({
     maxWidth: 64,
     fontSize: 11,
     lineHeight: 12,
+    fontFamily: 'Source Sans Pro',
     color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
   },

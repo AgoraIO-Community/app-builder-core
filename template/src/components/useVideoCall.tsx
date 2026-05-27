@@ -24,7 +24,12 @@ import StopRecordingPopup from './popups/StopRecordingPopup';
 import StartScreenSharePopup from './popups/StartScreenSharePopup';
 import StopScreenSharePopup from './popups/StopScreenSharePopup';
 import {SdkApiContext} from './SdkApiContext';
-import {UidType, useLocalUserInfo, useRoomInfo} from 'customization-api';
+import {
+  UidType,
+  useContent,
+  useLocalUserInfo,
+  useRoomInfo,
+} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
 import DeviceContext from './DeviceContext';
 import useSetName from '../utils/useSetName';
@@ -41,6 +46,8 @@ import {
   LiveReactionDefinition,
   LiveReactionEvent,
 } from './reactions/catalog';
+import {useString} from '../utils/useString';
+import {videoRoomUserFallbackText} from '../language/default-labels/videoCallScreenLabels';
 
 interface InViewPortState {
   [key: number]: boolean;
@@ -106,7 +113,9 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const {join, enterRoom} = useContext(SdkApiContext);
   const roomInfo = useRoomInfo();
   const localUser = useLocalUserInfo();
+  const {defaultContent} = useContent();
   const {uids} = useUserPreference();
+  const remoteUserFallbackName = useString(videoRoomUserFallbackText)();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
   //const videoTileInViewPortStateRef = useRef({});
@@ -132,6 +141,21 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
     const lane = Math.floor(Math.random() * 5);
     return {...reaction, lane};
   }, []);
+
+  const getReactionSenderName = useCallback(
+    (senderUid: string) => {
+      if (String(localUser.uid) === String(senderUid)) {
+        return 'You';
+      }
+      return (
+        uids[String(senderUid)]?.name ||
+        defaultContent[Number(senderUid)]?.name ||
+        defaultContent[String(senderUid)]?.name ||
+        remoteUserFallbackName
+      );
+    },
+    [defaultContent, localUser.uid, remoteUserFallbackName, uids],
+  );
 
   const setVideoTileInViewPortState = (uid: UidType, visible: boolean) => {
     //videoTileInViewPortStateRef.current[uid] = visible;
@@ -166,7 +190,10 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         console.log('reactions-debug', 'skip-duplicate-reaction', reaction);
         return;
       }
-      const nextReaction = assignReactionLane(reaction);
+      const nextReaction = assignReactionLane({
+        ...reaction,
+        senderDisplayName: getReactionSenderName(reaction.senderUid),
+      });
       console.log('reactions-debug', 'ingest-reaction', nextReaction);
       processedReactionIdsRef.current.add(nextReaction.reactionId);
       if (processedReactionIdsRef.current.size > 200) {
@@ -219,6 +246,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
       assignReactionLane,
       cleanupFloatingReactionTimeout,
       cleanupReactionBadgeTimeout,
+      getReactionSenderName,
     ],
   );
 
@@ -227,8 +255,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
       const reactionId = `${localUser.uid}-${
         reaction.key
       }-${Date.now()}-${nanoid(4)}`;
-      const senderDisplayName =
-        uids[String(localUser.uid)]?.name || String(localUser.uid);
+      const senderDisplayName = getReactionSenderName(String(localUser.uid));
       const nextReaction: LiveReactionEvent = {
         reactionId,
         assetKey: reaction.key,
@@ -246,13 +273,12 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
           reactionId: nextReaction.reactionId,
           assetKey: nextReaction.assetKey,
           emoji: nextReaction.emoji,
-          senderDisplayName: nextReaction.senderDisplayName,
           timestamp: nextReaction.timestamp,
         }),
         PersistanceLevel.None,
       );
     },
-    [ingestReaction, localUser.uid, uids],
+    [getReactionSenderName, ingestReaction, localUser.uid],
   );
 
   useEffect(() => {
@@ -293,8 +319,6 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
           assetKey: payload.assetKey,
           emoji: payload.emoji,
           senderUid: String(data.sender),
-          senderDisplayName:
-            payload.senderDisplayName || uids[String(data.sender)]?.name || '',
           timestamp: payload.timestamp || data.ts || Date.now(),
         });
       } catch (error) {
@@ -305,7 +329,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
     return () => {
       unsubscribe();
     };
-  }, [ingestReaction, uids]);
+  }, [ingestReaction]);
 
   useEffect(() => {
     return () => {

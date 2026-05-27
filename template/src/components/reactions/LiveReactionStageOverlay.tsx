@@ -131,6 +131,7 @@ const css = `
   max-width: 64px;
   font-size: 11px;
   line-height: 12px;
+  font-family: 'Source Sans Pro';
   color: rgba(255, 255, 255, 0.9);
   text-align: center;
   white-space: nowrap;
@@ -218,7 +219,11 @@ const ReactionArt = ({
 
 const LiveReactionStageOverlay = () => {
   const {floatingReactions} = useVideoCall();
-  const isDebugVisible = __DEV__ && $config.ENABLE_LIVE_REACTIONS;
+  const isDev =
+    typeof __DEV__ !== 'undefined'
+      ? __DEV__
+      : process.env.NODE_ENV !== 'production';
+  const isDebugVisible = isDev && $config.ENABLE_LIVE_REACTIONS;
 
   React.useEffect(() => {
     if ($config.ENABLE_LIVE_REACTIONS) {
