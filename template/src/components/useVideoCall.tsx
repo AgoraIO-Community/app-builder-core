@@ -187,14 +187,12 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         return;
       }
       if (processedReactionIdsRef.current.has(reaction.reactionId)) {
-        console.log('reactions-debug', 'skip-duplicate-reaction', reaction);
         return;
       }
       const nextReaction = assignReactionLane({
         ...reaction,
         senderDisplayName: getReactionSenderName(reaction.senderUid),
       });
-      console.log('reactions-debug', 'ingest-reaction', nextReaction);
       processedReactionIdsRef.current.add(nextReaction.reactionId);
       if (processedReactionIdsRef.current.size > 200) {
         processedReactionIdsRef.current = new Set(
@@ -265,7 +263,6 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         timestamp: Date.now(),
       };
 
-      console.log('reactions-debug', 'emit-local-reaction', nextReaction);
       ingestReaction(nextReaction);
       events.send(
         EventNames.LIVE_REACTION,
@@ -309,11 +306,6 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
           typeof data.payload === 'string'
             ? JSON.parse(data.payload)
             : data.payload;
-        console.log('reactions-debug', 'rtm-reaction-received', {
-          sender: data.sender,
-          ts: data.ts,
-          payload,
-        });
         ingestReaction({
           reactionId: payload.reactionId,
           assetKey: payload.assetKey,

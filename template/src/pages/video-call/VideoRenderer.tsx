@@ -240,18 +240,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
           )}
           {currentLayout === getGridLayoutName() ? (
-            console.log('reactions-debug', 'render-tile-badge', {
-              uid: user.uid,
-              currentLayout,
-              isMax,
-            }) || <LiveReactionBadge uid={user.uid} />
-          ) : null}
-          {currentLayout !== getGridLayoutName() ? (
-            console.log('reactions-debug', 'skip-tile-badge-non-grid', {
-              uid: user.uid,
-              currentLayout,
-              isMax,
-            }) || null
+            <LiveReactionBadge uid={user.uid} />
           ) : null}
           {currentLayout === DefaultLayouts[1].name &&
           user.uid === secondaryPinnedUid ? (

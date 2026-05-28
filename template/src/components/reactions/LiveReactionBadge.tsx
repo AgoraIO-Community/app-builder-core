@@ -11,16 +11,6 @@ const LiveReactionBadge = ({uid}: LiveReactionBadgeProps) => {
   const {latestReactionByUid} = useVideoCall();
   const reaction = latestReactionByUid[String(uid)];
 
-  React.useEffect(() => {
-    if (reaction) {
-      console.log('reactions-debug', 'tile-badge-update', {
-        uid,
-        reactionId: reaction.reactionId,
-        emoji: reaction.emoji,
-      });
-    }
-  }, [reaction, uid]);
-
   if (!$config.ENABLE_LIVE_REACTIONS || !reaction) {
     return null;
   }

@@ -176,7 +176,6 @@ const LiveReactionButton = () => {
   const tray = (
     <ReactionTray
       onSelect={reaction => {
-        console.log('reactions-debug', 'reaction-selected', reaction);
         emitLiveReaction(reaction);
       }}
     />

@@ -198,7 +198,6 @@ const ReactionArt = ({
     });
 
     animationRef.current.addEventListener('data_failed', () => {
-      console.log('reactions-debug', 'clap-lottie-data-failed');
       setShouldFallback(true);
     });
 
@@ -225,14 +224,6 @@ const LiveReactionStageOverlay = () => {
   //     : process.env.NODE_ENV !== 'production';
   // const isDebugVisible = isDev && $config.ENABLE_LIVE_REACTIONS;
   const isDebugVisible = false;
-
-  React.useEffect(() => {
-    if ($config.ENABLE_LIVE_REACTIONS) {
-      console.log('reactions-debug', 'stage-overlay-state', {
-        floatingCount: floatingReactions.length,
-      });
-    }
-  }, [floatingReactions.length]);
 
   if (
     !$config.ENABLE_LIVE_REACTIONS ||
