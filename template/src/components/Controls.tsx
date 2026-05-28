@@ -123,6 +123,7 @@ import {
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
+import LiveReactionButton from './reactions/LiveReactionButton';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -1129,6 +1130,14 @@ export const RecordingToolbarItem = props => {
   );
 };
 
+export const LiveReactionToolbarItem = props => {
+  return (
+    <ToolbarItem testID="liveReaction-btn" toolbarProps={props}>
+      <LiveReactionButton />
+    </ToolbarItem>
+  );
+};
+
 export const MoreButtonToolbarItem = (props?: {
   fields?: ToolbarMoreButtonCustomFields;
 }) => {
@@ -1324,15 +1333,22 @@ const Controls = (props: ControlsProps) => {
         component: LocalVideoToolbarItem,
         order: 2,
       },
+      reactions: {
+        align: 'center',
+        component: $config.ENABLE_LIVE_REACTIONS
+          ? LiveReactionToolbarItem
+          : null,
+        order: 3,
+      },
       'switch-camera': {
         align: 'center',
         component: SwitchCameraToolbarItem,
-        order: 3,
+        order: 4,
       },
       screenshare: {
         align: 'center',
         component: canAccessScreenshare ? ScreenshareToolbarItem : null,
-        order: 4,
+        order: 5,
         hide: w => {
           return w < BREAKPOINTS.sm ? true : false;
         },
@@ -1340,7 +1356,7 @@ const Controls = (props: ControlsProps) => {
       recording: {
         align: 'center',
         component: RecordingToolbarItem,
-        order: 5,
+        order: 6,
         hide: w => {
           return w < BREAKPOINTS.sm ? true : false;
         },
@@ -1348,12 +1364,12 @@ const Controls = (props: ControlsProps) => {
       more: {
         align: 'center',
         component: MoreButtonToolbarItem,
-        order: 6,
+        order: 7,
       },
       'end-call': {
         align: 'center',
         component: LocalEndcallToolbarItem,
-        order: 7,
+        order: 8,
       },
     };
   }, [canAccessInvite, canAccessScreenshare]);

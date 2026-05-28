@@ -13,6 +13,7 @@ import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamData
 import {useCustomization} from 'customization-implementation';
 import useMount from '../../components/useMount';
 import {whiteboardContext} from '../../components/whiteboard/WhiteboardConfigure';
+import LiveReactionStageOverlay from '../../components/reactions/LiveReactionStageOverlay';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -108,10 +109,12 @@ const VideoComponent = () => {
         <View
           style={{
             flex: 1,
+            position: 'relative',
             flexDirection: isDesktop() ? 'row' : 'column',
             justifyContent: 'space-between',
           }}>
           <CurrentLayout renderData={activeUids} />
+          <LiveReactionStageOverlay />
           {((!$config.EVENT_MODE && activeUids.length === 1) ||
             ($config.EVENT_MODE &&
               hostUids.concat(audienceUids)?.length === 1)) &&
@@ -127,7 +130,12 @@ const VideoComponent = () => {
         </View>
       );
     }
-    return <CurrentLayout renderData={activeUids} />;
+    return (
+      <View style={{flex: 1, position: 'relative'}}>
+        <CurrentLayout renderData={activeUids} />
+        <LiveReactionStageOverlay />
+      </View>
+    );
   } else {
     return <></>;
   }

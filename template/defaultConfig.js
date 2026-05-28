@@ -83,6 +83,7 @@ const DefaultConfig = {
   STT_AUTO_START: false,
   CLOUD_RECORDING_AUTO_START: false,
   ENABLE_SPOTLIGHT: false,
+  ENABLE_LIVE_REACTIONS: true,
   AUTO_CONNECT_RTM: false,
   ENABLE_CONVERSATIONAL_AI: false,
   CUSTOMIZE_AGENT: true,

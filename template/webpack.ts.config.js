@@ -71,7 +71,7 @@ module.exports = merge(commons, {
         },
       },
       {
-        test: /\.(png|jpe?g|gif)$/i,
+        test: /\.(png|jpe?g|gif|webp)$/i,
         use: [
           {
             loader: 'file-loader',
