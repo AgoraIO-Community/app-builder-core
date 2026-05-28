@@ -1,5 +1,5 @@
 import React from 'react';
-import {isMobileUA, isWebInternal} from '../../utils/common';
+import {isWebInternal} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
 import {
   LIVE_REACTION_FLOAT_DURATION,
@@ -236,7 +236,6 @@ const LiveReactionStageOverlay = () => {
   if (
     !$config.ENABLE_LIVE_REACTIONS ||
     !isWebInternal() ||
-    isMobileUA() ||
     floatingReactions.length === 0
   ) {
     return null;
