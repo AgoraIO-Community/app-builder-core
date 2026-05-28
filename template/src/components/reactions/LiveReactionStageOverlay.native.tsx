@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   reactionSenderPill: {
     minWidth: 48,
-    maxWidth: 88,
+    width: 88,
     marginTop: 4,
     paddingHorizontal: 10,
     paddingVertical: 4,

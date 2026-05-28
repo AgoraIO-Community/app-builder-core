@@ -144,6 +144,10 @@ const css = `
   font-weight: 400;
   color: ${$config.BACKGROUND_COLOR};
   text-align: center;
+}
+.live-reaction-sender-name-text {
+  min-width: 0;
+  max-width: 68px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -306,7 +310,9 @@ const LiveReactionStageOverlay = () => {
                 <div
                   className="live-reaction-sender-name"
                   title={reaction.senderDisplayName || reaction.senderUid}>
-                  {reaction.senderDisplayName || reaction.senderUid}
+                  <span className="live-reaction-sender-name-text">
+                    {reaction.senderDisplayName || reaction.senderUid}
+                  </span>
                 </div>
               </div>
             </div>
