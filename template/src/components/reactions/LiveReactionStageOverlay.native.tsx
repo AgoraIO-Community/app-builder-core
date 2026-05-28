@@ -100,7 +100,8 @@ const LiveReactionStageOverlay = () => {
     NATIVE_REACTION_MIN_TRAVEL,
     overlayHeight - NATIVE_REACTION_START_BOTTOM - NATIVE_REACTION_TOP_MARGIN,
   );
-  const isDebugVisible = __DEV__ && $config.ENABLE_LIVE_REACTIONS;
+  // const isDebugVisible = __DEV__ && $config.ENABLE_LIVE_REACTIONS;
+  const isDebugVisible = false;
 
   const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
     const nextHeight = Math.round(event.nativeEvent.layout.height);

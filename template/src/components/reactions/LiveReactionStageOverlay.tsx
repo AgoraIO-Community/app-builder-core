@@ -219,11 +219,12 @@ const ReactionArt = ({
 
 const LiveReactionStageOverlay = () => {
   const {floatingReactions} = useVideoCall();
-  const isDev =
-    typeof __DEV__ !== 'undefined'
-      ? __DEV__
-      : process.env.NODE_ENV !== 'production';
-  const isDebugVisible = isDev && $config.ENABLE_LIVE_REACTIONS;
+  // const isDev =
+  //   typeof __DEV__ !== 'undefined'
+  //     ? __DEV__
+  //     : process.env.NODE_ENV !== 'production';
+  // const isDebugVisible = isDev && $config.ENABLE_LIVE_REACTIONS;
+  const isDebugVisible = false;
 
   React.useEffect(() => {
     if ($config.ENABLE_LIVE_REACTIONS) {
