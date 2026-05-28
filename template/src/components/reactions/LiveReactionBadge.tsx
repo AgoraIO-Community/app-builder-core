@@ -5,9 +5,13 @@ import {useVideoCall} from '../useVideoCall';
 
 interface LiveReactionBadgeProps {
   uid: number | string;
+  hasLeadingIcon?: boolean;
 }
 
-const LiveReactionBadge = ({uid}: LiveReactionBadgeProps) => {
+const LiveReactionBadge = ({
+  uid,
+  hasLeadingIcon = false,
+}: LiveReactionBadgeProps) => {
   const {latestReactionByUid} = useVideoCall();
   const reaction = latestReactionByUid[String(uid)];
 
@@ -16,7 +20,12 @@ const LiveReactionBadge = ({uid}: LiveReactionBadgeProps) => {
   }
 
   return (
-    <View pointerEvents="none" style={styles.container}>
+    <View
+      pointerEvents="none"
+      style={[
+        styles.container,
+        hasLeadingIcon ? styles.containerWithLeadingIcon : null,
+      ]}>
       <Text style={styles.emoji}>{reaction.emoji}</Text>
     </View>
   );
@@ -25,20 +34,23 @@ const LiveReactionBadge = ({uid}: LiveReactionBadgeProps) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 12,
-    left: 12,
+    top: 8,
+    left: 8,
     zIndex: 1001,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor:
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
   },
+  containerWithLeadingIcon: {
+    left: 48,
+  },
   emoji: {
-    fontSize: 18,
-    lineHeight: 20,
+    fontSize: 24,
+    lineHeight: 26,
   },
 });
 

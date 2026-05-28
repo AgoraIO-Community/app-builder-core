@@ -239,9 +239,13 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           {!showReplacePin && !showPinForMe && (
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
           )}
-          {currentLayout === getGridLayoutName() ? (
-            <LiveReactionBadge uid={user.uid} />
-          ) : null}
+          <LiveReactionBadge
+            uid={user.uid}
+            hasLeadingIcon={
+              currentLayout === DefaultLayouts[1].name &&
+              user.uid === secondaryPinnedUid
+            }
+          />
           {currentLayout === DefaultLayouts[1].name &&
           user.uid === secondaryPinnedUid ? (
             <View

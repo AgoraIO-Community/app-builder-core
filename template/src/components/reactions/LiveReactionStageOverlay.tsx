@@ -101,7 +101,7 @@ const css = `
 .live-reaction-stage-item {
   position: absolute;
   width: 64px;
-  height: 64px;
+  height: 80px;
   left: var(--reaction-left);
   bottom: 18px;
   opacity: 0;
@@ -110,15 +110,16 @@ const css = `
 }
 .live-reaction-stage-item-content {
   width: 64px;
-  height: 64px;
+  height: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  gap: 4px;
 }
 .live-reaction-stage-item img {
-  width: 100%;
-  height: 100%;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
   display: block;
 }
@@ -127,12 +128,21 @@ const css = `
   height: 48px;
 }
 .live-reaction-sender-name {
-  margin-top: 2px;
-  max-width: 64px;
-  font-size: 11px;
+  display: flex;
+  min-width: 48px;
+  max-width: 88px;
+  padding: 4px 10px;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 20px;
+  background: ${$config.VIDEO_AUDIO_TILE_AVATAR_COLOR};
+  font-size: 12px;
   line-height: 12px;
-  font-family: 'Source Sans Pro';
-  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Source Sans 3', 'Source Sans Pro';
+  font-weight: 400;
+  color: ${$config.BACKGROUND_COLOR};
   text-align: center;
   white-space: nowrap;
   overflow: hidden;

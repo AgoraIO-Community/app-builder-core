@@ -59,9 +59,11 @@ const AnimatedReaction = ({
         },
       ]}>
       <Text style={styles.reactionEmoji}>{emoji}</Text>
-      <Text numberOfLines={1} style={styles.reactionSender}>
-        {sender}
-      </Text>
+      <View style={styles.reactionSenderPill}>
+        <Text numberOfLines={1} style={styles.reactionSender}>
+          {sender}
+        </Text>
+      </View>
     </Animated.View>
   );
 };
@@ -77,10 +79,17 @@ const LiveReactionDebugGuides = ({travel}: {travel: number}) => {
           <View key={`debug-lane-${index}`} style={styles.debugLane} />
         ))}
       </View>
-      <View style={[styles.debugStartLine, {bottom: NATIVE_REACTION_START_BOTTOM}]} />
+      <View
+        style={[styles.debugStartLine, {bottom: NATIVE_REACTION_START_BOTTOM}]}
+      />
       <View style={[styles.debugMidLine, {bottom: mid}]} />
       <View style={[styles.debugEndLine, {bottom: end}]} />
-      <Text style={[styles.debugLabel, {bottom: NATIVE_REACTION_START_BOTTOM}, styles.debugLabelStart]}>
+      <Text
+        style={[
+          styles.debugLabel,
+          {bottom: NATIVE_REACTION_START_BOTTOM},
+          styles.debugLabelStart,
+        ]}>
         0% opacity
       </Text>
       <Text style={[styles.debugLabel, {bottom: mid}, styles.debugLabelMid]}>
@@ -110,10 +119,7 @@ const LiveReactionStageOverlay = () => {
     }
   }, []);
 
-  if (
-    !$config.ENABLE_LIVE_REACTIONS ||
-    floatingReactions.length === 0
-  ) {
+  if (!$config.ENABLE_LIVE_REACTIONS || floatingReactions.length === 0) {
     return null;
   }
 
@@ -215,7 +221,7 @@ const styles = StyleSheet.create({
   reactionContainer: {
     position: 'absolute',
     width: 64,
-    height: 76,
+    height: 86,
     alignItems: 'center',
     justifyContent: 'flex-end',
     paddingTop: 4,
@@ -225,13 +231,24 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 38,
   },
+  reactionSenderPill: {
+    minWidth: 48,
+    maxWidth: 88,
+    marginTop: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   reactionSender: {
-    marginTop: 1,
-    maxWidth: 64,
-    fontSize: 11,
+    maxWidth: 68,
+    fontSize: 12,
     lineHeight: 12,
-    fontFamily: 'Source Sans Pro',
-    color: 'rgba(255,255,255,0.9)',
+    fontFamily: 'Source Sans 3',
+    fontWeight: '400',
+    color: $config.BACKGROUND_COLOR,
     textAlign: 'center',
   },
 });

@@ -140,7 +140,7 @@ const LiveReactionButton = () => {
       name: 'add_reaction',
       tintColor: isLiveStreamAudienceReactionDisabled
         ? $config.SEMANTIC_NEUTRAL
-        : $config.PRIMARY_ACTION_TEXT_COLOR,
+        : $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
       text:
