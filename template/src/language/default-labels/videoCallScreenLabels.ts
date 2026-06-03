@@ -114,6 +114,7 @@ export const toolbarItemManageTextTracksText =
 export const toolbarItemVirtualBackgroundText =
   'toolbarItemVirtualBackgroundText';
 export const toolbarItemViewRecordingText = 'toolbarItemViewRecordingText';
+export const toolbarItemReactionText = 'toolbarItemReactionText';
 
 export const toolbarItemRaiseHandText = 'toolbarItemRaiseHandText';
 
@@ -585,6 +586,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemManageTextTracksText]?: I18nConditionalType;
   [toolbarItemVirtualBackgroundText]?: I18nBaseType;
   [toolbarItemViewRecordingText]?: I18nConditionalType;
+  [toolbarItemReactionText]?: I18nBaseType;
 
   [toolbarItemRaiseHandText]?: I18nConditionalType;
 
@@ -957,6 +959,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemTranscriptText]: active =>
     active ? 'Hide Meeting Transcript' : 'Show Meeting Transcript',
   [toolbarItemViewRecordingText]: 'View Recordings',
+  [toolbarItemReactionText]: 'React',
   [toolbarItemManageTextTracksText]: 'View Text-tracks',
 
   [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),

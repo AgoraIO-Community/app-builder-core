@@ -65,6 +65,7 @@ import {
   ScreenshareToolbarItem,
 } from '../../components/controls/toolbar-items';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
+import LiveReactionButton from '../../components/reactions/LiveReactionButton';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -153,6 +154,14 @@ const LayoutIcon = props => {
   return (
     <ToolbarItem toolbarProps={props}>
       <LayoutIconButton />
+    </ToolbarItem>
+  );
+};
+
+const LiveReactionIcon = props => {
+  return (
+    <ToolbarItem toolbarProps={props}>
+      <LiveReactionButton />
     </ToolbarItem>
   );
 };
@@ -341,8 +350,12 @@ const ActionSheetContent = props => {
       component:
         !isAudioRoom && (isAudioVideoControlsDisabled ? null : CamIcon),
     },
-    'end-call': {
+    reactions: {
       order: 2,
+      component: $config.ENABLE_LIVE_REACTIONS ? LiveReactionIcon : null,
+    },
+    'end-call': {
+      order: 3,
       component: EndCallIcon,
     },
     chat: {

@@ -52,6 +52,7 @@ import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useFullScreen} from '../../utils/useFullScreen';
 import SpotlightHighligher from './SpotlightHighlighter';
 import {AgentContext} from '../../ai-agent/components/AgentControls/AgentContext';
+import LiveReactionBadge from '../../components/reactions/LiveReactionBadge';
 
 export interface VideoRendererProps {
   user: ContentInterface;
@@ -238,6 +239,13 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           {!showReplacePin && !showPinForMe && (
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
           )}
+          <LiveReactionBadge
+            uid={user.uid}
+            hasLeadingIcon={
+              currentLayout === DefaultLayouts[1].name &&
+              user.uid === secondaryPinnedUid
+            }
+          />
           {currentLayout === DefaultLayouts[1].name &&
           user.uid === secondaryPinnedUid ? (
             <View
