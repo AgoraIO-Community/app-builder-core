@@ -57,6 +57,10 @@ const ChatParticipants = (props: any) => {
 
   const noOneElseJoinedYet = useString(inviteTileNoElseJoinedYetText)();
 
+  const eligibleUids: UidType[] = $config.EVENT_MODE
+    ? [...new Set([...hostUids, ...audienceUids])]
+    : activeUids?.filter(uid => !customContent[uid]) ?? [];
+
   return (
     <ScrollView>
       {
@@ -71,52 +75,20 @@ const ChatParticipants = (props: any) => {
           <></>
         )
       }
-      {Object.keys(defaultContent)
-        .map(i => parseInt(i))
-        .filter(i => {
-          try {
-            if (isNaN(i)) {
-              return false;
-            } else {
-              const userId = i;
-              const userInfo = defaultContent[userId];
-
-              // if user is not in active uids, then skip it
-              if (!activeUids.includes(userId)) {
-                return false;
-              }
-              //video meeting with waiting room
-              if (
-                $config.ENABLE_WAITING_ROOM &&
-                !$config.EVENT_MODE &&
-                activeUids?.indexOf(userId) === -1
-              ) {
-                return false;
-              }
-              //livestreaming with waiting room
-              if (
-                $config.ENABLE_WAITING_ROOM &&
-                $config.EVENT_MODE &&
-                hostUids?.concat(audienceUids)?.indexOf(userId) === -1
-              ) {
-                return false;
-              }
-              return (
-                userId !== localUid && //user can't chat with own user
-                // @ts-ignore
-                userId !== '1' && //user can't chat with pstn user
-                userInfo?.type === 'rtc' &&
-                !userInfo?.offline
-              );
-            }
-          } catch (error) {
-            return false;
-          }
+      {eligibleUids
+        .filter(userId => {
+          const userInfo = defaultContent[userId];
+          return (
+            userId !== localUid &&
+            userId !== 1 &&
+            userInfo?.type === 'rtc' &&
+            !userInfo?.offline
+          );
         })
         .sort((a, b) => {
           return (
-            defaultContent[b]?.lastMessageTimeStamp -
-            defaultContent[a]?.lastMessageTimeStamp
+            (defaultContent[b]?.lastMessageTimeStamp ?? 0) -
+            (defaultContent[a]?.lastMessageTimeStamp ?? 0)
           );
         })
         .map(uid => {
