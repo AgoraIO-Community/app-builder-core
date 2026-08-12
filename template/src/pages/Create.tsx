@@ -65,6 +65,7 @@ import {
 } from '../language/default-labels/createScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import SDKEvents from '../utils/SdkEvents';
+import InternalEmployeeAuthButton from '../components/internal-features/InternalEmployeeAuthButton';
 
 const Create = () => {
   const {CreateComponent} = useCustomization(data => {
@@ -457,6 +458,7 @@ const Create = () => {
                       history.push('/join');
                     }}
                   />
+                  <InternalEmployeeAuthButton />
                 </View>
               </Card>
             </ScrollView>

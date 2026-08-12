@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext, ReactChildren, useEffect, useState} from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useMount from './useMount';
 import {ENABLE_AUTH} from '../auth/config';
@@ -22,6 +22,8 @@ type rememberedDevicesListEntries = Record<
 
 export interface StoreInterface {
   token: string;
+  internalEmployeeToken?: string | null;
+  internalEmployeeVerifiedUntil?: number | null;
   displayName: string;
   selectedLanguageCode: string;
   rememberedDevicesList: Record<
@@ -41,6 +43,8 @@ export interface StorageContextInterface {
 export const initStoreValue: StoreInterface = {
   whiteboardNativeInfoToast: false,
   token: null,
+  internalEmployeeToken: null,
+  internalEmployeeVerifiedUntil: null,
   displayName: '',
   selectedLanguageCode: '',
   rememberedDevicesList: {
@@ -104,6 +108,8 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           //so setting into null and updating new project id
           if (storeFromStorage['projectId'] !== projectId) {
             storeFromStorage['token'] = null;
+            storeFromStorage['internalEmployeeToken'] = null;
+            storeFromStorage['internalEmployeeVerifiedUntil'] = null;
             storeFromStorage['projectId'] = projectId;
           }
           storeFromStorage['whiteboardNativeInfoToast'] = false;
@@ -147,6 +153,8 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
         //so setting into null and updating new project id
         if (tempStore['projectId'] !== projectId) {
           tempStore['token'] = null;
+          tempStore['internalEmployeeToken'] = null;
+          tempStore['internalEmployeeVerifiedUntil'] = null;
           tempStore['projectId'] = projectId;
         }
         await AsyncStorage.setItem('store', JSON.stringify(tempStore));
