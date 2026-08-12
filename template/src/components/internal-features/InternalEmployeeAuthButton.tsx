@@ -10,18 +10,29 @@
 *********************************************
 */
 import React, {useContext, useEffect, useState} from 'react';
+import {
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 import Toast from '../../../react-native-toast-message';
-import SecondaryButton from '../../atoms/SecondaryButton';
-import Spacer from '../../atoms/Spacer';
 import useInternalEmployeeAuth, {
   getDummyInternalFeature,
   isInternalEmployeeAuthEnabledForApp,
   isInternalEmployeeVerificationActive,
 } from '../../auth/useInternalEmployeeAuth';
+import ThemeConfig from '../../theme';
 import StorageContext from '../StorageContext';
 import {isWebInternal} from '../../utils/common';
 
-const InternalEmployeeAuthButton = () => {
+interface InternalEmployeeAuthButtonProps {
+  containerStyle?: StyleProp<ViewStyle>;
+}
+
+const InternalEmployeeAuthButton = (props: InternalEmployeeAuthButtonProps) => {
   const {store, setStore} = useContext(StorageContext);
   const [authRequired, setAuthRequired] = useState(false);
   const [statusChecking, setStatusChecking] = useState(false);
@@ -114,19 +125,50 @@ const InternalEmployeeAuthButton = () => {
   }
 
   return (
-    <>
-      <Spacer size={24} />
-      <SecondaryButton
+    <View style={[style.container, props.containerStyle]}>
+      <TouchableOpacity
+        style={[style.button, loading || statusChecking ? style.disabled : {}]}
         disabled={loading || statusChecking}
-        text={
-          loading || statusChecking
-            ? 'Opening employee login...'
-            : 'Agora employee login'
-        }
-        onPress={handlePress}
-      />
-    </>
+        onPress={handlePress}>
+        <Text
+          style={[
+            style.text,
+            loading || statusChecking ? style.disabledText : {},
+          ]}>
+          {loading || statusChecking ? 'Opening...' : 'Employee login'}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 };
+
+const style = StyleSheet.create({
+  container: {
+    alignItems: 'flex-end',
+  },
+  button: {
+    minHeight: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    borderRadius: ThemeConfig.BorderRadius.medium,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+  },
+  disabled: {
+    opacity: 0.6,
+  },
+  text: {
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: ThemeConfig.FontSize.normal,
+    fontWeight: '700',
+  },
+  disabledText: {
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+  },
+});
 
 export default InternalEmployeeAuthButton;

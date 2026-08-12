@@ -29,7 +29,6 @@ import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateRoom from '../utils/useCreateRoom';
 import {CreateProvider} from './create/useCreate';
-import useJoinRoom from '../utils/useJoinRoom';
 import {
   RoomInfoDefaultValue,
   useRoomInfo,
@@ -39,12 +38,10 @@ import Toggle from '../atoms/Toggle';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
-import StorageContext from '../components/StorageContext';
 import ThemeConfig from '../theme';
 import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {randomNameGenerator} from '../utils';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import isSDK from '../utils/isSDK';
@@ -85,8 +82,6 @@ const Create = () => {
     return components;
   });
 
-  const useJoin = useJoinRoom();
-  const {setStore} = useContext(StorageContext);
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
   const [loading, setLoading] = useState(false);
@@ -314,13 +309,18 @@ const Create = () => {
                 <View>
                   <View style={style.logoContainerStyle}>
                     <Logo />
-                    {isMobileUA() ? (
-                      <IDPLogoutComponent
-                        containerStyle={{marginTop: 0, marginRight: 0}}
+                    <View style={style.logoRightActions}>
+                      <InternalEmployeeAuthButton
+                        containerStyle={style.employeeAuthButtonContainer}
                       />
-                    ) : (
-                      <></>
-                    )}
+                      {isMobileUA() ? (
+                        <IDPLogoutComponent
+                          containerStyle={{marginTop: 0, marginRight: 0}}
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </View>
                   </View>
                   <Spacer size={isDesktop ? 20 : 16} />
                   <Text style={style.heading}>{headingText}</Text>
@@ -458,7 +458,6 @@ const Create = () => {
                       history.push('/join');
                     }}
                   />
-                  <InternalEmployeeAuthButton />
                 </View>
               </Card>
             </ScrollView>
@@ -480,6 +479,9 @@ const style = StyleSheet.create({
   },
   root: {
     flex: 1,
+  },
+  employeeAuthButtonContainer: {
+    marginLeft: 12,
   },
   inputLabelStyle: {
     paddingLeft: 8,
@@ -506,6 +508,10 @@ const style = StyleSheet.create({
   },
   btnContainer: {
     width: '100%',
+    alignItems: 'center',
+  },
+  logoRightActions: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   toggleContainer: {

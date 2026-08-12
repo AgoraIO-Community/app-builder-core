@@ -10,8 +10,8 @@ import LocalEventEmitter, {
 const INTERNAL_EMPLOYEE_AUTH_PLATFORM_ID = 'turnkey_web';
 const INTERNAL_EMPLOYEE_AUTH_COMPLETE_TYPE = 'internal_employee_auth_complete';
 const INTERNAL_EMPLOYEE_AUTH_APP_IDS = ['a569f8fb0309417780b793786b534a86'];
-const DEFAULT_POPUP_FEATURES =
-  'popup=yes,width=520,height=680,menubar=no,toolbar=no,location=no,status=no';
+const DEFAULT_POPUP_WIDTH = 520;
+const DEFAULT_POPUP_HEIGHT = 680;
 
 export interface InternalEmployeeAuthStartResponse {
   auth_url: string;
@@ -49,6 +49,33 @@ const getBackendOrigin = () => {
 
 const getFrontendOrigin = () => {
   return window.location.origin;
+};
+
+const getDefaultPopupFeatures = () => {
+  const openerLeft = window.screenX || window.screenLeft || 0;
+  const openerTop = window.screenY || window.screenTop || 0;
+  const openerWidth = window.outerWidth || window.innerWidth;
+  const openerHeight = window.outerHeight || window.innerHeight;
+  const left = Math.max(
+    0,
+    Math.round(openerLeft + (openerWidth - DEFAULT_POPUP_WIDTH) / 2),
+  );
+  const top = Math.max(
+    0,
+    Math.round(openerTop + (openerHeight - DEFAULT_POPUP_HEIGHT) / 2),
+  );
+
+  return [
+    'popup=yes',
+    `width=${DEFAULT_POPUP_WIDTH}`,
+    `height=${DEFAULT_POPUP_HEIGHT}`,
+    `left=${left}`,
+    `top=${top}`,
+    'menubar=no',
+    'toolbar=no',
+    'location=no',
+    'status=no',
+  ].join(',');
 };
 
 export const isInternalEmployeeAuthEnabledForApp = () => {
@@ -239,7 +266,7 @@ const useInternalEmployeeAuth = () => {
         popupRef.current = window.open(
           '',
           'agora-internal-employee-auth',
-          options.popupFeatures || DEFAULT_POPUP_FEATURES,
+          options.popupFeatures || getDefaultPopupFeatures(),
         );
 
         if (!popupRef.current) {
