@@ -7,6 +7,7 @@ import {
   ToolbarPresetProps,
 } from '../atoms/ToolbarPreset';
 import {
+  InternalEmployeeAuthStatusToolbarItem,
   MeetingTitleToolbarItem,
   ParticipantCountToolbarItem,
   RecordingStatusToolbarItem,
@@ -37,6 +38,11 @@ const NavbarMobile = (props: NavbarProps) => {
     'recording-status': {
       align: 'start',
       component: isRecordingActive ? RecordingStatusToolbarItem : null,
+      order: 3,
+    },
+    'internal-employee-auth-status': {
+      align: 'start',
+      component: InternalEmployeeAuthStatusToolbarItem,
       order: 2,
     },
   };
