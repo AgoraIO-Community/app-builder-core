@@ -18,6 +18,8 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import ImageIcon from '../../atoms/ImageIcon';
+import Tooltip from '../../atoms/Tooltip';
 import Toast from '../../../react-native-toast-message';
 import useInternalEmployeeAuth, {
   getDummyInternalFeature,
@@ -29,10 +31,19 @@ import StorageContext from '../StorageContext';
 import {isWebInternal} from '../../utils/common';
 
 interface InternalEmployeeAuthButtonProps {
+  authenticatedText?: string;
   containerStyle?: StyleProp<ViewStyle>;
+  loginText?: string;
+  size?: 'regular' | 'compact';
 }
 
 const InternalEmployeeAuthButton = (props: InternalEmployeeAuthButtonProps) => {
+  const {
+    authenticatedText = 'Agora employee',
+    containerStyle,
+    loginText = 'Login as Agora employee',
+    size = 'regular',
+  } = props;
   const {store, setStore} = useContext(StorageContext);
   const [authRequired, setAuthRequired] = useState(false);
   const [statusChecking, setStatusChecking] = useState(false);
@@ -66,8 +77,13 @@ const InternalEmployeeAuthButton = (props: InternalEmployeeAuthButtonProps) => {
         }
       } catch (error) {
         if (!cancelled) {
+          const failedInternalEmployeeToken = store.internalEmployeeToken;
           setStore?.(prevState => ({
             ...prevState,
+            token:
+              prevState.token === failedInternalEmployeeToken
+                ? null
+                : prevState.token,
             internalEmployeeToken: null,
             internalEmployeeVerifiedUntil: null,
           }));
@@ -120,24 +136,74 @@ const InternalEmployeeAuthButton = (props: InternalEmployeeAuthButtonProps) => {
     }
   };
 
-  if (!isInternalEmployeeAuthApp || !authRequired) {
+  if (!isInternalEmployeeAuthApp) {
     return <></>;
   }
 
+  const isCompact = size === 'compact';
+  const isAuthenticated = hasActiveInternalEmployeeToken && !authRequired;
+  const isDisabled = loading || statusChecking;
+  const tooltipMessage = isAuthenticated
+    ? 'You have access to all private feature.'
+    : 'Login as Agora employee to access the private features';
+
+  const content = isAuthenticated ? (
+    <View
+      style={[
+        style.button,
+        style.authenticatedButton,
+        isCompact ? style.compactButton : {},
+      ]}
+      testID="internal-employee-auth-status">
+      <ImageIcon
+        iconType="plain"
+        name="tick-fill"
+        tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+        iconSize={isCompact ? 14 : 16}
+        iconParentContainerStyle={style.iconContainer}
+      />
+      <Text
+        numberOfLines={1}
+        style={[
+          style.text,
+          style.authenticatedText,
+          isCompact ? style.compactText : {},
+        ]}>
+        {authenticatedText}
+      </Text>
+    </View>
+  ) : (
+    <TouchableOpacity
+      style={[
+        style.button,
+        isCompact ? style.compactButton : {},
+        isDisabled ? style.disabled : {},
+      ]}
+      disabled={isDisabled}
+      onPress={handlePress}>
+      <Text
+        numberOfLines={1}
+        style={[
+          style.text,
+          isCompact ? style.compactText : {},
+          isDisabled ? style.disabledText : {},
+        ]}>
+        {isDisabled ? 'Opening...' : loginText}
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={[style.container, props.containerStyle]}>
-      <TouchableOpacity
-        style={[style.button, loading || statusChecking ? style.disabled : {}]}
-        disabled={loading || statusChecking}
-        onPress={handlePress}>
-        <Text
-          style={[
-            style.text,
-            loading || statusChecking ? style.disabledText : {},
-          ]}>
-          {loading || statusChecking ? 'Opening...' : 'Employee login'}
-        </Text>
-      </TouchableOpacity>
+    <View style={[style.container, containerStyle]}>
+      <Tooltip
+        toolTipMessage={tooltipMessage}
+        fontSize={12}
+        placement="bottom"
+        rootTooltipContainer={{
+          display: 'flex',
+        }}
+        renderContent={() => content}
+      />
     </View>
   );
 };
@@ -147,24 +213,47 @@ const style = StyleSheet.create({
     alignItems: 'flex-end',
   },
   button: {
-    minHeight: 48,
+    flexDirection: 'row',
+    minHeight: 40,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: ThemeConfig.BorderRadius.medium,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
+  },
+  authenticatedButton: {
+    minHeight: 38,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR + '20',
+  },
+  compactButton: {
+    minHeight: 32,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
   },
   disabled: {
     opacity: 0.6,
+  },
+  iconContainer: {
+    marginRight: 6,
   },
   text: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.normal,
     fontWeight: '700',
+  },
+  authenticatedText: {
+    fontSize: ThemeConfig.FontSize.small,
+    fontWeight: '600',
+  },
+  compactText: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontWeight: '600',
   },
   disabledText: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,

@@ -14,6 +14,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import useMount from './useMount';
 import {ENABLE_AUTH} from '../auth/config';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
+import {
+  getActiveInternalEmployeeToken,
+  isInternalEmployeeAuthEnabledForApp,
+} from '../auth/internalEmployeeAuthUtils';
 
 type rememberedDevicesListEntries = Record<
   string,
@@ -112,6 +116,20 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
             storeFromStorage['internalEmployeeVerifiedUntil'] = null;
             storeFromStorage['projectId'] = projectId;
           }
+          const activeInternalEmployeeToken =
+            getActiveInternalEmployeeToken(storeFromStorage);
+          if (activeInternalEmployeeToken) {
+            storeFromStorage['token'] = activeInternalEmployeeToken;
+          } else if (isInternalEmployeeAuthEnabledForApp()) {
+            if (
+              storeFromStorage['token'] ===
+              storeFromStorage['internalEmployeeToken']
+            ) {
+              storeFromStorage['token'] = null;
+            }
+            storeFromStorage['internalEmployeeToken'] = null;
+            storeFromStorage['internalEmployeeVerifiedUntil'] = null;
+          }
           storeFromStorage['whiteboardNativeInfoToast'] = false;
           setStore(storeFromStorage);
           logger.log(
@@ -156,6 +174,17 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           tempStore['internalEmployeeToken'] = null;
           tempStore['internalEmployeeVerifiedUntil'] = null;
           tempStore['projectId'] = projectId;
+        }
+        const activeInternalEmployeeToken =
+          getActiveInternalEmployeeToken(tempStore);
+        if (activeInternalEmployeeToken) {
+          tempStore['token'] = activeInternalEmployeeToken;
+        } else if (isInternalEmployeeAuthEnabledForApp()) {
+          if (tempStore['token'] === tempStore['internalEmployeeToken']) {
+            tempStore['token'] = null;
+          }
+          tempStore['internalEmployeeToken'] = null;
+          tempStore['internalEmployeeVerifiedUntil'] = null;
         }
         await AsyncStorage.setItem('store', JSON.stringify(tempStore));
         logger.log(

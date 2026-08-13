@@ -311,6 +311,7 @@ const Create = () => {
                     <Logo />
                     <View style={style.logoRightActions}>
                       <InternalEmployeeAuthButton
+                        authenticatedText="Logged in as Agora employee"
                         containerStyle={style.employeeAuthButtonContainer}
                       />
                       {isMobileUA() ? (

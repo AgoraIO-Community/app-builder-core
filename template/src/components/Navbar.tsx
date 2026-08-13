@@ -70,7 +70,7 @@ import {
   SettingsToolbarItem,
 } from './controls/toolbar-items';
 import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
-import InternalEmployeeAuthStatusBadge from './internal-features/InternalEmployeeAuthStatusBadge';
+import InternalEmployeeAuthButton from './internal-features/InternalEmployeeAuthButton';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -433,7 +433,7 @@ export const RecordingStatusToolbarItem = () => {
 export const InternalEmployeeAuthStatusToolbarItem = () => {
   return (
     <ToolbarItem>
-      <InternalEmployeeAuthStatusBadge />
+      <InternalEmployeeAuthButton size="compact" />
     </ToolbarItem>
   );
 };

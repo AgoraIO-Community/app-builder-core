@@ -6,10 +6,18 @@ import getUniqueID from '../utils/getUniqueID';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {
+  getActiveInternalEmployeeToken,
+  isInternalEmployeeAuthEnabledForApp,
+} from './internalEmployeeAuthUtils';
+
+export {
+  isInternalEmployeeAuthEnabledForApp,
+  isInternalEmployeeVerificationActive,
+} from './internalEmployeeAuthUtils';
 
 const INTERNAL_EMPLOYEE_AUTH_PLATFORM_ID = 'turnkey_web';
 const INTERNAL_EMPLOYEE_AUTH_COMPLETE_TYPE = 'internal_employee_auth_complete';
-const INTERNAL_EMPLOYEE_AUTH_APP_IDS = ['a569f8fb0309417780b793786b534a86'];
 const DEFAULT_POPUP_WIDTH = 520;
 const DEFAULT_POPUP_HEIGHT = 680;
 
@@ -78,20 +86,10 @@ const getDefaultPopupFeatures = () => {
   ].join(',');
 };
 
-export const isInternalEmployeeAuthEnabledForApp = () => {
-  return INTERNAL_EMPLOYEE_AUTH_APP_IDS.indexOf($config.APP_ID) !== -1;
-};
-
 const assertInternalEmployeeAuthApp = () => {
   if (!isInternalEmployeeAuthEnabledForApp()) {
     throw new Error('Internal employee auth is not enabled for this app');
   }
-};
-
-export const isInternalEmployeeVerificationActive = (
-  verifiedUntil?: number | null,
-) => {
-  return verifiedUntil ? verifiedUntil * 1000 > Date.now() : false;
 };
 
 const parseAPIError = async (response: Response) => {
@@ -378,17 +376,9 @@ const useInternalEmployeeAuth = () => {
   );
 
   const checkDummyInternalFeature = useCallback(async () => {
-    const token =
-      store?.internalEmployeeToken &&
-      isInternalEmployeeVerificationActive(store?.internalEmployeeVerifiedUntil)
-        ? store.internalEmployeeToken
-        : store?.token;
+    const token = getActiveInternalEmployeeToken(store) || store?.token;
     return getDummyInternalFeature(token);
-  }, [
-    store?.internalEmployeeToken,
-    store?.internalEmployeeVerifiedUntil,
-    store?.token,
-  ]);
+  }, [store]);
 
   return {
     ...state,
