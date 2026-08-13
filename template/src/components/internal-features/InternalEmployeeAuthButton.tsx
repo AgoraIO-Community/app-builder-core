@@ -41,7 +41,7 @@ const InternalEmployeeAuthButton = (props: InternalEmployeeAuthButtonProps) => {
   const {
     authenticatedText = 'Agora employee',
     containerStyle,
-    loginText = 'Login as Agora employee',
+    loginText = 'Login',
     size = 'regular',
   } = props;
   const {store, setStore} = useContext(StorageContext);
@@ -145,14 +145,14 @@ const InternalEmployeeAuthButton = (props: InternalEmployeeAuthButtonProps) => {
   const isDisabled = loading || statusChecking;
   const tooltipMessage = isAuthenticated
     ? 'You have access to all private feature.'
-    : 'Login as Agora employee to access the private features';
+    : 'Login to access private features';
 
   const content = isAuthenticated ? (
     <View
       style={[
-        style.button,
+        style.statusButton,
         style.authenticatedButton,
-        isCompact ? style.compactButton : {},
+        isCompact ? style.compactStatusButton : {},
       ]}
       testID="internal-employee-auth-status">
       <ImageIcon
@@ -174,20 +174,12 @@ const InternalEmployeeAuthButton = (props: InternalEmployeeAuthButtonProps) => {
     </View>
   ) : (
     <TouchableOpacity
-      style={[
-        style.button,
-        isCompact ? style.compactButton : {},
-        isDisabled ? style.disabled : {},
-      ]}
+      style={[style.loginButton, isDisabled ? style.disabled : {}]}
       disabled={isDisabled}
       onPress={handlePress}>
       <Text
         numberOfLines={1}
-        style={[
-          style.text,
-          isCompact ? style.compactText : {},
-          isDisabled ? style.disabledText : {},
-        ]}>
+        style={[style.loginText, isDisabled ? style.disabledText : {}]}>
         {isDisabled ? 'Opening...' : loginText}
       </Text>
     </TouchableOpacity>
@@ -212,7 +204,7 @@ const style = StyleSheet.create({
   container: {
     alignItems: 'flex-end',
   },
-  button: {
+  statusButton: {
     flexDirection: 'row',
     minHeight: 40,
     justifyContent: 'center',
@@ -224,13 +216,21 @@ const style = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
   },
+  loginButton: {
+    minHeight: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    backgroundColor: 'transparent',
+  },
   authenticatedButton: {
     minHeight: 38,
     paddingHorizontal: 12,
     paddingVertical: 7,
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR + '20',
   },
-  compactButton: {
+  compactStatusButton: {
     minHeight: 32,
     paddingHorizontal: 8,
     paddingVertical: 5,
@@ -246,6 +246,13 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.normal,
     fontWeight: '700',
+  },
+  loginText: {
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 16,
   },
   authenticatedText: {
     fontSize: ThemeConfig.FontSize.small,
