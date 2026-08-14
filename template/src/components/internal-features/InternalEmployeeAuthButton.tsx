@@ -252,7 +252,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 16,
     fontWeight: '600',
-    lineHeight: 16,
+    lineHeight: 20,
   },
   authenticatedText: {
     fontSize: ThemeConfig.FontSize.small,
