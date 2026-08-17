@@ -279,7 +279,6 @@ const editNameStyle = StyleSheet.create({
     color: $config.FONT_COLOR,
   },
 });
-
 const SettingsView = props => {
   const {hideName = false, showHeader = true} = props;
   const isSmall = useIsSmall();

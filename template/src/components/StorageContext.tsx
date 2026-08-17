@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext, useEffect, useState} from 'react';
+import React, {createContext, ReactChildren, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useMount from './useMount';
 import {ENABLE_AUTH} from '../auth/config';
