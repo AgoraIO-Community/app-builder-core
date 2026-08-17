@@ -14,10 +14,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import useMount from './useMount';
 import {ENABLE_AUTH} from '../auth/config';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
-import {
-  getActiveInternalEmployeeToken,
-  isInternalEmployeeAuthEnabledForApp,
-} from '../auth/internalEmployeeAuthUtils';
 
 type rememberedDevicesListEntries = Record<
   string,
@@ -26,8 +22,6 @@ type rememberedDevicesListEntries = Record<
 
 export interface StoreInterface {
   token: string;
-  internalEmployeeToken?: string | null;
-  internalEmployeeVerifiedUntil?: number | null;
   displayName: string;
   selectedLanguageCode: string;
   rememberedDevicesList: Record<
@@ -47,8 +41,6 @@ export interface StorageContextInterface {
 export const initStoreValue: StoreInterface = {
   whiteboardNativeInfoToast: false,
   token: null,
-  internalEmployeeToken: null,
-  internalEmployeeVerifiedUntil: null,
   displayName: '',
   selectedLanguageCode: '',
   rememberedDevicesList: {
@@ -112,23 +104,7 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           //so setting into null and updating new project id
           if (storeFromStorage['projectId'] !== projectId) {
             storeFromStorage['token'] = null;
-            storeFromStorage['internalEmployeeToken'] = null;
-            storeFromStorage['internalEmployeeVerifiedUntil'] = null;
             storeFromStorage['projectId'] = projectId;
-          }
-          const activeInternalEmployeeToken =
-            getActiveInternalEmployeeToken(storeFromStorage);
-          if (activeInternalEmployeeToken) {
-            storeFromStorage['token'] = activeInternalEmployeeToken;
-          } else if (isInternalEmployeeAuthEnabledForApp()) {
-            if (
-              storeFromStorage['token'] ===
-              storeFromStorage['internalEmployeeToken']
-            ) {
-              storeFromStorage['token'] = null;
-            }
-            storeFromStorage['internalEmployeeToken'] = null;
-            storeFromStorage['internalEmployeeVerifiedUntil'] = null;
           }
           storeFromStorage['whiteboardNativeInfoToast'] = false;
           setStore(storeFromStorage);
@@ -171,20 +147,7 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
         //so setting into null and updating new project id
         if (tempStore['projectId'] !== projectId) {
           tempStore['token'] = null;
-          tempStore['internalEmployeeToken'] = null;
-          tempStore['internalEmployeeVerifiedUntil'] = null;
           tempStore['projectId'] = projectId;
-        }
-        const activeInternalEmployeeToken =
-          getActiveInternalEmployeeToken(tempStore);
-        if (activeInternalEmployeeToken) {
-          tempStore['token'] = activeInternalEmployeeToken;
-        } else if (isInternalEmployeeAuthEnabledForApp()) {
-          if (tempStore['token'] === tempStore['internalEmployeeToken']) {
-            tempStore['token'] = null;
-          }
-          tempStore['internalEmployeeToken'] = null;
-          tempStore['internalEmployeeVerifiedUntil'] = null;
         }
         await AsyncStorage.setItem('store', JSON.stringify(tempStore));
         logger.log(

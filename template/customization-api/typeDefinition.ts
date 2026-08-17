@@ -74,6 +74,10 @@ export type CustomLogger = (
 export interface CustomAgentInterfaceProps {
   connectionState: AIAgentState;
 }
+export interface CreateInterface extends BeforeAndAfterInterface {
+  headerRightSlot?: React.ComponentType;
+}
+
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
   topToolBar?: ToolbarType;
@@ -109,7 +113,7 @@ export type ComponentsInterface = {
   precall?: PreCallInterface;
   preferenceWrapper?: React.ComponentType;
   //precall?: React.ComponentType;
-  create?: React.ComponentType;
+  create?: React.ComponentType | CreateInterface;
   //share?: React.ComponentType;
   //join?: React.ComponentType;
   videoCall?: VideoCallInterface;

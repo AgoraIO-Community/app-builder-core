@@ -62,25 +62,36 @@ import {
 } from '../language/default-labels/createScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import SDKEvents from '../utils/SdkEvents';
-import InternalEmployeeAuthButton from '../components/internal-features/InternalEmployeeAuthButton';
 
 const Create = () => {
-  const {CreateComponent} = useCustomization(data => {
-    let components: {
-      CreateComponent?: React.ElementType;
-    } = {};
-    if (
-      data?.components?.create &&
-      typeof data?.components?.create !== 'object'
-    ) {
+  const {CreateComponent, CreateHeaderRightSlotComponent} = useCustomization(
+    data => {
+      let components: {
+        CreateComponent?: React.ElementType;
+        CreateHeaderRightSlotComponent?: React.ElementType;
+      } = {};
       if (
         data?.components?.create &&
-        isValidReactComponent(data?.components?.create)
-      )
-        components.CreateComponent = data?.components?.create;
-    }
-    return components;
-  });
+        typeof data?.components?.create !== 'object'
+      ) {
+        if (
+          data?.components?.create &&
+          isValidReactComponent(data?.components?.create)
+        )
+          components.CreateComponent = data?.components?.create;
+      }
+      if (
+        data?.components?.create &&
+        typeof data?.components?.create === 'object' &&
+        data?.components?.create?.headerRightSlot &&
+        isValidReactComponent(data?.components?.create?.headerRightSlot)
+      ) {
+        components.CreateHeaderRightSlotComponent =
+          data?.components?.create?.headerRightSlot;
+      }
+      return components;
+    },
+  );
 
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
@@ -309,19 +320,18 @@ const Create = () => {
                 <View>
                   <View style={style.logoContainerStyle}>
                     <Logo />
-                    <View style={style.logoRightActions}>
-                      <InternalEmployeeAuthButton
-                        authenticatedText="Logged in as Agora employee"
-                        containerStyle={style.employeeAuthButtonContainer}
+                    {CreateHeaderRightSlotComponent ? (
+                      <CreateHeaderRightSlotComponent />
+                    ) : (
+                      <></>
+                    )}
+                    {isMobileUA() ? (
+                      <IDPLogoutComponent
+                        containerStyle={{marginTop: 0, marginRight: 0}}
                       />
-                      {isMobileUA() ? (
-                        <IDPLogoutComponent
-                          containerStyle={{marginTop: 0, marginRight: 0}}
-                        />
-                      ) : (
-                        <></>
-                      )}
-                    </View>
+                    ) : (
+                      <></>
+                    )}
                   </View>
                   <Spacer size={isDesktop ? 20 : 16} />
                   <Text style={style.heading}>{headingText}</Text>
@@ -481,9 +491,6 @@ const style = StyleSheet.create({
   root: {
     flex: 1,
   },
-  employeeAuthButtonContainer: {
-    marginLeft: 12,
-  },
   inputLabelStyle: {
     paddingLeft: 8,
   },
@@ -509,10 +516,6 @@ const style = StyleSheet.create({
   },
   btnContainer: {
     width: '100%',
-    alignItems: 'center',
-  },
-  logoRightActions: {
-    flexDirection: 'row',
     alignItems: 'center',
   },
   toggleContainer: {

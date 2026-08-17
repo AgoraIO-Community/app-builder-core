@@ -70,7 +70,6 @@ import {
   SettingsToolbarItem,
 } from './controls/toolbar-items';
 import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
-import InternalEmployeeAuthButton from './internal-features/InternalEmployeeAuthButton';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -430,14 +429,6 @@ export const RecordingStatusToolbarItem = () => {
   );
 };
 
-export const InternalEmployeeAuthStatusToolbarItem = () => {
-  return (
-    <ToolbarItem>
-      <InternalEmployeeAuthButton size="compact" />
-    </ToolbarItem>
-  );
-};
-
 export interface NavbarProps {
   items?: ToolbarPresetProps['items'];
   includeDefaultItems?: boolean;
@@ -467,11 +458,6 @@ const Navbar = (props: NavbarProps) => {
       'recording-status': {
         align: 'start',
         component: RecordingStatusToolbarItem,
-        order: 3,
-      },
-      'internal-employee-auth-status': {
-        align: 'start',
-        component: InternalEmployeeAuthStatusToolbarItem,
         order: 2,
       },
       participant: {

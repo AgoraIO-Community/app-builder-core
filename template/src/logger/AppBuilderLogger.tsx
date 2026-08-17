@@ -87,7 +87,6 @@ type LogType = {
     | 'token_login'
     | 'unauth_login'
     | 'idp_logout'
-    | 'internal_employee_auth_start'
     | 'token_logout'
     | 'token_refresh'
     | 'user_details'

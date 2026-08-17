@@ -8,3 +8,5 @@ export {default as TertiaryButton} from '../src/atoms/TertiaryButton';
 export {default as ActionMenu} from '../src/atoms/ActionMenu';
 export {default as IconButton} from '../src/atoms/IconButton';
 export {default as Dropdown} from '../src/atoms/Dropdown';
+export {default as Popup} from '../src/atoms/Popup';
+export {default as Tooltip} from '../src/atoms/Tooltip';
