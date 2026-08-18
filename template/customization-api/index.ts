@@ -26,6 +26,7 @@ export * from './typeDefinition';
 export * from './utils';
 export * from './types';
 export * from './atoms';
+export * from './ai-agent';
 
 //TODO: hari remove later - used for simple-practice demo
 export * from './temp';
