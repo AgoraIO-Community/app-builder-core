@@ -87,6 +87,7 @@ interface UserActionMenuOptionsOptionsProps {
   spotlightUid?: UidType;
   setSpotlightUid?: (uid: UidType) => void;
   items?: UserActionMenuItemsConfig;
+  extraMenuItems?: ActionMenuItem[];
 }
 
 export default function UserActionMenuOptionsOptions(
@@ -102,7 +103,13 @@ export default function UserActionMenuOptionsOptions(
     useState(false);
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
-  const {user, actionMenuVisible, setActionMenuVisible, spotlightUid} = props;
+  const {
+    user,
+    actionMenuVisible,
+    setActionMenuVisible,
+    spotlightUid,
+    extraMenuItems,
+  } = props;
   const {currentLayout} = useLayout();
   const {pinnedUid, activeUids, customContent, secondaryPinnedUid} =
     useContent();
@@ -716,6 +723,24 @@ export default function UserActionMenuOptionsOptions(
       items.push(...customItems);
     }
 
+    if (extraMenuItems?.length) {
+      items.push(
+        ...extraMenuItems.map(item => ({
+          ...item,
+          closeActionMenu: () => {
+            item.closeActionMenu?.();
+            setActionMenuVisible(false);
+          },
+          onPress: item.onPress
+            ? () => {
+                item.onPress?.();
+                setActionMenuVisible(false);
+              }
+            : item.onPress,
+        })),
+      );
+    }
+
     items.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
 
     setActionMenuitems(items);
@@ -729,6 +754,8 @@ export default function UserActionMenuOptionsOptions(
     secondaryPinnedUid,
     currentLayout,
     spotlightUid,
+    extraMenuItems,
+    setActionMenuVisible,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
