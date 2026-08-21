@@ -57,7 +57,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       props.customExit();
     } else {
       if ((isAndroid() || isIOS()) && isScreenshareActive) {
-        stopScreenshare();
+        stopScreenshare('end_call_cleanup');
         setEndCallState(true);
       } else {
         executeEndCall();

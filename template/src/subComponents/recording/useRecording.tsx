@@ -316,7 +316,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         mode: recordingMode.toLowerCase(),
       }),
     })
-      .then((res: any) => {
+      .then(async (res: any) => {
         const endRequestTs = Date.now();
         const latency = endRequestTs - startReqTs;
         if (res.status === 200) {
@@ -368,9 +368,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
                 'screenshare: Executing presenter query for screenuid',
                 activeScreenshareUid,
               );
-              executePresenterQuery(parseInt(activeScreenshareUid));
+              await executePresenterQuery(parseInt(activeScreenshareUid));
             } else {
-              executeNormalQuery();
+              await executeNormalQuery();
             }
           }
         } else if (res.status === 500) {

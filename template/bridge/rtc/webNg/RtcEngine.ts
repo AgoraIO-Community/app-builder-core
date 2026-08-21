@@ -54,6 +54,21 @@ interface MediaDeviceInfo {
 
 type callbackType = (uid?: UID) => void;
 
+const getScreenshareErrorDetails = (error: unknown) => {
+  const sdkError = error as {
+    code?: string | number;
+    name?: string;
+    message?: string;
+  };
+  return {
+    sdkErrorCode: sdkError?.code,
+    sdkErrorName: sdkError?.name,
+    sdkErrorMessage:
+      sdkError?.message ||
+      (error instanceof Error ? error.message : String(error)),
+  };
+};
+
 declare global {
   interface Window {
     engine: RtcEngine;
@@ -237,6 +252,7 @@ export default class RtcEngine {
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
   private inScreenshare: Boolean = false;
+  private isScreenshareCleanupInProgress = false;
   private videoProfile:
     | VideoEncoderConfigurationPreset
     | VideoEncoderConfiguration;
@@ -1466,13 +1482,13 @@ export default class RtcEngine {
         this.client.setEncryptionConfig(
           mode,
           config.encryptionKey,
-          config.encryptionMode === 1? null:config.encryptionKdfSalt,
+          config.encryptionMode === 1 ? null : config.encryptionKdfSalt,
           true, // encryptDataStream
         ),
         this.screenClient.setEncryptionConfig(
           mode,
           config.encryptionKey,
-          config.encryptionMode === 1? null:config.encryptionKdfSalt,
+          config.encryptionMode === 1 ? null : config.encryptionKdfSalt,
           true, // encryptDataStream
         ),
       ]);
@@ -1587,17 +1603,100 @@ export default class RtcEngine {
       encoderConfig: this.screenShareProfile,
     },
     audio: 'enable' | 'disable' | 'auto' = 'auto',
+    journeyContext: {
+      action?: 'start' | 'stop';
+      screenshareAttemptId?: string;
+      recordingActive?: boolean;
+      screenShareUid?: UID;
+      stopOrigin?: string;
+    } = {},
   ): Promise<void> {
+    const journeyData = {
+      action: journeyContext.action || (this.inScreenshare ? 'stop' : 'start'),
+      screenshareAttemptId:
+        journeyContext.screenshareAttemptId || 'rtc-unknown-attempt',
+      recordingActive: journeyContext.recordingActive || false,
+      screenShareUid: journeyContext.screenShareUid || optionalUid,
+      stopOrigin: journeyContext.stopOrigin || 'unknown',
+    };
     const config: ScreenVideoTrackInitConfig = {
       ...screenShareConfig,
       encoderConfig: this.screenShareProfile,
     };
+    let joined = false;
+    let cleanupCompleted = false;
+    const cleanupScreenshare = async (
+      stopOrigin: string,
+      notifyScreenshareStopped: boolean,
+      screenshareAttemptId = journeyData.screenshareAttemptId,
+    ) => {
+      const cleanupJourneyData = notifyScreenshareStopped
+        ? {
+            ...journeyData,
+            action: 'stop',
+            screenshareAttemptId,
+            stopOrigin,
+          }
+        : journeyData;
+      if (this.isScreenshareCleanupInProgress || cleanupCompleted) {
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          `[SCREENSHARE_JOURNEY] screen share ${cleanupJourneyData.action} cleanup skipped because cleanup is already running or completed`,
+          {
+            ...cleanupJourneyData,
+            stage: 'cleanup',
+            outcome: 'skipped',
+            stopOrigin,
+          },
+        );
+        return;
+      }
+      this.isScreenshareCleanupInProgress = true;
+      try {
+        if (joined || this.inScreenshare) {
+          (this.eventsMap.get('onUserOffline') as callbackType)(
+            {},
+            this.screenClient.uid,
+          );
+        }
+        this.screenStream.audio?.close();
+        this.screenStream.video?.close();
+        if (joined || this.inScreenshare) {
+          await this.screenClient.leave();
+        }
+        this.screenStream = {};
+        this.inScreenshare = false;
+        if (notifyScreenshareStopped) {
+          (this.eventsMap.get('onScreenshareStopped') as callbackType)(
+            stopOrigin,
+            screenshareAttemptId,
+          );
+        }
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          `[SCREENSHARE_JOURNEY] screen share ${cleanupJourneyData.action} RTC cleanup completed`,
+          {
+            ...cleanupJourneyData,
+            stage: 'cleanup',
+            outcome: 'success',
+            stopOrigin,
+          },
+        );
+        cleanupCompleted = true;
+      } finally {
+        this.isScreenshareCleanupInProgress = false;
+      }
+    };
     if (!this.inScreenshare) {
+      let stage = 'encryption';
       try {
         logger.debug(
           LogSource.AgoraSDK,
           'Log',
-          'RTC start screenshare, creating screen stream',
+          '[SCREENSHARE_JOURNEY] screen share start entered RTC engine',
+          {...journeyData, stage: 'rtc_start', outcome: 'started'},
         );
         if (encryption && encryption.screenKey && encryption.mode) {
           let mode: EncryptionMode;
@@ -1611,7 +1710,8 @@ export default class RtcEngine {
             logger.log(
               LogSource.AgoraSDK,
               'Log',
-              'RTC [setEncryptionConfig] setting encryption again on screen client',
+              '[SCREENSHARE_JOURNEY] screen share start configuring RTC screen-client encryption',
+              {...journeyData, stage, outcome: 'started'},
             );
             await this.screenClient.setEncryptionConfig(
               mode,
@@ -1619,21 +1719,44 @@ export default class RtcEngine {
               encryption.salt,
               true, // encryptDataStream
             );
+            logger.log(
+              LogSource.AgoraSDK,
+              'Log',
+              '[SCREENSHARE_JOURNEY] screen share start RTC screen-client encryption configured successfully',
+              {...journeyData, stage, outcome: 'success'},
+            );
           } catch (e) {
             logger.error(
               LogSource.AgoraSDK,
               'Log',
-              'RTC [setEncryptionConfig] Error setting encryption for screenshare failed',
-              e,
+              '[SCREENSHARE_JOURNEY] screen share start RTC screen-client encryption configuration failed',
+              {
+                ...journeyData,
+                stage,
+                outcome: 'failure',
+                ...getScreenshareErrorDetails(e),
+              },
             );
+            throw e;
           }
+        } else {
+          logger.log(
+            LogSource.AgoraSDK,
+            'Log',
+            '[SCREENSHARE_JOURNEY] screen share start RTC screen-client encryption skipped because encryption is not configured',
+            {...journeyData, stage, outcome: 'skipped'},
+          );
         }
 
+        stage = 'create_screen_video_track';
         logger.log(
           LogSource.AgoraSDK,
           'API',
-          'RTC [createScreenVideoTrack] Trying to create screenshare tracks',
+          '[SCREENSHARE_JOURNEY] screen share start calling AgoraRTC.createScreenVideoTrack',
           {
+            ...journeyData,
+            stage,
+            outcome: 'started',
             config,
           },
         );
@@ -1641,98 +1764,127 @@ export default class RtcEngine {
           config,
           audio,
         );
+        const isSingleScreenTrack = this.isSingleTrack(screenTracks);
         logger.log(
           LogSource.AgoraSDK,
           'API',
-          'RTC [createScreenVideoTrack] screenshare tracks created successfully',
+          '[SCREENSHARE_JOURNEY] screen share start AgoraRTC.createScreenVideoTrack completed successfully',
           {
-            tracks: screenTracks,
+            ...journeyData,
+            stage,
+            outcome: 'success',
+            hasVideoTrack: Boolean(
+              isSingleScreenTrack ? screenTracks : screenTracks[0],
+            ),
+            hasAudioTrack: Boolean(
+              isSingleScreenTrack ? false : screenTracks[1],
+            ),
           },
         );
-        if (this.isSingleTrack(screenTracks)) {
+        if (isSingleScreenTrack) {
           this.screenStream.video = screenTracks;
         } else {
           this.screenStream.video = screenTracks[0];
           this.screenStream.audio = screenTracks[1];
         }
+        stage = 'rtc_join';
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          '[SCREENSHARE_JOURNEY] screen share start calling screenClient.join',
+          {...journeyData, stage, outcome: 'started', channelName, optionalUid},
+        );
+        await this.screenClient.join(
+          this.appId,
+          channelName,
+          token || null,
+          optionalUid || null,
+        );
+        joined = true;
+        this.inScreenshare = true;
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          '[SCREENSHARE_JOURNEY] screen share start screenClient.join completed successfully',
+          {...journeyData, stage, outcome: 'success'},
+        );
+        stage = 'rtc_publish';
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          '[SCREENSHARE_JOURNEY] screen share start calling screenClient.publish',
+          {...journeyData, stage, outcome: 'started'},
+        );
+        await this.screenClient.publish(
+          this.screenStream.audio
+            ? [this.screenStream.video, this.screenStream.audio]
+            : this.screenStream.video,
+        );
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          '[SCREENSHARE_JOURNEY] screen share start screenClient.publish completed successfully',
+          {...journeyData, stage, outcome: 'success'},
+        );
+        this.screenStream.video.on('track-ended', async () => {
+          const nativeStopAttemptId = `${
+            journeyData.screenshareAttemptId
+          }-native-${Date.now()}`;
+          const mediaTrack = this.screenStream.video?.getMediaStreamTrack?.();
+          logger.log(
+            LogSource.AgoraSDK,
+            'API',
+            '[SCREENSHARE_JOURNEY] screen share stop detected from browser native control through video track-ended',
+            {
+              ...journeyData,
+              action: 'stop',
+              screenshareAttemptId: nativeStopAttemptId,
+              stage: 'track_ended',
+              outcome: 'started',
+              stopOrigin: 'browser_native_control',
+              mediaTrack: mediaTrack
+                ? {
+                    readyState: mediaTrack.readyState,
+                    enabled: mediaTrack.enabled,
+                    muted: mediaTrack.muted,
+                    label: mediaTrack.label,
+                    settings: mediaTrack.getSettings?.(),
+                  }
+                : null,
+            },
+          );
+          await cleanupScreenshare(
+            'browser_native_control',
+            true,
+            nativeStopAttemptId,
+          );
+        });
       } catch (e) {
         logger.error(
           LogSource.AgoraSDK,
           'API',
-          'RTC [createScreenVideoTrack] Error while creating screenshare tracks',
-          e,
+          `[SCREENSHARE_JOURNEY] screen share start failed inside RTC engine at ${stage}`,
+          {
+            ...journeyData,
+            stage,
+            outcome: 'failure',
+            joined,
+            ...getScreenshareErrorDetails(e),
+          },
         );
+        if (joined || this.screenStream.video || this.screenStream.audio) {
+          await cleanupScreenshare('startup_failure', false);
+        }
         throw e;
       }
-
-      logger.log(
-        LogSource.AgoraSDK,
-        'API',
-        'RTC [join] joining channel of screenclient',
-        {
-          appId: this.appId,
-          channelName,
-          token,
-          optionalUid,
-        },
-      );
-      await this.screenClient.join(
-        this.appId,
-        channelName,
-        token || null,
-        optionalUid || null,
-      );
-      logger.log(
-        LogSource.AgoraSDK,
-        'API',
-        'RTC [join] joined channel successfully',
-      );
-      this.inScreenshare = true;
-      logger.log(
-        LogSource.AgoraSDK,
-        'API',
-        'RTC [publish] trying to publish screen tracks',
-      );
-      await this.screenClient.publish(
-        this.screenStream.audio
-          ? [this.screenStream.video, this.screenStream.audio]
-          : this.screenStream.video,
-      );
-      logger.log(
-        LogSource.AgoraSDK,
-        'API',
-        'RTC [publish] screenshare tracks published successfully',
-      );
-      this.screenStream.video.on('track-ended', () => {
-        (this.eventsMap.get('onUserOffline') as callbackType)(
-          {},
-          this.screenClient.uid,
-        );
-
-        this.screenClient.leave();
-
-        this.screenStream.audio?.close();
-        this.screenStream.video?.close();
-        this.screenStream = {};
-
-        (this.eventsMap.get('onScreenshareStopped') as callbackType)();
-        this.inScreenshare = false;
-      });
     } else {
-      (this.eventsMap.get('onUserOffline') as callbackType)(
-        {},
-        this.screenClient.uid,
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        `[SCREENSHARE_JOURNEY] screen share stop entered RTC engine from ${journeyData.stopOrigin}`,
+        {...journeyData, stage: 'rtc_stop', outcome: 'started'},
       );
-      this.screenClient.leave();
-      (this.eventsMap.get('onScreenshareStopped') as callbackType)();
-      try {
-        this.screenStream.audio?.close();
-        this.screenStream.video?.close();
-        this.screenStream = {};
-      } catch (err) {
-        throw err;
-      }
-      this.inScreenshare = false;
+      await cleanupScreenshare(journeyData.stopOrigin, true);
     }
   }
 }

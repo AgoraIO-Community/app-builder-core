@@ -72,6 +72,7 @@ function useRecordingLayoutQuery() {
           requestId,
         },
       );
+      throw error;
     }
   };
 
@@ -132,6 +133,7 @@ function useRecordingLayoutQuery() {
           requestId,
         },
       );
+      throw error;
     }
   };
 

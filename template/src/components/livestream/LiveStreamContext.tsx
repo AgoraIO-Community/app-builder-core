@@ -543,7 +543,9 @@ export const LiveStreamContextProvider: React.FC<
             raiseHandApprovedRequestRecallToastHeading?.current(),
             null,
           );
-          screenshareContextInstanceRef?.current?.stopScreenshare(); // This will not exist on ios
+          screenshareContextInstanceRef?.current?.stopScreenshare(
+            'livestream_demotion',
+          ); // This will not exist on ios
 
           // Demote user's privileges to audience
           changeClientRoleTo(ClientRoleType.ClientRoleAudience);
@@ -716,7 +718,9 @@ export const LiveStreamContextProvider: React.FC<
         ClientRoleType.ClientRoleBroadcaster &&
       raiseHandList[localUidRef.current]?.raised === RaiseHandValue.TRUE
     ) {
-      screenshareContextInstanceRef?.current?.stopScreenshare(); // This will not exist on ios
+      screenshareContextInstanceRef?.current?.stopScreenshare(
+        'livestream_recall',
+      ); // This will not exist on ios
       // Change role
       changeClientRoleTo(ClientRoleType.ClientRoleAudience);
     }
