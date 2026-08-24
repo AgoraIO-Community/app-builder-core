@@ -674,7 +674,7 @@ export default function UserActionMenuOptionsOptions(
             removeScreenshareConfig.onAction?.(user.parentUid);
             //for local user directly stop the screenshare
             if (localuid === user.parentUid) {
-              stopScreenshare();
+              stopScreenshare('participant_menu');
             }
             //for remote user show popup and then user will use cta to stop screenshare
             else {

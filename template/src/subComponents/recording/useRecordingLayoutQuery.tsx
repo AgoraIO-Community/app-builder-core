@@ -5,6 +5,7 @@ import {UidType} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
 import StorageContext from '../../components/StorageContext';
+import {parseRecordingLayoutResponse} from './recordingLayoutResponse';
 
 const RECORDING_LAYOUT_URL = `${$config.BACKEND_ENDPOINT}/v1/recording/layout/update`;
 
@@ -39,32 +40,28 @@ function useRecordingLayoutQuery() {
         },
         body: payload,
       });
-      const response = await res.json();
-
-      if (response?.error) {
-        throw response?.error;
-      } else {
-        const endReqTs = Date.now();
-        logger.log(
-          LogSource.Internals,
-          'RECORDING',
-          'setPresenterQuery success',
-          {
-            responseData: res,
-            startReqTs,
-            endReqTs,
-            latency: endReqTs - startReqTs,
-            requestId,
-          },
-        );
-      }
+      const response = await parseRecordingLayoutResponse(res);
+      const endReqTs = Date.now();
+      logger.log(
+        LogSource.Internals,
+        'RECORDING',
+        'setPresenterQuery success',
+        {
+          responseData: response,
+          httpStatus: res.status,
+          startReqTs,
+          endReqTs,
+          latency: endReqTs - startReqTs,
+          requestId,
+        },
+      );
     } catch (error) {
       const endReqTs = Date.now();
       logger.error(
         LogSource.Internals,
         'RECORDING',
         'setPresenterQuery failure',
-        JSON.stringify(error || {}),
+        error,
         {
           startReqTs,
           endReqTs,
@@ -72,6 +69,7 @@ function useRecordingLayoutQuery() {
           requestId,
         },
       );
+      throw error;
     }
   };
 
@@ -94,37 +92,28 @@ function useRecordingLayoutQuery() {
         },
         body: payload,
       });
-      const response = await res.json();
-
-      if (response?.error) {
-        throw response?.error;
-      } else {
-        const endReqTs = Date.now();
-        logger.log(
-          LogSource.Internals,
-          'RECORDING',
-          'executeNormalQuery success',
-          {
-            responseData: res,
-            startReqTs,
-            endReqTs,
-            latency: endReqTs - startReqTs,
-            requestId,
-          },
-        );
-        // Once the backend sucessfuly stops recording,
-        // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-        // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-        // set the local recording state to false to update the UI
-        // setScreenshareActive(false);
-      }
+      const response = await parseRecordingLayoutResponse(res);
+      const endReqTs = Date.now();
+      logger.log(
+        LogSource.Internals,
+        'RECORDING',
+        'executeNormalQuery success',
+        {
+          responseData: response,
+          httpStatus: res.status,
+          startReqTs,
+          endReqTs,
+          latency: endReqTs - startReqTs,
+          requestId,
+        },
+      );
     } catch (error) {
       const endReqTs = Date.now();
       logger.error(
         LogSource.Internals,
         'RECORDING',
         'executeNormalQuery failure',
-        JSON.stringify(error || {}),
+        error,
         {
           startReqTs,
           endReqTs,
@@ -132,6 +121,7 @@ function useRecordingLayoutQuery() {
           requestId,
         },
       );
+      throw error;
     }
   };
 
