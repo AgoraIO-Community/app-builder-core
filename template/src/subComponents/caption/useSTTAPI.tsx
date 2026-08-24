@@ -1,10 +1,13 @@
 import React, {useContext} from 'react';
 import StorageContext from '../../components/StorageContext';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
-import {LanguageTranslationConfig} from './useCaption';
+import {type LanguageTranslationConfig} from './useCaption';
 import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
+import {isWebInternal} from '../../utils/common';
+import {buildSTTRequestBody, type STTMethod} from './sttRequestBody';
+import {ensureSTTSessionId} from './sttSessionId';
 
 export interface STTAPIResponse {
   success: boolean;
@@ -57,7 +60,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   }, [rtcProps]);
 
   const apiCall = async (
-    method: 'startv7' | 'update' | 'stopv7',
+    method: STTMethod,
     botUid: number,
     translationConfig?: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
@@ -68,14 +71,20 @@ const useSTTAPI = (): IuseSTTAPI => {
       // Calculate which user this bot belongs to
       const ownerUid = botUid - 900000000;
 
-      let requestBody: any = {
+      const requestBody = await buildSTTRequestBody({
+        method,
+        botUid,
         passphrase:
           roomIdRef?.current?.host || roomIdRef?.current?.attendee || '',
-        dataStream_uid: botUid,
-        encryption_mode: $config.ENCRYPTION_ENABLED
+        encryptionMode: $config.ENCRYPTION_ENABLED
           ? rtcPropsRef?.current.encryption.mode
           : null,
-      };
+        localUid: localUidRef.current,
+        channelName: rtcPropsRef?.current?.channel || '',
+        isWeb: isWebInternal(),
+        translationConfig,
+        resolveSessionId: ensureSTTSessionId,
+      });
 
       console.log(
         `[STT_BOT_SUBSCRIPTION] ${method.toUpperCase()} - Bot UID: ${botUid} will subscribe to User UID: ${ownerUid}`,
@@ -86,33 +95,6 @@ const useSTTAPI = (): IuseSTTAPI => {
           translationConfig,
         },
       );
-      // Add translate_config only for start/update methods
-      if (translationConfig?.source?.[0]) {
-        requestBody.lang = translationConfig.source;
-        // Sanitize payload: remove source language from targets to avoid API errors
-        const sanitizedTargets =
-          translationConfig?.targets?.filter(
-            target => target !== translationConfig?.source[0],
-          ) || [];
-        const shouldTranslate = sanitizedTargets.length > 0;
-        // Add translate_config payload only if targets exist
-        if (shouldTranslate) {
-          requestBody.translate_config = [
-            {
-              source_lang: translationConfig.source[0],
-              target_lang: sanitizedTargets,
-            },
-          ];
-          if (method === 'update') {
-            requestBody.translate = true;
-          }
-        } else if (method === 'update') {
-          // If method is update and no targets are passed
-          requestBody.translate = false;
-        }
-        requestBody.subscribeAudioUids = [`${localUidRef.current}`];
-      }
-
       const response = await fetch(`${STT_API_URL}/${method}`, {
         method: 'POST',
         headers: {
