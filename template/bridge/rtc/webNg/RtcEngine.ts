@@ -45,6 +45,7 @@ import {
   type ScreenEncoderConfigurationPreset,
   type VideoEncoderConfiguration,
 } from '../../../src/app-state/useVideoQuality';
+import {getScreenshareReleaseOrigin} from '../../../src/subComponents/screenshare/screenshareJourney';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -253,6 +254,12 @@ export default class RtcEngine {
   public remoteStreams = new Map<UID, RemoteStream>();
   private inScreenshare: Boolean = false;
   private isScreenshareCleanupInProgress = false;
+  private activeScreenshareJourneyContext: {
+    screenshareSessionId?: string;
+    recordingActive?: boolean;
+    screenShareUid?: UID;
+    stopActorUid?: UID;
+  } | null = null;
   private videoProfile:
     | VideoEncoderConfigurationPreset
     | VideoEncoderConfiguration;
@@ -1534,14 +1541,75 @@ export default class RtcEngine {
   //   this.client.removeAllListeners(eventName);
   // }
 
-  async release(): Promise<void> {
+  async release(
+    requestedStopOrigin?: 'end_call_cleanup' | 'page_unload',
+  ): Promise<void> {
+    const stopOrigin = getScreenshareReleaseOrigin(
+      requestedStopOrigin,
+      typeof document !== 'undefined' ? document.visibilityState : undefined,
+    );
     if (this.inScreenshare) {
-      (this.eventsMap.get('onUserOffline') as callbackType)(
-        {},
-        this.screenClient.uid,
+      const screenshareAttemptId = `release-${Date.now()}`;
+      const journeyData = {
+        action: 'stop',
+        stage: 'release',
+        outcome: 'started',
+        screenshareAttemptId,
+        screenshareSessionId:
+          this.activeScreenshareJourneyContext?.screenshareSessionId ||
+          'unknown-session',
+        recordingActive:
+          this.activeScreenshareJourneyContext?.recordingActive || false,
+        screenShareUid:
+          this.activeScreenshareJourneyContext?.screenShareUid ||
+          this.screenClient.uid,
+        stopOrigin,
+        stopActorUid:
+          this.activeScreenshareJourneyContext?.stopActorUid || undefined,
+      };
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        `[SCREENSHARE_JOURNEY] screen share stop release cleanup calling screenClient.leave from ${stopOrigin}`,
+        journeyData,
       );
-      this.screenClient.leave();
-      (this.eventsMap.get('onScreenshareStopped') as callbackType)();
+      try {
+        (this.eventsMap.get('onUserOffline') as callbackType)(
+          {},
+          this.screenClient.uid,
+        );
+        this.screenStream.audio?.stop();
+        this.screenStream.video?.stop();
+        this.screenStream.audio?.close();
+        this.screenStream.video?.close();
+        await this.screenClient.leave();
+        this.inScreenshare = false;
+        (this.eventsMap.get('onScreenshareStopped') as callbackType)(
+          stopOrigin,
+          screenshareAttemptId,
+          journeyData.screenshareSessionId,
+          journeyData.stopActorUid,
+        );
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          `[SCREENSHARE_JOURNEY] screen share stop release cleanup completed successfully from ${stopOrigin}`,
+          {...journeyData, outcome: 'success'},
+        );
+      } catch (error) {
+        logger.error(
+          LogSource.AgoraSDK,
+          'API',
+          `[SCREENSHARE_JOURNEY] screen share stop release cleanup failed from ${stopOrigin}`,
+          {
+            ...journeyData,
+            outcome: 'failure',
+            ...getScreenshareErrorDetails(error),
+          },
+        );
+      } finally {
+        this.activeScreenshareJourneyContext = null;
+      }
     }
     this.eventsMap.forEach((callback, event, map) => {
       this.client.off(event, callback);
@@ -1606,18 +1674,23 @@ export default class RtcEngine {
     journeyContext: {
       action?: 'start' | 'stop';
       screenshareAttemptId?: string;
+      screenshareSessionId?: string;
       recordingActive?: boolean;
       screenShareUid?: UID;
       stopOrigin?: string;
+      stopActorUid?: UID;
     } = {},
   ): Promise<void> {
     const journeyData = {
       action: journeyContext.action || (this.inScreenshare ? 'stop' : 'start'),
       screenshareAttemptId:
         journeyContext.screenshareAttemptId || 'rtc-unknown-attempt',
+      screenshareSessionId:
+        journeyContext.screenshareSessionId || 'unknown-session',
       recordingActive: journeyContext.recordingActive || false,
       screenShareUid: journeyContext.screenShareUid || optionalUid,
       stopOrigin: journeyContext.stopOrigin || 'unknown',
+      stopActorUid: journeyContext.stopActorUid,
     };
     const config: ScreenVideoTrackInitConfig = {
       ...screenShareConfig,
@@ -1660,6 +1733,8 @@ export default class RtcEngine {
             this.screenClient.uid,
           );
         }
+        this.screenStream.audio?.stop();
+        this.screenStream.video?.stop();
         this.screenStream.audio?.close();
         this.screenStream.video?.close();
         if (joined || this.inScreenshare) {
@@ -1667,10 +1742,13 @@ export default class RtcEngine {
         }
         this.screenStream = {};
         this.inScreenshare = false;
+        this.activeScreenshareJourneyContext = null;
         if (notifyScreenshareStopped) {
           (this.eventsMap.get('onScreenshareStopped') as callbackType)(
             stopOrigin,
             screenshareAttemptId,
+            cleanupJourneyData.screenshareSessionId,
+            cleanupJourneyData.stopActorUid,
           );
         }
         logger.log(
@@ -1826,6 +1904,12 @@ export default class RtcEngine {
           '[SCREENSHARE_JOURNEY] screen share start screenClient.publish completed successfully',
           {...journeyData, stage, outcome: 'success'},
         );
+        this.activeScreenshareJourneyContext = {
+          screenshareSessionId: journeyData.screenshareSessionId,
+          recordingActive: journeyData.recordingActive,
+          screenShareUid: journeyData.screenShareUid,
+          stopActorUid: journeyData.stopActorUid,
+        };
         this.screenStream.video.on('track-ended', async () => {
           const nativeStopAttemptId = `${
             journeyData.screenshareAttemptId
@@ -1885,6 +1969,7 @@ export default class RtcEngine {
         {...journeyData, stage: 'rtc_stop', outcome: 'started'},
       );
       await cleanupScreenshare(journeyData.stopOrigin, true);
+      this.activeScreenshareJourneyContext = null;
     }
   }
 }

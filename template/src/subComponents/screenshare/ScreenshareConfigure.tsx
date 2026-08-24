@@ -40,6 +40,7 @@ import {
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
 import {
+  getScreenshareSessionId,
   getScreenshareError,
   isUserCancelOrPermissionDenied,
   SCREENSHARE_JOURNEY,
@@ -56,8 +57,12 @@ export const ScreenshareConfigure = (props: {
   const toastHeading = useString(videoRoomScreenShareErrorToastHeading)();
   const toastSubHeading = useString(videoRoomScreenShareErrorToastSubHeading)();
   const [isScreenshareActive, setScreenshareActive] = useState(false);
+  const activeScreenshareSessionIdRef = useRef<string | null>(null);
   const stopScreenshareRef = useRef<
-    (origin?: ScreenshareStopOrigin) => Promise<void> | void
+    (
+      origin?: ScreenshareStopOrigin,
+      stopActorUid?: UidType,
+    ) => Promise<void> | void
   >(() => {});
   const {dispatch} = useContext(DispatchContext);
   const rtc = useRtc();
@@ -168,9 +173,9 @@ export const ScreenshareConfigure = (props: {
   useEffect(() => {
     const unsubKickScreenshare = events.on(
       controlMessageEnum.kickScreenshare,
-      () => {
+      data => {
         //if screenscreen already active. then below method will stop the screen share
-        stopScreenshareRef.current('remote_host_removal');
+        stopScreenshareRef.current('remote_host_removal', data?.sender);
       },
     );
     const unsubScreenshareAttribute = events.on(
@@ -245,6 +250,9 @@ export const ScreenshareConfigure = (props: {
   const ScreenshareStoppedCallback = (
     stopOrigin: ScreenshareStopOrigin = 'unknown',
     screenshareAttemptId = getUniqueID(),
+    screenshareSessionId = activeScreenshareSessionIdRef.current ||
+      'unknown-session',
+    stopActorUid?: UidType,
   ) => {
     const callbackStartedAt = Date.now();
     logger.log(
@@ -256,9 +264,11 @@ export const ScreenshareConfigure = (props: {
         stage: 'stop_callback',
         outcome: 'started',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin,
+        stopActorUid,
       },
     );
     setScreenshareActive(false);
@@ -271,9 +281,11 @@ export const ScreenshareConfigure = (props: {
         stage: 'local_active_state',
         outcome: 'success',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin,
+        stopActorUid,
       },
     );
     events.send(
@@ -293,9 +305,11 @@ export const ScreenshareConfigure = (props: {
         stage: 'rtm_event',
         outcome: 'success',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin,
+        stopActorUid,
       },
     );
     setScreenShareData(prevState => {
@@ -317,9 +331,11 @@ export const ScreenshareConfigure = (props: {
         stage: 'screenshare_context',
         outcome: 'success',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin,
+        stopActorUid,
       },
     );
     //if local user stopped the screenshare then change layout to grid
@@ -343,9 +359,11 @@ export const ScreenshareConfigure = (props: {
         stage: 'layout_update',
         outcome: 'success',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin,
+        stopActorUid,
       },
     );
     logger.log(
@@ -357,12 +375,15 @@ export const ScreenshareConfigure = (props: {
         stage: 'complete',
         outcome: 'success',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin,
+        stopActorUid,
         elapsedMs: Date.now() - callbackStartedAt,
       },
     );
+    activeScreenshareSessionIdRef.current = null;
   };
 
   useEffect(() => {
@@ -376,7 +397,9 @@ export const ScreenshareConfigure = (props: {
   const executeRecordingQuery = async (
     isScreenActive: boolean,
     screenshareAttemptId: string,
+    screenshareSessionId: string,
     stopOrigin: ScreenshareStopOrigin,
+    stopActorUid?: UidType,
   ) => {
     const action: ScreenshareAction = isScreenActive ? 'start' : 'stop';
     if (isScreenActive) {
@@ -390,9 +413,11 @@ export const ScreenshareConfigure = (props: {
           stage: 'recording_layout',
           outcome: 'started',
           screenshareAttemptId,
+          screenshareSessionId,
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin,
+          stopActorUid,
         },
       );
       await executePresenterQuery(screenShareUid);
@@ -406,9 +431,11 @@ export const ScreenshareConfigure = (props: {
           stage: 'recording_layout',
           outcome: 'started',
           screenshareAttemptId,
+          screenshareSessionId,
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin,
+          stopActorUid,
         },
       );
       // If no recording is going on, set the normal query
@@ -423,17 +450,25 @@ export const ScreenshareConfigure = (props: {
         stage: 'recording_layout',
         outcome: 'success',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin,
+        stopActorUid,
       },
     );
   };
 
   const stopScreenshare = async (
     stopOrigin: ScreenshareStopOrigin = 'unknown',
+    stopActorUid?: UidType,
   ) => {
     const screenshareAttemptId = getUniqueID();
+    const screenshareSessionId = getScreenshareSessionId(
+      'stop',
+      activeScreenshareSessionIdRef.current,
+      getUniqueID,
+    );
     logger.log(
       LogSource.Internals,
       'SCREENSHARE',
@@ -443,9 +478,11 @@ export const ScreenshareConfigure = (props: {
         stage: 'ui_request',
         outcome: 'started',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin,
+        stopActorUid,
       },
     );
     if (!isScreenshareActive) {
@@ -458,17 +495,30 @@ export const ScreenshareConfigure = (props: {
           stage: 'precondition',
           outcome: 'skipped',
           screenshareAttemptId,
+          screenshareSessionId,
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin,
+          stopActorUid,
         },
       );
       return;
     }
-    await userScreenshare(false, screenshareAttemptId, stopOrigin);
+    await userScreenshare(
+      false,
+      screenshareAttemptId,
+      screenshareSessionId,
+      stopOrigin,
+      stopActorUid,
+    );
   };
   const startScreenshare = async () => {
     const screenshareAttemptId = getUniqueID();
+    const screenshareSessionId = getScreenshareSessionId(
+      'start',
+      activeScreenshareSessionIdRef.current,
+      getUniqueID,
+    );
     logger.log(
       LogSource.Internals,
       'SCREENSHARE',
@@ -478,6 +528,7 @@ export const ScreenshareConfigure = (props: {
         stage: 'ui_request',
         outcome: 'started',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin: 'unknown',
@@ -493,6 +544,7 @@ export const ScreenshareConfigure = (props: {
           stage: 'precondition',
           outcome: 'skipped',
           screenshareAttemptId,
+          screenshareSessionId,
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin: 'unknown',
@@ -500,14 +552,21 @@ export const ScreenshareConfigure = (props: {
       );
       return;
     }
-    await userScreenshare(true, screenshareAttemptId, 'unknown');
+    await userScreenshare(
+      true,
+      screenshareAttemptId,
+      screenshareSessionId,
+      'unknown',
+    );
   };
   stopScreenshareRef.current = stopScreenshare;
 
   const userScreenshare = async (
     isActive: boolean,
     screenshareAttemptId: string,
+    screenshareSessionId: string,
     stopOrigin: ScreenshareStopOrigin,
+    stopActorUid?: UidType,
   ) => {
     const startedAt = Date.now();
     const action: ScreenshareAction = isActive ? 'start' : 'stop';
@@ -522,9 +581,11 @@ export const ScreenshareConfigure = (props: {
         stage: 'journey',
         outcome: 'started',
         screenshareAttemptId,
+        screenshareSessionId,
         recordingActive: props.isRecordingActive,
         screenShareUid,
         stopOrigin,
+        stopActorUid,
         channel,
       },
     );
@@ -534,7 +595,9 @@ export const ScreenshareConfigure = (props: {
           await executeRecordingQuery(
             isActive,
             screenshareAttemptId,
+            screenshareSessionId,
             stopOrigin,
+            stopActorUid,
           );
         } catch (recordingError) {
           recordingLayoutFailed = true;
@@ -542,14 +605,17 @@ export const ScreenshareConfigure = (props: {
             LogSource.Internals,
             'SCREENSHARE',
             `${SCREENSHARE_JOURNEY} screen share ${action} recording layout query failed; continuing screen share ${action}`,
+            recordingError,
             {
               action,
               stage,
               outcome: 'partial_failure',
               screenshareAttemptId,
+              screenshareSessionId,
               recordingActive: props.isRecordingActive,
               screenShareUid,
               stopOrigin,
+              stopActorUid,
               ...getScreenshareError(recordingError),
             },
           );
@@ -564,9 +630,11 @@ export const ScreenshareConfigure = (props: {
             stage,
             outcome: 'skipped',
             screenshareAttemptId,
+            screenshareSessionId,
             recordingActive: false,
             screenShareUid,
             stopOrigin,
+            stopActorUid,
           },
         );
       }
@@ -580,9 +648,11 @@ export const ScreenshareConfigure = (props: {
           stage,
           outcome: 'started',
           screenshareAttemptId,
+          screenshareSessionId,
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin,
+          stopActorUid,
         },
       );
       // @ts-ignore
@@ -599,9 +669,11 @@ export const ScreenshareConfigure = (props: {
         {
           action,
           screenshareAttemptId,
+          screenshareSessionId,
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin,
+          stopActorUid,
         },
       );
       logger.log(
@@ -613,14 +685,17 @@ export const ScreenshareConfigure = (props: {
           stage,
           outcome: 'success',
           screenshareAttemptId,
+          screenshareSessionId,
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin,
+          stopActorUid,
         },
       );
       isActive && setScreenshareActive(true);
 
       if (isActive) {
+        activeScreenshareSessionIdRef.current = screenshareSessionId;
         stage = 'local_active_state';
         logger.log(
           LogSource.Internals,
@@ -631,9 +706,11 @@ export const ScreenshareConfigure = (props: {
             stage,
             outcome: 'success',
             screenshareAttemptId,
+            screenshareSessionId,
             recordingActive: props.isRecordingActive,
             screenShareUid,
             stopOrigin,
+            stopActorUid,
           },
         );
         // 1. Set local state
@@ -658,9 +735,11 @@ export const ScreenshareConfigure = (props: {
             stage,
             outcome: 'success',
             screenshareAttemptId,
+            screenshareSessionId,
             recordingActive: props.isRecordingActive,
             screenShareUid,
             stopOrigin,
+            stopActorUid,
           },
         );
         // 2. Inform everyone in the channel screenshare is actice
@@ -683,9 +762,11 @@ export const ScreenshareConfigure = (props: {
             stage,
             outcome: 'success',
             screenshareAttemptId,
+            screenshareSessionId,
             recordingActive: props.isRecordingActive,
             screenShareUid,
             stopOrigin,
+            stopActorUid,
           },
         );
       }
@@ -702,9 +783,11 @@ export const ScreenshareConfigure = (props: {
           stage: 'complete',
           outcome: recordingLayoutFailed ? 'partial_success' : 'success',
           screenshareAttemptId,
+          screenshareSessionId,
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin,
+          stopActorUid,
           elapsedMs: Date.now() - startedAt,
         },
       );
@@ -725,9 +808,11 @@ export const ScreenshareConfigure = (props: {
             ? 'user_cancel_or_permission_denied'
             : 'failure',
           screenshareAttemptId,
+          screenshareSessionId,
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin,
+          stopActorUid,
           elapsedMs: Date.now() - startedAt,
           ...getScreenshareError(e),
         },

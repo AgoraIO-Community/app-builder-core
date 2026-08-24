@@ -1,5 +1,7 @@
 import {
   getScreenshareError,
+  getScreenshareReleaseOrigin,
+  getScreenshareSessionId,
   isUserCancelOrPermissionDenied,
   SCREENSHARE_JOURNEY,
 } from '../screenshareJourney';
@@ -30,5 +32,32 @@ describe('screenshare journey logging', () => {
       sdkErrorName: 'AgoraRTCError',
       sdkErrorMessage: 'NotAllowedError: Permission denied by user',
     });
+  });
+
+  it('reuses the active screen-share session ID when stopping', () => {
+    const createId = jest.fn(() => 'new-session-id');
+
+    expect(getScreenshareSessionId('stop', 'active-session-id', createId)).toBe(
+      'active-session-id',
+    );
+    expect(createId).not.toHaveBeenCalled();
+  });
+
+  it('creates a new screen-share session ID when starting', () => {
+    const createId = jest.fn(() => 'new-session-id');
+
+    expect(getScreenshareSessionId('start', null, createId)).toBe(
+      'new-session-id',
+    );
+    expect(createId).toHaveBeenCalledTimes(1);
+  });
+
+  it('classifies hidden-document release as page unload', () => {
+    expect(getScreenshareReleaseOrigin(undefined, 'hidden')).toBe(
+      'page_unload',
+    );
+    expect(getScreenshareReleaseOrigin(undefined, 'visible')).toBe(
+      'end_call_cleanup',
+    );
   });
 });

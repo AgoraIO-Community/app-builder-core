@@ -1,5 +1,21 @@
 export const SCREENSHARE_JOURNEY = '[SCREENSHARE_JOURNEY]';
 
+export const getScreenshareSessionId = (
+  action: 'start' | 'stop',
+  activeScreenshareSessionId: string | null,
+  createId: () => string,
+) =>
+  action === 'stop' && activeScreenshareSessionId
+    ? activeScreenshareSessionId
+    : createId();
+
+export const getScreenshareReleaseOrigin = (
+  requestedOrigin: 'end_call_cleanup' | 'page_unload' | undefined,
+  documentVisibilityState?: DocumentVisibilityState,
+) =>
+  requestedOrigin ||
+  (documentVisibilityState === 'hidden' ? 'page_unload' : 'end_call_cleanup');
+
 export const getScreenshareError = (error: unknown) => {
   const value = error as {
     code?: string;
