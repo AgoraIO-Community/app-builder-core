@@ -291,8 +291,7 @@ export class RTMWebClient {
             );
 
           const items = Object.entries(webResponse.metadata).map(
-            ([key, metadataItem]) =>
-              toNativeMetadataItem(key, metadataItem),
+            ([key, metadataItem]) => toNativeMetadataItem(key, metadataItem),
           );
           const nativeResponse: NativeGetChannelMetadataResponse = {
             majorRevision: webResponse.majorRevision,

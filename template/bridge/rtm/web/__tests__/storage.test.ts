@@ -1,8 +1,8 @@
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 
-const mockSetChannelMetadata = jest.fn();
-const mockGetChannelMetadata = jest.fn();
-const mockRemoveChannelMetadata = jest.fn();
+const mockSetChannelMetadata = jest.fn<any>();
+const mockGetChannelMetadata = jest.fn<any>();
+const mockRemoveChannelMetadata = jest.fn<any>();
 
 jest.mock('agora-rtm-sdk', () => ({
   __esModule: true,
@@ -80,24 +80,24 @@ describe('RTMWebClient channel metadata bridge', () => {
       },
     });
 
-    await expect(
-      client.storage.getChannelMetadata('room', 1),
-    ).resolves.toEqual({
-      majorRevision: 12,
-      items: [
-        {
-          key: 'STT_SESSION_ID',
-          value: 'session-a',
-          revision: 11,
-          authorUserId: '42',
-          updateTs: 99,
-        },
-      ],
-      itemCount: 1,
-      timestamp: 100,
-      channelName: 'room',
-      channelType: 1,
-    });
+    await expect(client.storage.getChannelMetadata('room', 1)).resolves.toEqual(
+      {
+        majorRevision: 12,
+        items: [
+          {
+            key: 'STT_SESSION_ID',
+            value: 'session-a',
+            revision: 11,
+            authorUserId: '42',
+            updateTs: 99,
+          },
+        ],
+        itemCount: 1,
+        timestamp: 100,
+        channelName: 'room',
+        channelType: 1,
+      },
+    );
   });
 
   it('removes only the requested channel metadata revision', async () => {
@@ -115,20 +115,16 @@ describe('RTMWebClient channel metadata bridge', () => {
       addTimeStamp: true,
     });
 
-    expect(mockRemoveChannelMetadata).toHaveBeenCalledWith(
-      'room',
-      'MESSAGE',
-      {
-        data: [
-          {
-            key: 'STT_SESSION_ID',
-            value: '',
-            revision: 11,
-          },
-        ],
-        addUserId: true,
-        addTimeStamp: true,
-      },
-    );
+    expect(mockRemoveChannelMetadata).toHaveBeenCalledWith('room', 'MESSAGE', {
+      data: [
+        {
+          key: 'STT_SESSION_ID',
+          value: '',
+          revision: 11,
+        },
+      ],
+      addUserId: true,
+      addTimeStamp: true,
+    });
   });
 });

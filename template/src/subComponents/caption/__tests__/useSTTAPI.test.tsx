@@ -112,14 +112,18 @@ describe('useSTTAPI web session coordination', () => {
 
     expect(global.fetch).toHaveBeenCalledTimes(3);
     expect(mockEnsureSTTSessionId).toHaveBeenCalledTimes(3);
-    for (const [, options] of (global.fetch as jest.Mock).mock.calls) {
+    const fetchCalls = (global.fetch as jest.Mock<any>).mock.calls as [
+      string,
+      {body: string; headers: Record<string, string>},
+    ][];
+    for (const [, options] of fetchCalls) {
       expect(JSON.parse(options.body)).toMatchObject({
         passphrase: 'phrase',
         session_id: 'shared-session',
       });
       expect(options.headers['X-Session-Id']).toBe('logging-session');
     }
-    expect((global.fetch as jest.Mock).mock.calls.map(([url]) => url)).toEqual([
+    expect(fetchCalls.map(([url]) => url)).toEqual([
       expect.stringMatching(/\/startv7$/),
       expect.stringMatching(/\/update$/),
       expect.stringMatching(/\/stopv7$/),
