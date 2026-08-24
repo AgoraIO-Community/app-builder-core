@@ -11,11 +11,12 @@
 */
 import React from 'react';
 import {View, StyleSheet, ScrollView} from 'react-native';
-import {isMobileUA, useIsSmall} from '../utils/common';
+import {isMobileUA, isWebInternal, useIsSmall} from '../utils/common';
 import CommonStyles from './CommonStyles';
 import useCaptionWidth from '../subComponents/caption/useCaptionWidth';
 import {CustomSidePanelHeader} from '../pages/video-call/SidePanelHeader';
-
+import {useLayout} from '../utils/useLayout';
+import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 export interface CustomSidePanelViewInterface {
   name: string;
   title?: string;
@@ -36,6 +37,7 @@ const CustomSidePanelView = (props: CustomSidePanelViewInterface) => {
   } = props;
   const {transcriptHeight} = useCaptionWidth();
   const isSmall = useIsSmall();
+  const {currentLayout} = useLayout();
 
   return (
     <View
@@ -49,6 +51,9 @@ const CustomSidePanelView = (props: CustomSidePanelViewInterface) => {
             CommonStyles.sidePanelContainerWebMinimzed
           : // desktop maximized
             CommonStyles.sidePanelContainerWeb,
+        isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
+          ? {marginTop: 4}
+          : {},
         //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
