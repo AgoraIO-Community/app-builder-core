@@ -53,6 +53,7 @@ export interface SidePanelItem {
   name: string;
   title: string;
   component: React.ComponentType;
+  headerRightSlot?: React.ReactNode;
   onClose?: () => void;
 }
 

@@ -958,6 +958,19 @@ const RtmConfigure = (props: any) => {
         );
         return;
       }
+      if (
+        !parsedValue ||
+        typeof parsedValue !== 'object' ||
+        Array.isArray(parsedValue)
+      ) {
+        logger.debug(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'Ignoring non custom-event RTM payload',
+          {evt, sender, ts},
+        );
+        return;
+      }
       const {payload, persistLevel, source} = parsedValue;
       // Step 1: Set local attributes
       if (persistLevel === PersistanceLevel.Session) {
