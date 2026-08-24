@@ -1,17 +1,15 @@
 import {useContext} from 'react';
 import {useCustomization} from 'customization-implementation';
-import {
-  useCaption,
-  useContent,
-  useRoomInfo,
-} from 'customization-api';
-import {PropsContext, DispatchContext} from '../../agora-rn-uikit';
+import {useCaption, useContent, useRoomInfo} from 'customization-api';
+import {PropsContext, DispatchContext, useLocalUid} from '../../agora-rn-uikit';
 import {useHistory} from '../components/Router';
 import {stopForegroundService} from '../subComponents/LocalEndCall';
 import RTMEngine from '../rtm/RTMEngine';
 import {ENABLE_AUTH} from '../auth/config';
 import {useAuth} from '../auth/AuthProvider';
 import {useChatConfigure} from '../components/chat/chatConfigure';
+import {isWebInternal} from './common';
+import {cleanupSTTSessionOnEnd} from '../subComponents/caption/sttSessionId';
 
 const useEndCall = () => {
   const history = useHistory();
@@ -25,6 +23,7 @@ const useEndCall = () => {
 
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(DispatchContext);
+  const localUid = useLocalUid();
 
   const beforeEndCall = useCustomization(
     data =>
@@ -43,31 +42,64 @@ const useEndCall = () => {
       console.log('debugging error on beforeEndCall', error);
     }
 
-    setTimeout(() => {
-      dispatch({
-        type: 'EndCall',
-        value: [],
+    const scheduleEndCall = () => {
+      setTimeout(() => {
+        dispatch({
+          type: 'EndCall',
+          value: [],
+        });
       });
-    });
+    };
+    const isWebCall = isWebInternal();
+
+    // Preserve native dispatch timing. Web dispatches after RTM cleanup.
+    if (!isWebCall) {
+      scheduleEndCall();
+    }
     // stopping foreground servie on end call
     stopForegroundService();
-    // stopping STT on call end,if only last user is remaining in call
-    const usersInCall = Object.entries(defaultContent).filter(
-      item =>
-        item[1].type === 'rtc' && item[1].isHost === 'true' && !item[1].offline,
-    );
-    if (usersInCall.length === 1 && isSTTActive) {
-      console.log('Stopping stt api as only one host is in the call');
-      stopSTTBotSession().catch(error => {
-        console.log('Error stopping stt', error);
-      });
+
+    if (isWebCall) {
+      try {
+        await cleanupSTTSessionOnEnd(
+          rtcProps.channel,
+          String(localUid),
+          isSTTActive,
+          stopSTTBotSession,
+        );
+      } catch (error) {
+        console.error('Failed to clean up the web STT session ID', error);
+      }
+    } else {
+      // stopping STT on call end,if only last user is remaining in call
+      const usersInCall = Object.entries(defaultContent).filter(
+        item =>
+          item[1].type === 'rtc' &&
+          item[1].isHost === 'true' &&
+          !item[1].offline,
+      );
+      if (usersInCall.length === 1 && isSTTActive) {
+        console.log('Stopping stt api as only one host is in the call');
+        stopSTTBotSession().catch(error => {
+          console.log('Error stopping stt', error);
+        });
+      }
     }
 
     // removing user from chat server
     if ($config.CHAT) {
       deleteChatUser();
     }
-    RTMEngine.getInstance().engine.unsubscribe(rtcProps.channel);
+    if (isWebCall) {
+      try {
+        await RTMEngine.getInstance().engine.unsubscribe(rtcProps.channel);
+      } catch (error) {
+        console.error('Failed to unsubscribe from the RTM channel', error);
+      }
+      scheduleEndCall();
+    } else {
+      RTMEngine.getInstance().engine.unsubscribe(rtcProps.channel);
+    }
     if (!ENABLE_AUTH) {
       // await authLogout();
       await authLogin();

@@ -59,6 +59,7 @@ import LocalEventEmitter, {
 import {controlMessageEnum} from '../components/ChatContext';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {RECORDING_BOT_UID} from '../utils/constants';
+import {isRemoteDeparture} from '../rtm/isRemoteDeparture';
 import {
   nativeChannelTypeMapping,
   nativeLinkStateMapping,
@@ -134,7 +135,7 @@ const RtmConfigure = (props: any) => {
       Object.keys(
         filterObject(
           defaultContent,
-          ([k, v]) =>
+          ([_k, v]) =>
             v?.type === 'rtc' &&
             !v.offline &&
             activeUidsRef.current.activeUids.indexOf(v?.uid) !== -1,
@@ -329,12 +330,16 @@ const RtmConfigure = (props: any) => {
           );
           await processUserUidAttributes(backoffAttributes, presence.publisher);
         }
-        // remoteLeaveChannel
-        if (presence.type === nativePresenceEventTypeMapping.REMOTE_LEAVE) {
+        // remoteLeaveChannel and, on web, remote connection timeout
+        if (isRemoteDeparture(presence.type, isWebInternal())) {
+          const isTimeout =
+            presence.type === nativePresenceEventTypeMapping.REMOTE_TIMEOUT;
           logger.log(
             LogSource.AgoraSDK,
             'Event',
-            'RTM presenceEvent of type [4 - remoteLeave] (channelMemberLeft)',
+            isTimeout
+              ? 'RTM presenceEvent of type [5 - remoteTimeout] (channelMemberTimedOut)'
+              : 'RTM presenceEvent of type [4 - remoteLeave] (channelMemberLeft)',
             presence,
           );
           // Chat of left user becomes undefined. So don't cleanup
