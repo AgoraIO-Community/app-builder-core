@@ -50,6 +50,7 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {fetchRetry} from '../../utils/fetch-retry';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {runPostStartRecordingLayoutUpdate} from './recordingJourney';
 import getUniqueID from '../../utils/getUniqueID';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 
@@ -316,7 +317,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         mode: recordingMode.toLowerCase(),
       }),
     })
-      .then((res: any) => {
+      .then(async (res: any) => {
         const endRequestTs = Date.now();
         const latency = endRequestTs - startReqTs;
         if (res.status === 200) {
@@ -361,17 +362,32 @@ const RecordingProvider = (props: RecordingProviderProps) => {
               .sort((a, b) => b[1].ts - a[1].ts);
 
             const activeScreenshareUid = sorted.length > 0 ? sorted[0][0] : 0;
-            if (activeScreenshareUid) {
-              logger.debug(
-                LogSource.Internals,
-                'RECORDING',
-                'screenshare: Executing presenter query for screenuid',
-                activeScreenshareUid,
-              );
-              executePresenterQuery(parseInt(activeScreenshareUid));
-            } else {
-              executeNormalQuery();
-            }
+            await runPostStartRecordingLayoutUpdate(
+              () => {
+                if (activeScreenshareUid) {
+                  logger.debug(
+                    LogSource.Internals,
+                    'RECORDING',
+                    'screenshare: Executing presenter query for screenuid',
+                    activeScreenshareUid,
+                  );
+                  return executePresenterQuery(parseInt(activeScreenshareUid));
+                }
+                return executeNormalQuery();
+              },
+              layoutError => {
+                logger.error(
+                  LogSource.NetworkRest,
+                  'recording_start',
+                  'Recording started successfully, but the initial recording layout update failed; recording remains active',
+                  layoutError,
+                  {
+                    requestId,
+                    activeScreenshareUid,
+                  },
+                );
+              },
+            );
           }
         } else if (res.status === 500) {
           showErrorToast(headingStartError, subheadingError);
