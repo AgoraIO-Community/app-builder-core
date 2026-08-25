@@ -9,6 +9,7 @@ import {
   type GetUserMetadataResponse as NativeGetUserMetadataResponse,
   type GetChannelMetadataResponse as NativeGetChannelMetadataResponse,
   type SetOrUpdateUserMetadataOptions as NativeSetOrUpdateUserMetadataOptions,
+  type RemoveChannelMetadataOptions as NativeRemoveChannelMetadataOptions,
   type IMetadataOptions as NativeIMetadataOptions,
   type StorageEvent as NativeStorageEvent,
   type PresenceEvent as NativePresenceEvent,
@@ -37,27 +38,31 @@ import {
 
 type CallbackType = (args?: any) => void;
 
+const toNativeMetadataItem = (
+  key: string,
+  metadataItem: MetaDataDetail,
+): NativeMetadataItem => ({
+  key,
+  value: metadataItem.value,
+  revision: metadataItem.revision,
+  authorUserId: metadataItem.authorUid,
+  updateTs: metadataItem.updated,
+});
+
 // Conversion function
 const convertWebToNativeMetadata = (webMetadata: any): NativeMetadata => {
   // Convert object entries to MetadataItem array
   const items: NativeMetadataItem[] =
     Object.entries(webMetadata.metadata).map(
-      ([key, metadataItem]: [string, MetaDataDetail]) => {
-        return {
-          key: key,
-          value: metadataItem.value,
-          revision: metadataItem.revision,
-          authorUserId: metadataItem.authorUid,
-          updateTs: metadataItem.updated,
-        };
-      },
+      ([key, metadataItem]: [string, MetaDataDetail]) =>
+        toNativeMetadataItem(key, metadataItem),
     ) || [];
 
   // Create native Metadata object
   const nativeMetadata: NativeMetadata = {
-    majorRevision: webMetadata?.revision || -1, // Use first item's revision as major revision
+    majorRevision: webMetadata?.majorRevision ?? -1,
     items: items,
-    itemCount: webMetadata?.totalCount || 0,
+    itemCount: webMetadata?.totalCount ?? 0,
   };
 
   return nativeMetadata;
@@ -259,8 +264,8 @@ export class RTMWebClient {
           }
           return {
             key: item.key,
-            value: item.value || '', // Default to empty string if not provided
-            revision: item.revision || -1, // Default to -1 if not provided
+            value: item.value ?? '',
+            revision: item.revision ?? -1,
           };
         });
         return this.client.storage.setChannelMetadata(
@@ -268,8 +273,8 @@ export class RTMWebClient {
           (webChannelTypeMapping[channelType] as ChannelType) || 'MESSAGE',
           validatedItems,
           {
-            addUserId: options?.addUserId || true,
-            addTimeStamp: options?.addTimeStamp || true,
+            addUserId: options?.addUserId ?? true,
+            addTimeStamp: options?.addTimeStamp ?? true,
           },
         );
       },
@@ -286,12 +291,10 @@ export class RTMWebClient {
             );
 
           const items = Object.entries(webResponse.metadata).map(
-            ([key, metadataItem]) => ({
-              key: key,
-              value: metadataItem.value,
-            }),
+            ([key, metadataItem]) => toNativeMetadataItem(key, metadataItem),
           );
           const nativeResponse: NativeGetChannelMetadataResponse = {
+            majorRevision: webResponse.majorRevision,
             items: [...items],
             itemCount: webResponse.totalCount,
             timestamp: webResponse.timestamp,
@@ -308,6 +311,28 @@ export class RTMWebClient {
           console.error('BRIDGE getChannelMetadata error:', contextError);
           throw contextError;
         }
+      },
+
+      removeChannelMetadata: async (
+        channelName: string,
+        channelType: NativeRtmChannelType,
+        options?: NativeRemoveChannelMetadataOptions,
+      ) => {
+        const data = options?.data?.items?.map(item => ({
+          key: item.key,
+          value: item.value ?? '',
+          revision: item.revision ?? -1,
+        }));
+
+        return this.client.storage.removeChannelMetadata(
+          channelName,
+          (webChannelTypeMapping[channelType] as ChannelType) || 'MESSAGE',
+          {
+            ...(data ? {data} : {}),
+            addUserId: options?.addUserId ?? true,
+            addTimeStamp: options?.addTimeStamp ?? true,
+          },
+        );
       },
     };
   }
