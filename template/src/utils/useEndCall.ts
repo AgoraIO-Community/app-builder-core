@@ -52,37 +52,50 @@ const useEndCall = () => {
     };
     const isWebCall = isWebInternal();
 
-    // Preserve native dispatch timing. Web dispatches after RTM cleanup.
-    if (!isWebCall) {
-      scheduleEndCall();
-    }
     // stopping foreground servie on end call
     stopForegroundService();
 
-    if (isWebCall) {
-      try {
-        await cleanupSTTSessionOnEnd(
-          rtcProps.channel,
-          String(localUid),
-          isSTTActive,
-          stopSTTBotSession,
-        );
-      } catch (error) {
-        console.error('Failed to clean up the web STT session ID', error);
-      }
-    } else {
-      // stopping STT on call end,if only last user is remaining in call
-      const usersInCall = Object.entries(defaultContent).filter(
-        item =>
-          item[1].type === 'rtc' &&
-          item[1].isHost === 'true' &&
-          !item[1].offline,
-      );
-      if (usersInCall.length === 1 && isSTTActive) {
-        console.log('Stopping stt api as only one host is in the call');
-        stopSTTBotSession().catch(error => {
-          console.log('Error stopping stt', error);
+    let nativeStopPromise: Promise<void> | undefined;
+    const stopNativeSTTOnce = (): Promise<void> => {
+      if (!nativeStopPromise) {
+        nativeStopPromise = stopSTTBotSession().catch(error => {
+          nativeStopPromise = undefined;
+          throw error;
         });
+      }
+      return nativeStopPromise;
+    };
+    const stopSTT = isWebCall ? stopSTTBotSession : stopNativeSTTOnce;
+
+    try {
+      await cleanupSTTSessionOnEnd(
+        rtcProps.channel,
+        String(localUid),
+        isSTTActive,
+        stopSTT,
+      );
+    } catch (error) {
+      console.error(
+        `Failed to clean up the ${isWebCall ? 'web' : 'native'} STT session ID`,
+        error,
+      );
+      if (!isWebCall && isSTTActive) {
+        const usersInCall = Object.entries(defaultContent).filter(
+          item =>
+            item[1].type === 'rtc' &&
+            item[1].isHost === 'true' &&
+            !item[1].offline,
+        );
+        if (usersInCall.length === 1) {
+          try {
+            await stopNativeSTTOnce();
+          } catch (stopError) {
+            console.error(
+              'Failed to stop native STT during fallback',
+              stopError,
+            );
+          }
+        }
       }
     }
 
@@ -90,16 +103,12 @@ const useEndCall = () => {
     if ($config.CHAT) {
       deleteChatUser();
     }
-    if (isWebCall) {
-      try {
-        await RTMEngine.getInstance().engine.unsubscribe(rtcProps.channel);
-      } catch (error) {
-        console.error('Failed to unsubscribe from the RTM channel', error);
-      }
-      scheduleEndCall();
-    } else {
-      RTMEngine.getInstance().engine.unsubscribe(rtcProps.channel);
+    try {
+      await RTMEngine.getInstance().engine.unsubscribe(rtcProps.channel);
+    } catch (error) {
+      console.error('Failed to unsubscribe from the RTM channel', error);
     }
+    scheduleEndCall();
     if (!ENABLE_AUTH) {
       // await authLogout();
       await authLogin();

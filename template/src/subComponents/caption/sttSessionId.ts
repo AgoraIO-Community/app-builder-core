@@ -1,24 +1,21 @@
-export const STT_SESSION_ID_KEY = 'STT_SESSION_ID';
+import RTMEngine from '../../rtm/RTMEngine';
+import getUniqueID from '../../utils/getUniqueID';
+import {createSTTSessionCoordinator} from './sttSessionCoordinator';
 
-export const ensureSTTSessionId = async (
-  _channelName: string,
-): Promise<string | undefined> => undefined;
+export {
+  createSTTSessionCoordinator,
+  STT_SESSION_ID_KEY,
+} from './sttSessionCoordinator';
 
-export const isOnlyLocalRTMParticipant = async (
-  _channelName: string,
-  _localUid: string,
-): Promise<boolean> => false;
+const coordinator = createSTTSessionCoordinator({
+  getClient: () => RTMEngine.getInstance().engine,
+  createId: getUniqueID,
+  wait: milliseconds =>
+    new Promise(resolve => setTimeout(resolve, milliseconds)),
+});
 
-export const clearSTTSessionIdIfLast = async (
-  _channelName: string,
-  _localUid: string,
-): Promise<boolean> => false;
-
-export const cleanupSTTSessionOnEnd = async (
-  _channelName: string,
-  _localUid: string,
-  _isSTTActive: boolean,
-  _stopSTT: () => Promise<void>,
-): Promise<void> => {};
-
-export const resetSTTSessionIdCache = (_channelName?: string): void => {};
+export const ensureSTTSessionId = coordinator.ensureSTTSessionId;
+export const isOnlyLocalRTMParticipant = coordinator.isOnlyLocalRTMParticipant;
+export const clearSTTSessionIdIfLast = coordinator.clearSTTSessionIdIfLast;
+export const cleanupSTTSessionOnEnd = coordinator.cleanupSTTSessionOnEnd;
+export const resetSTTSessionIdCache = coordinator.resetSTTSessionIdCache;

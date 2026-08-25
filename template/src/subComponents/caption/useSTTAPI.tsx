@@ -5,7 +5,6 @@ import {type LanguageTranslationConfig} from './useCaption';
 import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
-import {isWebInternal} from '../../utils/common';
 import {buildSTTRequestBody, type STTMethod} from './sttRequestBody';
 import {ensureSTTSessionId} from './sttSessionId';
 
@@ -81,7 +80,6 @@ const useSTTAPI = (): IuseSTTAPI => {
           : null,
         localUid: localUidRef.current,
         channelName: rtcPropsRef?.current?.channel || '',
-        isWeb: isWebInternal(),
         translationConfig,
         resolveSessionId: ensureSTTSessionId,
       });

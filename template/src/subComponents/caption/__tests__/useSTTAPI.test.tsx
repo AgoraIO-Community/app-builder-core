@@ -6,10 +6,6 @@ jest.mock('../sttSessionId', () => ({
   ensureSTTSessionId: jest.fn(),
 }));
 
-jest.mock('../../../utils/common', () => ({
-  isWebInternal: () => true,
-}));
-
 jest.mock('../../../components/StorageContext', () => {
   const ReactModule = require('react');
   return {
@@ -74,7 +70,7 @@ const renderHook = async () => {
   return {api, renderer};
 };
 
-describe('useSTTAPI web session coordination', () => {
+describe('useSTTAPI session coordination', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn<any>(async () => ({

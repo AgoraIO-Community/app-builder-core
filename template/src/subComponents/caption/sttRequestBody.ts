@@ -9,7 +9,6 @@ interface BuildSTTRequestBodyOptions {
   encryptionMode: number | null;
   localUid: string | number;
   channelName: string;
-  isWeb: boolean;
   translationConfig?: LanguageTranslationConfig;
   resolveSessionId: (channelName: string) => Promise<string | undefined>;
 }
@@ -23,13 +22,11 @@ export const buildSTTRequestBody = async (
     encryption_mode: options.encryptionMode,
   };
 
-  if (options.isWeb) {
-    const sessionId = await options.resolveSessionId(options.channelName);
-    if (!sessionId) {
-      throw new Error('Unable to resolve the shared STT session ID');
-    }
-    requestBody.session_id = sessionId;
+  const sessionId = await options.resolveSessionId(options.channelName);
+  if (!sessionId) {
+    throw new Error('Unable to resolve the shared STT session ID');
   }
+  requestBody.session_id = sessionId;
 
   if (options.translationConfig?.source?.[0]) {
     requestBody.lang = options.translationConfig.source;

@@ -8,7 +8,6 @@ const createOptions = (method: STTMethod) => ({
   encryptionMode: 8,
   localUid: 123,
   channelName: 'room',
-  isWeb: true,
   translationConfig:
     method === 'stopv7'
       ? undefined
@@ -18,7 +17,7 @@ const createOptions = (method: STTMethod) => ({
 
 describe('buildSTTRequestBody', () => {
   it.each(['startv7', 'update', 'stopv7'] as STTMethod[])(
-    'adds the coordinated session ID to %s',
+    'adds the coordinated session ID to %s on every client platform',
     async method => {
       const body = await buildSTTRequestBody(createOptions(method));
 
@@ -51,17 +50,7 @@ describe('buildSTTRequestBody', () => {
     });
   });
 
-  it('does not resolve or attach a session ID for React Native', async () => {
-    const options = createOptions('startv7');
-    options.isWeb = false;
-
-    const body = await buildSTTRequestBody(options);
-
-    expect(body).not.toHaveProperty('session_id');
-    expect(options.resolveSessionId).not.toHaveBeenCalled();
-  });
-
-  it('rejects web construction when the shared ID is unavailable', async () => {
+  it('rejects construction when the shared ID is unavailable', async () => {
     await expect(
       buildSTTRequestBody({
         ...createOptions('stopv7'),

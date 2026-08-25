@@ -166,9 +166,60 @@ describe('useEndCall STT session cleanup', () => {
     renderer.unmount();
   });
 
-  it('preserves the native rendered-content last-host stop path', async () => {
+  it('awaits native cleanup before RTM unsubscribe and end-call dispatch', async () => {
     const calls: string[] = [];
     mockIsWebInternal.mockReturnValue(false);
+    mockStopSTT.mockImplementation(async () => {
+      calls.push('stop');
+    });
+    mockCleanupSTTSessionOnEnd.mockImplementation(
+      async (_channel, _uid, _active, stop) => {
+        calls.push('cleanup-start');
+        await stop();
+        calls.push('cleanup-end');
+      },
+    );
+    mockUnsubscribe.mockImplementation(async () => {
+      calls.push('unsubscribe');
+    });
+    const {endCall, renderer} = renderHook(() => calls.push('dispatch'));
+
+    await act(async () => {
+      await endCall();
+    });
+
+    expect(mockCleanupSTTSessionOnEnd).toHaveBeenCalledWith(
+      'room',
+      '123',
+      true,
+      expect.any(Function),
+    );
+    expect(calls).toEqual([
+      'cleanup-start',
+      'stop',
+      'cleanup-end',
+      'unsubscribe',
+    ]);
+
+    act(() => jest.runOnlyPendingTimers());
+    expect(calls).toEqual([
+      'cleanup-start',
+      'stop',
+      'cleanup-end',
+      'unsubscribe',
+      'dispatch',
+    ]);
+    renderer.unmount();
+  });
+
+  it('falls back to the native last-host stop when RTM cleanup fails', async () => {
+    const calls: string[] = [];
+    mockIsWebInternal.mockReturnValue(false);
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    mockCleanupSTTSessionOnEnd.mockImplementation(async () => {
+      calls.push('cleanup');
+      throw new Error('RTM unavailable');
+    });
     mockStopSTT.mockImplementation(async () => {
       calls.push('stop');
     });
@@ -181,12 +232,51 @@ describe('useEndCall STT session cleanup', () => {
       await endCall();
     });
 
-    expect(mockCleanupSTTSessionOnEnd).not.toHaveBeenCalled();
     expect(mockStopSTT).toHaveBeenCalledTimes(1);
-    expect(calls).toEqual(['stop', 'unsubscribe']);
+    expect(calls).toEqual(['cleanup', 'stop', 'unsubscribe']);
 
     act(() => jest.runOnlyPendingTimers());
-    expect(calls).toEqual(['stop', 'unsubscribe', 'dispatch']);
+    expect(calls).toEqual(['cleanup', 'stop', 'unsubscribe', 'dispatch']);
+    renderer.unmount();
+  });
+
+  it('does not stop native STT twice when metadata removal fails after stop', async () => {
+    mockIsWebInternal.mockReturnValue(false);
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    mockCleanupSTTSessionOnEnd.mockImplementation(
+      async (_channel, _uid, _active, stop) => {
+        await stop();
+        throw new Error('metadata removal failed');
+      },
+    );
+    const {endCall, renderer} = renderHook(() => {});
+
+    await act(async () => {
+      await endCall();
+    });
+
+    expect(mockStopSTT).toHaveBeenCalledTimes(1);
+    renderer.unmount();
+  });
+
+  it('continues native end-call when RTM cleanup and fallback stop both fail', async () => {
+    const calls: string[] = [];
+    mockIsWebInternal.mockReturnValue(false);
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    mockCleanupSTTSessionOnEnd.mockRejectedValue(new Error('RTM unavailable'));
+    mockStopSTT.mockRejectedValue(new Error('stop unavailable'));
+    mockUnsubscribe.mockImplementation(async () => {
+      calls.push('unsubscribe');
+    });
+    const {endCall, renderer} = renderHook(() => calls.push('dispatch'));
+
+    await act(async () => {
+      await endCall();
+    });
+
+    expect(calls).toEqual(['unsubscribe']);
+    act(() => jest.runOnlyPendingTimers());
+    expect(calls).toEqual(['unsubscribe', 'dispatch']);
     renderer.unmount();
   });
 });
