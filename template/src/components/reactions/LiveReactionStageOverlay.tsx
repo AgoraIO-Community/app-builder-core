@@ -5,6 +5,7 @@ import {
   LIVE_REACTION_FLOAT_DURATION,
   LIVE_REACTION_LANE_COUNT,
   LIVE_REACTION_MAP,
+  resolveReactionVisual,
 } from './catalog';
 
 // Use the bundled Lottie player directly instead of relying on a global.
@@ -278,8 +279,14 @@ const LiveReactionStageOverlay = () => {
           </div>
         ) : null}
         {floatingReactions.map((reaction, index) => {
-          const reactionDefinition = LIVE_REACTION_MAP[reaction.assetKey];
-          if (!reactionDefinition) {
+          if (!LIVE_REACTION_MAP[reaction.assetKey]) {
+            return null;
+          }
+          const visual = resolveReactionVisual(
+            reaction.assetKey,
+            reaction.skinTone,
+          );
+          if (!visual) {
             return null;
           }
           const lane =
@@ -304,8 +311,8 @@ const LiveReactionStageOverlay = () => {
               }>
               <div className="live-reaction-stage-item-content">
                 <ReactionArt
-                  fallbackSrc={reactionDefinition.asset}
-                  lottieData={reactionDefinition.lottieData}
+                  fallbackSrc={visual.asset}
+                  lottieData={visual.lottieData}
                 />
                 <div
                   className="live-reaction-sender-name"

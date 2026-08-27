@@ -17,48 +17,93 @@ import {isMobileUA, isWebInternal} from '../../utils/common';
 import {useString} from '../../utils/useString';
 import {toolbarItemReactionText} from '../../language/default-labels/videoCallScreenLabels';
 import {useVideoCall} from '../useVideoCall';
-import {LIVE_REACTIONS, LiveReactionDefinition} from './catalog';
+import StorageContext from '../StorageContext';
+import {
+  LIVE_REACTIONS,
+  LiveReactionDefinition,
+  SKIN_TONE_CODES,
+  SKIN_TONE_MODIFIER,
+  SkinTonePreference,
+  applySkinToneToEmoji,
+} from './catalog';
+
+const TRAY_WIDTH = 260;
+const TRAY_HEIGHT = 240;
+
+const TONE_OPTIONS: {value: SkinTonePreference; label: string}[] = [
+  {value: 'default', label: '👋'},
+  ...SKIN_TONE_CODES.map(code => ({
+    value: code,
+    label: SKIN_TONE_MODIFIER[code],
+  })),
+];
 
 const ReactionTray = ({
   onSelect,
+  tone,
+  setTone,
 }: {
   onSelect: (reaction: LiveReactionDefinition) => void;
+  tone: SkinTonePreference;
+  setTone: (next: SkinTonePreference) => void;
 }) => {
   const [hoveredReactionKey, setHoveredReactionKey] = React.useState('');
 
   return (
     <View style={styles.tray}>
-      {LIVE_REACTIONS.map(reaction => {
-        const scale =
-          isWebInternal() && hoveredReactionKey === reaction.key ? 37 / 24 : 1;
-        const webHoverTransition = isWebInternal()
-          ? {
-              transitionProperty: 'transform',
-              transitionDuration: '180ms',
-              transitionTimingFunction: 'ease-in-out',
-            }
-          : {};
-        return (
-          <Pressable
-            key={reaction.key}
-            onHoverIn={() => {
-              setHoveredReactionKey(reaction.key);
-            }}
-            onHoverOut={() => {
-              setHoveredReactionKey('');
-            }}
-            onPress={() => {
-              onSelect(reaction);
-            }}
-            style={[
-              styles.reactionButton,
-              webHoverTransition,
-              {transform: [{scale}]},
-            ]}>
-            <Text style={styles.reactionEmoji}>{reaction.emoji}</Text>
-          </Pressable>
-        );
-      })}
+      <View style={styles.toneRow}>
+        {TONE_OPTIONS.map(option => {
+          const isSelected = option.value === tone;
+          return (
+            <Pressable
+              key={option.value}
+              onPress={() => setTone(option.value)}
+              style={[
+                styles.toneButton,
+                isSelected ? styles.toneButtonSelected : null,
+              ]}>
+              <Text style={styles.toneEmoji}>{option.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <View style={styles.emojiGrid}>
+        {LIVE_REACTIONS.map(reaction => {
+          const scale =
+            isWebInternal() && hoveredReactionKey === reaction.key
+              ? 37 / 24
+              : 1;
+          const webHoverTransition = isWebInternal()
+            ? {
+                transitionProperty: 'transform',
+                transitionDuration: '180ms',
+                transitionTimingFunction: 'ease-in-out',
+              }
+            : {};
+          return (
+            <Pressable
+              key={reaction.key}
+              onHoverIn={() => {
+                setHoveredReactionKey(reaction.key);
+              }}
+              onHoverOut={() => {
+                setHoveredReactionKey('');
+              }}
+              onPress={() => {
+                onSelect(reaction);
+              }}
+              style={[
+                styles.reactionButton,
+                webHoverTransition,
+                {transform: [{scale}]},
+              ]}>
+              <Text style={styles.reactionEmoji}>
+                {applySkinToneToEmoji(reaction, tone)}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 };
@@ -70,6 +115,7 @@ const LiveReactionButton = () => {
   const reactionLabel = useString(toolbarItemReactionText)();
   const {width: windowWidth} = useWindowDimensions();
   const {rtcProps} = React.useContext(PropsContext);
+  const {store, setStore} = React.useContext(StorageContext);
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -79,6 +125,17 @@ const LiveReactionButton = () => {
     top: number;
     left: number;
   } | null>(null);
+
+  const tone: SkinTonePreference = store.liveReactionSkinTone ?? 'default';
+  const setTone = React.useCallback(
+    (next: SkinTonePreference) => {
+      if (!setStore) {
+        return;
+      }
+      setStore(prev => ({...prev, liveReactionSkinTone: next}));
+    },
+    [setStore],
+  );
 
   if (!$config.ENABLE_LIVE_REACTIONS) {
     return null;
@@ -96,8 +153,6 @@ const LiveReactionButton = () => {
   }, []);
 
   const openTray = React.useCallback(() => {
-    const trayWidth = 200;
-    const trayHeight = 104;
     const trayOffset = 12;
 
     requestAnimationFrame(() => {
@@ -112,11 +167,11 @@ const LiveReactionButton = () => {
         const left = Math.max(
           8,
           Math.min(
-            windowWidth - trayWidth - 8,
-            x + buttonWidth / 2 - trayWidth / 2,
+            windowWidth - TRAY_WIDTH - 8,
+            x + buttonWidth / 2 - TRAY_WIDTH / 2,
           ),
         );
-        const top = Math.max(8, y - trayHeight - trayOffset);
+        const top = Math.max(8, y - TRAY_HEIGHT - trayOffset);
 
         setTrayPosition({top, left});
         setIsTrayOpen(true);
@@ -175,6 +230,8 @@ const LiveReactionButton = () => {
 
   const tray = (
     <ReactionTray
+      tone={tone}
+      setTone={setTone}
       onSelect={reaction => {
         emitLiveReaction(reaction);
       }}
@@ -209,15 +266,11 @@ const LiveReactionButton = () => {
 
 const styles = StyleSheet.create({
   tray: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 200,
-    height: 104,
-    padding: 4,
+    width: TRAY_WIDTH,
+    height: TRAY_HEIGHT,
+    padding: 8,
     marginBottom: 12,
-    borderRadius: 28,
+    borderRadius: 24,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOffset: {width: 0, height: 8},
@@ -225,6 +278,40 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
     zIndex: 1000,
+  },
+  toneRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    marginBottom: 4,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor:
+      $config.HARD_CODED_BLACK_COLOR + '22',
+  },
+  toneButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toneButtonSelected: {
+    backgroundColor:
+      $config.SECONDARY_ACTION_COLOR + '33',
+  },
+  toneEmoji: {
+    fontSize: 20,
+    lineHeight: 24,
+    textAlign: 'center',
+    includeFontPadding: false,
+  },
+  emojiGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
   modalRoot: {
     flex: 1,
