@@ -152,10 +152,10 @@ export const LIVE_REACTIONS: LiveReactionDefinition[] = [
     lottieData: require('../../assets/live-reactions/animated/1f680.json'),
   },
   {
-    key: 'slightly-frowning',
-    emoji: '🙁',
-    asset: require('../../assets/live-reactions/1f641.gif'),
-    lottieData: require('../../assets/live-reactions/animated/1f641.json'),
+    key: 'upside-down-face',
+    emoji: '🙃',
+    asset: require('../../assets/live-reactions/1f643.gif'),
+    lottieData: require('../../assets/live-reactions/animated/1f643.json'),
   },
   {
     key: 'fire',
