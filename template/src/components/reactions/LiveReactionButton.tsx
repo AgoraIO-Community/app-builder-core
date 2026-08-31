@@ -27,13 +27,13 @@ import {
   SkinTonePreference,
   applySkinToneToEmoji,
 } from './catalog';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const TRAY_WIDTH = 222;
 const TRAY_HEIGHT = 169;
 
-const LAYER_4_COLOR = '#333';
-const ICON_BG_COLOR = '#242529';
-const MAGIC_HOVER_COLOR = '#4A4B4E';
+const MAGIC_HOVER_COLOR =
+  $config.SEMANTIC_NEUTRAL + hexadecimalTransparency['25%'];
 
 const TONE_SWATCH: Record<SkinTonePreference, string> = {
   default: '#FBCC57',
@@ -74,10 +74,6 @@ const ReactionTray = ({
                   boxShadow: `0 0 0 3px ${MAGIC_HOVER_COLOR}`,
                 } as any)
               : null;
-          const selectedNativeStyle =
-            isSelected && !isWebInternal()
-              ? {borderColor: MAGIC_HOVER_COLOR, borderWidth: 2}
-              : null;
           return (
             <Pressable
               key={option.value}
@@ -93,9 +89,11 @@ const ReactionTray = ({
                   styles.toneSwatch,
                   {backgroundColor: option.color},
                   selectedWebStyle,
-                  selectedNativeStyle,
                 ]}
               />
+              {isSelected && !isWebInternal() ? (
+                <View style={styles.toneRingNative} pointerEvents="none" />
+              ) : null}
             </Pressable>
           );
         })}
@@ -345,11 +343,22 @@ const styles = StyleSheet.create({
     height: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
   toneSwatch: {
     width: 15,
     height: 15,
     borderRadius: 7.5,
+  },
+  toneRingNative: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: MAGIC_HOVER_COLOR,
   },
   emojiScroll: {
     alignSelf: 'stretch',
