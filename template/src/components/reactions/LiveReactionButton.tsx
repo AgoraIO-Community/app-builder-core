@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     padding: 4,
     marginBottom: 12,
     borderRadius: 28,
-    backgroundColor: LAYER_4_COLOR,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
     flexDirection: 'column',
     alignItems: 'center',
     overflow: 'hidden',
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
-    backgroundColor: ICON_BG_COLOR,
+    backgroundColor: $config.ICON_BG_COLOR,
   },
   toneButton: {
     width: 20,
