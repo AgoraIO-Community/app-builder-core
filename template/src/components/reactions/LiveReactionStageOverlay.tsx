@@ -124,6 +124,11 @@ const css = `
   object-fit: contain;
   display: block;
 }
+.live-reaction-stage-item img.live-reaction-custom {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+}
 .live-reaction-clap {
   width: 48px;
   height: 48px;
@@ -182,13 +187,15 @@ const css = `
 const ReactionArt = ({
   fallbackSrc,
   lottieData,
+  isCustom,
 }: {
   fallbackSrc: string;
   lottieData?: any;
+  isCustom?: boolean;
 }) => {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const animationRef = React.useRef<any>(null);
-  const [shouldFallback, setShouldFallback] = React.useState(false);
+  const [shouldFallback, setShouldFallback] = React.useState(!lottieData);
 
   React.useEffect(() => {
     const container = containerRef.current;
@@ -223,7 +230,14 @@ const ReactionArt = ({
   }, [lottieData, shouldFallback]);
 
   if (shouldFallback) {
-    return <img src={fallbackSrc} alt="" aria-hidden="true" />;
+    return (
+      <img
+        src={fallbackSrc}
+        alt=""
+        aria-hidden="true"
+        className={isCustom ? 'live-reaction-custom' : undefined}
+      />
+    );
   }
 
   return (
@@ -313,6 +327,7 @@ const LiveReactionStageOverlay = () => {
                 <ReactionArt
                   fallbackSrc={visual.asset}
                   lottieData={visual.lottieData}
+                  isCustom={!!LIVE_REACTION_MAP[reaction.assetKey]?.custom}
                 />
                 <div
                   className="live-reaction-sender-name"

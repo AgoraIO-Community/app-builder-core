@@ -1,3 +1,8 @@
+// @ts-ignore
+import tyCustom from '../../assets/live-reactions/custom/ty.png';
+// @ts-ignore
+import agoraCustom from '../../assets/live-reactions/custom/agora.png';
+
 export type SkinToneCode = '1f3fb' | '1f3fc' | '1f3fd' | '1f3fe' | '1f3ff';
 export type SkinTonePreference = 'default' | SkinToneCode;
 
@@ -6,12 +11,18 @@ export interface LiveReactionSkinToneAsset {
   lottieData?: any;
 }
 
+export interface LiveReactionCustomMeta {
+  label: string;
+  fallbackEmoji: string;
+}
+
 export interface LiveReactionDefinition {
   key: string;
   emoji: string;
   asset: any;
   lottieData?: any;
   skinToneVariants?: Record<SkinToneCode, LiveReactionSkinToneAsset>;
+  custom?: LiveReactionCustomMeta;
 }
 
 export interface LiveReactionEvent {
@@ -242,6 +253,18 @@ export const LIVE_REACTIONS: LiveReactionDefinition[] = [
     emoji: '😎',
     asset: require('../../assets/live-reactions/1f60e.gif'),
     lottieData: require('../../assets/live-reactions/animated/1f60e.json'),
+  },
+  {
+    key: 'thank-you',
+    emoji: '🙏',
+    asset: tyCustom,
+    custom: {label: 'Thank you', fallbackEmoji: '🙏'},
+  },
+  {
+    key: 'agora',
+    emoji: '🅰️',
+    asset: agoraCustom,
+    custom: {label: 'Agora', fallbackEmoji: '🅰️'},
   },
 ];
 

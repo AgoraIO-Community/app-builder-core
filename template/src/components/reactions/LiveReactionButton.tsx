@@ -1,7 +1,9 @@
 import React from 'react';
 import {
+  Image,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
@@ -22,19 +24,31 @@ import {
   LIVE_REACTIONS,
   LiveReactionDefinition,
   SKIN_TONE_CODES,
-  SKIN_TONE_MODIFIER,
   SkinTonePreference,
   applySkinToneToEmoji,
 } from './catalog';
 
-const TRAY_WIDTH = 260;
-const TRAY_HEIGHT = 240;
+const TRAY_WIDTH = 222;
+const TRAY_HEIGHT = 169;
 
-const TONE_OPTIONS: {value: SkinTonePreference; label: string}[] = [
-  {value: 'default', label: '👋'},
+const LAYER_4_COLOR = '#333';
+const ICON_BG_COLOR = '#242529';
+const MAGIC_HOVER_COLOR = '#4A4B4E';
+
+const TONE_SWATCH: Record<SkinTonePreference, string> = {
+  default: '#FBCC57',
+  '1f3fb': '#F5DDB4',
+  '1f3fc': '#E5C395',
+  '1f3fd': '#C68F6A',
+  '1f3fe': '#97674B',
+  '1f3ff': '#5D4038',
+};
+
+const TONE_OPTIONS: {value: SkinTonePreference; color: string}[] = [
+  {value: 'default', color: TONE_SWATCH.default},
   ...SKIN_TONE_CODES.map(code => ({
     value: code,
-    label: SKIN_TONE_MODIFIER[code],
+    color: TONE_SWATCH[code],
   })),
 ];
 
@@ -54,20 +68,42 @@ const ReactionTray = ({
       <View style={styles.toneRow}>
         {TONE_OPTIONS.map(option => {
           const isSelected = option.value === tone;
+          const selectedWebStyle =
+            isSelected && isWebInternal()
+              ? ({
+                  boxShadow: `0 0 0 3px ${MAGIC_HOVER_COLOR}`,
+                } as any)
+              : null;
+          const selectedNativeStyle =
+            isSelected && !isWebInternal()
+              ? {borderColor: MAGIC_HOVER_COLOR, borderWidth: 2}
+              : null;
           return (
             <Pressable
               key={option.value}
               onPress={() => setTone(option.value)}
-              style={[
-                styles.toneButton,
-                isSelected ? styles.toneButtonSelected : null,
-              ]}>
-              <Text style={styles.toneEmoji}>{option.label}</Text>
+              accessibilityLabel={
+                option.value === 'default'
+                  ? 'Default skin tone'
+                  : `Skin tone ${option.value}`
+              }
+              style={styles.toneButton}>
+              <View
+                style={[
+                  styles.toneSwatch,
+                  {backgroundColor: option.color},
+                  selectedWebStyle,
+                  selectedNativeStyle,
+                ]}
+              />
             </Pressable>
           );
         })}
       </View>
-      <View style={styles.emojiGrid}>
+      <ScrollView
+        style={styles.emojiScroll}
+        contentContainerStyle={styles.emojiGrid}
+        showsVerticalScrollIndicator={false}>
         {LIVE_REACTIONS.map(reaction => {
           const scale =
             isWebInternal() && hoveredReactionKey === reaction.key
@@ -97,13 +133,22 @@ const ReactionTray = ({
                 webHoverTransition,
                 {transform: [{scale}]},
               ]}>
-              <Text style={styles.reactionEmoji}>
-                {applySkinToneToEmoji(reaction, tone)}
-              </Text>
+              {reaction.custom ? (
+                <Image
+                  source={reaction.asset}
+                  style={styles.reactionCustomImage}
+                  resizeMode="contain"
+                  accessibilityLabel={reaction.custom.label}
+                />
+              ) : (
+                <Text style={styles.reactionEmoji}>
+                  {applySkinToneToEmoji(reaction, tone)}
+                </Text>
+              )}
             </Pressable>
           );
         })}
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -268,11 +313,14 @@ const styles = StyleSheet.create({
   tray: {
     width: TRAY_WIDTH,
     height: TRAY_HEIGHT,
-    padding: 8,
+    padding: 4,
     marginBottom: 12,
-    borderRadius: 24,
-    backgroundColor: $config.CARD_LAYER_4_COLOR,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    borderRadius: 28,
+    backgroundColor: LAYER_4_COLOR,
+    flexDirection: 'column',
+    alignItems: 'center',
+    overflow: 'hidden',
+    shadowColor: '#000',
     shadowOffset: {width: 0, height: 8},
     shadowOpacity: 0.25,
     shadowRadius: 20,
@@ -281,37 +329,38 @@ const styles = StyleSheet.create({
   },
   toneRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    padding: 12,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 4,
-    paddingVertical: 4,
-    marginBottom: 4,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor:
-      $config.HARD_CODED_BLACK_COLOR + '22',
+    alignSelf: 'stretch',
+    gap: 12,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    backgroundColor: ICON_BG_COLOR,
   },
   toneButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 20,
+    height: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  toneButtonSelected: {
-    backgroundColor:
-      $config.SECONDARY_ACTION_COLOR + '33',
+  toneSwatch: {
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
   },
-  toneEmoji: {
-    fontSize: 20,
-    lineHeight: 24,
-    textAlign: 'center',
-    includeFontPadding: false,
+  emojiScroll: {
+    alignSelf: 'stretch',
+    flex: 1,
   },
   emojiGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-around',
     alignItems: 'center',
+    paddingTop: 4,
   },
   modalRoot: {
     flex: 1,
@@ -338,6 +387,11 @@ const styles = StyleSheet.create({
     lineHeight: 30,
     textAlign: 'center',
     includeFontPadding: false,
+  },
+  reactionCustomImage: {
+    width: 28,
+    height: 28,
+    borderRadius: 4,
   },
 });
 

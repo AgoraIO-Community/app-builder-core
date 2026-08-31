@@ -2,13 +2,18 @@ import React from 'react';
 import {
   Animated,
   Easing,
+  Image,
   LayoutChangeEvent,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import {useVideoCall} from '../useVideoCall';
-import {LIVE_REACTION_LANE_COUNT} from './catalog';
+import {
+  LIVE_REACTION_LANE_COUNT,
+  LIVE_REACTION_MAP,
+  LiveReactionDefinition,
+} from './catalog';
 
 const NATIVE_REACTION_START_BOTTOM = 18;
 const NATIVE_REACTION_TOP_MARGIN = 120;
@@ -19,11 +24,13 @@ const AnimatedReaction = ({
   sender,
   left,
   travel,
+  definition,
 }: {
   emoji: string;
   sender: string;
   left: number;
   travel: number;
+  definition?: LiveReactionDefinition;
 }) => {
   const progress = React.useRef(new Animated.Value(0)).current;
 
@@ -47,6 +54,8 @@ const AnimatedReaction = ({
     outputRange: [0, 1, 1, 0],
   });
 
+  const isCustom = !!definition?.custom;
+
   return (
     <Animated.View
       style={[
@@ -58,7 +67,16 @@ const AnimatedReaction = ({
           transform: [{translateY}],
         },
       ]}>
-      <Text style={styles.reactionEmoji}>{emoji}</Text>
+      {isCustom ? (
+        <Image
+          source={definition!.asset}
+          style={styles.reactionCustomImage}
+          resizeMode="contain"
+          accessibilityLabel={definition!.custom!.label}
+        />
+      ) : (
+        <Text style={styles.reactionEmoji}>{emoji}</Text>
+      )}
       <View style={styles.reactionSenderPill}>
         <Text numberOfLines={1} style={styles.reactionSender}>
           {sender}
@@ -140,6 +158,7 @@ const LiveReactionStageOverlay = () => {
             emoji={reaction.emoji}
             sender={reaction.senderDisplayName || reaction.senderUid}
             travel={travel}
+            definition={LIVE_REACTION_MAP[reaction.assetKey]}
           />
         );
       })}
@@ -230,6 +249,11 @@ const styles = StyleSheet.create({
   reactionEmoji: {
     fontSize: 32,
     lineHeight: 38,
+  },
+  reactionCustomImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
   },
   reactionSenderPill: {
     minWidth: 48,
