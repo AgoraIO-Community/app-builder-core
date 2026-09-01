@@ -214,6 +214,10 @@ export const sttDownloadTranscriptBtnText =
   `${stt}DownloadTranscriptBtnText` as const;
 export const sttLanguageChangeInProgress =
   `${stt}LanguageChangeInProgress` as const;
+export const sttSpokenLanguageChangeInProgress =
+  `${stt}SpokenLanguageChangeInProgress` as const;
+export const sttTranslationLanguageChangeInProgress =
+  `${stt}TranslationLanguageChangeInProgress` as const;
 export const sttStartError = `${stt}StartError` as const;
 export const sttUpdateError = `${stt}UpdateError` as const;
 
@@ -657,6 +661,8 @@ export interface I18nVideoCallScreenLabelsInterface {
   [sttDownloadBtnText]?: I18nBaseType;
   [sttDownloadTranscriptBtnText]?: I18nBaseType;
   [sttLanguageChangeInProgress]?: I18nBaseType;
+  [sttSpokenLanguageChangeInProgress]?: I18nConditionalType;
+  [sttTranslationLanguageChangeInProgress]?: I18nConditionalType;
   [sttStartError]?: I18nBaseType;
   [sttUpdateError]?: I18nBaseType;
 
@@ -1066,6 +1072,12 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     isUpdate ? 'Updating Translation Language' : 'Setting Translation Language',
   [sttChangeTranslationLanguageText]: 'Change Translation Language',
   [sttLanguageChangeInProgress]: 'Language Change is in progress...',
+  [sttSpokenLanguageChangeInProgress]: (isUpdate: boolean) =>
+    isUpdate ? 'Updating Spoken Language...' : 'Setting Spoken Language...',
+  [sttTranslationLanguageChangeInProgress]: (isUpdate: boolean) =>
+    isUpdate
+      ? 'Updating Translation Language...'
+      : 'Setting Translation Language...',
   [sttStartError]: 'Failed to start captions',
   [sttUpdateError]: 'Failed to update caption settings',
 

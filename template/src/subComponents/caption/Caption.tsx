@@ -12,6 +12,8 @@ import {useLocalUid} from '../../../agora-rn-uikit';
 import {
   sttSettingSpokenLanguageText,
   sttSettingTranslationLanguageText,
+  sttSpokenLanguageChangeInProgress,
+  sttTranslationLanguageChangeInProgress,
 } from '../../language/default-labels/videoCallScreenLabels';
 
 export type WebStreamMessageArgs = [number, Uint8Array];
@@ -45,11 +47,18 @@ const Caption: React.FC<CaptionProps> = ({
     getBotOwnerUid,
     isSTTActive,
     remoteSpokenLanguages,
+    langChangeType,
   } = useCaption();
   const currentUserUid = useLocalUid();
   const ssLabel = useString(sttSettingSpokenLanguageText)();
   const stLabel = useString<boolean>(sttSettingTranslationLanguageText)(
     isSTTActive,
+  );
+  const spokenLanguageChangeInProgress = useString<boolean>(
+    sttSpokenLanguageChangeInProgress,
+  );
+  const translationLanguageChangeInProgress = useString<boolean>(
+    sttTranslationLanguageChangeInProgress,
   );
   const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
@@ -80,7 +89,11 @@ const Caption: React.FC<CaptionProps> = ({
   if (isLangChangeInProgress) {
     return (
       <Loading
-        text={stLabel}
+        text={
+          langChangeType === 'translation'
+            ? translationLanguageChangeInProgress(isSTTActive)
+            : spokenLanguageChangeInProgress(isSTTActive)
+        }
         background="transparent"
         indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
         textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}

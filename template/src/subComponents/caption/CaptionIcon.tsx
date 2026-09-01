@@ -42,6 +42,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
   // const isFirstTimePopupOpen = React.useRef(false);
   // const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
   // const isDisabled = !isAuthorizedSTTUser();
+  const isDisabled = !sttDepsReady || props?.disabled;
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
   const label = captionLabel(isCaptionON);
   const onPress = () => {
@@ -64,13 +65,15 @@ const CaptionIcon = (props: CaptionIconProps) => {
   };
   const iconButtonProps: IconButtonProps = {
     onPress: onPressCustom || onPress,
-    disabled: !sttDepsReady,
+    disabled: isDisabled,
     iconProps: {
       name: isCaptionON ? 'captions-off' : 'captions',
       iconBackgroundColor: isCaptionON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: isCaptionON
+      tintColor: isDisabled
+        ? $config.SEMANTIC_NEUTRAL
+        : isCaptionON
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
@@ -80,7 +83,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
           ? labelCustom || label?.replace(' ', '\n')
           : labelCustom || label
         : '',
-      textColor: $config.FONT_COLOR,
+      textColor: isDisabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
       numberOfLines: 2,
     },
   };
