@@ -1,7 +1,8 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useVideoCall} from '../useVideoCall';
+import {getLiveReactionMap} from './catalog';
 
 interface LiveReactionBadgeProps {
   uid: number | string;
@@ -19,6 +20,9 @@ const LiveReactionBadge = ({
     return null;
   }
 
+  const definition = getLiveReactionMap()[reaction.assetKey];
+  const isCustom = !!definition?.custom;
+
   return (
     <View
       pointerEvents="none"
@@ -26,7 +30,16 @@ const LiveReactionBadge = ({
         styles.container,
         hasLeadingIcon ? styles.containerWithLeadingIcon : null,
       ]}>
-      <Text style={styles.emoji}>{reaction.emoji}</Text>
+      {isCustom ? (
+        <Image
+          source={definition!.asset}
+          style={styles.customImage}
+          resizeMode="contain"
+          accessibilityLabel={definition!.custom!.label}
+        />
+      ) : (
+        <Text style={styles.emoji}>{reaction.emoji}</Text>
+      )}
     </View>
   );
 };
@@ -51,6 +64,11 @@ const styles = StyleSheet.create({
   emoji: {
     fontSize: 24,
     lineHeight: 26,
+  },
+  customImage: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
   },
 });
 

@@ -2,13 +2,18 @@ import React from 'react';
 import {
   Animated,
   Easing,
+  Image,
   LayoutChangeEvent,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import {useVideoCall} from '../useVideoCall';
-import {LIVE_REACTION_LANE_COUNT} from './catalog';
+import {
+  LIVE_REACTION_LANE_COUNT,
+  LiveReactionDefinition,
+  getLiveReactionMap,
+} from './catalog';
 
 const NATIVE_REACTION_START_BOTTOM = 18;
 const NATIVE_REACTION_TOP_MARGIN = 120;
@@ -19,11 +24,13 @@ const AnimatedReaction = ({
   sender,
   left,
   travel,
+  definition,
 }: {
   emoji: string;
   sender: string;
   left: number;
   travel: number;
+  definition?: LiveReactionDefinition;
 }) => {
   const progress = React.useRef(new Animated.Value(0)).current;
 
@@ -47,6 +54,8 @@ const AnimatedReaction = ({
     outputRange: [0, 1, 1, 0],
   });
 
+  const isCustom = !!definition?.custom;
+
   return (
     <Animated.View
       style={[
@@ -58,7 +67,16 @@ const AnimatedReaction = ({
           transform: [{translateY}],
         },
       ]}>
-      <Text style={styles.reactionEmoji}>{emoji}</Text>
+      {isCustom ? (
+        <Image
+          source={definition!.asset}
+          style={styles.reactionCustomImage}
+          resizeMode="contain"
+          accessibilityLabel={definition!.custom!.label}
+        />
+      ) : (
+        <Text style={styles.reactionEmoji}>{emoji}</Text>
+      )}
       <View style={styles.reactionSenderPill}>
         <Text numberOfLines={1} style={styles.reactionSender}>
           {sender}
@@ -140,6 +158,7 @@ const LiveReactionStageOverlay = () => {
             emoji={reaction.emoji}
             sender={reaction.senderDisplayName || reaction.senderUid}
             travel={travel}
+            definition={getLiveReactionMap()[reaction.assetKey]}
           />
         );
       })}
@@ -231,21 +250,26 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 38,
   },
+  reactionCustomImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+  },
   reactionSenderPill: {
-    minWidth: 48,
-    width: 88,
+    maxWidth: 88,
     marginTop: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
     backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
   },
   reactionSender: {
-    maxWidth: 68,
-    fontSize: 12,
-    lineHeight: 12,
+    maxWidth: 72,
+    fontSize: 11,
+    lineHeight: 14,
     fontFamily: 'Source Sans 3',
     fontWeight: '400',
     color: $config.BACKGROUND_COLOR,
