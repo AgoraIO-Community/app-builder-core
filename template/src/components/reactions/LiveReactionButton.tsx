@@ -115,35 +115,36 @@ const ReactionTray = ({
               }
             : {};
           return (
-            <Pressable
-              key={reaction.key}
-              onHoverIn={() => {
-                setHoveredReactionKey(reaction.key);
-              }}
-              onHoverOut={() => {
-                setHoveredReactionKey('');
-              }}
-              onPress={() => {
-                onSelect(reaction);
-              }}
-              style={[
-                styles.reactionButton,
-                webHoverTransition,
-                {transform: [{scale}]},
-              ]}>
-              {reaction.custom ? (
-                <Image
-                  source={reaction.asset}
-                  style={styles.reactionCustomImage}
-                  resizeMode="contain"
-                  accessibilityLabel={reaction.custom.label}
-                />
-              ) : (
-                <Text style={styles.reactionEmoji}>
-                  {applySkinToneToEmoji(reaction, tone)}
-                </Text>
-              )}
-            </Pressable>
+            <View key={reaction.key} style={styles.reactionCell}>
+              <Pressable
+                onHoverIn={() => {
+                  setHoveredReactionKey(reaction.key);
+                }}
+                onHoverOut={() => {
+                  setHoveredReactionKey('');
+                }}
+                onPress={() => {
+                  onSelect(reaction);
+                }}
+                style={[
+                  styles.reactionButton,
+                  webHoverTransition,
+                  {transform: [{scale}]},
+                ]}>
+                {reaction.custom ? (
+                  <Image
+                    source={reaction.asset}
+                    style={styles.reactionCustomImage}
+                    resizeMode="contain"
+                    accessibilityLabel={reaction.custom.label}
+                  />
+                ) : (
+                  <Text style={styles.reactionEmoji}>
+                    {applySkinToneToEmoji(reaction, tone)}
+                  </Text>
+                )}
+              </Pressable>
+            </View>
           );
         })}
       </ScrollView>
@@ -367,9 +368,14 @@ const styles = StyleSheet.create({
   emojiGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingTop: 4,
+  },
+  reactionCell: {
+    width: '25%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   modalRoot: {
     flex: 1,
