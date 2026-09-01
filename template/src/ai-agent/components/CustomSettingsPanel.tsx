@@ -160,8 +160,33 @@ const AdvancedSettings = () => {
   );
 };
 
+const ASRSettings = () => {
+  const {agentId} = useContext(AgentContext);
+  const {
+    data: {agents},
+  } = useRoomInfo();
+
+  // Get the selected agent and check if ASR vendor is "ares"
+  const selectedAgent = agents?.find(a => a.id === agentId);
+  const isAresASR = selectedAgent?.asr?.vendor === 'ares';
+
+  // Only render ASR settings if the agent uses "ares" as ASR vendor
+  if (!isAresASR) {
+    return null;
+  }
+
+  return (
+    <>
+      <SelectUserLanguage />
+      <Spacer size={16} />
+      <AdvancedSettings />
+    </>
+  );
+};
+
 const CustomSettingsPanel = () => {
   const isAgentAvailable = useIsAgentAvailable();
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.contentContainer}>
@@ -174,9 +199,7 @@ const CustomSettingsPanel = () => {
               <Spacer size={16} />
               <UserPrompt />
               <Spacer size={16} />
-              <SelectUserLanguage />
-              <Spacer size={16} />
-              <AdvancedSettings />
+              <ASRSettings />
             </>
           ) : (
             <></>
