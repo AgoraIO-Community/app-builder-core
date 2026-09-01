@@ -11,8 +11,8 @@ import {
 import {useVideoCall} from '../useVideoCall';
 import {
   LIVE_REACTION_LANE_COUNT,
-  LIVE_REACTION_MAP,
   LiveReactionDefinition,
+  getLiveReactionMap,
 } from './catalog';
 
 const NATIVE_REACTION_START_BOTTOM = 18;
@@ -158,7 +158,7 @@ const LiveReactionStageOverlay = () => {
             emoji={reaction.emoji}
             sender={reaction.senderDisplayName || reaction.senderUid}
             travel={travel}
-            definition={LIVE_REACTION_MAP[reaction.assetKey]}
+            definition={getLiveReactionMap()[reaction.assetKey]}
           />
         );
       })}

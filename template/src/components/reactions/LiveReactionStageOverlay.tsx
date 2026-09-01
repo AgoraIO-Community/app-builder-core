@@ -4,7 +4,7 @@ import {useVideoCall} from '../useVideoCall';
 import {
   LIVE_REACTION_FLOAT_DURATION,
   LIVE_REACTION_LANE_COUNT,
-  LIVE_REACTION_MAP,
+  getLiveReactionMap,
   resolveReactionVisual,
 } from './catalog';
 
@@ -293,7 +293,8 @@ const LiveReactionStageOverlay = () => {
           </div>
         ) : null}
         {floatingReactions.map((reaction, index) => {
-          if (!LIVE_REACTION_MAP[reaction.assetKey]) {
+          const catalogEntry = getLiveReactionMap()[reaction.assetKey];
+          if (!catalogEntry) {
             return null;
           }
           const visual = resolveReactionVisual(
@@ -327,7 +328,7 @@ const LiveReactionStageOverlay = () => {
                 <ReactionArt
                   fallbackSrc={visual.asset}
                   lottieData={visual.lottieData}
-                  isCustom={!!LIVE_REACTION_MAP[reaction.assetKey]?.custom}
+                  isCustom={!!catalogEntry.custom}
                 />
                 <div
                   className="live-reaction-sender-name"

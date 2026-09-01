@@ -13,6 +13,7 @@ import React from 'react';
 import {AI_AGENT_CUSTOMIZATION} from '../src/ai-agent';
 import {LogSource, logger} from '../src/logger/AppBuilderLogger';
 import {CustomizationApiInterface} from './typeDefinition';
+import {registerCustomLiveReactions} from '../src/components/reactions/catalog';
 import ReactIs from 'react-is';
 /**
  *
@@ -223,6 +224,11 @@ export const customize = (config: CustomizationApiInterface) => {
 
     //validating the lifecycle
     config?.lifecycle && validateLifecycle(config?.lifecycle);
+
+    // register consumer-provided live reactions (custom stickers etc.)
+    if (newConfig?.liveReactions) {
+      registerCustomLiveReactions(newConfig.liveReactions);
+    }
   } catch (error) {
     logger.error(
       LogSource.CustomizationAPI,

@@ -21,11 +21,11 @@ import {toolbarItemReactionText} from '../../language/default-labels/videoCallSc
 import {useVideoCall} from '../useVideoCall';
 import StorageContext from '../StorageContext';
 import {
-  LIVE_REACTIONS,
   LiveReactionDefinition,
   SKIN_TONE_CODES,
   SkinTonePreference,
   applySkinToneToEmoji,
+  getLiveReactions,
 } from './catalog';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
@@ -102,7 +102,7 @@ const ReactionTray = ({
         style={styles.emojiScroll}
         contentContainerStyle={styles.emojiGrid}
         showsVerticalScrollIndicator={false}>
-        {LIVE_REACTIONS.map(reaction => {
+        {getLiveReactions().map(reaction => {
           const scale =
             isWebInternal() && hoveredReactionKey === reaction.key
               ? 37 / 24

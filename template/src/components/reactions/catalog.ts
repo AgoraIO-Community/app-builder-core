@@ -1,7 +1,5 @@
 // @ts-ignore
 import tyCustom from '../../assets/live-reactions/custom/ty.png';
-// @ts-ignore
-import agoraCustom from '../../assets/live-reactions/custom/agora.png';
 
 export type SkinToneCode = '1f3fb' | '1f3fc' | '1f3fd' | '1f3fe' | '1f3ff';
 export type SkinTonePreference = 'default' | SkinToneCode;
@@ -260,13 +258,29 @@ export const LIVE_REACTIONS: LiveReactionDefinition[] = [
     asset: tyCustom,
     custom: {label: 'Thank you', fallbackEmoji: '🙏'},
   },
-  {
-    key: 'agora',
-    emoji: '🅰️',
-    asset: agoraCustom,
-    custom: {label: 'Agora', fallbackEmoji: '🅰️'},
-  },
 ];
+
+let _customLiveReactions: LiveReactionDefinition[] = [];
+
+export function registerCustomLiveReactions(
+  reactions: LiveReactionDefinition[],
+): void {
+  _customLiveReactions = Array.isArray(reactions) ? [...reactions] : [];
+}
+
+export function getLiveReactions(): LiveReactionDefinition[] {
+  return [...LIVE_REACTIONS, ..._customLiveReactions];
+}
+
+export function getLiveReactionMap(): Record<string, LiveReactionDefinition> {
+  return getLiveReactions().reduce<Record<string, LiveReactionDefinition>>(
+    (acc, reaction) => {
+      acc[reaction.key] = reaction;
+      return acc;
+    },
+    {},
+  );
+}
 
 export const LIVE_REACTION_MAP = LIVE_REACTIONS.reduce<
   Record<string, LiveReactionDefinition>
@@ -285,7 +299,7 @@ export function resolveReactionVisual(
   assetKey: string,
   skinTone?: SkinToneCode,
 ): LiveReactionSkinToneAsset | undefined {
-  const reaction = LIVE_REACTION_MAP[assetKey];
+  const reaction = getLiveReactionMap()[assetKey];
   if (!reaction) {
     return undefined;
   }

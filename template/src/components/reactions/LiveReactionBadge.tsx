@@ -2,7 +2,7 @@ import React from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useVideoCall} from '../useVideoCall';
-import {LIVE_REACTION_MAP} from './catalog';
+import {getLiveReactionMap} from './catalog';
 
 interface LiveReactionBadgeProps {
   uid: number | string;
@@ -20,7 +20,7 @@ const LiveReactionBadge = ({
     return null;
   }
 
-  const definition = LIVE_REACTION_MAP[reaction.assetKey];
+  const definition = getLiveReactionMap()[reaction.assetKey];
   const isCustom = !!definition?.custom;
 
   return (
