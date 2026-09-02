@@ -945,6 +945,20 @@ const RtmConfigure = (props: any) => {
       }
     }
 
+    if (
+      typeof evt !== 'string' ||
+      evt.trim() === '' ||
+      typeof value === 'undefined'
+    ) {
+      logger.debug(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'Ignoring RTM payload: not an AppBuilder custom-event envelope',
+        {data, sender, ts},
+      );
+      return;
+    }
+
     try {
       let parsedValue;
       try {
@@ -955,19 +969,6 @@ const RtmConfigure = (props: any) => {
           'CUSTOM_EVENTS',
           'RTM Failed to parse event value in event dispatcher:',
           {error},
-        );
-        return;
-      }
-      if (
-        !parsedValue ||
-        typeof parsedValue !== 'object' ||
-        Array.isArray(parsedValue)
-      ) {
-        logger.debug(
-          LogSource.Events,
-          'CUSTOM_EVENTS',
-          'Ignoring non custom-event RTM payload',
-          {evt, sender, ts},
         );
         return;
       }
