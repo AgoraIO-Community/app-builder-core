@@ -1,12 +1,12 @@
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
 *********************************************
 */
 
@@ -59,6 +59,7 @@ import LocalEventEmitter, {
 import {controlMessageEnum} from '../components/ChatContext';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {RECORDING_BOT_UID} from '../utils/constants';
+import {isRemoteDeparture} from '../rtm/isRemoteDeparture';
 import {
   nativeChannelTypeMapping,
   nativeLinkStateMapping,
@@ -134,7 +135,7 @@ const RtmConfigure = (props: any) => {
       Object.keys(
         filterObject(
           defaultContent,
-          ([k, v]) =>
+          ([_k, v]) =>
             v?.type === 'rtc' &&
             !v.offline &&
             activeUidsRef.current.activeUids.indexOf(v?.uid) !== -1,
@@ -329,12 +330,16 @@ const RtmConfigure = (props: any) => {
           );
           await processUserUidAttributes(backoffAttributes, presence.publisher);
         }
-        // remoteLeaveChannel
-        if (presence.type === nativePresenceEventTypeMapping.REMOTE_LEAVE) {
+        // remoteLeaveChannel and, on web, remote connection timeout
+        if (isRemoteDeparture(presence.type, isWebInternal())) {
+          const isTimeout =
+            presence.type === nativePresenceEventTypeMapping.REMOTE_TIMEOUT;
           logger.log(
             LogSource.AgoraSDK,
             'Event',
-            'RTM presenceEvent of type [4 - remoteLeave] (channelMemberLeft)',
+            isTimeout
+              ? 'RTM presenceEvent of type [5 - remoteTimeout] (channelMemberTimedOut)'
+              : 'RTM presenceEvent of type [4 - remoteLeave] (channelMemberLeft)',
             presence,
           );
           // Chat of left user becomes undefined. So don't cleanup

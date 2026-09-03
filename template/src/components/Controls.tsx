@@ -719,7 +719,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         title: screenShareButton(isScreenshareActive),
         onPress: () => {
           setActionMenuVisible(false);
-          isScreenshareActive ? stopScreenshare() : startScreenshare();
+          isScreenshareActive
+            ? stopScreenshare('mobile_action_menu')
+            : startScreenshare();
         },
       });
     }

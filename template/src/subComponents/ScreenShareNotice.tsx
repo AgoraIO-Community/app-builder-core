@@ -59,7 +59,7 @@ function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
       ) : (
         <TouchableOpacity
           style={styles.btnContainer}
-          onPress={() => stopScreenshare()}>
+          onPress={() => stopScreenshare('overlay_control')}>
           <View style={styles.iconContainer}>
             <ImageIcon
               iconType="plain"

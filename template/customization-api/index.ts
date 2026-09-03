@@ -30,3 +30,14 @@ export * from './ai-agent';
 
 //TODO: hari remove later - used for simple-practice demo
 export * from './temp';
+
+// Live reactions extension surface — types + register helper so consumers can
+// inject their own custom stickers via `customize({liveReactions: [...]})`.
+export type {
+  LiveReactionDefinition,
+  LiveReactionCustomMeta,
+  LiveReactionSkinToneAsset,
+  SkinToneCode,
+  SkinTonePreference,
+} from '../src/components/reactions/catalog';
+export {registerCustomLiveReactions} from '../src/components/reactions/catalog';
