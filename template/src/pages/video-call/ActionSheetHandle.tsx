@@ -16,6 +16,7 @@ const ActionSheetHandle = (props: {
   isCustomSidePanel?: boolean;
   customSidePanelProps?: {
     title: string;
+    headerRightSlot?: React.ReactNode;
     onClose?: () => void;
     name: string;
   };
