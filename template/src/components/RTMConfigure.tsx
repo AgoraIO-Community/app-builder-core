@@ -950,6 +950,20 @@ const RtmConfigure = (props: any) => {
       }
     }
 
+    if (
+      typeof evt !== 'string' ||
+      evt.trim() === '' ||
+      typeof value === 'undefined'
+    ) {
+      logger.debug(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'Ignoring RTM payload: not an AppBuilder custom-event envelope',
+        {data, sender, ts},
+      );
+      return;
+    }
+
     try {
       let parsedValue;
       try {

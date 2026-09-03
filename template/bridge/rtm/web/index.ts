@@ -72,12 +72,24 @@ export class RTMWebClient {
   private client: RTMClient;
   private appId: string;
   private userId: string;
-  private eventsMap = new Map<keyof NativeRTMClientEventMap, CallbackType>([
-    ['linkState', () => null],
-    ['storage', () => null],
-    ['presence', () => null],
-    ['message', () => null],
-  ]);
+  private eventsMap = new Map<keyof NativeRTMClientEventMap, Set<CallbackType>>(
+    [
+      ['linkState', new Set()],
+      ['storage', new Set()],
+      ['presence', new Set()],
+      ['message', new Set()],
+    ],
+  );
+
+  private emitEvent(event: keyof NativeRTMClientEventMap, data: any) {
+    const listeners = this.eventsMap.get(event);
+
+    if (!listeners) {
+      return;
+    }
+
+    listeners.forEach(listener => listener(data));
+  }
 
   constructor(appId: string, userId: string) {
     this.appId = appId;
@@ -97,7 +109,7 @@ export class RTMWebClient {
             nativeLinkStateMapping.IDLE,
           reasonCode: linkStatusReasonCodeMapping[data.reasonCode] || 0,
         };
-        (this.eventsMap.get('linkState') ?? (() => {}))(nativeState);
+        this.emitEvent('linkState', nativeState);
       });
 
       this.client.addEventListener('storage', data => {
@@ -108,7 +120,7 @@ export class RTMWebClient {
           data: convertWebToNativeMetadata(data.data),
           timestamp: data.timestamp,
         };
-        (this.eventsMap.get('storage') ?? (() => {}))(nativeStorageEvent);
+        this.emitEvent('storage', nativeStorageEvent);
       });
 
       this.client.addEventListener('presence', data => {
@@ -119,7 +131,7 @@ export class RTMWebClient {
           publisher: data.publisher,
           timestamp: data.timestamp,
         };
-        (this.eventsMap.get('presence') ?? (() => {}))(nativePresenceEvent);
+        this.emitEvent('presence', nativePresenceEvent);
       });
 
       this.client.addEventListener('message', data => {
@@ -129,7 +141,7 @@ export class RTMWebClient {
           messageType: nativeMessageEventTypeMapping[data.messageType],
           message: `${data.message}`,
         };
-        (this.eventsMap.get('message') ?? (() => {}))(nativeMessageEvent);
+        this.emitEvent('message', nativeMessageEvent);
       });
     } catch (error) {
       const contextError = new Error(
@@ -396,21 +408,18 @@ export class RTMWebClient {
     listener: (event: any) => void,
   ) {
     if (this.client) {
-      // Simply replace the handler in our map - web client listeners are fixed in constructor
-      this.eventsMap.set(event, listener as CallbackType);
+      // Web SDK listeners are fixed in the constructor; keep app-level
+      // subscribers multiplexed here.
+      this.eventsMap.get(event)?.add(listener as CallbackType);
     }
   }
 
   removeEventListener(
     event: keyof NativeRTMClientEventMap,
-    _listener: (event: any) => void,
+    listener: (event: any) => void,
   ) {
     if (this.client && this.eventsMap.has(event)) {
-      const prevListener = this.eventsMap.get(event);
-      if (prevListener) {
-        this.client.removeEventListener(event, prevListener);
-      }
-      this.eventsMap.set(event, () => null); // reset to no-op
+      this.eventsMap.get(event)?.delete(listener as CallbackType);
     }
   }
 
@@ -473,10 +482,10 @@ export class RTMWebClient {
 
   removeAllListeners() {
     this.eventsMap = new Map([
-      ['linkState', () => null],
-      ['storage', () => null],
-      ['presence', () => null],
-      ['message', () => null],
+      ['linkState', new Set()],
+      ['storage', new Set()],
+      ['presence', new Set()],
+      ['message', new Set()],
     ]);
     return this.client.removeAllListeners();
   }
