@@ -45,7 +45,10 @@ import {
   LIVE_REACTION_MAX_FLOATING_ITEMS,
   LiveReactionDefinition,
   LiveReactionEvent,
+  SkinToneCode,
+  applySkinToneToEmoji,
 } from './reactions/catalog';
+import StorageContext from './StorageContext';
 import {useString} from '../utils/useString';
 import {videoRoomUserFallbackText} from '../language/default-labels/videoCallScreenLabels';
 
@@ -117,6 +120,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const {uids} = useUserPreference();
   const remoteUserFallbackName = useString(videoRoomUserFallbackText)();
   const {deviceList} = useContext(DeviceContext);
+  const {store} = useContext(StorageContext);
   const setUsername = useSetName();
   //const videoTileInViewPortStateRef = useRef({});
   const [videoTileInViewPortState, setVideoTileInViewPortStateL] = useState({});
@@ -254,13 +258,20 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         reaction.key
       }-${Date.now()}-${nanoid(4)}`;
       const senderDisplayName = getReactionSenderName(String(localUser.uid));
+      const tonePreference = store.liveReactionSkinTone ?? 'default';
+      const skinTone: SkinToneCode | undefined =
+        tonePreference !== 'default' && reaction.skinToneVariants?.[tonePreference]
+          ? tonePreference
+          : undefined;
+      const emoji = applySkinToneToEmoji(reaction, tonePreference);
       const nextReaction: LiveReactionEvent = {
         reactionId,
         assetKey: reaction.key,
-        emoji: reaction.emoji,
+        emoji,
         senderUid: String(localUser.uid),
         senderDisplayName,
         timestamp: Date.now(),
+        skinTone,
       };
 
       ingestReaction(nextReaction);
@@ -271,11 +282,17 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
           assetKey: nextReaction.assetKey,
           emoji: nextReaction.emoji,
           timestamp: nextReaction.timestamp,
+          skinTone: nextReaction.skinTone,
         }),
         PersistanceLevel.None,
       );
     },
-    [getReactionSenderName, ingestReaction, localUser.uid],
+    [
+      getReactionSenderName,
+      ingestReaction,
+      localUser.uid,
+      store.liveReactionSkinTone,
+    ],
   );
 
   useEffect(() => {
@@ -312,6 +329,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
           emoji: payload.emoji,
           senderUid: String(data.sender),
           timestamp: payload.timestamp || data.ts || Date.now(),
+          skinTone: payload.skinTone,
         });
       } catch (error) {
         console.warn('Failed to parse live reaction payload', error);

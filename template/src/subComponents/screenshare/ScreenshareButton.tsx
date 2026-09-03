@@ -55,7 +55,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const lstooltip = useString<boolean>(livestreamingShareTooltipText);
   const onPress = () => {
     if (isScreenshareActive) {
-      stopScreenshare();
+      stopScreenshare('toolbar');
     } else {
       if (isAndroid() || isIOS()) {
         //native screen we need to ask user to stop all coming video before proceeding the screenshare

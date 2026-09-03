@@ -168,4 +168,10 @@ export interface CustomizationApiInterface {
     // useBeforeJoin?: CustomHookType;
     // useBeforeCreate?: CustomHookType;
   };
+  /**
+   * Custom live reactions appended to the default emoji catalog. Each entry
+   * needs a unique key, a fallback unicode emoji, and an asset. Set
+   * `custom` on the entry to render an image sticker instead of unicode text.
+   */
+  liveReactions?: import('../src/components/reactions/catalog').LiveReactionDefinition[];
 }

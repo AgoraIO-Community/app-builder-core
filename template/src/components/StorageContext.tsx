@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import useMount from './useMount';
 import {ENABLE_AUTH} from '../auth/config';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
+import {SkinTonePreference} from './reactions/catalog';
 
 type rememberedDevicesListEntries = Record<
   string,
@@ -31,6 +32,7 @@ export interface StoreInterface {
   activeDeviceId: Record<MediaDeviceInfo['kind'], string>;
   whiteboardNativeInfoToast?: boolean;
   projectId: string;
+  liveReactionSkinTone?: SkinTonePreference;
 }
 
 export interface StorageContextInterface {
@@ -54,6 +56,7 @@ export const initStoreValue: StoreInterface = {
     videoinput: '',
   },
   projectId: $config.PROJECT_ID,
+  liveReactionSkinTone: 'default',
 };
 
 const initStorageContextValue = {

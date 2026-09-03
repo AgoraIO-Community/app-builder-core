@@ -12,10 +12,26 @@
 import {createContext} from 'react';
 import {createHook} from 'customization-implementation';
 
+export type ScreenshareStopOrigin =
+  | 'toolbar'
+  | 'mobile_action_menu'
+  | 'overlay_control'
+  | 'participant_menu'
+  | 'end_call_cleanup'
+  | 'livestream_demotion'
+  | 'livestream_recall'
+  | 'remote_host_removal'
+  | 'browser_native_control'
+  | 'page_unload'
+  | 'unknown';
+
 export interface ScreenshareContextInterface {
   isScreenshareActive: boolean;
-  startScreenshare: () => void;
-  stopScreenshare: () => void;
+  startScreenshare: () => Promise<void> | void;
+  stopScreenshare: (
+    origin?: ScreenshareStopOrigin,
+    stopActorUid?: string | number,
+  ) => Promise<void> | void;
 }
 
 export const ScreenshareContext = createContext<ScreenshareContextInterface>({
