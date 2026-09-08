@@ -1,5 +1,11 @@
 export const SCREENSHARE_JOURNEY = '[SCREENSHARE_JOURNEY]';
 
+export const getScreenshareSessionBoundaryMessage = (
+  boundary: 'start' | 'end',
+  screenshareSessionId: string,
+) =>
+  `----- ${SCREENSHARE_JOURNEY} SCREEN SHARE SESSION ${boundary.toUpperCase()} | sessionId=${screenshareSessionId} -----`;
+
 export const getScreenshareSessionId = (
   action: 'start' | 'stop',
   activeScreenshareSessionId: string | null,

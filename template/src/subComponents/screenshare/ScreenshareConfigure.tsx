@@ -11,7 +11,11 @@
 */
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {DispatchContext, PropsContext, UidType} from '../../../agora-rn-uikit';
-import {ScreenshareContext, ScreenshareStopOrigin} from './useScreenshare';
+import {
+  ScreenshareContext,
+  ScreenshareOperationState,
+  ScreenshareStopOrigin,
+} from './useScreenshare';
 import {
   getGridLayoutName,
   getPinnedLayoutName,
@@ -40,11 +44,16 @@ import {
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
 import {
+  getScreenshareSessionBoundaryMessage,
   getScreenshareSessionId,
   getScreenshareError,
   isUserCancelOrPermissionDenied,
   SCREENSHARE_JOURNEY,
 } from './screenshareJourney';
+import {
+  getScreenshareStartDecision,
+  getScreenshareStopDecision,
+} from './screenshareOperation';
 
 type ScreenshareAction = 'start' | 'stop';
 
@@ -57,7 +66,16 @@ export const ScreenshareConfigure = (props: {
   const toastHeading = useString(videoRoomScreenShareErrorToastHeading)();
   const toastSubHeading = useString(videoRoomScreenShareErrorToastSubHeading)();
   const [isScreenshareActive, setScreenshareActive] = useState(false);
+  const [operationState, setOperationState] =
+    useState<ScreenshareOperationState>('inactive');
+  const operationStateRef = useRef<ScreenshareOperationState>('inactive');
   const activeScreenshareSessionIdRef = useRef<string | null>(null);
+  const pendingScreenshareSessionIdRef = useRef<string | null>(null);
+  const queuedStopRef = useRef<{
+    origin: ScreenshareStopOrigin;
+    stopActorUid?: UidType;
+  } | null>(null);
+  const completedStopSessionIdRef = useRef<string | null>(null);
   const stopScreenshareRef = useRef<
     (
       origin?: ScreenshareStopOrigin,
@@ -74,6 +92,11 @@ export const ScreenshareConfigure = (props: {
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
   const currentLayoutRef = useRef({currentLayout: currentLayout});
+
+  const updateOperationState = (state: ScreenshareOperationState) => {
+    operationStateRef.current = state;
+    setOperationState(state);
+  };
 
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
 
@@ -255,6 +278,28 @@ export const ScreenshareConfigure = (props: {
     stopActorUid?: UidType,
   ) => {
     const callbackStartedAt = Date.now();
+    if (completedStopSessionIdRef.current === screenshareSessionId) {
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share stop callback ignored because the session cleanup already completed`,
+        {
+          action: 'stop',
+          stage: 'stop_callback',
+          outcome: 'skipped',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+          operationState: operationStateRef.current,
+          duplicateReason: 'session_cleanup_already_completed',
+        },
+      );
+      return;
+    }
+    completedStopSessionIdRef.current = screenshareSessionId;
     logger.log(
       LogSource.Internals,
       'SCREENSHARE',
@@ -272,6 +317,7 @@ export const ScreenshareConfigure = (props: {
       },
     );
     setScreenshareActive(false);
+    updateOperationState('inactive');
     logger.log(
       LogSource.Internals,
       'SCREENSHARE',
@@ -383,7 +429,26 @@ export const ScreenshareConfigure = (props: {
         elapsedMs: Date.now() - callbackStartedAt,
       },
     );
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      getScreenshareSessionBoundaryMessage('end', screenshareSessionId),
+      {
+        action: 'stop',
+        stage: 'session_boundary',
+        outcome: 'ended',
+        screenshareAttemptId,
+        screenshareSessionId,
+        recordingActive: props.isRecordingActive,
+        screenShareUid,
+        stopOrigin,
+        stopActorUid,
+        operationState: operationStateRef.current,
+      },
+    );
     activeScreenshareSessionIdRef.current = null;
+    pendingScreenshareSessionIdRef.current = null;
+    queuedStopRef.current = null;
   };
 
   useEffect(() => {
@@ -464,10 +529,14 @@ export const ScreenshareConfigure = (props: {
     stopActorUid?: UidType,
   ) => {
     const screenshareAttemptId = getUniqueID();
-    const screenshareSessionId = getScreenshareSessionId(
-      'stop',
-      activeScreenshareSessionIdRef.current,
-      getUniqueID,
+    const screenshareSessionId =
+      activeScreenshareSessionIdRef.current ||
+      pendingScreenshareSessionIdRef.current ||
+      getScreenshareSessionId('stop', null, getUniqueID);
+    const currentOperationState = operationStateRef.current;
+    const stopDecision = getScreenshareStopDecision(
+      currentOperationState,
+      Boolean(queuedStopRef.current),
     );
     logger.log(
       LogSource.Internals,
@@ -483,9 +552,53 @@ export const ScreenshareConfigure = (props: {
         screenShareUid,
         stopOrigin,
         stopActorUid,
+        operationState: currentOperationState,
       },
     );
-    if (!isScreenshareActive) {
+    if (currentOperationState === 'starting') {
+      if (stopDecision === 'skip') {
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          `${SCREENSHARE_JOURNEY} screen share stop skipped because a stop is already queued while start is pending`,
+          {
+            action: 'stop',
+            stage: 'precondition',
+            outcome: 'skipped',
+            screenshareAttemptId,
+            screenshareSessionId,
+            recordingActive: props.isRecordingActive,
+            screenShareUid,
+            stopOrigin,
+            stopActorUid,
+            operationState: currentOperationState,
+            duplicateReason: 'stop_already_queued',
+          },
+        );
+        return;
+      }
+      queuedStopRef.current = {origin: stopOrigin, stopActorUid};
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share stop queued until the pending start finishes`,
+        {
+          action: 'stop',
+          stage: 'precondition',
+          outcome: 'queued',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+          operationState: currentOperationState,
+          queuedStop: true,
+        },
+      );
+      return;
+    }
+    if (currentOperationState === 'inactive') {
       logger.log(
         LogSource.Internals,
         'SCREENSHARE',
@@ -500,45 +613,76 @@ export const ScreenshareConfigure = (props: {
           screenShareUid,
           stopOrigin,
           stopActorUid,
+          operationState: currentOperationState,
+          duplicateReason: 'already_inactive',
         },
       );
       return;
     }
-    await userScreenshare(
+    if (stopDecision === 'skip') {
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share stop skipped because stop is already in progress`,
+        {
+          action: 'stop',
+          stage: 'precondition',
+          outcome: 'skipped',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+          operationState: currentOperationState,
+          duplicateReason: 'already_stopping',
+        },
+      );
+      return;
+    }
+    updateOperationState('stopping');
+    const stopped = await userScreenshare(
       false,
       screenshareAttemptId,
       screenshareSessionId,
       stopOrigin,
       stopActorUid,
     );
+    if (!stopped && operationStateRef.current === 'stopping') {
+      updateOperationState('active');
+    }
   };
   const startScreenshare = async () => {
     const screenshareAttemptId = getUniqueID();
-    const screenshareSessionId = getScreenshareSessionId(
-      'start',
-      activeScreenshareSessionIdRef.current,
-      getUniqueID,
-    );
-    logger.log(
-      LogSource.Internals,
-      'SCREENSHARE',
-      `${SCREENSHARE_JOURNEY} screen share start requested from UI`,
-      {
-        action: 'start',
-        stage: 'ui_request',
-        outcome: 'started',
-        screenshareAttemptId,
-        screenshareSessionId,
-        recordingActive: props.isRecordingActive,
-        screenShareUid,
-        stopOrigin: 'unknown',
-      },
-    );
-    if (isScreenshareActive) {
+    const currentOperationState = operationStateRef.current;
+    const startDecision = getScreenshareStartDecision(currentOperationState);
+    const screenshareSessionId =
+      pendingScreenshareSessionIdRef.current ||
+      activeScreenshareSessionIdRef.current ||
+      getScreenshareSessionId('start', null, getUniqueID);
+    const logStartRequested = () =>
       logger.log(
         LogSource.Internals,
         'SCREENSHARE',
-        `${SCREENSHARE_JOURNEY} screen share start skipped because screen share is already active`,
+        `${SCREENSHARE_JOURNEY} screen share start requested from UI`,
+        {
+          action: 'start',
+          stage: 'ui_request',
+          outcome: 'started',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin: 'unknown',
+          operationState: currentOperationState,
+        },
+      );
+    if (startDecision === 'skip') {
+      logStartRequested();
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share start skipped because screen share is ${currentOperationState}`,
         {
           action: 'start',
           stage: 'precondition',
@@ -548,16 +692,81 @@ export const ScreenshareConfigure = (props: {
           recordingActive: props.isRecordingActive,
           screenShareUid,
           stopOrigin: 'unknown',
+          operationState: currentOperationState,
+          duplicateReason: `start_requested_while_${currentOperationState}`,
         },
       );
       return;
     }
-    await userScreenshare(
+    pendingScreenshareSessionIdRef.current = screenshareSessionId;
+    completedStopSessionIdRef.current = null;
+    updateOperationState('starting');
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      getScreenshareSessionBoundaryMessage('start', screenshareSessionId),
+      {
+        action: 'start',
+        stage: 'session_boundary',
+        outcome: 'started',
+        screenshareAttemptId,
+        screenshareSessionId,
+        recordingActive: props.isRecordingActive,
+        screenShareUid,
+        stopOrigin: 'unknown',
+        operationState: operationStateRef.current,
+      },
+    );
+    logStartRequested();
+    const started = await userScreenshare(
       true,
       screenshareAttemptId,
       screenshareSessionId,
       'unknown',
     );
+    const queuedStop = queuedStopRef.current;
+    queuedStopRef.current = null;
+    if (started && queuedStop) {
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share executing the stop queued during start`,
+        {
+          action: 'stop',
+          stage: 'precondition',
+          outcome: 'started',
+          screenshareAttemptId: getUniqueID(),
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin: queuedStop.origin,
+          stopActorUid: queuedStop.stopActorUid,
+          operationState: operationStateRef.current,
+          queuedStop: true,
+        },
+      );
+      await stopScreenshare(queuedStop.origin, queuedStop.stopActorUid);
+    } else if (!started && queuedStop) {
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share discarded the queued stop because start failed`,
+        {
+          action: 'stop',
+          stage: 'precondition',
+          outcome: 'skipped',
+          screenshareAttemptId: getUniqueID(),
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin: queuedStop.origin,
+          stopActorUid: queuedStop.stopActorUid,
+          operationState: operationStateRef.current,
+          queuedStop: false,
+          duplicateReason: 'start_failed',
+        },
+      );
+    }
   };
   stopScreenshareRef.current = stopScreenshare;
 
@@ -572,6 +781,7 @@ export const ScreenshareConfigure = (props: {
     const action: ScreenshareAction = isActive ? 'start' : 'stop';
     let stage = 'recording_layout';
     let recordingLayoutFailed = false;
+    let rtcOperationSucceeded = false;
     logger.log(
       LogSource.Internals,
       'SCREENSHARE',
@@ -676,6 +886,7 @@ export const ScreenshareConfigure = (props: {
           stopActorUid,
         },
       );
+      rtcOperationSucceeded = true;
       logger.log(
         LogSource.Internals,
         'SCREENSHARE',
@@ -692,10 +903,12 @@ export const ScreenshareConfigure = (props: {
           stopActorUid,
         },
       );
-      isActive && setScreenshareActive(true);
 
       if (isActive) {
         activeScreenshareSessionIdRef.current = screenshareSessionId;
+        pendingScreenshareSessionIdRef.current = null;
+        updateOperationState('active');
+        setScreenshareActive(true);
         stage = 'local_active_state';
         logger.log(
           LogSource.Internals,
@@ -791,6 +1004,7 @@ export const ScreenshareConfigure = (props: {
           elapsedMs: Date.now() - startedAt,
         },
       );
+      return true;
     } catch (e) {
       const userCancelOrPermissionDenied = isUserCancelOrPermissionDenied(e);
       logger.error(
@@ -828,6 +1042,30 @@ export const ScreenshareConfigure = (props: {
           secondaryBtn: null,
         });
       }
+      if (isActive && !rtcOperationSucceeded) {
+        pendingScreenshareSessionIdRef.current = null;
+        activeScreenshareSessionIdRef.current = null;
+        setScreenshareActive(false);
+        updateOperationState('inactive');
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          getScreenshareSessionBoundaryMessage('end', screenshareSessionId),
+          {
+            action: 'start',
+            stage: 'session_boundary',
+            outcome: 'ended_with_start_failure',
+            screenshareAttemptId,
+            screenshareSessionId,
+            recordingActive: props.isRecordingActive,
+            screenShareUid,
+            stopOrigin,
+            stopActorUid,
+            operationState: operationStateRef.current,
+          },
+        );
+      }
+      return rtcOperationSucceeded;
     }
   };
 
@@ -835,6 +1073,7 @@ export const ScreenshareConfigure = (props: {
     <ScreenshareContext.Provider
       value={{
         isScreenshareActive,
+        operationState,
         startScreenshare,
         stopScreenshare,
         //@ts-ignore
