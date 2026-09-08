@@ -50,6 +50,14 @@ import {
   getScreenshareSessionBoundaryMessage,
 } from '../../../src/subComponents/screenshare/screenshareJourney';
 
+export type ScreenshareMediaDiagnostics = {
+  role: 'sender' | 'viewer';
+  screenshareSessionId: string;
+  screenShareUid: UID;
+  stats: Record<string, unknown> | null;
+  mediaTrack: MediaStreamTrack | null;
+};
+
 interface MediaDeviceInfo {
   readonly deviceId: string;
   readonly label: string;
@@ -277,6 +285,109 @@ export default class RtcEngine {
     screenShareUid?: UID;
     stopActorUid?: UID;
   } | null = null;
+  private remoteScreenshareUids = new Set<UID>();
+
+  registerRemoteScreenshareUid(uid: UID) {
+    if (uid === undefined || uid === null) {
+      return;
+    }
+    this.remoteScreenshareUids.add(uid);
+  }
+
+  private logRemoteScreenshareTermination(
+    uid: UID,
+    sdkEvent: 'user-unpublished' | 'user-left',
+    mediaType?: 'audio' | 'video',
+  ) {
+    if (!this.remoteScreenshareUids.has(uid)) {
+      return;
+    }
+    const videoTrack = this.remoteStreams?.get?.(uid)?.video;
+    let mediaTrack: MediaStreamTrack | null = null;
+    try {
+      mediaTrack = videoTrack?.getMediaStreamTrack?.() || null;
+    } catch (_) {}
+    logger.log(
+      LogSource.AgoraSDK,
+      'Event',
+      `[SCREENSHARE_JOURNEY] receiver detected screen share stopped through RTC ${sdkEvent}`,
+      {
+        action: 'stop',
+        stage: 'receiver_rtc_termination',
+        outcome: 'detected',
+        role: 'viewer',
+        screenshareSessionId: 'remote-session-by-screen-uid',
+        screenShareUid: uid,
+        stopOrigin: 'remote_sender_or_connection',
+        sdkEvent,
+        mediaType,
+        mediaTrack: mediaTrack
+          ? {
+              readyState: mediaTrack.readyState,
+              enabled: mediaTrack.enabled,
+              muted: mediaTrack.muted,
+            }
+          : null,
+      },
+    );
+    this.remoteScreenshareUids.delete(uid);
+  }
+
+  getScreenshareMediaDiagnostics(uid: UID): ScreenshareMediaDiagnostics {
+    const isSender = uid === 1;
+    if (!isSender) {
+      this.registerRemoteScreenshareUid(uid);
+    }
+    const videoTrack = isSender
+      ? this.screenStream?.video
+      : this.remoteStreams?.get?.(uid)?.video;
+    let stats: Record<string, unknown> | null = null;
+    try {
+      stats = isSender
+        ? this.screenClient?.getLocalVideoStats?.() || null
+        : this.client?.getRemoteVideoStats?.()?.[uid] || null;
+    } catch (error) {
+      logger.error(
+        LogSource.AgoraSDK,
+        'API',
+        '[SCREENSHARE_JOURNEY] screen share media health stats collection failed',
+        {
+          action: 'monitor',
+          stage: 'media_health',
+          outcome: 'stats_unavailable',
+          role: isSender ? 'sender' : 'viewer',
+          screenshareSessionId: isSender
+            ? this.activeScreenshareJourneyContext?.screenshareSessionId ||
+              'unknown-session'
+            : 'remote-session-by-screen-uid',
+          screenShareUid: isSender
+            ? this.activeScreenshareJourneyContext?.screenShareUid ||
+              this.screenClient?.uid
+            : uid,
+          ...getScreenshareErrorDetails(error),
+        },
+      );
+    }
+    return {
+      role: isSender ? 'sender' : 'viewer',
+      screenshareSessionId: isSender
+        ? this.activeScreenshareJourneyContext?.screenshareSessionId ||
+          'unknown-session'
+        : 'remote-session-by-screen-uid',
+      screenShareUid: isSender
+        ? this.activeScreenshareJourneyContext?.screenShareUid ||
+          this.screenClient?.uid
+        : uid,
+      stats,
+      mediaTrack: (() => {
+        try {
+          return videoTrack?.getMediaStreamTrack?.() || null;
+        } catch (_) {
+          return null;
+        }
+      })(),
+    };
+  }
   private videoProfile:
     | VideoEncoderConfigurationPreset
     | VideoEncoderConfiguration;
@@ -756,6 +867,7 @@ export default class RtcEngine {
     this.client.on('user-left', user => {
       logger.log(LogSource.AgoraSDK, 'Event', 'RTC [user-left]', user);
       const uid = user.uid;
+      this.logRemoteScreenshareTermination(uid, 'user-left');
       if (this.remoteStreams.has(uid)) {
         this.remoteStreams.delete(uid);
       }
@@ -836,6 +948,13 @@ export default class RtcEngine {
         user,
         mediaType,
       );
+      if (mediaType === 'video') {
+        this.logRemoteScreenshareTermination(
+          user.uid,
+          'user-unpublished',
+          mediaType,
+        );
+      }
       if (mediaType === 'audio') {
         const data = this.remoteStreams.get(user.uid);
         try {
