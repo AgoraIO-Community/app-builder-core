@@ -330,4 +330,29 @@ describe('web RTC screen-share lifecycle', () => {
       '----- [SCREENSHARE_JOURNEY] SCREEN SHARE SESSION END | sessionId=session-1 -----',
     );
   });
+
+  it('logs a receiver screen-share termination once for an RTC event', () => {
+    const remoteTrack = createTrack().track;
+    engine.remoteStreams.set(202, {video: remoteTrack});
+    engine.registerRemoteScreenshareUid(202);
+
+    engine.logRemoteScreenshareTermination(202, 'user-unpublished', 'video');
+    engine.logRemoteScreenshareTermination(202, 'user-left');
+
+    const {logger} = require('../../../../src/logger/AppBuilderLogger');
+    const terminationLogs = logger.log.mock.calls.filter((call: unknown[]) =>
+      String(call[2]).includes(
+        'receiver detected screen share stopped through RTC',
+      ),
+    );
+    expect(terminationLogs).toHaveLength(1);
+    expect(terminationLogs[0][2]).toContain('user-unpublished');
+    expect(terminationLogs[0][3]).toMatchObject({
+      action: 'stop',
+      stage: 'receiver_rtc_termination',
+      role: 'viewer',
+      screenShareUid: 202,
+      sdkEvent: 'user-unpublished',
+    });
+  });
 });
