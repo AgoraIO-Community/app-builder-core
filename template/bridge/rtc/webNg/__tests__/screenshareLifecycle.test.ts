@@ -176,6 +176,24 @@ describe('web RTC screen-share lifecycle', () => {
     expect(engine.screenStream).toEqual({});
   });
 
+  it('preserves the publish error and attempts every cleanup operation when a track cleanup throws', async () => {
+    const {track} = createTrack();
+    const publishError = new Error('publish failed');
+    track.stop.mockImplementationOnce(() => {
+      throw new Error('track stop failed');
+    });
+    mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
+    screenClient.publish.mockRejectedValueOnce(publishError);
+
+    await expect(callScreenshare('start')).rejects.toBe(publishError);
+
+    expect(track.stop).toHaveBeenCalledTimes(1);
+    expect(track.close).toHaveBeenCalledTimes(1);
+    expect(screenClient.leave).toHaveBeenCalledTimes(1);
+    expect(engine.screenStream).toEqual({});
+    expect(engine.inScreenshare).toBe(false);
+  });
+
   it('returns to inactive after picker cancellation so a later Start can run', async () => {
     mockCreateScreenVideoTrack.mockRejectedValueOnce(
       Object.assign(new Error('permission denied'), {
@@ -249,5 +267,67 @@ describe('web RTC screen-share lifecycle', () => {
     expect(track.stop).toHaveBeenCalledTimes(1);
     expect(track.close).toHaveBeenCalledTimes(1);
     expect(stopped).toHaveBeenCalledTimes(1);
+  });
+
+  it('attempts leave and the stopped callback when track cleanup fails', async () => {
+    const {track} = createTrack();
+    const stopped = jest.fn();
+    engine.eventsMap.set('onScreenshareStopped', stopped);
+    mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
+    track.stop.mockImplementationOnce(() => {
+      throw new Error('track stop failed');
+    });
+
+    await callScreenshare('start');
+    await expect(callScreenshare('stop')).resolves.toBeUndefined();
+
+    expect(track.close).toHaveBeenCalledTimes(1);
+    expect(screenClient.leave).toHaveBeenCalledTimes(1);
+    expect(stopped).toHaveBeenCalledTimes(1);
+    expect(engine.inScreenshare).toBe(false);
+  });
+
+  it('handles leave rejection from native track-ended without rejecting the SDK callback', async () => {
+    const {track, handlers} = createTrack();
+    const stopped = jest.fn();
+    engine.eventsMap.set('onScreenshareStopped', stopped);
+    mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
+    screenClient.leave.mockRejectedValueOnce(new Error('leave failed'));
+
+    await callScreenshare('start');
+    await expect(handlers['track-ended']()).resolves.toBeUndefined();
+
+    expect(screenClient.leave).toHaveBeenCalledTimes(1);
+    expect(stopped).toHaveBeenCalledTimes(1);
+    expect(engine.inScreenshare).toBe(false);
+    const {logger} = require('../../../../src/logger/AppBuilderLogger');
+    const journeyMessages = logger.log.mock.calls
+      .map((call: unknown[]) => call[2])
+      .filter((message: unknown) =>
+        String(message).includes('[SCREENSHARE_JOURNEY]'),
+      );
+    expect(journeyMessages[journeyMessages.length - 1]).toBe(
+      '----- [SCREENSHARE_JOURNEY] SCREEN SHARE SESSION END | sessionId=session-1 -----',
+    );
+  });
+
+  it('writes the session end boundary after release cleanup logs', async () => {
+    const {track} = createTrack();
+    const stopped = jest.fn();
+    engine.eventsMap.set('onScreenshareStopped', stopped);
+    mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
+
+    await callScreenshare('start');
+    await engine.release('end_call_cleanup');
+
+    const {logger} = require('../../../../src/logger/AppBuilderLogger');
+    const journeyMessages = logger.log.mock.calls
+      .map((call: unknown[]) => call[2])
+      .filter((message: unknown) =>
+        String(message).includes('[SCREENSHARE_JOURNEY]'),
+      );
+    expect(journeyMessages[journeyMessages.length - 1]).toBe(
+      '----- [SCREENSHARE_JOURNEY] SCREEN SHARE SESSION END | sessionId=session-1 -----',
+    );
   });
 });

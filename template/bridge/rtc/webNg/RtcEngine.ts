@@ -45,7 +45,10 @@ import {
   type ScreenEncoderConfigurationPreset,
   type VideoEncoderConfiguration,
 } from '../../../src/app-state/useVideoQuality';
-import {getScreenshareReleaseOrigin} from '../../../src/subComponents/screenshare/screenshareJourney';
+import {
+  getScreenshareReleaseOrigin,
+  getScreenshareSessionBoundaryMessage,
+} from '../../../src/subComponents/screenshare/screenshareJourney';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -1579,7 +1582,7 @@ export default class RtcEngine {
         },
       );
       if (notifyScreenshareStopped) {
-        (this.eventsMap.get('onScreenshareStopped') as callbackType)(
+        await (this.eventsMap.get('onScreenshareStopped') as callbackType)(
           stopOrigin,
           screenshareAttemptId,
           journeyData.screenshareSessionId || 'unknown-session',
@@ -1627,30 +1630,55 @@ export default class RtcEngine {
     }
 
     this.screenshareOperationState = 'stopping';
-    lifecycle.cleanupPromise = (async () => {
-      try {
-        (this.eventsMap.get('onUserOffline') as callbackType)(
-          {},
-          this.screenClient.uid,
-        );
-        lifecycle.audio?.stop();
-        lifecycle.video?.stop();
-        lifecycle.audio?.close();
-        lifecycle.video?.close();
-        if (lifecycle.joined) {
-          await this.screenClient.leave();
+    lifecycle.cleanupPromise = Promise.resolve().then(async () => {
+      let cleanupError: unknown;
+      const attemptCleanup = async (operation: () => unknown) => {
+        try {
+          await operation();
+        } catch (error) {
+          cleanupError = cleanupError || error;
         }
-        logger.log(
-          LogSource.AgoraSDK,
-          'API',
-          `[SCREENSHARE_JOURNEY] screen share stop RTC cleanup completed`,
-          {
-            ...journeyData,
-            stage: 'cleanup',
-            outcome: 'success',
-            operationState: 'inactive',
-          },
+      };
+      try {
+        await attemptCleanup(() =>
+          (this.eventsMap.get('onUserOffline') as callbackType)(
+            {},
+            this.screenClient.uid,
+          ),
         );
+        await attemptCleanup(() => lifecycle.audio?.stop());
+        await attemptCleanup(() => lifecycle.video?.stop());
+        await attemptCleanup(() => lifecycle.audio?.close());
+        await attemptCleanup(() => lifecycle.video?.close());
+        if (lifecycle.joined) {
+          await attemptCleanup(() => this.screenClient.leave());
+        }
+        if (cleanupError) {
+          logger.error(
+            LogSource.AgoraSDK,
+            'API',
+            `[SCREENSHARE_JOURNEY] screen share stop RTC cleanup completed with errors`,
+            {
+              ...journeyData,
+              stage: 'cleanup',
+              outcome: 'partial_failure',
+              operationState: 'inactive',
+              ...getScreenshareErrorDetails(cleanupError),
+            },
+          );
+        } else {
+          logger.log(
+            LogSource.AgoraSDK,
+            'API',
+            `[SCREENSHARE_JOURNEY] screen share stop RTC cleanup completed`,
+            {
+              ...journeyData,
+              stage: 'cleanup',
+              outcome: 'success',
+              operationState: 'inactive',
+            },
+          );
+        }
       } catch (error) {
         logger.error(
           LogSource.AgoraSDK,
@@ -1674,7 +1702,7 @@ export default class RtcEngine {
           this.screenshareOperationState = 'inactive';
           this.activeScreenshareJourneyContext = null;
           if (notifyScreenshareStopped) {
-            (this.eventsMap.get('onScreenshareStopped') as callbackType)(
+            await (this.eventsMap.get('onScreenshareStopped') as callbackType)(
               stopOrigin,
               screenshareAttemptId,
               journeyData.screenshareSessionId || 'unknown-session',
@@ -1683,9 +1711,8 @@ export default class RtcEngine {
           }
         }
       }
-    })();
-
-    return lifecycle.cleanupPromise;
+    });
+    return await lifecycle.cleanupPromise;
   }
 
   // async removeAllListeners<EventType extends keyof RtcEngineEvents>(event: EventType) {
@@ -1764,6 +1791,19 @@ export default class RtcEngine {
           },
         );
       } finally {
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          getScreenshareSessionBoundaryMessage(
+            'end',
+            journeyData.screenshareSessionId,
+          ),
+          {
+            ...journeyData,
+            stage: 'session_boundary',
+            outcome: 'ended',
+          },
+        );
         this.activeScreenshareJourneyContext = null;
       }
     }
@@ -2111,11 +2151,44 @@ export default class RtcEngine {
               : null,
           },
         );
-        await this.cleanupActiveScreenshare(
-          'browser_native_control',
-          true,
-          nativeStopAttemptId,
-          lifecycle,
+        try {
+          await this.cleanupActiveScreenshare(
+            'browser_native_control',
+            true,
+            nativeStopAttemptId,
+            lifecycle,
+          );
+        } catch (error) {
+          logger.error(
+            LogSource.AgoraSDK,
+            'API',
+            '[SCREENSHARE_JOURNEY] screen share stop from browser native control completed with cleanup errors',
+            {
+              ...journeyData,
+              action: 'stop',
+              screenshareAttemptId: nativeStopAttemptId,
+              stage: 'cleanup',
+              outcome: 'failure',
+              stopOrigin: 'browser_native_control',
+              ...getScreenshareErrorDetails(error),
+            },
+          );
+        }
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          getScreenshareSessionBoundaryMessage(
+            'end',
+            journeyData.screenshareSessionId,
+          ),
+          {
+            ...journeyData,
+            action: 'stop',
+            screenshareAttemptId: nativeStopAttemptId,
+            stage: 'session_boundary',
+            outcome: 'ended',
+            stopOrigin: 'browser_native_control',
+          },
         );
       });
     } catch (e) {
@@ -2131,28 +2204,40 @@ export default class RtcEngine {
           ...getScreenshareErrorDetails(e),
         },
       );
-      localAudioTrack?.stop();
-      localVideoTrack?.stop();
-      localAudioTrack?.close();
-      localVideoTrack?.close();
+      const cleanupOperations: Array<() => unknown> = [
+        () => localAudioTrack?.stop(),
+        () => localVideoTrack?.stop(),
+        () => localAudioTrack?.close(),
+        () => localVideoTrack?.close(),
+      ];
       if (joined) {
-        try {
-          await this.screenClient.leave();
-        } catch (cleanupError) {
-          logger.error(
-            LogSource.AgoraSDK,
-            'API',
-            `[SCREENSHARE_JOURNEY] screen share start failure cleanup could not leave screenClient`,
-            {
-              ...journeyData,
-              stage: 'cleanup',
-              outcome: 'failure',
-              ...getScreenshareErrorDetails(cleanupError),
-            },
-          );
-        }
+        cleanupOperations.push(() => this.screenClient.leave());
       }
-      this.screenshareOperationState = 'inactive';
+      try {
+        for (const cleanupOperation of cleanupOperations) {
+          try {
+            await cleanupOperation();
+          } catch (cleanupError) {
+            logger.error(
+              LogSource.AgoraSDK,
+              'API',
+              `[SCREENSHARE_JOURNEY] screen share start failure cleanup operation failed`,
+              {
+                ...journeyData,
+                stage: 'cleanup',
+                outcome: 'failure',
+                ...getScreenshareErrorDetails(cleanupError),
+              },
+            );
+          }
+        }
+      } finally {
+        this.screenStream = {};
+        this.activeScreenshareLifecycle = null;
+        this.inScreenshare = false;
+        this.activeScreenshareJourneyContext = null;
+        this.screenshareOperationState = 'inactive';
+      }
       throw e;
     }
   }

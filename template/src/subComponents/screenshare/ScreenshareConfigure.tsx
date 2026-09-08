@@ -270,7 +270,7 @@ export const ScreenshareConfigure = (props: {
     };
   }, []);
 
-  const ScreenshareStoppedCallback = (
+  const ScreenshareStoppedCallback = async (
     stopOrigin: ScreenshareStopOrigin = 'unknown',
     screenshareAttemptId = getUniqueID(),
     screenshareSessionId = activeScreenshareSessionIdRef.current ||
@@ -334,7 +334,7 @@ export const ScreenshareConfigure = (props: {
         stopActorUid,
       },
     );
-    events.send(
+    const rtmEventSent = await events.send(
       EventNames.SCREENSHARE_ATTRIBUTE,
       JSON.stringify({
         action: EventActions.SCREENSHARE_STOPPED,
@@ -345,11 +345,13 @@ export const ScreenshareConfigure = (props: {
     logger.log(
       LogSource.Internals,
       'SCREENSHARE',
-      `${SCREENSHARE_JOURNEY} screen share stop RTM event sent to remote users`,
+      `${SCREENSHARE_JOURNEY} screen share stop RTM event ${
+        rtmEventSent ? 'sent to remote users' : 'failed to send to remote users'
+      }`,
       {
         action: 'stop',
         stage: 'rtm_event',
-        outcome: 'success',
+        outcome: rtmEventSent ? 'success' : 'failure',
         screenshareAttemptId,
         screenshareSessionId,
         recordingActive: props.isRecordingActive,
@@ -427,23 +429,6 @@ export const ScreenshareConfigure = (props: {
         stopOrigin,
         stopActorUid,
         elapsedMs: Date.now() - callbackStartedAt,
-      },
-    );
-    logger.log(
-      LogSource.Internals,
-      'SCREENSHARE',
-      getScreenshareSessionBoundaryMessage('end', screenshareSessionId),
-      {
-        action: 'stop',
-        stage: 'session_boundary',
-        outcome: 'ended',
-        screenshareAttemptId,
-        screenshareSessionId,
-        recordingActive: props.isRecordingActive,
-        screenShareUid,
-        stopOrigin,
-        stopActorUid,
-        operationState: operationStateRef.current,
       },
     );
     activeScreenshareSessionIdRef.current = null;
@@ -648,7 +633,25 @@ export const ScreenshareConfigure = (props: {
       stopOrigin,
       stopActorUid,
     );
-    if (!stopped && operationStateRef.current === 'stopping') {
+    if (stopped) {
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        getScreenshareSessionBoundaryMessage('end', screenshareSessionId),
+        {
+          action: 'stop',
+          stage: 'session_boundary',
+          outcome: 'ended',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+          operationState: operationStateRef.current,
+        },
+      );
+    } else if (operationStateRef.current === 'stopping') {
       updateOperationState('active');
     }
   };
@@ -957,7 +960,7 @@ export const ScreenshareConfigure = (props: {
         );
         // 2. Inform everyone in the channel screenshare is actice
         stage = 'rtm_event';
-        events.send(
+        const rtmEventSent = await events.send(
           EventNames.SCREENSHARE_ATTRIBUTE,
           JSON.stringify({
             action: EventActions.SCREENSHARE_STARTED,
@@ -969,11 +972,15 @@ export const ScreenshareConfigure = (props: {
         logger.log(
           LogSource.Internals,
           'SCREENSHARE',
-          `${SCREENSHARE_JOURNEY} screen share start RTM event sent to remote users`,
+          `${SCREENSHARE_JOURNEY} screen share start RTM event ${
+            rtmEventSent
+              ? 'sent to remote users'
+              : 'failed to send to remote users'
+          }`,
           {
             action,
             stage,
-            outcome: 'success',
+            outcome: rtmEventSent ? 'success' : 'failure',
             screenshareAttemptId,
             screenshareSessionId,
             recordingActive: props.isRecordingActive,

@@ -10,6 +10,7 @@
 *********************************************
 */
 import React, {useContext} from 'react';
+import {StyleSheet, View} from 'react-native';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
@@ -60,6 +61,9 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const screenShareButtonLabel = useString<boolean>(toolbarItemShareText);
   const lstooltip = useString<boolean>(livestreamingShareTooltipText);
   const onPress = () => {
+    if (isScreenshareTransitioning) {
+      return;
+    }
     if (isScreenshareActive) {
       stopScreenshare('toolbar');
     } else {
@@ -81,7 +85,15 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
         : $config.SECONDARY_ACTION_COLOR,
     },
     disabled: isScreenshareTransitioning,
-    onPress: onPressCustom || onPress,
+    onPress: () => {
+      if (isScreenshareTransitioning) {
+        return;
+      }
+      (onPressCustom || onPress)();
+    },
+    containerStyle: isScreenshareTransitioning
+      ? styles.transitioning
+      : undefined,
     btnTextProps: {
       text: showLabel
         ? label || screenShareButtonLabel(isScreenshareActive)
@@ -113,7 +125,16 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   }
 
   return props?.render ? (
-    props.render(onPress, isScreenshareActive)
+    <View
+      accessibilityState={{disabled: isScreenshareTransitioning}}
+      pointerEvents={isScreenshareTransitioning ? 'none' : 'auto'}
+      style={isScreenshareTransitioning ? styles.transitioning : undefined}>
+      {props.render(() => {
+        if (!isScreenshareTransitioning) {
+          onPress();
+        }
+      }, isScreenshareActive)}
+    </View>
   ) : isToolbarMenuItem ? (
     <ToolbarMenuItem {...iconButtonProps} />
   ) : (
@@ -122,3 +143,9 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
 };
 
 export default ScreenshareButton;
+
+const styles = StyleSheet.create({
+  transitioning: {
+    opacity: 0.4,
+  },
+});
