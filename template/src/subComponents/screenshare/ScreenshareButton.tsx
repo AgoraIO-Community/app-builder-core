@@ -48,8 +48,14 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   } = useRoomInfo();
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
-  const {isScreenshareActive, startScreenshare, stopScreenshare} =
-    useScreenshare();
+  const {
+    isScreenshareActive,
+    operationState = isScreenshareActive ? 'active' : 'inactive',
+    startScreenshare,
+    stopScreenshare,
+  } = useScreenshare();
+  const isScreenshareTransitioning =
+    operationState === 'starting' || operationState === 'stopping';
   const {setShowStartScreenSharePopup} = useVideoCall();
   const screenShareButtonLabel = useString<boolean>(toolbarItemShareText);
   const lstooltip = useString<boolean>(livestreamingShareTooltipText);
@@ -74,6 +80,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
         ? $config.SEMANTIC_ERROR
         : $config.SECONDARY_ACTION_COLOR,
     },
+    disabled: isScreenshareTransitioning,
     onPress: onPressCustom || onPress,
     btnTextProps: {
       text: showLabel

@@ -1,6 +1,7 @@
 import {
   getScreenshareError,
   getScreenshareReleaseOrigin,
+  getScreenshareSessionBoundaryMessage,
   getScreenshareSessionId,
   isUserCancelOrPermissionDenied,
   SCREENSHARE_JOURNEY,
@@ -9,6 +10,15 @@ import {
 describe('screenshare journey logging', () => {
   it('uses the Datadog filter prefix', () => {
     expect(SCREENSHARE_JOURNEY).toBe('[SCREENSHARE_JOURNEY]');
+  });
+
+  it('puts the session ID directly in start and end boundary messages', () => {
+    expect(getScreenshareSessionBoundaryMessage('start', 'session-123')).toBe(
+      '----- [SCREENSHARE_JOURNEY] SCREEN SHARE SESSION START | sessionId=session-123 -----',
+    );
+    expect(getScreenshareSessionBoundaryMessage('end', 'session-123')).toBe(
+      '----- [SCREENSHARE_JOURNEY] SCREEN SHARE SESSION END | sessionId=session-123 -----',
+    );
   });
 
   it.each([

@@ -344,8 +344,12 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   } = useRoomInfo();
   const {setShowInvitePopup, setShowStopRecordingPopup, setShowLayoutOption} =
     useVideoCall();
-  const {isScreenshareActive, startScreenshare, stopScreenshare} =
-    useScreenshare();
+  const {
+    isScreenshareActive,
+    operationState = isScreenshareActive ? 'active' : 'inactive',
+    startScreenshare,
+    stopScreenshare,
+  } = useScreenshare();
   const {isRecordingActive, startRecording, inProgress, deleteRecording} =
     useRecording();
   const {setChatType} = useChatUIControls();
@@ -705,10 +709,12 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         componentName: 'screenshare',
         order: 8,
         disabled:
-          rtcProps.role == ClientRoleType.ClientRoleAudience &&
-          $config.EVENT_MODE &&
-          $config.RAISE_HAND &&
-          !isHost,
+          operationState === 'starting' ||
+          operationState === 'stopping' ||
+          (rtcProps.role == ClientRoleType.ClientRoleAudience &&
+            $config.EVENT_MODE &&
+            $config.RAISE_HAND &&
+            !isHost),
         icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
         iconColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
