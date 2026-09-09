@@ -19,7 +19,7 @@ const WhiteboardButton = () => {
     leaveWhiteboardRoom,
   } = useContext(whiteboardContext);
   const {
-    data: {isHost},
+    data: {channel, isHost},
   } = useRoomInfo();
 
   const {setLayout, currentLayout} = useLayout();
@@ -46,7 +46,7 @@ const WhiteboardButton = () => {
       triggerEvent &&
         customEvents.send(
           EventNames.WHITEBOARD_ACTIVE,
-          JSON.stringify({status: false}),
+          JSON.stringify({status: false, channel}),
           PersistanceLevel.Session,
         );
     } else {
@@ -55,7 +55,7 @@ const WhiteboardButton = () => {
       triggerEvent &&
         customEvents.send(
           EventNames.WHITEBOARD_ACTIVE,
-          JSON.stringify({status: true}),
+          JSON.stringify({status: true, channel}),
           PersistanceLevel.Session,
         );
     }
