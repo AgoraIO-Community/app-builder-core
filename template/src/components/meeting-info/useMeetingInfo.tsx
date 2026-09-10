@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {createContext} from 'react';
-import {createHook} from 'customization-implementation';
+import createHook from '../../../customization-implementation/createHook';
 import {UidType} from '../../../agora-rn-uikit';
 export interface MeetingInfoContextInterface {
   isJoinDataFetched?: boolean;

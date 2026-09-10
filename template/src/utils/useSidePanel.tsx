@@ -12,7 +12,7 @@
 
 import React, {SetStateAction} from 'react';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {createHook} from 'customization-implementation';
+import createHook from '../../customization-implementation/createHook';
 
 export interface SidePanelContextInterface {
   sidePanel: SidePanelType;

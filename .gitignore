@@ -109,3 +109,5 @@ template/customization/*
 Builds
 esbuild-bin
 template/pnpm-lock.yaml
+
+template/ios/build/

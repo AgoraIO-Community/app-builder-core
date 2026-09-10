@@ -16,9 +16,9 @@ import StorageContext from './StorageContext';
 import events, {EventPersistLevel} from '../rtm-events-api';
 import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
-import {createHook} from 'customization-implementation';
+import createHook from '../../customization-implementation/createHook';
 import ChatContext from './ChatContext';
-import {useRtc} from 'customization-api';
+import {useRtc} from '../../customization-api/core-contexts';
 
 interface UserPreferenceContextInterface {
   displayName: string;

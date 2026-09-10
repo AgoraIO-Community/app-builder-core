@@ -1,9 +1,9 @@
 import {createNanoEvents, Emitter} from 'nanoevents';
-import {
+import type {
   CustomizationApiInterface,
   MeetingInfoContextInterface,
 } from 'customization-api';
-import {deviceId} from '../components/DeviceConfigure';
+import type {deviceId} from '../components/DeviceConfigure';
 
 export interface SdkMethodEvents {
   customize: (customization: CustomizationApiInterface) => void;

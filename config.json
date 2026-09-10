@@ -5,7 +5,7 @@
   "ICON": "logoSquare.png",
   "APP_ID": "b8c2ef0f986541a8992451c07d30fb4b",
   "FRONTEND_ENDPOINT": "",
-  "BACKEND_ENDPOINT": "https://cryptic-dawn-34132.herokuapp.com",
+  "BACKEND_ENDPOINT": "https://web-production-9584fa.up.railway.app",
   "PSTN": true,
   "PRECALL": true,
   "CHAT": true,

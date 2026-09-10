@@ -9,9 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {createHook} from 'customization-implementation';
+import createHook from '../../../customization-implementation/createHook';
 import React, {useState, useEffect, useRef} from 'react';
-import {useRender, useRtc} from 'customization-api';
+import {useRender, useRtc} from '../../../customization-api/core-contexts';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useLocalUid, UidType, RenderInterface} from '../../../agora-rn-uikit';
 import events, {EventPersistLevel} from '../../rtm-events-api';

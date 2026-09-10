@@ -1,5 +1,5 @@
 import {useLocalUid} from '../../agora-rn-uikit';
-import {useRender} from 'customization-api';
+import {useRender} from '../../customization-api/core-contexts';
 
 /**
  * The LocalUserInfo app state contains the local user information like uid, audio and video mute states etc.

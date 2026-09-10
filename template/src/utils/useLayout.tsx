@@ -11,7 +11,7 @@
 */
 
 import React, {SetStateAction} from 'react';
-import {createHook} from 'customization-implementation';
+import createHook from '../../customization-implementation/createHook';
 
 export interface LayoutContextInterface {
   currentLayout: string;
