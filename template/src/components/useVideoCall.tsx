@@ -73,7 +73,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         setShowLayoutOption,
       }}>
       <StopRecordingPopup />
-      <InvitePopup />
+      {showInvitePopup ? <InvitePopup /> : null}
       {props.children}
     </VideoCallContext.Provider>
   );

@@ -25,6 +25,7 @@ import {isMobileUA, useIsDesktop} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
 import {useParams} from '../Router';
 import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
+import {SDK_MEETING_TAG} from '../SdkApiContext';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
@@ -33,8 +34,14 @@ const InvitePopup = () => {
   const {phrase} = useParams<{phrase: string}>();
   const getMeeting = useGetMeetingPhrase();
   useEffect(() => {
-    getMeeting(phrase);
-  }, [phrase]);
+    if (!phrase || phrase === SDK_MEETING_TAG) {
+      return;
+    }
+
+    getMeeting(phrase).catch((error) => {
+      console.error('Unable to load invite information', error);
+    });
+  }, [getMeeting, phrase]);
   return (
     <Popup
       modalVisible={showInvitePopup}
