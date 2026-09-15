@@ -22,15 +22,27 @@ export const getTransportLogger = () => {
     contextInfo: Object,
     logContent: any[],
   ) => {
+    const primaryLogContent =
+      logContent?.length === 1 &&
+      logContent[0] &&
+      typeof logContent[0] === 'object'
+        ? logContent[0]
+        : undefined;
+    const datadogLogContent = primaryLogContent?.screenshareSessionId
+      ? primaryLogContent
+      : logContent;
+
     datadogLogs.logger.log(
       logMessage,
-      {...columns, logMessage, logType, contextInfo, logContent},
+      {
+        ...columns,
+        logMessage,
+        logType,
+        contextInfo,
+        logContent: datadogLogContent,
+      },
       logType,
-      logType === 'error'
-        ? logContent?.length
-          ? logContent[0]
-          : undefined
-        : undefined,
+      logType === 'error' ? primaryLogContent : undefined,
     );
   };
 };

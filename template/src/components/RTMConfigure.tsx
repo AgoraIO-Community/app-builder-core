@@ -816,6 +816,7 @@ const RtmConfigure = (props: any) => {
       const uid = parseInt(userId, 10);
       const screenUidItem = attr?.items?.find(item => item.key === 'screenUid');
       const isHostItem = attr?.items?.find(item => item.key === 'isHost');
+      const nameItem = attr?.items?.find(item => item.key === 'name');
       const screenUid = screenUidItem?.value
         ? parseInt(screenUidItem.value, 10)
         : undefined;
@@ -827,6 +828,7 @@ const RtmConfigure = (props: any) => {
         type: uid === parseInt(RECORDING_BOT_UID, 10) ? 'bot' : 'rtc',
         uid,
         offline: false,
+        ...(nameItem?.value ? {name: nameItem.value} : {}),
         isHost: isHostItem?.value || false,
         lastMessageTimeStamp: 0,
       };

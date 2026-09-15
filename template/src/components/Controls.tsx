@@ -125,6 +125,9 @@ import {
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
 import LiveReactionButton from './reactions/LiveReactionButton';
 
+const getWhiteboardActivePayload = (status: boolean, channel?: string) =>
+  JSON.stringify({status, channel});
+
 export const useToggleWhiteboard = () => {
   const {
     whiteboardActive,
@@ -135,6 +138,9 @@ export const useToggleWhiteboard = () => {
   const {setCustomContent} = useContent();
   const {setLayout} = useLayout();
   const {dispatch} = useContext(DispatchContext);
+  const {
+    data: {channel},
+  } = useRoomInfo();
   return () => {
     if ($config.ENABLE_WHITEBOARD) {
       if (whiteboardActive) {
@@ -143,7 +149,7 @@ export const useToggleWhiteboard = () => {
         setLayout('grid');
         events.send(
           EventNames.WHITEBOARD_ACTIVE,
-          JSON.stringify({status: false}),
+          getWhiteboardActivePayload(false, channel),
           PersistanceLevel.Session,
         );
       } else {
@@ -156,7 +162,7 @@ export const useToggleWhiteboard = () => {
         setLayout('pinned');
         events.send(
           EventNames.WHITEBOARD_ACTIVE,
-          JSON.stringify({status: true}),
+          getWhiteboardActivePayload(true, channel),
           PersistanceLevel.Session,
         );
       }
@@ -169,7 +175,7 @@ export const WhiteboardListener = () => {
   const {setCustomContent} = useContent();
   const {currentLayout, setLayout} = useLayout();
   const {
-    data: {isHost},
+    data: {channel, isHost},
     isWhiteBoardOn,
   } = useRoomInfo();
 
@@ -248,7 +254,7 @@ export const WhiteboardListener = () => {
         triggerEvent &&
           events.send(
             EventNames.WHITEBOARD_ACTIVE,
-            JSON.stringify({status: false}),
+            getWhiteboardActivePayload(false, channel),
             PersistanceLevel.Session,
           );
       } else {
@@ -262,7 +268,7 @@ export const WhiteboardListener = () => {
         triggerEvent &&
           events.send(
             EventNames.WHITEBOARD_ACTIVE,
-            JSON.stringify({status: true}),
+            getWhiteboardActivePayload(true, channel),
             PersistanceLevel.Session,
           );
       }
@@ -340,12 +346,16 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
 
   // const {start, restart} = useSTTAPI();
   const {
-    data: {isHost},
+    data: {channel, isHost},
   } = useRoomInfo();
   const {setShowInvitePopup, setShowStopRecordingPopup, setShowLayoutOption} =
     useVideoCall();
-  const {isScreenshareActive, startScreenshare, stopScreenshare} =
-    useScreenshare();
+  const {
+    isScreenshareActive,
+    operationState = isScreenshareActive ? 'active' : 'inactive',
+    startScreenshare,
+    stopScreenshare,
+  } = useScreenshare();
   const {isRecordingActive, startRecording, inProgress, deleteRecording} =
     useRecording();
   const {setChatType} = useChatUIControls();
@@ -467,7 +477,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         triggerEvent &&
           events.send(
             EventNames.WHITEBOARD_ACTIVE,
-            JSON.stringify({status: false}),
+            getWhiteboardActivePayload(false, channel),
             PersistanceLevel.Session,
           );
       } else {
@@ -481,7 +491,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         triggerEvent &&
           events.send(
             EventNames.WHITEBOARD_ACTIVE,
-            JSON.stringify({status: true}),
+            getWhiteboardActivePayload(true, channel),
             PersistanceLevel.Session,
           );
       }
@@ -705,10 +715,12 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         componentName: 'screenshare',
         order: 8,
         disabled:
-          rtcProps.role == ClientRoleType.ClientRoleAudience &&
-          $config.EVENT_MODE &&
-          $config.RAISE_HAND &&
-          !isHost,
+          operationState === 'starting' ||
+          operationState === 'stopping' ||
+          (rtcProps.role == ClientRoleType.ClientRoleAudience &&
+            $config.EVENT_MODE &&
+            $config.RAISE_HAND &&
+            !isHost),
         icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
         iconColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR

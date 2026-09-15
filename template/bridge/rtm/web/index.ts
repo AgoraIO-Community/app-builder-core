@@ -189,8 +189,11 @@ export class RTMWebClient {
         });
         // Map native signature to web signature
         return this.client.storage.setUserMetadata(validatedItems, {
-          addTimeStamp: options?.addTimeStamp || true,
-          addUserId: options?.addUserId || true,
+          userId: options?.userId,
+          majorRevision: options?.majorRevision,
+          lockName: options?.lockName,
+          addTimeStamp: options?.addTimeStamp ?? true,
+          addUserId: options?.addUserId ?? true,
         });
       },
 

@@ -59,6 +59,7 @@
     "@splinetool/runtime": "^1.9.69",
     "@supersami/rn-foreground-service": "^1.1.1",
     "add": "^2.0.6",
+    "agora-agent-client-toolkit": "2.9.0",
     "agora-chat": "1.2.2-3",
     "agora-extension-ai-denoiser": "1.1.0",
     "agora-extension-beauty-effect": "^1.0.2-beta",
