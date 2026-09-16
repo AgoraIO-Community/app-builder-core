@@ -18,6 +18,7 @@ import {ToolbarPresetProps} from './sub-components';
 import {TextDataInterface} from '../src/language/default-labels';
 import {VBPanelProps} from '../src/components/virtual-background/VBPanel';
 import {AIAgentState} from '../src/ai-agent/components/AgentControls/const';
+import type {MessageEvent, PresenceEvent} from 'agora-react-native-rtm';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
@@ -137,6 +138,8 @@ export type EndCallHookType = () => (
   history: History,
 ) => Promise<void>;
 export type DeepLinkHandlerType = (link: string) => boolean | void;
+export type RtmMessageHandlerType = (message: MessageEvent) => boolean | void;
+export type RtmPresenceHandlerType = (presence: PresenceEvent) => void;
 
 export interface AppConfig {
   defaultRootFallback?: React.ComponentType;
@@ -172,6 +175,8 @@ export interface CustomizationApiInterface {
     useAfterEndCall?: EndCallHookType;
     useBeforeEndCall?: EndCallHookType;
     onDeepLink?: DeepLinkHandlerType;
+    onRtmMessage?: RtmMessageHandlerType;
+    onRtmPresence?: RtmPresenceHandlerType;
     // useBeforeJoin?: CustomHookType;
     // useBeforeCreate?: CustomHookType;
   };
