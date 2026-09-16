@@ -1,9 +1,8 @@
 import {View} from 'react-native';
 import React from 'react';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
-import {LanguageTranslationConfig, useCaption} from './useCaption';
+import {useCaption} from './useCaption';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
-import useSTTAPI from './useSTTAPI';
 import {useString} from '../../utils/useString';
 import {toolbarItemCaptionText} from '../../language/default-labels/videoCallScreenLabels';
 import {useToolbarProps} from '../../atoms/ToolbarItem';
@@ -31,7 +30,6 @@ const CaptionIcon = (props: CaptionIconProps) => {
     isCaptionON,
     setIsCaptionON,
     isSTTActive,
-    isSTTError,
     sttDepsReady,
     confirmSpokenLanguageChange,
   } = useCaption();
@@ -45,13 +43,16 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
   const label = captionLabel(isCaptionON);
   const onPress = () => {
-    if (isSTTError || !isSTTActive) {
-      // Show popup when error or STT not active
+    // Hiding an already-visible caption is a local UI action and must not be
+    // blocked by a failed or delayed STT API request.
+    if (isCaptionON) {
+      setIsCaptionON(false);
+      closeActionSheet?.();
+    } else if (!isSTTActive) {
       setLanguagePopup(true);
     } else {
-      // STT is active and no error
-      setIsCaptionON(prev => !prev);
-      closeActionSheet();
+      setIsCaptionON(true);
+      closeActionSheet?.();
     }
     // if (isSTTActive) {
     //   // is lang popup has been shown once for any user in meeting
@@ -91,9 +92,9 @@ const CaptionIcon = (props: CaptionIconProps) => {
 
   const onConfirm = async (newSpokenLang: LanguageType) => {
     try {
-      closeActionSheet();
+      closeActionSheet?.();
       setLanguagePopup(false);
-      setIsCaptionON(prev => !prev);
+      setIsCaptionON(true);
       await confirmSpokenLanguageChange(newSpokenLang);
     } catch (error) {
       setIsCaptionON(false);
