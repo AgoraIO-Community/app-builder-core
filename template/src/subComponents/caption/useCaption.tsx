@@ -448,8 +448,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       setIsLangChangeInProgress(true);
       const result = await start(localBotUidRef.current, newConfig);
       console.log('[STT] start result: ', result);
-      if (result.success || result.error?.code === 610) {
-        // Success or already started
+      if (result.success) {
         setIsSTTError(false);
         logger.log(
           LogSource.NetworkRest,
@@ -810,8 +809,18 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         targetChange,
       );
       if (!ok) {
-        console.warn('[STT] Skipping global state update because API failed.');
-        continue;
+        if (isLocal) {
+          console.warn(
+            '[STT] Skipping local global state update because API failed.',
+          );
+          continue;
+        }
+        // A received RTM event is authoritative for the meeting-level state.
+        // Failure to provision this participant's bot must not make the UI
+        // report that meeting STT is disabled while captions are arriving.
+        console.warn(
+          '[STT] Applying remote global state after local STT API failure.',
+        );
       }
       // update global state AFTER processing
       setGlobalSttState(newState);
@@ -848,6 +857,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             targets: newState.globalTranslationTargets,
           });
           if (!result.success) {
+            sttStartGuardRef.current = false;
             return false;
           }
           buildSttTranscriptForSourceChanged(
@@ -979,6 +989,9 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         }
         return true;
       } catch (error) {
+        if (isStartOperation) {
+          sttStartGuardRef.current = false;
+        }
         logger.error(
           LogSource.Internals,
           'STT',
