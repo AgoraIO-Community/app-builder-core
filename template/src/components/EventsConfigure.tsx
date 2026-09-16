@@ -243,12 +243,11 @@ const EventsConfigure: React.FC<Props> = ({
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
   const {
-    data: {channel, isHost, roomId},
+    data: {isHost, roomId},
     roomPreference: {userRemovalTimeout},
   } = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
   const isHostRef = React.useRef(isHost);
-  const channelRef = React.useRef(channel);
   const {permissionStatus} = useLocalUserInfo();
   const permissionStatusRef = React.useRef(permissionStatus);
   const {waitingRoomUids, waitingRoomRef} = useWaitingRoomContext();
@@ -264,13 +263,6 @@ const EventsConfigure: React.FC<Props> = ({
   useEffect(() => {
     isHostRef.current = isHost;
   }, [isHost]);
-  useEffect(() => {
-    channelRef.current = channel;
-  }, [channel]);
-  const isDifferentWhiteboardChannel = (eventChannel?: string) => {
-    const currentChannel = channelRef.current;
-    return !!currentChannel && eventChannel !== currentChannel;
-  };
 
   useEffect(() => {
     permissionStatusRef.current = permissionStatus;
@@ -500,15 +492,6 @@ const EventsConfigure: React.FC<Props> = ({
 
     events.on(EventNames.WHITEBOARD_ACTIVE, ({payload}) => {
       const data = JSON.parse(payload);
-      if (isDifferentWhiteboardChannel(data?.channel)) {
-        logger.debug(
-          LogSource.Internals,
-          'WHITEBOARD',
-          'Ignoring whiteboard state for a different channel',
-          {eventChannel: data?.channel, currentChannel: channelRef.current},
-        );
-        return;
-      }
       if (data && data?.status) {
         if (
           ($config.ENABLE_WAITING_ROOM && !isHostRef.current) ||
@@ -546,15 +529,6 @@ const EventsConfigure: React.FC<Props> = ({
 
     events.on(EventNames.BOARD_COLOR_CHANGED, ({payload}) => {
       const data = JSON.parse(payload);
-      if (isDifferentWhiteboardChannel(data?.channel)) {
-        logger.debug(
-          LogSource.Internals,
-          'WHITEBOARD',
-          'Ignoring whiteboard board color for a different channel',
-          {eventChannel: data?.channel, currentChannel: channelRef.current},
-        );
-        return;
-      }
       if (data?.boardColor) {
         if (
           ($config.ENABLE_WAITING_ROOM && !isHostRef.current) ||
@@ -576,15 +550,6 @@ const EventsConfigure: React.FC<Props> = ({
 
     events.on(EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION, ({payload}) => {
       const data = JSON.parse(payload);
-      if (isDifferentWhiteboardChannel(data?.channel)) {
-        logger.debug(
-          LogSource.Internals,
-          'WHITEBOARD',
-          'Ignoring whiteboard upload position for a different channel',
-          {eventChannel: data?.channel, currentChannel: channelRef.current},
-        );
-        return;
-      }
       if (
         ($config.ENABLE_WAITING_ROOM && !isHostRef.current) ||
         $config.AUTO_CONNECT_RTM

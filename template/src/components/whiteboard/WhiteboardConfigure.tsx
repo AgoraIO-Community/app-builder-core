@@ -140,7 +140,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
 
   const [name] = useUserName();
   const {
-    data: {channel, isHost, whiteboard: {room_token, room_uuid} = {}},
+    data: {isHost, whiteboard: {room_token, room_uuid} = {}},
     boardColor: boardColorRemote,
     whiteboardLastImageUploadPosition: whiteboardLastImageUploadPositionRemote,
   } = useRoomInfo();
@@ -335,7 +335,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
      */
     events.send(
       EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION,
-      JSON.stringify({height: height || 0, channel}),
+      JSON.stringify({height: height || 0}),
       PersistanceLevel.Session,
     );
   };
