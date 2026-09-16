@@ -20,6 +20,7 @@ import useIsHandRaised from '../../utils/useIsHandRaised';
 import {isAndroid, isIOS} from '../../utils/common';
 import {useVideoCall} from '../../components/useVideoCall';
 import {useToolbarMenu} from '../../utils/useMenu';
+import {useActionSheet} from '../../utils/useActionSheet';
 import ToolbarMenuItem from '../../atoms/ToolbarMenuItem';
 import {
   livestreamingShareTooltipText,
@@ -41,9 +42,15 @@ export interface ScreenshareButtonProps {
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
+  const {
+    isOnActionSheet: isOnActionSheetContext,
+    showLabel: showActionSheetLabel,
+  } = useActionSheet();
   const {rtcProps} = useContext(PropsContext);
-  const {showLabel = $config.ICON_TEXT || false, isOnActionSheet = false} =
-    props;
+  const isOnActionSheet = props.isOnActionSheet || isOnActionSheetContext;
+  const showLabel =
+    props.showLabel ??
+    (isOnActionSheet ? showActionSheetLabel : $config.ICON_TEXT || false);
   const {
     data: {isHost},
   } = useRoomInfo();
