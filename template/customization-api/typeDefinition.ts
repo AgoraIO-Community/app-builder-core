@@ -136,6 +136,7 @@ export type EndCallHookType = () => (
   isHost: boolean,
   history: History,
 ) => Promise<void>;
+export type DeepLinkHandlerType = (link: string) => boolean | void;
 
 export interface AppConfig {
   defaultRootFallback?: React.ComponentType;
@@ -170,6 +171,7 @@ export interface CustomizationApiInterface {
   lifecycle?: {
     useAfterEndCall?: EndCallHookType;
     useBeforeEndCall?: EndCallHookType;
+    onDeepLink?: DeepLinkHandlerType;
     // useBeforeJoin?: CustomHookType;
     // useBeforeCreate?: CustomHookType;
   };
