@@ -25,6 +25,7 @@ export interface IconButtonProps {
   setRef?: (ref: any) => void;
   onPress?: PressableProps['onPress'];
   disabled?: boolean;
+  showToolTipWhenDisabled?: boolean;
   containerStyle?: ViewStyle;
   rootContainerStyle?: ViewStyle;
   iconContainerStyle?: ViewStyle;
@@ -156,13 +157,14 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
     isClickable = false,
     showTooltipArrow = true,
     disabled = false,
+    showToolTipWhenDisabled = false,
   } = props;
   if (props?.toolTipMessage) {
     return (
       <ToolTip
         isClickable={isClickable}
         toolTipMessage={props.toolTipMessage}
-        disabled={disabled}
+        disabled={disabled && !showToolTipWhenDisabled}
         //@ts-ignore
         placement={placement}
         showTooltipArrow={showTooltipArrow}

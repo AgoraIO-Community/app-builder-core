@@ -75,7 +75,7 @@ const Tooltip = (props: TooltipProps) => {
     return result;
   };
 
-  const toolTipId = randomString();
+  const [toolTipId] = useState(() => randomString());
 
   return (
     <>
