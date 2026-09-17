@@ -25,8 +25,15 @@ export type ScreenshareStopOrigin =
   | 'page_unload'
   | 'unknown';
 
+export type ScreenshareOperationState =
+  | 'inactive'
+  | 'starting'
+  | 'active'
+  | 'stopping';
+
 export interface ScreenshareContextInterface {
   isScreenshareActive: boolean;
+  operationState?: ScreenshareOperationState;
   startScreenshare: () => Promise<void> | void;
   stopScreenshare: (
     origin?: ScreenshareStopOrigin,
@@ -36,6 +43,7 @@ export interface ScreenshareContextInterface {
 
 export const ScreenshareContext = createContext<ScreenshareContextInterface>({
   isScreenshareActive: false,
+  operationState: 'inactive',
   startScreenshare: () => {},
   stopScreenshare: () => {},
   //@ts-ignore

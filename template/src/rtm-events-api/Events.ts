@@ -361,7 +361,7 @@ class Events {
   ) => {
     try {
       if (!this._validateEvt(eventName)) {
-        return;
+        return false;
       }
     } catch (error) {
       logger.error(
@@ -407,6 +407,7 @@ class Events {
       } else {
         await this._send(rtmPayload, receiver);
       }
+      return true;
     } catch (error) {
       logger.error(
         LogSource.Events,
@@ -415,6 +416,7 @@ class Events {
         error,
       );
       // don't throw - just log the error, application should continue running
+      return false;
     }
   };
 }

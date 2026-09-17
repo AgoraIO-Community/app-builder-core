@@ -35,6 +35,7 @@ import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {isAndroid, isIOS, isWeb, isWebInternal} from '../utils/common';
 import {useContent} from 'customization-api';
+import {useCustomization} from 'customization-implementation';
 import {
   safeJsonParse,
   timeNow,
@@ -81,6 +82,7 @@ const RtmConfigure = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(DispatchContext);
   const {defaultContent, activeUids} = useContent();
+  const {lifecycle} = useCustomization();
   const {
     waitingRoomStatus,
     data: {isHost},
@@ -318,6 +320,16 @@ const RtmConfigure = (props: any) => {
         if (`${localUid}` === presence.publisher) {
           return;
         }
+        try {
+          lifecycle?.onRtmPresence?.(presence);
+        } catch (error) {
+          logger.error(
+            LogSource.Events,
+            'CUSTOM_EVENTS',
+            'Customization RTM presence handler failed',
+            {error, presence},
+          );
+        }
         // remoteJoinChannel
         if (presence.type === nativePresenceEventTypeMapping.REMOTE_JOIN) {
           logger.log(
@@ -325,10 +337,22 @@ const RtmConfigure = (props: any) => {
             'Event',
             'RTM presenceEvent of type [3 - remoteJoin] (channelMemberJoined)',
           );
-          const backoffAttributes = await fetchUserAttributesWithBackoffRetry(
-            presence.publisher,
-          );
-          await processUserUidAttributes(backoffAttributes, presence.publisher);
+          try {
+            const backoffAttributes = await fetchUserAttributesWithBackoffRetry(
+              presence.publisher,
+            );
+            await processUserUidAttributes(
+              backoffAttributes,
+              presence.publisher,
+            );
+          } catch (error) {
+            logger.warn(
+              LogSource.AgoraSDK,
+              'Event',
+              `RTM could not apply metadata for joined member ${presence.publisher}`,
+              {error},
+            );
+          }
         }
         // remoteLeaveChannel and, on web, remote connection timeout
         if (isRemoteDeparture(presence.type, isWebInternal())) {
@@ -361,6 +385,20 @@ const RtmConfigure = (props: any) => {
 
     engine.current.addEventListener('message', (message: MessageEvent) => {
       if (`${localUid}` === message.publisher) {
+        return;
+      }
+      let handledByCustomization = false;
+      try {
+        handledByCustomization = !!lifecycle?.onRtmMessage?.(message);
+      } catch (error) {
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'Customization RTM message handler failed',
+          {error, message},
+        );
+      }
+      if (handledByCustomization) {
         return;
       }
       // message - 1 (channel)
@@ -501,6 +539,7 @@ const RtmConfigure = (props: any) => {
       const options: SetOrUpdateUserMetadataOptions = {
         userId: `${localUid}`,
       };
+      await engine.current.storage.removeUserMetadata(options);
       await engine.current.storage.setUserMetadata(data, options);
       logger.log(
         LogSource.AgoraSDK,
@@ -822,7 +861,7 @@ const RtmConfigure = (props: any) => {
 
       //start - updating user data in rtc
       const userData = {
-        screenUid: screenUid,
+        screenUid,
         //below thing for livestreaming
         type: uid === parseInt(RECORDING_BOT_UID, 10) ? 'bot' : 'rtc',
         uid,

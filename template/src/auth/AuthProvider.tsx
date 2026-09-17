@@ -43,6 +43,7 @@ import SDKEvents from '../utils/SdkEvents';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {useCustomization} from 'customization-implementation';
 
 const GET_USER_URL = `${$config.BACKEND_ENDPOINT}/v1/user/details`;
 
@@ -64,6 +65,7 @@ const AuthContext = createContext<AuthContextInterface | null>(null);
 const AuthProvider = (props: AuthProviderProps) => {
   const loadingLabel = useString(loadingText)();
   const timeoutHeading = useString(authSessionTimeoutToastHeading)();
+  const {lifecycle} = useCustomization();
   const regEvent = useRef(true);
   const refreshTimeoutWeb = useRef(null);
   const [showNativePopup, setShowNativePopup] = useState(false);
@@ -137,6 +139,14 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const deepLinkUrl = (link: string | null) => {
     if (link !== null) {
+      if (lifecycle?.onDeepLink?.(link)) {
+        logger.log(
+          LogSource.Internals,
+          'AUTH',
+          'Deep link handled by customization',
+        );
+        return;
+      }
       //deeplinking handling with authentication enabled
       if ($config.ENABLE_IDP_AUTH) {
         const url = processDeepLinkURI(link);
