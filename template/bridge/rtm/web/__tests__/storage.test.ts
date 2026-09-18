@@ -3,6 +3,7 @@ import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 const mockSetChannelMetadata = jest.fn<any>();
 const mockGetChannelMetadata = jest.fn<any>();
 const mockRemoveChannelMetadata = jest.fn<any>();
+const mockRemoveUserMetadata = jest.fn<any>();
 
 jest.mock('agora-rtm-sdk', () => ({
   __esModule: true,
@@ -15,6 +16,7 @@ jest.mock('agora-rtm-sdk', () => ({
         setChannelMetadata: mockSetChannelMetadata,
         getChannelMetadata: mockGetChannelMetadata,
         removeChannelMetadata: mockRemoveChannelMetadata,
+        removeUserMetadata: mockRemoveUserMetadata,
       },
       presence: {},
     })),
@@ -30,7 +32,20 @@ describe('RTMWebClient channel metadata bridge', () => {
     jest.clearAllMocks();
     mockSetChannelMetadata.mockResolvedValue({});
     mockRemoveChannelMetadata.mockResolvedValue({});
+    mockRemoveUserMetadata.mockResolvedValue({});
     client = new RTMWebClient('app-id', 'user-id');
+  });
+
+  it('clears all metadata for the requested user when data is omitted', async () => {
+    await client.storage.removeUserMetadata({userId: 'agent-user'});
+
+    expect(mockRemoveUserMetadata).toHaveBeenCalledWith({
+      userId: 'agent-user',
+      majorRevision: undefined,
+      lockName: undefined,
+      addUserId: true,
+      addTimeStamp: true,
+    });
   });
 
   it('preserves revision zero for create-only channel metadata', async () => {

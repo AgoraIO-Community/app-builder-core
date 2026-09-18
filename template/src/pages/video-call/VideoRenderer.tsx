@@ -25,6 +25,7 @@ import {
 } from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
+import type {ActionMenuItem} from '../../atoms/ActionMenu';
 import {
   isMobileUA,
   isValidReactComponent,
@@ -60,6 +61,7 @@ export interface VideoRendererProps {
   CustomChild?: React.ComponentType;
   avatarRadius?: number;
   hideMenuOptions?: boolean;
+  extraMenuItems?: ActionMenuItem[];
   containerStyle?: ViewStyle;
   innerContainerStyle?: ViewStyle;
 }
@@ -69,6 +71,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   CustomChild,
   avatarRadius = 100,
   hideMenuOptions = false,
+  extraMenuItems,
   containerStyle = {},
   innerContainerStyle = {},
 }) => {
@@ -214,6 +217,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
         from={'video-tile'}
         setSpotlightUid={setSpotlightUid}
         spotlightUid={spotlightUid}
+        extraMenuItems={extraMenuItems}
       />
       <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
         <View

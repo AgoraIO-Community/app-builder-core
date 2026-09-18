@@ -291,6 +291,8 @@ const ActionSheet = props => {
               isCustomSidePanel={true}
               customSidePanelProps={{
                 title: sidePanelArray[customSidePanelIndex]?.title,
+                headerRightSlot:
+                  sidePanelArray[customSidePanelIndex]?.headerRightSlot,
                 onClose: sidePanelArray[customSidePanelIndex]?.onClose,
                 name: sidePanelArray[customSidePanelIndex]?.name,
               }}

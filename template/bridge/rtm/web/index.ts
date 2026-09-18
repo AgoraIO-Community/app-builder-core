@@ -2,6 +2,7 @@ import {
   type Metadata as NativeMetadata,
   type MetadataItem as NativeMetadataItem,
   type GetUserMetadataOptions as NativeGetUserMetadataOptions,
+  type RemoveUserMetadataOptions as NativeRemoveUserMetadataOptions,
   type RtmChannelType as NativeRtmChannelType,
   type SetUserMetadataResponse,
   type LoginOptions as NativeLoginOptions,
@@ -177,8 +178,11 @@ export class RTMWebClient {
         });
         // Map native signature to web signature
         return this.client.storage.setUserMetadata(validatedItems, {
-          addTimeStamp: options?.addTimeStamp || true,
-          addUserId: options?.addUserId || true,
+          userId: options?.userId,
+          majorRevision: options?.majorRevision,
+          lockName: options?.lockName,
+          addTimeStamp: options?.addTimeStamp ?? true,
+          addUserId: options?.addUserId ?? true,
         });
       },
 
@@ -224,6 +228,23 @@ export class RTMWebClient {
           timestamp: webResponse.timestamp,
         };
         return nativeResponse;
+      },
+
+      removeUserMetadata: (options?: NativeRemoveUserMetadataOptions) => {
+        const data = options?.data?.items?.map(item => ({
+          key: item.key,
+          value: item.value ?? '',
+          revision: item.revision ?? -1,
+        }));
+
+        return this.client.storage.removeUserMetadata({
+          userId: options?.userId,
+          majorRevision: options?.majorRevision,
+          lockName: options?.lockName,
+          ...(data ? {data} : {}),
+          addTimeStamp: options?.addTimeStamp ?? true,
+          addUserId: options?.addUserId ?? true,
+        });
       },
 
       setChannelMetadata: async (

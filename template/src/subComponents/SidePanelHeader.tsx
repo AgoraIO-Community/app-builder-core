@@ -13,6 +13,7 @@ export interface SidePanelHeaderProps {
   leadingIconOnPress?: () => void;
   trailingIconName?: keyof IconsInterface;
   trailingIconOnPress?: () => void;
+  trailingComponent?: React.ReactNode;
   trailingIconName2?: keyof IconsInterface;
   trailingIconOnPress2?: () => void;
   isChat?: boolean;
@@ -56,9 +57,21 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
             <View style={{width: 30, height: 'auto'}}></View>
           ) : null}
           {props?.centerComponent ? props.centerComponent : null}
-          <View style={props?.trailingIconName2 && SidePanelStyles.row}>
+          <View
+            style={
+              (props?.trailingIconName2 || props?.trailingComponent) &&
+              SidePanelStyles.row
+            }>
+            {props?.trailingComponent ? props.trailingComponent : null}
             {props?.trailingIconName ? (
-              <View ref={ref} collapsable={false} style={{flex: 1}}>
+              <View
+                ref={ref}
+                collapsable={false}
+                style={
+                  props?.trailingIconName2 || props?.trailingComponent
+                    ? {}
+                    : {flex: 1}
+                }>
                 <IconButton
                   hoverEffect={true}
                   hoverEffectStyle={{
@@ -116,6 +129,7 @@ export const SidePanelStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
     position: 'relative',
+    zIndex: 1000,
   },
   chatPadding: {
     paddingHorizontal: 16,

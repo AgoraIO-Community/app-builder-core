@@ -400,6 +400,9 @@ const VideoCallScreen = () => {
                   <CustomSidePanelView
                     content={SidePanelArray[customSidePanelIndex]?.component}
                     title={SidePanelArray[customSidePanelIndex]?.title}
+                    headerRightSlot={
+                      SidePanelArray[customSidePanelIndex]?.headerRightSlot
+                    }
                     name={SidePanelArray[customSidePanelIndex]?.name}
                     onClose={SidePanelArray[customSidePanelIndex]?.onClose}
                   />

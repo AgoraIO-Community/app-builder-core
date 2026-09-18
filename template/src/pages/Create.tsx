@@ -29,7 +29,6 @@ import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateRoom from '../utils/useCreateRoom';
 import {CreateProvider} from './create/useCreate';
-import useJoinRoom from '../utils/useJoinRoom';
 import {
   RoomInfoDefaultValue,
   useRoomInfo,
@@ -39,12 +38,10 @@ import Toggle from '../atoms/Toggle';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
-import StorageContext from '../components/StorageContext';
 import ThemeConfig from '../theme';
 import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {randomNameGenerator} from '../utils';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import isSDK from '../utils/isSDK';
@@ -67,25 +64,35 @@ import {LogSource, logger} from '../logger/AppBuilderLogger';
 import SDKEvents from '../utils/SdkEvents';
 
 const Create = () => {
-  const {CreateComponent} = useCustomization(data => {
-    let components: {
-      CreateComponent?: React.ElementType;
-    } = {};
-    if (
-      data?.components?.create &&
-      typeof data?.components?.create !== 'object'
-    ) {
+  const {CreateComponent, CreateHeaderRightSlotComponent} = useCustomization(
+    data => {
+      let components: {
+        CreateComponent?: React.ElementType;
+        CreateHeaderRightSlotComponent?: React.ElementType;
+      } = {};
       if (
         data?.components?.create &&
-        isValidReactComponent(data?.components?.create)
-      )
-        components.CreateComponent = data?.components?.create;
-    }
-    return components;
-  });
+        typeof data?.components?.create !== 'object'
+      ) {
+        if (
+          data?.components?.create &&
+          isValidReactComponent(data?.components?.create)
+        )
+          components.CreateComponent = data?.components?.create;
+      }
+      if (
+        data?.components?.create &&
+        typeof data?.components?.create === 'object' &&
+        data?.components?.create?.headerRightSlot &&
+        isValidReactComponent(data?.components?.create?.headerRightSlot)
+      ) {
+        components.CreateHeaderRightSlotComponent =
+          data?.components?.create?.headerRightSlot;
+      }
+      return components;
+    },
+  );
 
-  const useJoin = useJoinRoom();
-  const {setStore} = useContext(StorageContext);
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
   const [loading, setLoading] = useState(false);
@@ -313,6 +320,11 @@ const Create = () => {
                 <View>
                   <View style={style.logoContainerStyle}>
                     <Logo />
+                    {CreateHeaderRightSlotComponent ? (
+                      <CreateHeaderRightSlotComponent />
+                    ) : (
+                      <></>
+                    )}
                     {isMobileUA() ? (
                       <IDPLogoutComponent
                         containerStyle={{marginTop: 0, marginRight: 0}}

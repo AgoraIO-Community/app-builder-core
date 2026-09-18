@@ -10,6 +10,7 @@
 *********************************************
 */
 import React, {useContext} from 'react';
+import {StyleSheet, View} from 'react-native';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
@@ -19,6 +20,7 @@ import useIsHandRaised from '../../utils/useIsHandRaised';
 import {isAndroid, isIOS} from '../../utils/common';
 import {useVideoCall} from '../../components/useVideoCall';
 import {useToolbarMenu} from '../../utils/useMenu';
+import {useActionSheet} from '../../utils/useActionSheet';
 import ToolbarMenuItem from '../../atoms/ToolbarMenuItem';
 import {
   livestreamingShareTooltipText,
@@ -40,20 +42,35 @@ export interface ScreenshareButtonProps {
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
+  const {
+    isOnActionSheet: isOnActionSheetContext,
+    showLabel: showActionSheetLabel,
+  } = useActionSheet();
   const {rtcProps} = useContext(PropsContext);
-  const {showLabel = $config.ICON_TEXT || false, isOnActionSheet = false} =
-    props;
+  const isOnActionSheet = props.isOnActionSheet || isOnActionSheetContext;
+  const showLabel =
+    props.showLabel ??
+    (isOnActionSheet ? showActionSheetLabel : $config.ICON_TEXT || false);
   const {
     data: {isHost},
   } = useRoomInfo();
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
-  const {isScreenshareActive, startScreenshare, stopScreenshare} =
-    useScreenshare();
+  const {
+    isScreenshareActive,
+    operationState = isScreenshareActive ? 'active' : 'inactive',
+    startScreenshare,
+    stopScreenshare,
+  } = useScreenshare();
+  const isScreenshareTransitioning =
+    operationState === 'starting' || operationState === 'stopping';
   const {setShowStartScreenSharePopup} = useVideoCall();
   const screenShareButtonLabel = useString<boolean>(toolbarItemShareText);
   const lstooltip = useString<boolean>(livestreamingShareTooltipText);
   const onPress = () => {
+    if (isScreenshareTransitioning) {
+      return;
+    }
     if (isScreenshareActive) {
       stopScreenshare('toolbar');
     } else {
@@ -74,7 +91,16 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
         ? $config.SEMANTIC_ERROR
         : $config.SECONDARY_ACTION_COLOR,
     },
-    onPress: onPressCustom || onPress,
+    disabled: isScreenshareTransitioning,
+    onPress: () => {
+      if (isScreenshareTransitioning) {
+        return;
+      }
+      (onPressCustom || onPress)();
+    },
+    containerStyle: isScreenshareTransitioning
+      ? styles.transitioning
+      : undefined,
     btnTextProps: {
       text: showLabel
         ? label || screenShareButtonLabel(isScreenshareActive)
@@ -106,7 +132,16 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   }
 
   return props?.render ? (
-    props.render(onPress, isScreenshareActive)
+    <View
+      accessibilityState={{disabled: isScreenshareTransitioning}}
+      pointerEvents={isScreenshareTransitioning ? 'none' : 'auto'}
+      style={isScreenshareTransitioning ? styles.transitioning : undefined}>
+      {props.render(() => {
+        if (!isScreenshareTransitioning) {
+          onPress();
+        }
+      }, isScreenshareActive)}
+    </View>
   ) : isToolbarMenuItem ? (
     <ToolbarMenuItem {...iconButtonProps} />
   ) : (
@@ -115,3 +150,9 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
 };
 
 export default ScreenshareButton;
+
+const styles = StyleSheet.create({
+  transitioning: {
+    opacity: 0.4,
+  },
+});

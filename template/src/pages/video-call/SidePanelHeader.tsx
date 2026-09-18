@@ -208,6 +208,7 @@ export const VBHeader = () => {
 
 export const CustomSidePanelHeader = (props: {
   title: string;
+  headerRightSlot?: React.ReactNode;
   onClose?: () => void;
   name: string;
 }) => {
@@ -217,6 +218,7 @@ export const CustomSidePanelHeader = (props: {
       centerComponent={
         <Text style={SidePanelStyles.heading}>{props?.title}</Text>
       }
+      trailingComponent={props?.headerRightSlot}
       trailingIconName="close"
       trailingIconOnPress={() => {
         setSidePanel(SidePanelType.None);
@@ -224,7 +226,7 @@ export const CustomSidePanelHeader = (props: {
           props?.onClose && props?.onClose();
         } catch (error) {
           console.error(
-            `Error on calling onClose in custom side panel ${name}`,
+            `Error on calling onClose in custom side panel ${props.name}`,
           );
         }
       }}

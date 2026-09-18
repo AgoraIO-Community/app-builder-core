@@ -10,23 +10,18 @@
 *********************************************
 */
 import React from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {View, StyleSheet, ScrollView} from 'react-native';
 import {isMobileUA, isWebInternal, useIsSmall} from '../utils/common';
 import CommonStyles from './CommonStyles';
-import SidePanelHeader, {
-  SidePanelStyles,
-} from '../subComponents/SidePanelHeader';
+import useCaptionWidth from '../subComponents/caption/useCaptionWidth';
+import {CustomSidePanelHeader} from '../pages/video-call/SidePanelHeader';
 import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
-import useCaptionWidth from '../subComponents/caption/useCaptionWidth';
-import {useSidePanel} from '../utils/useSidePanel';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {CustomSidePanelHeader} from '../pages/video-call/SidePanelHeader';
-
 export interface CustomSidePanelViewInterface {
   name: string;
   title?: string;
   content: React.ComponentType;
+  headerRightSlot?: React.ReactNode;
   onClose?: () => void;
   showHeader?: boolean;
 }
@@ -37,12 +32,12 @@ const CustomSidePanelView = (props: CustomSidePanelViewInterface) => {
     showHeader = true,
     name,
     title,
+    headerRightSlot,
     onClose,
   } = props;
-  const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
-  const {setSidePanel} = useSidePanel();
   const isSmall = useIsSmall();
+  const {currentLayout} = useLayout();
 
   return (
     <View
@@ -57,13 +52,18 @@ const CustomSidePanelView = (props: CustomSidePanelViewInterface) => {
           : // desktop maximized
             CommonStyles.sidePanelContainerWeb,
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
-          ? {marginVertical: 4}
+          ? {marginTop: 4}
           : {},
         //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && (
-        <CustomSidePanelHeader name={name} title={title} onClose={onClose} />
+        <CustomSidePanelHeader
+          name={name}
+          title={title}
+          headerRightSlot={headerRightSlot}
+          onClose={onClose}
+        />
       )}
       <ScrollView contentContainerStyle={[style.bodyContainer]}>
         {CustomSidePanelContent ? <CustomSidePanelContent /> : <></>}

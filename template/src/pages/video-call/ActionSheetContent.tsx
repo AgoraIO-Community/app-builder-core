@@ -519,10 +519,12 @@ const ActionSheetContent = props => {
         </View>
       </ActionSheetProvider>
 
-      <CarouselWrapper
-        data={displayItemsOrdered?.slice(3, displayItemsOrdered?.length)}
-        dataObject={displayItems}
-      />
+      <ActionSheetProvider>
+        <CarouselWrapper
+          data={displayItemsOrdered?.slice(3, displayItemsOrdered?.length)}
+          dataObject={displayItems}
+        />
+      </ActionSheetProvider>
     </View>
   );
 };
