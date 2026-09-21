@@ -276,7 +276,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     transcriptViewMode,
     setTranscriptViewMode,
   } = useCaption();
-  const {downloadTranscript} = useTranscriptDownload();
+  const {downloadTranscript, isTranscriptPreparing} = useTranscriptDownload();
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
@@ -361,9 +361,12 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: downloadTranscriptLabel,
-    disabled: meetingTranscript.length === 0 || isLangChangeInProgress,
-    onPress: () => {
-      downloadTranscript();
+    disabled:
+      meetingTranscript.length === 0 ||
+      isLangChangeInProgress ||
+      isTranscriptPreparing,
+    onPress: async () => {
+      await downloadTranscript();
       setActionMenuVisible(false);
     },
   });

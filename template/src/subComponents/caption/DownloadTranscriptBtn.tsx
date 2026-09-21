@@ -23,8 +23,8 @@ const DownloadTranscriptBtn = (props: DownloadTranscriptBtn) => {
     iconName = 'download',
     text = downloadTranscriptLabel,
   } = props;
-  const {isSTTActive} = useCaption();
-  const {downloadTranscript} = useTranscriptDownload();
+  const {meetingTranscript} = useCaption();
+  const {downloadTranscript, isTranscriptPreparing} = useTranscriptDownload();
   return (
     <View style={styles.btnContainer}>
       <PrimaryButton
@@ -33,8 +33,9 @@ const DownloadTranscriptBtn = (props: DownloadTranscriptBtn) => {
         iconName={iconName}
         containerStyle={[styles.btnContainerStyle, containerStyle] as Object}
         textStyle={[styles.btnTxtStyle, textStyle] as Object}
-        onPress={() => {
-          downloadTranscript();
+        disabled={isTranscriptPreparing || meetingTranscript.length === 0}
+        onPress={async () => {
+          await downloadTranscript();
         }}
         text={text}
       />

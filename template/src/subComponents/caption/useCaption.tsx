@@ -18,7 +18,9 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import chatContext from '../../components/ChatContext';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
-import {useContent} from 'customization-api';
+import {useContent, useRtc} from 'customization-api';
+import useStreamMessageUtils from './useStreamMessageUtils';
+import {isWebInternal} from '../../utils/common';
 
 // Types
 type GlobalSttState = {
@@ -64,7 +66,7 @@ export type TranscriptItem = {
   selectedTranslationLanguage?: LanguageType;
 };
 
-type CaptionObj = {
+export type CaptionObj = {
   [key: string]: {
     text: string;
     translations: TranslationItem[];
@@ -127,6 +129,8 @@ export const CaptionContext = React.createContext<{
   // holds meeting transcript
   meetingTranscript: TranscriptItem[];
   setMeetingTranscript: React.Dispatch<React.SetStateAction<TranscriptItem[]>>;
+  flushPendingTranscript: () => Promise<void>;
+  getMeetingTranscript: () => TranscriptItem[];
 
   // holds status of stt language change process
   isLangChangeInProgress: boolean;
@@ -180,6 +184,8 @@ export const CaptionContext = React.createContext<{
   setTranscriptViewMode: () => {},
   meetingTranscript: [],
   setMeetingTranscript: () => {},
+  flushPendingTranscript: async () => {},
+  getMeetingTranscript: () => [],
   isLangChangeInProgress: false,
   setIsLangChangeInProgress: () => {},
   captionObj: {},
@@ -236,9 +242,27 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     React.useState<boolean>(false);
 
   const [captionObj, setCaptionObj] = React.useState<CaptionObj>({});
-  const [meetingTranscript, setMeetingTranscript] = React.useState<
+  const [meetingTranscript, setMeetingTranscriptState] = React.useState<
     TranscriptItem[]
   >([]);
+  const meetingTranscriptRef = React.useRef<TranscriptItem[]>([]);
+  const setMeetingTranscript = React.useCallback<
+    React.Dispatch<React.SetStateAction<TranscriptItem[]>>
+  >(nextTranscript => {
+    const nextValue =
+      typeof nextTranscript === 'function'
+        ? nextTranscript(meetingTranscriptRef.current)
+        : nextTranscript;
+
+    // Keep an immediately readable canonical snapshot. React state can be
+    // committed after the stream-processing queue has already become idle.
+    meetingTranscriptRef.current = nextValue;
+    setMeetingTranscriptState(nextValue);
+  }, []);
+  const getMeetingTranscript = React.useCallback(
+    () => meetingTranscriptRef.current,
+    [],
+  );
 
   const [isSTTListenerAdded, setIsSTTListenerAdded] =
     React.useState<boolean>(false);
@@ -286,6 +310,61 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   React.useEffect(() => {
     selectedTranslationLanguageRef.current = selectedTranslationLanguage;
   }, [selectedTranslationLanguage]);
+
+  const {RtcEngineUnsafe} = useRtc();
+  const {streamMessageCallback, flushStreamMessageQueue} =
+    useStreamMessageUtils({
+      setCaptionObj,
+      setMeetingTranscript,
+      activeSpeakerRef,
+      prevSpeakerRef,
+      selectedTranslationLanguageRef,
+    });
+  const transcriptListenerSubscriptionRef = React.useRef<{
+    remove: () => void;
+  } | null>(null);
+
+  const handleStreamMessageCallback = React.useCallback(
+    (...args: any[]) => {
+      if (isWebInternal()) {
+        const [uid, data] = args;
+        streamMessageCallback([uid, data]);
+      } else {
+        const [, uid, , data] = args;
+        streamMessageCallback([uid, data]);
+      }
+    },
+    [streamMessageCallback],
+  );
+
+  // Register once for the lifetime of the active call. Keeping collection in
+  // the provider makes it independent of whether caption/transcript UI is open.
+  React.useEffect(() => {
+    if (
+      !$config.ENABLE_STT ||
+      !callActive ||
+      transcriptListenerSubscriptionRef.current
+    ) {
+      return;
+    }
+
+    transcriptListenerSubscriptionRef.current = RtcEngineUnsafe.addListener(
+      'onStreamMessage',
+      handleStreamMessageCallback,
+    );
+    setIsSTTListenerAdded(true);
+  }, [RtcEngineUnsafe, callActive, handleStreamMessageCallback]);
+
+  React.useEffect(() => {
+    return () => {
+      transcriptListenerSubscriptionRef.current?.remove();
+      transcriptListenerSubscriptionRef.current = null;
+    };
+  }, []);
+
+  const flushPendingTranscript = React.useCallback(async () => {
+    await flushStreamMessageQueue();
+  }, [flushStreamMessageQueue]);
 
   const isSTTActive = globalSttState.globalSttEnabled;
 
@@ -1046,6 +1125,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setTranscriptViewMode,
         meetingTranscript,
         setMeetingTranscript,
+        flushPendingTranscript,
+        getMeetingTranscript,
         isLangChangeInProgress,
         setIsLangChangeInProgress,
         captionObj,
