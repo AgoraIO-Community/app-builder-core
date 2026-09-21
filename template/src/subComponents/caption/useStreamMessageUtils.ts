@@ -1,6 +1,8 @@
-import {useCaption} from './useCaption';
+import React from 'react';
 import protoRoot from './proto/ptoto';
 import PQueue from 'p-queue';
+import type {CaptionObj, TranscriptItem} from './useCaption';
+import type {LanguageType} from './utils';
 
 type StreamMessageCallback = (args: [number, Uint8Array]) => void;
 type FinalListType = {
@@ -17,27 +19,35 @@ type FinalTranslationListType = {
   };
 };
 
-const useStreamMessageUtils = (): {
-  streamMessageCallback: StreamMessageCallback;
-} => {
-  const {
-    setCaptionObj,
-    setMeetingTranscript,
-    activeSpeakerRef,
-    prevSpeakerRef,
-    // Use ref instead of state to avoid stale closure issues
-    // The ref always has the current value, even in callbacks created at mount time
-    selectedTranslationLanguageRef,
-  } = useCaption();
+type StreamMessageUtilsOptions = {
+  setCaptionObj: React.Dispatch<React.SetStateAction<CaptionObj>>;
+  setMeetingTranscript: React.Dispatch<React.SetStateAction<TranscriptItem[]>>;
+  activeSpeakerRef: React.MutableRefObject<string>;
+  prevSpeakerRef: React.MutableRefObject<string>;
+  selectedTranslationLanguageRef: React.MutableRefObject<LanguageType | null>;
+};
 
-  let captionStartTime: number = 0;
-  const finalList: FinalListType = {};
-  const finalTranscriptList: FinalListType = {};
-  const finalTranslationList: FinalTranslationListType = {};
-  const queue = new PQueue({concurrency: 1});
+const useStreamMessageUtils = ({
+  setCaptionObj,
+  setMeetingTranscript,
+  activeSpeakerRef,
+  prevSpeakerRef,
+  selectedTranslationLanguageRef,
+}: StreamMessageUtilsOptions): {
+  streamMessageCallback: StreamMessageCallback;
+  flushStreamMessageQueue: () => Promise<void>;
+} => {
+  const captionStartTimeRef = React.useRef<number>(0);
+  const finalListRef = React.useRef<FinalListType>({});
+  const finalTranscriptListRef = React.useRef<FinalListType>({});
+  const finalTranslationListRef = React.useRef<FinalTranslationListType>({});
+  const queue = React.useMemo(() => new PQueue({concurrency: 1}), []);
 
   const streamMessageCallback: StreamMessageCallback = args => {
     const queueCallback = (args1: [number, Uint8Array]) => {
+      const finalList = finalListRef.current;
+      const finalTranscriptList = finalTranscriptListRef.current;
+      const finalTranslationList = finalTranslationListRef.current;
       /* uid - bot which sends stream message in channel
        payload - stream message in Uint8Array format
       */
@@ -201,8 +211,8 @@ const useStreamMessageUtils = (): {
         } else {
           nonFinalText =
             word.text !== '.' ? nonFinalText + word.text : nonFinalText;
-          if (!captionStartTime) {
-            captionStartTime = performance.now();
+          if (!captionStartTimeRef.current) {
+            captionStartTimeRef.current = performance.now();
           }
         }
       }
@@ -212,11 +222,11 @@ const useStreamMessageUtils = (): {
         finalTranscriptList[textstream.uid].push(finalText);
         currentFinalText = finalText;
         // log info to show measure the duration of passes in which a sentence gets finalized
-        const duration = performance.now() - captionStartTime;
+        const duration = performance.now() - captionStartTimeRef.current;
         console.log(
           `stt-Time taken to finalize caption ${currentFinalText}: ${duration}ms`,
         );
-        captionStartTime = null; // Reset start time
+        captionStartTimeRef.current = 0; // Reset start time
       }
 
       /* Updating Meeting Transcript */
@@ -352,14 +362,21 @@ const useStreamMessageUtils = (): {
       // console.log('final List =>', finalList);
       // console.groupEnd();
     };
-    (async () => {
-      await queue.add(() => queueCallback(args));
-      console.log('stt- using pq queue');
-    })();
+    void queue
+      .add(() => queueCallback(args))
+      .then(() => console.log('stt- using pq queue'))
+      .catch(error =>
+        console.error('Failed to process STT stream message', error),
+      );
   };
+
+  const flushStreamMessageQueue = React.useCallback(async () => {
+    await queue.onIdle();
+  }, [queue]);
 
   return {
     streamMessageCallback,
+    flushStreamMessageQueue,
   };
 };
 

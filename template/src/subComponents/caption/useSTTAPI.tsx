@@ -11,11 +11,25 @@ import {ensureSTTSessionId} from './sttSessionId';
 export interface STTAPIResponse {
   success: boolean;
   data?: any;
+  httpStatus?: number;
   error?: {
     message: string;
     code?: number;
   };
 }
+
+export const STT_START_MAX_ATTEMPTS = 5;
+export const STT_START_RETRY_DELAY_MS = 500;
+const STT_START_RETRY_SPREAD_MS = 200;
+
+const wait = (delayMs: number) =>
+  new Promise<void>(resolve => setTimeout(resolve, delayMs));
+
+const getStartRetryDelay = (botUid: number) =>
+  STT_START_RETRY_DELAY_MS + (Math.abs(botUid) % STT_START_RETRY_SPREAD_MS);
+
+const shouldRetryStart = (result: STTAPIResponse) =>
+  result.httpStatus === 429 || result.error?.code === 610;
 
 interface IuseSTTAPI {
   start: (
@@ -104,9 +118,56 @@ const useSTTAPI = (): IuseSTTAPI => {
         body: JSON.stringify(requestBody),
       });
 
-      const res = await response.json();
+      let res: any;
+      try {
+        res = await response.json();
+      } catch (error) {
+        // Some HTTP failures (including 429s) can have an empty/non-JSON body.
+        // Preserve the HTTP status so callers can still apply retry policy.
+        res = undefined;
+      }
       const endReqTs = Date.now();
       const latency = endReqTs - startReqTs;
+
+      const httpStatus = response.status;
+      const isHttpFailure =
+        response.ok === false ||
+        (typeof httpStatus === 'number' && httpStatus >= 400);
+      const responseError = res?.error;
+
+      if (isHttpFailure || responseError?.message) {
+        const errorPayload = responseError || res;
+        const message =
+          errorPayload?.message ||
+          (httpStatus
+            ? `STT request failed with status ${httpStatus}`
+            : 'STT request failed');
+
+        logger.error(
+          LogSource.NetworkRest,
+          'stt',
+          `STT API Failure - Called ${method}`,
+          errorPayload,
+          {
+            responseData: res,
+            httpStatus,
+            requestId,
+            startReqTs,
+            endReqTs,
+            latency,
+          },
+        );
+
+        return {
+          success: false,
+          httpStatus,
+          error: {
+            message,
+            code: errorPayload?.code,
+          },
+          data: res,
+        };
+      }
 
       logger.log(
         LogSource.NetworkRest,
@@ -114,6 +175,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         `STT API Success - Called ${method}`,
         {
           responseData: res,
+          httpStatus,
           requestId,
           startReqTs,
           endReqTs,
@@ -121,20 +183,9 @@ const useSTTAPI = (): IuseSTTAPI => {
         },
       );
 
-      // Check if response has error
-      if (res?.error?.message) {
-        return {
-          success: false,
-          error: {
-            message: res.error.message,
-            code: res.error.code,
-          },
-          data: res,
-        };
-      }
-
       return {
         success: true,
+        httpStatus,
         data: res,
       };
     } catch (error) {
@@ -167,7 +218,41 @@ const useSTTAPI = (): IuseSTTAPI => {
     botUid: number,
     translationConfig: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
-    return await apiCall('startv7', botUid, translationConfig);
+    const retryDelayMs = getStartRetryDelay(botUid);
+    let result: STTAPIResponse;
+
+    for (let attempt = 1; attempt <= STT_START_MAX_ATTEMPTS; attempt += 1) {
+      result = await apiCall('startv7', botUid, translationConfig);
+
+      if (
+        result.success ||
+        !shouldRetryStart(result) ||
+        attempt === STT_START_MAX_ATTEMPTS
+      ) {
+        return result;
+      }
+
+      logger.log(
+        LogSource.NetworkRest,
+        'stt',
+        'Retrying STT start after transient failure',
+        {
+          attempt,
+          maxAttempts: STT_START_MAX_ATTEMPTS,
+          retryDelayMs,
+          botUid,
+          httpStatus: result.httpStatus,
+          errorCode: result.error?.code,
+        },
+      );
+      await wait(retryDelayMs);
+    }
+
+    // The loop always returns, but keep the fallback explicit for type safety.
+    return {
+      success: false,
+      error: {message: 'STT start failed after retrying'},
+    };
   };
 
   const update = async (

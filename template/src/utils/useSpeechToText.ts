@@ -3,7 +3,6 @@ import {
   SidePanelType,
   customEvents,
   useContent,
-  useRtc,
   useSTTAPI,
   useSidePanel,
 } from 'customization-api';
@@ -13,13 +12,6 @@ import {
   useCaption,
 } from '../subComponents/caption/useCaption';
 import {LanguageType} from '../subComponents/caption/utils';
-import useStreamMessageUtils from '../subComponents/caption/useStreamMessageUtils';
-import {
-  NativeStreamMessageArgs,
-  StreamMessageArgs,
-  WebStreamMessageArgs,
-} from '../subComponents/caption/Caption';
-import {isWebInternal} from './common';
 
 const useSpeechToText = () => {
   const {
@@ -29,8 +21,6 @@ const useSpeechToText = () => {
     captionObj: captionData,
     prevSpeakerRef,
     activeSpeakerRef,
-    isSTTListenerAdded,
-    setIsSTTListenerAdded,
     startSTTBotSession,
     updateSTTBotSession,
     stopSTTBotSession,
@@ -42,8 +32,6 @@ const useSpeechToText = () => {
 
   // const isAuthorizedSTTUserRef = useRef(isAuthorizedSTTUser);
   const defaultContentRef = useRef(defaultContent);
-  const {RtcEngineUnsafe} = useRtc();
-  const {streamMessageCallback} = useStreamMessageUtils();
 
   const showTranscriptPanel = (show: boolean) => {
     show
@@ -97,23 +85,9 @@ const useSpeechToText = () => {
     return await stopSTTBotSession();
   };
 
-  const addStreamMessageListener = () => {
-    !isSTTListenerAdded &&
-      RtcEngineUnsafe.addListener(
-        'onStreamMessage',
-        handleStreamMessageCallback,
-      );
-  };
-  const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
-    setIsSTTListenerAdded(true);
-    if (isWebInternal()) {
-      const [uid, data] = args as WebStreamMessageArgs;
-      streamMessageCallback([uid, data]);
-    } else {
-      const [, uid, , data] = args as NativeStreamMessageArgs;
-      streamMessageCallback([uid, data]);
-    }
-  };
+  // Kept for customization API compatibility. CaptionProvider owns the single
+  // meeting-lifetime listener now, so callers no longer need to register one.
+  const addStreamMessageListener = () => {};
 
   const changeSpeakingLanguage = async (
     translateConfig: LanguageTranslationConfig,

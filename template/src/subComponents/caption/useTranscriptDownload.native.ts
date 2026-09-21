@@ -1,3 +1,4 @@
+import React from 'react';
 import {formatTranscriptContent} from './utils';
 import {useCaption} from './useCaption';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -7,87 +8,76 @@ import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
+  isTranscriptPreparing: boolean;
 } => {
-  const {meetingTranscript} = useCaption();
+  const {flushPendingTranscript, getMeetingTranscript} = useCaption();
+  const [isTranscriptPreparing, setIsTranscriptPreparing] =
+    React.useState(false);
   const {defaultContent} = useContent();
   const {
     data: {meetingTitle},
   } = useRoomInfo();
 
-  const downloadTranscript = (): Promise<string | null> => {
-    return new Promise((resolve, reject) => {
-      try {
-        logger.log(
-          LogSource.Internals,
-          'TRANSCRIPT',
-          'Trying to download transcript',
-        );
-        const [finalContent, fileName] = formatTranscriptContent(
-          meetingTranscript,
-          meetingTitle,
-          defaultContent,
-        );
+  const downloadTranscript = async (): Promise<string | null> => {
+    if (isTranscriptPreparing) {
+      return null;
+    }
 
-        // get path to the Documents directory, don't have access to Downloads folder so saving in documents 1
-        const documentsDir = RNFetchBlob.fs.dirs.DocumentDir;
+    setIsTranscriptPreparing(true);
+    try {
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        'Trying to download transcript',
+      );
+      await flushPendingTranscript();
+      const transcriptSnapshot = getMeetingTranscript();
+      const [finalContent, fileName] = formatTranscriptContent(
+        transcriptSnapshot,
+        meetingTitle,
+        defaultContent,
+      );
 
-        // setting file path
-        const filePath = `${documentsDir}/${fileName}`;
+      // get path to the Documents directory, don't have access to Downloads folder so saving in documents 1
+      const documentsDir = RNFetchBlob.fs.dirs.DocumentDir;
 
-        // Writing content to the file
-        RNFetchBlob.fs
-          .writeFile(filePath, finalContent, 'utf8')
-          .then(() => {
-            logger.warn(
-              LogSource.Internals,
-              'TRANSCRIPT',
-              'Content downloaded successfully on native',
-            );
-            // need to show the preview of downloaded file
-            Share.open({url: `file://${filePath}`, type: 'text/plain'})
-              .then(res => {
-                logger.warn(
-                  LogSource.Internals,
-                  'TRANSCRIPT',
-                  'File shared successfully:',
-                  res,
-                );
-                resolve(filePath);
-              })
-              .catch(error => {
-                logger.error(
-                  LogSource.Internals,
-                  'TRANSCRIPT',
-                  'Error sharing file:',
-                  error,
-                );
-                reject(error);
-              });
+      // setting file path
+      const filePath = `${documentsDir}/${fileName}`;
 
-            resolve(filePath);
-          })
-          .catch(error => {
-            logger.error(
-              LogSource.Internals,
-              'TRANSCRIPT',
-              'Error downloading content:',
-              error,
-            );
-            reject(error);
-          });
-      } catch (error) {
-        logger.error(
-          LogSource.Internals,
-          'TRANSCRIPT',
-          'Error downloading content:',
-          error,
-        );
-        reject(error);
-      }
-    });
+      // Writing content to the file
+      await RNFetchBlob.fs.writeFile(filePath, finalContent, 'utf8');
+      logger.warn(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        'Content downloaded successfully on native',
+      );
+
+      // need to show the preview of downloaded file
+      const result = await Share.open({
+        url: `file://${filePath}`,
+        type: 'text/plain',
+      });
+      logger.warn(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        'File shared successfully:',
+        result,
+      );
+      return filePath;
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        'Error downloading content:',
+        error,
+      );
+      throw error;
+    } finally {
+      setIsTranscriptPreparing(false);
+    }
   };
 
-  return {downloadTranscript};
+  return {downloadTranscript, isTranscriptPreparing};
 };
 
 export default useTranscriptDownload;
