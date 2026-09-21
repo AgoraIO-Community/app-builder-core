@@ -22,7 +22,8 @@ const CustomizationProvider: React.FC = (props) => {
   const {customize: userCustomization} = useContext(SdkApiContext);
 
   return (
-    <CustomizationContext.Provider value={userCustomization.customization}>
+    <CustomizationContext.Provider
+      value={userCustomization.customization ?? customizationConfig}>
       {props.children}
     </CustomizationContext.Provider>
   );
