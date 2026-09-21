@@ -21,7 +21,7 @@ import {
   useIsSmall,
 } from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
-import {useRtc, useContent} from 'customization-api';
+import {useContent} from 'customization-api';
 import {TranscriptItem, useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
@@ -30,7 +30,6 @@ import Loading from '../Loading';
 import ImageIcon from '../../atoms/ImageIcon';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import Spacer from '../../atoms/Spacer';
-import useStreamMessageUtils from './useStreamMessageUtils';
 import useCaptionWidth from './useCaptionWidth';
 import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 import {useString} from '../../../src/utils/useString';
@@ -46,10 +45,6 @@ export interface TranscriptProps {
   showHeader?: boolean;
 }
 
-type WebStreamMessageArgs = [number, Uint8Array];
-type NativeStreamMessageArgs = [{}, number, number, Uint8Array, number, number];
-type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
-
 const Transcript = (props: TranscriptProps) => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
@@ -57,8 +52,6 @@ const Transcript = (props: TranscriptProps) => {
   const {
     meetingTranscript,
     isLangChangeInProgress,
-    isSTTListenerAdded,
-    setIsSTTListenerAdded,
     getBotOwnerUid,
     isSTTActive,
     selectedTranslationLanguage,
@@ -82,9 +75,7 @@ const Transcript = (props: TranscriptProps) => {
   const flatListRef = React.useRef(null);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
-  const {RtcEngineUnsafe} = useRtc();
   const {defaultContent} = useContent();
-  const {streamMessageCallback} = useStreamMessageUtils();
 
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -256,28 +247,6 @@ const Transcript = (props: TranscriptProps) => {
   const NoResultsMsg = () => {
     return <Text style={styles.emptyMsg}>{noresults}</Text>;
   };
-
-  const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
-    console.log('[STT_GLOBAL] handleStreamMessageCallback', args);
-    setIsSTTListenerAdded(true);
-    if (isWebInternal()) {
-      const [uid, data] = args as WebStreamMessageArgs;
-      streamMessageCallback([uid, data]);
-    } else {
-      const [, uid, , data] = args as NativeStreamMessageArgs;
-      streamMessageCallback([uid, data]);
-    }
-  };
-
-  React.useEffect(() => {
-    if (!isSTTListenerAdded) {
-      RtcEngineUnsafe.addListener(
-        'onStreamMessage',
-        handleStreamMessageCallback,
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <View

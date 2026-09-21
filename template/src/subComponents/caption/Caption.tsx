@@ -1,11 +1,9 @@
 import {StyleSheet, TextStyle, View} from 'react-native';
 import React from 'react';
-import {useContent, useRtc} from 'customization-api';
+import {useContent} from 'customization-api';
 import {useCaption} from './useCaption';
 import CaptionText from './CaptionText';
 import Loading from '../Loading';
-import {isWebInternal} from '../../utils/common';
-import useStreamMessageUtils from './useStreamMessageUtils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
 import {useLocalUid} from '../../../agora-rn-uikit';
@@ -13,17 +11,6 @@ import {
   sttSettingSpokenLanguageText,
   sttSettingTranslationLanguageText,
 } from '../../language/default-labels/videoCallScreenLabels';
-
-export type WebStreamMessageArgs = [number, Uint8Array];
-export type NativeStreamMessageArgs = [
-  {},
-  number,
-  number,
-  Uint8Array,
-  number,
-  number,
-];
-export type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
 
 interface CaptionProps {
   captionTextStyle?: TextStyle;
@@ -34,12 +21,9 @@ const Caption: React.FC<CaptionProps> = ({
   captionTextStyle = {},
   captionUserStyle = {},
 }) => {
-  const {RtcEngineUnsafe} = useRtc();
   const {
     isLangChangeInProgress,
     captionObj, //state for current live caption for all users
-    isSTTListenerAdded,
-    setIsSTTListenerAdded,
     activeSpeakerRef,
     prevSpeakerRef,
     getBotOwnerUid,
@@ -51,31 +35,10 @@ const Caption: React.FC<CaptionProps> = ({
   const stLabel = useString<boolean>(sttSettingTranslationLanguageText)(
     isSTTActive,
   );
-  const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
 
   const [activelinesAvailable, setActiveLinesAvailable] = React.useState(0);
   const [inActiveLinesAvailable, setInActiveLinesAvaialble] = React.useState(0);
-
-  const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
-    setIsSTTListenerAdded(true);
-    if (isWebInternal()) {
-      const [uid, data] = args as WebStreamMessageArgs;
-      streamMessageCallback([uid, data]);
-    } else {
-      const [, uid, , data] = args as NativeStreamMessageArgs;
-      streamMessageCallback([uid, data]);
-    }
-  };
-
-  React.useEffect(() => {
-    !isSTTListenerAdded &&
-      RtcEngineUnsafe.addListener(
-        'onStreamMessage',
-        handleStreamMessageCallback,
-      );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   if (isLangChangeInProgress) {
     return (
