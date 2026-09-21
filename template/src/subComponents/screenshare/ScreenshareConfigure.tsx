@@ -1038,17 +1038,15 @@ export const ScreenshareConfigure = (props: {
           ...getScreenshareError(e),
         },
       );
-      if (!userCancelOrPermissionDenied) {
-        Toast.show({
-          leadingIconName: 'alert',
-          type: 'error',
-          text1: toastHeading,
-          text2: toastSubHeading,
-          visibilityTime: 1000 * 10,
-          primaryBtn: null,
-          secondaryBtn: null,
-        });
-      }
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: toastHeading,
+        text2: toastSubHeading,
+        visibilityTime: 1000 * 10,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
       if (isActive && !rtcOperationSucceeded) {
         pendingScreenshareSessionIdRef.current = null;
         activeScreenshareSessionIdRef.current = null;
