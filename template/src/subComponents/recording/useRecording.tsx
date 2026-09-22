@@ -201,28 +201,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {setIsCaptionON} = useCaption();
   const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
   const {screenShareData} = useScreenContext();
-  const screenShareDataRef = useRef(screenShareData);
-  screenShareDataRef.current = screenShareData;
   const userCountGotValidEntry = useRef<boolean>(false);
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
-
-  useEffect(() => {
-    const activeScreenshareUids = Object.entries(screenShareData)
-      .filter(([, value]) => value?.isActive)
-      .map(([uid]) => uid);
-
-    logger.log(
-      LogSource.Internals,
-      'RECORDING',
-      'supriya: combined recording and screenshare state changed',
-      {
-        isRecordingActive,
-        activeScreenshareUids,
-        shouldUsePresenterLayout:
-          isRecordingActive && activeScreenshareUids.length > 0,
-      },
-    );
-  }, [isRecordingActive, screenShareData]);
 
   useEffect(() => {
     /**
@@ -382,16 +362,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
               .sort((a, b) => b[1].ts - a[1].ts);
 
             const activeScreenshareUid = sorted.length > 0 ? sorted[0][0] : 0;
-            logger.log(
-              LogSource.Internals,
-              'RECORDING',
-              'supriya: recording start chose its initial layout',
-              {
-                activeScreenshareUid,
-                activeScreenshareUids: sorted.map(([uid]) => uid),
-                selectedLayout: activeScreenshareUid ? 'presenter' : 'normal',
-              },
-            );
             await runPostStartRecordingLayoutUpdate(
               () => {
                 if (activeScreenshareUid) {
@@ -809,16 +779,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             LogSource.Internals,
             'RECORDING',
             'recording_state -> STARTED_MIX',
-          );
-          logger.log(
-            LogSource.Internals,
-            'RECORDING',
-            'supriya: recording became active from STARTED_MIX event',
-            {
-              activeScreenshareUids: Object.entries(screenShareDataRef.current)
-                .filter(([, value]) => value?.isActive)
-                .map(([uid]) => uid),
-            },
           );
           //add logger
           setInProgress(false);

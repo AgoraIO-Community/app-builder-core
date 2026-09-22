@@ -920,23 +920,6 @@ export const ScreenshareConfigure = (props: {
         channel,
       },
     );
-    logger.log(
-      LogSource.Internals,
-      'SCREENSHARE',
-      'supriya: screenshare workflow made its initial recording layout decision',
-      {
-        action,
-        recordingActiveAtWorkflowStart: props.isRecordingActive,
-        selectedLayoutAction: props.isRecordingActive
-          ? isActive
-            ? 'presenter'
-            : 'normal'
-          : 'skipped',
-        screenshareAttemptId,
-        screenshareSessionId,
-        screenShareUid,
-      },
-    );
     try {
       if (props.isRecordingActive) {
         try {
@@ -1039,23 +1022,6 @@ export const ScreenshareConfigure = (props: {
           screenShareUid,
           stopOrigin,
           stopActorUid,
-        },
-      );
-
-      logger.log(
-        LogSource.Internals,
-        'SCREENSHARE',
-        'supriya: screenshare RTC operation completed; comparing recording state',
-        {
-          action,
-          recordingActiveAtWorkflowStart: props.isRecordingActive,
-          recordingActiveNow: recordingActiveRef.current,
-          layoutQueryWasSkippedAtStart: !props.isRecordingActive,
-          missingPresenterLayoutReconciliation:
-            isActive && !props.isRecordingActive && recordingActiveRef.current,
-          screenshareAttemptId,
-          screenshareSessionId,
-          screenShareUid,
         },
       );
 
