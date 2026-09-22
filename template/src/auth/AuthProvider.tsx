@@ -65,7 +65,7 @@ const AuthContext = createContext<AuthContextInterface | null>(null);
 const AuthProvider = (props: AuthProviderProps) => {
   const loadingLabel = useString(loadingText)();
   const timeoutHeading = useString(authSessionTimeoutToastHeading)();
-  const {lifecycle} = useCustomization();
+  const lifecycle = useCustomization(data => data?.lifecycle);
   const regEvent = useRef(true);
   const refreshTimeoutWeb = useRef(null);
   const [showNativePopup, setShowNativePopup] = useState(false);

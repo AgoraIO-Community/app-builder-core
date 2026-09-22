@@ -82,7 +82,7 @@ const RtmConfigure = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(DispatchContext);
   const {defaultContent, activeUids} = useContent();
-  const {lifecycle} = useCustomization();
+  const lifecycle = useCustomization(data => data?.lifecycle);
   const {
     waitingRoomStatus,
     data: {isHost},
