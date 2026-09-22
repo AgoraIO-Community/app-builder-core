@@ -55,6 +55,11 @@ import {
   getScreenshareStopDecision,
 } from './screenshareOperation';
 import {createScreenshareRecordingLayoutReconciler} from './screenshareRecordingLayoutReconciler';
+import {
+  captureScreenshareRecoveryCandidate,
+  getScreenshareRecoveryDecision,
+  ScreenshareRecoveryCandidate,
+} from './screenshareInterruptionRecovery';
 
 type ScreenshareAction = 'start' | 'stop';
 
@@ -93,6 +98,15 @@ export const ScreenshareConfigure = (props: {
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
   const currentLayoutRef = useRef({currentLayout: currentLayout});
+  const recoveryCandidateRef = useRef<ScreenshareRecoveryCandidate | null>(
+    null,
+  );
+  const previousLayoutStateRef = useRef({
+    activeUids,
+    pinnedUid,
+    secondaryPinnedUid,
+    currentLayout,
+  });
 
   const updateOperationState = (state: ScreenshareOperationState) => {
     operationStateRef.current = state;
@@ -200,6 +214,148 @@ export const ScreenshareConfigure = (props: {
       layout !== getGridLayoutName() && changeLayout();
     }
   };
+
+  useEffect(() => {
+    const previousLayoutState = previousLayoutStateRef.current;
+    const existingCandidate = recoveryCandidateRef.current;
+    const capturedCandidate = captureScreenshareRecoveryCandidate({
+      previousActiveUids: previousLayoutState.activeUids,
+      currentActiveUids: activeUids,
+      previousPinnedUid: previousLayoutState.pinnedUid,
+      previousSecondaryPinnedUid: previousLayoutState.secondaryPinnedUid,
+      previousLayout: previousLayoutState.currentLayout,
+      screenShareData,
+      detectedAt: Date.now(),
+    });
+
+    if (!existingCandidate && capturedCandidate) {
+      recoveryCandidateRef.current = capturedCandidate;
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} pinned screen share removed by RTC; waiting for same UID to recover`,
+        {
+          action: 'recover',
+          stage: 'rtc_interruption',
+          outcome: 'started',
+          screenshareSessionId:
+            activeScreenshareSessionIdRef.current || 'unknown-session',
+          screenShareUid: capturedCandidate.uid,
+          previousPinnedUid: capturedCandidate.previousPinnedUid,
+          previousSecondaryPinnedUid:
+            capturedCandidate.previousSecondaryPinnedUid,
+          previousLayout: capturedCandidate.previousLayout,
+        },
+      );
+    }
+
+    const candidate = recoveryCandidateRef.current;
+    if (candidate) {
+      const decision = getScreenshareRecoveryDecision({
+        candidate,
+        activeUids,
+        pinnedUid,
+        isVideoPublished: defaultContent?.[candidate.uid]?.video === 1,
+        screenShareData,
+      });
+
+      if (decision === 'waiting_for_video' && !candidate.joinedLogged) {
+        candidate.joinedLogged = true;
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          `${SCREENSHARE_JOURNEY} interrupted screen share UID rejoined; waiting for video publication`,
+          {
+            action: 'recover',
+            stage: 'rtc_rejoin',
+            outcome: 'waiting',
+            screenshareSessionId:
+              activeScreenshareSessionIdRef.current || 'unknown-session',
+            screenShareUid: candidate.uid,
+            elapsedMs: Date.now() - candidate.detectedAt,
+          },
+        );
+      } else if (decision === 'restore') {
+        isPinned.current = candidate.uid;
+        dispatch({type: 'UserPin', value: [candidate.uid]});
+        if (
+          candidate.previousSecondaryPinnedUid &&
+          activeUids.includes(candidate.previousSecondaryPinnedUid)
+        ) {
+          dispatch({
+            type: 'UserSecondaryPin',
+            value: [candidate.previousSecondaryPinnedUid],
+          });
+        }
+        if (
+          candidate.previousLayout === getPinnedLayoutName() &&
+          currentLayout !== getPinnedLayoutName()
+        ) {
+          setPinnedLayout();
+        }
+        recoveryCandidateRef.current = null;
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          `${SCREENSHARE_JOURNEY} interrupted screen share video republished; previous pin restored`,
+          {
+            action: 'recover',
+            stage: 'layout_restore',
+            outcome: 'success',
+            screenshareSessionId:
+              activeScreenshareSessionIdRef.current || 'unknown-session',
+            screenShareUid: candidate.uid,
+            restoredPinnedUid: candidate.previousPinnedUid,
+            restoredSecondaryPinnedUid: candidate.previousSecondaryPinnedUid,
+            restoredLayout: candidate.previousLayout,
+            elapsedMs: Date.now() - candidate.detectedAt,
+          },
+        );
+      } else if (decision.startsWith('cancel_')) {
+        recoveryCandidateRef.current = null;
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          `${SCREENSHARE_JOURNEY} interrupted screen share pin restoration skipped`,
+          {
+            action: 'recover',
+            stage: 'layout_restore',
+            outcome: 'skipped',
+            screenshareSessionId:
+              activeScreenshareSessionIdRef.current || 'unknown-session',
+            screenShareUid: candidate.uid,
+            skipReason: decision,
+            currentPinnedUid: pinnedUid,
+            currentLayout,
+            elapsedMs: Date.now() - candidate.detectedAt,
+          },
+        );
+      }
+    }
+
+    previousLayoutStateRef.current = {
+      activeUids,
+      pinnedUid,
+      secondaryPinnedUid,
+      currentLayout,
+    };
+  }, [
+    activeUids,
+    currentLayout,
+    defaultContent,
+    dispatch,
+    pinnedUid,
+    screenShareData,
+    secondaryPinnedUid,
+    setPinnedLayout,
+  ]);
+
+  useEffect(
+    () => () => {
+      recoveryCandidateRef.current = null;
+    },
+    [],
+  );
 
   useEffect(() => {
     const unsubKickScreenshare = events.on(
