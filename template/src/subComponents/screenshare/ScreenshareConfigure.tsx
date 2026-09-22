@@ -54,6 +54,7 @@ import {
   getScreenshareStartDecision,
   getScreenshareStopDecision,
 } from './screenshareOperation';
+import {createScreenshareRecordingLayoutReconciler} from './screenshareRecordingLayoutReconciler';
 
 type ScreenshareAction = 'start' | 'stop';
 
@@ -99,6 +100,13 @@ export const ScreenshareConfigure = (props: {
   };
 
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
+  const recordingActiveRef = useRef(props.isRecordingActive);
+  const executePresenterQueryRef = useRef(executePresenterQuery);
+  const recordingLayoutReconcilerRef = useRef(
+    createScreenshareRecordingLayoutReconciler(),
+  );
+  recordingActiveRef.current = props.isRecordingActive;
+  executePresenterQueryRef.current = executePresenterQuery;
 
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
@@ -471,6 +479,10 @@ export const ScreenshareConfigure = (props: {
         },
       );
       await executePresenterQuery(screenShareUid);
+      recordingLayoutReconcilerRef.current.markApplied(
+        screenshareSessionId,
+        recordingActiveRef.current,
+      );
     } else {
       logger.log(
         LogSource.Internals,
@@ -508,6 +520,112 @@ export const ScreenshareConfigure = (props: {
       },
     );
   };
+
+  useEffect(() => {
+    const screenshareSessionId = activeScreenshareSessionIdRef.current;
+    const reconciliationAttemptId = getUniqueID();
+    const logContext = {
+      action: 'start' as ScreenshareAction,
+      stage: 'recording_layout_reconciliation',
+      screenshareAttemptId: reconciliationAttemptId,
+      screenshareSessionId: screenshareSessionId || 'unknown-session',
+      recordingActive: props.isRecordingActive,
+      screenshareActive: isScreenshareActive,
+      screenShareUid,
+      operationState: operationStateRef.current,
+    };
+
+    recordingLayoutReconcilerRef.current
+      .reconcile({
+        screenshareSessionId,
+        isRecordingActive: props.isRecordingActive,
+        isScreenshareActive,
+        executePresenterQuery: () => {
+          logger.log(
+            LogSource.Internals,
+            'SCREENSHARE',
+            `${SCREENSHARE_JOURNEY} screen share recording presenter layout reconciliation started`,
+            {
+              ...logContext,
+              outcome: 'started',
+              reconciliationReason:
+                'recording_and_published_screenshare_are_active',
+            },
+          );
+          return executePresenterQueryRef.current(screenShareUid);
+        },
+      })
+      .then(result => {
+        if (result === 'applied') {
+          logger.log(
+            LogSource.Internals,
+            'SCREENSHARE',
+            `${SCREENSHARE_JOURNEY} screen share recording presenter layout reconciliation completed successfully`,
+            {
+              ...logContext,
+              outcome: 'success',
+              recordingActiveNow: recordingActiveRef.current,
+              activeScreenshareSessionIdNow:
+                activeScreenshareSessionIdRef.current,
+            },
+          );
+          return;
+        }
+
+        if (result === 'already_applied' || result === 'in_progress') {
+          logger.log(
+            LogSource.Internals,
+            'SCREENSHARE',
+            `${SCREENSHARE_JOURNEY} screen share recording presenter layout reconciliation skipped`,
+            {
+              ...logContext,
+              outcome: 'skipped',
+              duplicateReason:
+                result === 'already_applied'
+                  ? 'presenter_layout_already_applied'
+                  : 'presenter_layout_query_in_progress',
+            },
+          );
+          return;
+        }
+
+        if (
+          isScreenshareActive ||
+          (props.isRecordingActive && operationStateRef.current === 'starting')
+        ) {
+          logger.log(
+            LogSource.Internals,
+            'SCREENSHARE',
+            `${SCREENSHARE_JOURNEY} screen share recording presenter layout reconciliation waiting for both states`,
+            {
+              ...logContext,
+              outcome: 'waiting',
+              waitingReason: !screenshareSessionId
+                ? 'missing_active_screenshare_session'
+                : !props.isRecordingActive
+                ? 'recording_inactive'
+                : 'screenshare_not_published',
+            },
+          );
+        }
+      })
+      .catch(recordingError => {
+        logger.error(
+          LogSource.Internals,
+          'SCREENSHARE',
+          `${SCREENSHARE_JOURNEY} screen share recording presenter layout reconciliation failed; screen share remains active`,
+          recordingError,
+          {
+            ...logContext,
+            outcome: 'failure',
+            recordingActiveNow: recordingActiveRef.current,
+            activeScreenshareSessionIdNow:
+              activeScreenshareSessionIdRef.current,
+            ...getScreenshareError(recordingError),
+          },
+        );
+      });
+  }, [isScreenshareActive, props.isRecordingActive, screenShareUid]);
 
   const stopScreenshare = async (
     stopOrigin: ScreenshareStopOrigin = 'unknown',
@@ -802,6 +920,23 @@ export const ScreenshareConfigure = (props: {
         channel,
       },
     );
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      'supriya: screenshare workflow made its initial recording layout decision',
+      {
+        action,
+        recordingActiveAtWorkflowStart: props.isRecordingActive,
+        selectedLayoutAction: props.isRecordingActive
+          ? isActive
+            ? 'presenter'
+            : 'normal'
+          : 'skipped',
+        screenshareAttemptId,
+        screenshareSessionId,
+        screenShareUid,
+      },
+    );
     try {
       if (props.isRecordingActive) {
         try {
@@ -904,6 +1039,23 @@ export const ScreenshareConfigure = (props: {
           screenShareUid,
           stopOrigin,
           stopActorUid,
+        },
+      );
+
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'supriya: screenshare RTC operation completed; comparing recording state',
+        {
+          action,
+          recordingActiveAtWorkflowStart: props.isRecordingActive,
+          recordingActiveNow: recordingActiveRef.current,
+          layoutQueryWasSkippedAtStart: !props.isRecordingActive,
+          missingPresenterLayoutReconciliation:
+            isActive && !props.isRecordingActive && recordingActiveRef.current,
+          screenshareAttemptId,
+          screenshareSessionId,
+          screenShareUid,
         },
       );
 
