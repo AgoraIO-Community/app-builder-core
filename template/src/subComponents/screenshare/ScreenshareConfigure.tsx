@@ -1432,7 +1432,7 @@ export const ScreenshareConfigure = (props: {
       logger.log(
         LogSource.Internals,
         'SCREENSHARE',
-        `${SCREENSHARE_JOURNEY} screen share stop calling RtcEngine.startScreenshare`,
+        `${SCREENSHARE_JOURNEY} screen share stop calling RtcEngine.stopScreenshare`,
         {
           action: 'stop',
           stage,
@@ -1460,7 +1460,7 @@ export const ScreenshareConfigure = (props: {
       logger.log(
         LogSource.Internals,
         'SCREENSHARE',
-        `${SCREENSHARE_JOURNEY} screen share stop RtcEngine.startScreenshare completed successfully`,
+        `${SCREENSHARE_JOURNEY} screen share stop RtcEngine.stopScreenshare completed successfully`,
         {
           action: 'stop',
           stage,
