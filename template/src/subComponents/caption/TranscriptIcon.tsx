@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {View} from 'react-native';
 import React from 'react';
 import {SidePanelType, useSidePanel} from 'customization-api';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
@@ -23,16 +23,13 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     useToolbarProps();
   const {setSidePanel, sidePanel} = useSidePanel();
   const {
-    showToolTip = false,
     showLabel = $config.ICON_TEXT,
     disabled = false,
     isOnActionSheet = false,
-    isMobileView = false,
   } = props;
 
   // const {start, restart, isAuthorizedTranscriptUser} = useSTTAPI();
-  const {isSTTActive, isSTTError, sttDepsReady, confirmSpokenLanguageChange} =
-    useCaption();
+  const {isSTTActive, sttDepsReady, confirmSpokenLanguageChange} = useCaption();
   // const isDisabled = !isAuthorizedTranscriptUser();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -40,13 +37,14 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const onPress = () => {
-    if (isSTTError || !isSTTActive) {
+    // Closing an open transcript is always allowed, even if this participant's
+    // STT bot is retrying or failed to start.
+    if (isTranscriptON) {
+      setSidePanel(SidePanelType.None);
+    } else if (!isSTTActive) {
       setLanguagePopup(true);
     } else {
-      // isFirstTimePopupOpen.current = true;
-      setSidePanel(
-        isTranscriptON ? SidePanelType.None : SidePanelType.Transcript,
-      );
+      setSidePanel(SidePanelType.Transcript);
     }
   };
 
@@ -62,7 +60,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
-    disabled: !sttDepsReady,
+    disabled: disabled || !sttDepsReady,
     btnTextProps: {
       text: showLabel
         ? isOnActionSheet
@@ -91,11 +89,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
       //   await restart(language, userOwnLanguages);
       // }
       await confirmSpokenLanguageChange(newSpokenLang);
-      if (!isTranscriptON) {
-        setSidePanel(SidePanelType.Transcript);
-      } else {
-        setSidePanel(SidePanelType.None);
-      }
+      setSidePanel(SidePanelType.Transcript);
     } catch (error) {
       console.log('eror in starting stt', error);
     }
@@ -115,5 +109,3 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
 };
 
 export default TranscriptIcon;
-
-const styles = StyleSheet.create({});

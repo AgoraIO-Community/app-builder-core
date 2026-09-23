@@ -1,6 +1,7 @@
 import React from 'react';
-import {useCaption} from './useCaption';
 import protoRoot from './proto/ptoto';
+import type {CaptionObj, TranscriptItem} from './useCaption';
+import type {LanguageType} from './utils';
 
 type StreamMessageCallback = (args: [number, Uint8Array]) => void;
 type FinalListType = {
@@ -17,25 +18,33 @@ type FinalTranslationListType = {
   };
 };
 
-const useStreamMessageUtils = (): {
-  streamMessageCallback: StreamMessageCallback;
-} => {
-  const {
-    setCaptionObj,
-    setMeetingTranscript,
-    activeSpeakerRef,
-    prevSpeakerRef,
-    // Use ref instead of state to avoid stale closure issues
-    // The ref always has the current value, even in callbacks created at mount time
-    selectedTranslationLanguageRef,
-  } = useCaption();
+type StreamMessageUtilsOptions = {
+  setCaptionObj: React.Dispatch<React.SetStateAction<CaptionObj>>;
+  setMeetingTranscript: React.Dispatch<React.SetStateAction<TranscriptItem[]>>;
+  activeSpeakerRef: React.MutableRefObject<string>;
+  prevSpeakerRef: React.MutableRefObject<string>;
+  selectedTranslationLanguageRef: React.MutableRefObject<LanguageType | null>;
+};
 
-  let captionStartTime: number = 0;
-  const finalList: FinalListType = {};
-  const finalTranscriptList: FinalListType = {};
-  const finalTranslationList: FinalTranslationListType = {};
+const useStreamMessageUtils = ({
+  setCaptionObj,
+  setMeetingTranscript,
+  activeSpeakerRef,
+  prevSpeakerRef,
+  selectedTranslationLanguageRef,
+}: StreamMessageUtilsOptions): {
+  streamMessageCallback: StreamMessageCallback;
+  flushStreamMessageQueue: () => Promise<void>;
+} => {
+  const captionStartTimeRef = React.useRef<number>(0);
+  const finalListRef = React.useRef<FinalListType>({});
+  const finalTranscriptListRef = React.useRef<FinalListType>({});
+  const finalTranslationListRef = React.useRef<FinalTranslationListType>({});
 
   const streamMessageCallback: StreamMessageCallback = args => {
+    const finalList = finalListRef.current;
+    const finalTranscriptList = finalTranscriptListRef.current;
+    const finalTranslationList = finalTranslationListRef.current;
     /* uid - bot which sends stream message in channel
        payload - stream message in Uint8Array format
       */
@@ -176,8 +185,8 @@ const useStreamMessageUtils = (): {
       } else {
         nonFinalText =
           word.text !== '.' ? nonFinalText + word.text : nonFinalText;
-        if (!captionStartTime) {
-          captionStartTime = performance.now();
+        if (!captionStartTimeRef.current) {
+          captionStartTimeRef.current = performance.now();
         }
       }
     }
@@ -186,11 +195,11 @@ const useStreamMessageUtils = (): {
       finalTranscriptList[textstream.uid].push(finalText);
       currentFinalText = finalText;
       // log info to show measure the duration of passes in which a sentence gets finalized
-      const duration = performance.now() - captionStartTime;
+      const duration = performance.now() - captionStartTimeRef.current;
       console.log(
         `stt-Time taken to finalize caption ${currentFinalText}: ${duration}ms`,
       );
-      captionStartTime = null; // Reset start time
+      captionStartTimeRef.current = 0; // Reset start time
     }
 
     /* Updating Meeting Transcript */
@@ -322,8 +331,14 @@ const useStreamMessageUtils = (): {
     console.groupEnd();
   };
 
+  const flushStreamMessageQueue = React.useCallback(async () => {
+    // Native stream-message processing is synchronous, so there is no queue
+    // left to drain when this callback returns.
+  }, []);
+
   return {
     streamMessageCallback,
+    flushStreamMessageQueue,
   };
 };
 

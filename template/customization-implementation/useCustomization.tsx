@@ -15,14 +15,20 @@ import customizationConfig from 'customization';
 import createHook from './createHook';
 import {SdkApiContext} from '../src/components/SdkApiContext';
 
+const defaultCustomizationConfig: CustomizationApiInterface =
+  customizationConfig ?? {};
+
 const CustomizationContext: React.Context<CustomizationApiInterface> =
-  React.createContext(customizationConfig);
+  React.createContext(defaultCustomizationConfig);
 
 const CustomizationProvider: React.FC = (props) => {
   const {customize: userCustomization} = useContext(SdkApiContext);
 
   return (
-    <CustomizationContext.Provider value={userCustomization.customization}>
+    <CustomizationContext.Provider
+      value={
+        userCustomization?.customization ?? defaultCustomizationConfig
+      }>
       {props.children}
     </CustomizationContext.Provider>
   );
