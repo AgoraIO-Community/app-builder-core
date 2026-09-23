@@ -52,6 +52,11 @@ import {timeNow} from '../../rtm/utils';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../rtm-events-api/LocalEvents';
+import {
+  captureScreenshareRecoveryCandidate,
+  getScreenshareRecoveryDecision,
+  ScreenshareRecoveryCandidate,
+} from './screenshareInterruptionRecovery';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -82,6 +87,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     secondaryPinnedUid: secondaryPinnedUid,
   });
   const screenShareDataRef = useRef({screenShareData: screenShareData});
+  const recoveryCandidateRef = useRef<ScreenshareRecoveryCandidate | null>(
+    null,
+  );
+  const previousLayoutStateRef = useRef({
+    activeUids,
+    pinnedUid,
+    currentLayout,
+  });
   const localMute = useMuteToggleLocal();
   const {video} = useLocalUserInfo();
   useEffect(() => {
@@ -164,13 +177,79 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   }, [activeUids, screenShareData, triggerChangeLayout]);
 
   useEffect(() => {
+    const previousLayoutState = previousLayoutStateRef.current;
+    const existingCandidate = recoveryCandidateRef.current;
+    const capturedCandidate = captureScreenshareRecoveryCandidate({
+      previousActiveUids: previousLayoutState.activeUids,
+      currentActiveUids: activeUids,
+      previousPinnedUid: previousLayoutState.pinnedUid,
+      previousLayout: previousLayoutState.currentLayout,
+      screenShareData,
+      detectedAt: Date.now(),
+    });
+
+    if (!existingCandidate && capturedCandidate) {
+      recoveryCandidateRef.current = capturedCandidate;
+    }
+
+    const candidate = recoveryCandidateRef.current;
+    if (candidate) {
+      const decision = getScreenshareRecoveryDecision({
+        candidate,
+        activeUids,
+        pinnedUid,
+        isVideoPublished: defaultContent?.[candidate.uid]?.video === 1,
+        screenShareData,
+      });
+
+      if (decision === 'waiting_for_video') {
+        candidate.joinedLogged = true;
+      } else if (decision === 'restore') {
+        isPinned.current = candidate.uid;
+        dispatch({type: 'UserPin', value: [candidate.uid]});
+        if (
+          candidate.previousLayout === getPinnedLayoutName() &&
+          currentLayout !== getPinnedLayoutName()
+        ) {
+          setPinnedLayout();
+        }
+        recoveryCandidateRef.current = null;
+      } else if (decision.startsWith('cancel_')) {
+        recoveryCandidateRef.current = null;
+      }
+    }
+
+    previousLayoutStateRef.current = {
+      activeUids,
+      pinnedUid,
+      currentLayout,
+    };
+  }, [
+    activeUids,
+    currentLayout,
+    defaultContent,
+    dispatch,
+    pinnedUid,
+    screenShareData,
+    setPinnedLayout,
+  ]);
+
+  useEffect(
+    () => () => {
+      recoveryCandidateRef.current = null;
+    },
+    [],
+  );
+
+  useEffect(() => {
     /**
      * When user kicked off by remote host then stop the screenshare
      */
     const unsubKickUser = LocalEventEmitter.on(
       LocalEventsEnum.USER_KICKED_OFF_BY_REMOTE_HOST,
       () => {
-        stopScreenshare(false, true);
+        // Force native capture cleanup even if React state has not caught up.
+        forceStopScreenshare();
       },
     );
     /**
@@ -179,7 +258,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     const unsubKickScreenshare = events.on(
       controlMessageEnum.kickScreenshare,
       () => {
-        stopScreenshare(false, true);
+        // A host-initiated removal must not depend on local active state.
+        forceStopScreenshare();
       },
     );
     const unsubScreenShareAttribute = events.on(
@@ -428,34 +508,39 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     unpublishScreenshare,
   ]);
 
-  const stopScreenshare = useCallback(
-    async (enableVideo: boolean = false, forceStop: boolean = false) => {
-      if (isScreenshareActive || forceStop) {
-        logger.log(
-          LogSource.Internals,
-          'SCREENSHARE',
-          'Trying to stop native screenshare',
-        );
-        try {
-          engine?.current?.stopScreenCapture();
-        } catch (error) {
-          logger.error(
-            LogSource.Internals,
-            'SCREENSHARE',
-            'native screenshare error on -> stopScreenCapture',
-            error,
-          );
-        }
-      } else {
-        logger.debug(
-          LogSource.Internals,
-          'SCREENSHARE',
-          'native screenshare -> no screenshare is active',
-        );
-      }
-    },
-    [engine, isScreenshareActive],
-  );
+  const stopNativeScreenCapture = useCallback(async () => {
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      'Trying to stop native screenshare',
+    );
+    try {
+      engine?.current?.stopScreenCapture();
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare error on -> stopScreenCapture',
+        error,
+      );
+    }
+  }, [engine]);
+
+  const stopScreenshare = useCallback(async () => {
+    if (isScreenshareActive) {
+      await stopNativeScreenCapture();
+    } else {
+      logger.debug(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare -> no screenshare is active',
+      );
+    }
+  }, [isScreenshareActive, stopNativeScreenCapture]);
+
+  const forceStopScreenshare = useCallback(async () => {
+    await stopNativeScreenCapture();
+  }, [stopNativeScreenCapture]);
 
   const onLocalVideoStateChanged = useCallback(
     (source: VideoSourceType, state: LocalVideoStreamState, error) => {
