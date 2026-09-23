@@ -170,6 +170,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     const unsubKickUser = LocalEventEmitter.on(
       LocalEventsEnum.USER_KICKED_OFF_BY_REMOTE_HOST,
       () => {
+        // Force native capture cleanup even if React state has not caught up.
         forceStopScreenshare();
       },
     );
@@ -179,6 +180,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     const unsubKickScreenshare = events.on(
       controlMessageEnum.kickScreenshare,
       () => {
+        // A host-initiated removal must not depend on local active state.
         forceStopScreenshare();
       },
     );

@@ -1739,6 +1739,9 @@ export default class RtcEngine {
       return;
     }
 
+    // The track-ended callback passes the exact lifecycle object it captured.
+    // A different reference means a newer screen share is now active, so this
+    // older callback must not clean up the current share.
     if (
       expectedLifecycle &&
       this.activeScreenshareLifecycle !== expectedLifecycle
@@ -1840,6 +1843,9 @@ export default class RtcEngine {
         throw error;
       } finally {
         lifecycle.cleaned = true;
+        // Only the lifecycle that is still active may clear shared state and
+        // notify the app. Object identity prevents stale cleanup from ending a
+        // newer screen-share session.
         if (this.activeScreenshareLifecycle === lifecycle) {
           this.activeScreenshareLifecycle = null;
           this.screenStream = {};
