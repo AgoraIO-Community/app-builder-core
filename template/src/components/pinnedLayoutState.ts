@@ -27,9 +27,17 @@ export const getPinnedLayoutState = (
   return {maximizedUid, sidebarUids};
 };
 
+export const isUidMaximized = (
+  uid: UidType,
+  pinnedUid?: UidType,
+  fallbackMaximizedUid?: UidType,
+) => uid === (pinnedUid || fallbackMaximizedUid);
+
 export const canViewInLarge = (
   uid: UidType,
   pinnedUid?: UidType,
   secondaryPinnedUid?: UidType,
   fallbackMaximizedUid?: UidType,
-) => uid !== (pinnedUid || fallbackMaximizedUid) && uid !== secondaryPinnedUid;
+) =>
+  !isUidMaximized(uid, pinnedUid, fallbackMaximizedUid) &&
+  uid !== secondaryPinnedUid;
