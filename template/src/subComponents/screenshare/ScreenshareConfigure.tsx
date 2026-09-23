@@ -104,7 +104,6 @@ export const ScreenshareConfigure = (props: {
   const previousLayoutStateRef = useRef({
     activeUids,
     pinnedUid,
-    secondaryPinnedUid,
     currentLayout,
   });
 
@@ -224,7 +223,6 @@ export const ScreenshareConfigure = (props: {
       previousActiveUids: previousLayoutState.activeUids,
       currentActiveUids: activeUids,
       previousPinnedUid: previousLayoutState.pinnedUid,
-      previousSecondaryPinnedUid: previousLayoutState.secondaryPinnedUid,
       previousLayout: previousLayoutState.currentLayout,
       screenShareData,
       detectedAt: Date.now(),
@@ -244,8 +242,6 @@ export const ScreenshareConfigure = (props: {
             activeScreenshareSessionIdRef.current || 'unknown-session',
           screenShareUid: capturedCandidate.uid,
           previousPinnedUid: capturedCandidate.previousPinnedUid,
-          previousSecondaryPinnedUid:
-            capturedCandidate.previousSecondaryPinnedUid,
           previousLayout: capturedCandidate.previousLayout,
         },
       );
@@ -286,15 +282,6 @@ export const ScreenshareConfigure = (props: {
         isPinned.current = candidate.uid;
         dispatch({type: 'UserPin', value: [candidate.uid]});
         if (
-          candidate.previousSecondaryPinnedUid &&
-          activeUids.includes(candidate.previousSecondaryPinnedUid)
-        ) {
-          dispatch({
-            type: 'UserSecondaryPin',
-            value: [candidate.previousSecondaryPinnedUid],
-          });
-        }
-        if (
           candidate.previousLayout === getPinnedLayoutName() &&
           currentLayout !== getPinnedLayoutName()
         ) {
@@ -313,7 +300,6 @@ export const ScreenshareConfigure = (props: {
               activeScreenshareSessionIdRef.current || 'unknown-session',
             screenShareUid: candidate.uid,
             restoredPinnedUid: candidate.previousPinnedUid,
-            restoredSecondaryPinnedUid: candidate.previousSecondaryPinnedUid,
             restoredLayout: candidate.previousLayout,
             elapsedMs: Date.now() - candidate.detectedAt,
           },
@@ -345,7 +331,6 @@ export const ScreenshareConfigure = (props: {
     previousLayoutStateRef.current = {
       activeUids,
       pinnedUid,
-      secondaryPinnedUid,
       currentLayout,
     };
   }, [
@@ -355,7 +340,6 @@ export const ScreenshareConfigure = (props: {
     dispatch,
     pinnedUid,
     screenShareData,
-    secondaryPinnedUid,
     setPinnedLayout,
   ]);
 
