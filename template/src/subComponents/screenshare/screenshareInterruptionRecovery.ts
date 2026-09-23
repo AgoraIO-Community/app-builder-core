@@ -4,7 +4,6 @@ import {ScreenShareObjectInterface} from '../../components/contexts/ScreenShareC
 export interface ScreenshareRecoveryCandidate {
   uid: UidType;
   previousPinnedUid: UidType;
-  previousSecondaryPinnedUid?: UidType;
   previousLayout: string;
   screenshareStartedAt: number;
   activeScreenshareUidsAtDetection: UidType[];
@@ -16,7 +15,6 @@ interface CaptureRecoveryCandidateArgs {
   previousActiveUids: UidType[];
   currentActiveUids: UidType[];
   previousPinnedUid?: UidType;
-  previousSecondaryPinnedUid?: UidType;
   previousLayout: string;
   screenShareData: ScreenShareObjectInterface;
   detectedAt: number;
@@ -26,7 +24,6 @@ export const captureScreenshareRecoveryCandidate = ({
   previousActiveUids,
   currentActiveUids,
   previousPinnedUid,
-  previousSecondaryPinnedUid,
   previousLayout,
   screenShareData,
   detectedAt,
@@ -47,7 +44,6 @@ export const captureScreenshareRecoveryCandidate = ({
   return {
     uid: previousPinnedUid,
     previousPinnedUid,
-    previousSecondaryPinnedUid,
     previousLayout,
     screenshareStartedAt: screenShareData[previousPinnedUid]?.ts || 0,
     // Remember every share that already existed so a newly started share can

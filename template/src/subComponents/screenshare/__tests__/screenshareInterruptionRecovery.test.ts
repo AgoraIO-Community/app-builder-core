@@ -14,7 +14,6 @@ describe('screen-share RTC interruption recovery', () => {
         previousActiveUids: [101, 100, 200],
         currentActiveUids: [100, 200],
         previousPinnedUid: 101,
-        previousSecondaryPinnedUid: 100,
         previousLayout: 'pinned',
         screenShareData: activeScreen,
         detectedAt: 2000,
@@ -22,7 +21,6 @@ describe('screen-share RTC interruption recovery', () => {
     ).toEqual({
       uid: 101,
       previousPinnedUid: 101,
-      previousSecondaryPinnedUid: 100,
       previousLayout: 'pinned',
       screenshareStartedAt: 1000,
       activeScreenshareUidsAtDetection: [101],
@@ -48,7 +46,6 @@ describe('screen-share RTC interruption recovery', () => {
     const candidate = {
       uid: 101,
       previousPinnedUid: 101,
-      previousSecondaryPinnedUid: 100,
       previousLayout: 'pinned',
       screenshareStartedAt: 1000,
       activeScreenshareUidsAtDetection: [101],
