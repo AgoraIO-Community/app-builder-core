@@ -218,6 +218,8 @@ export const ScreenshareConfigure = (props: {
   useEffect(() => {
     const previousLayoutState = previousLayoutStateRef.current;
     const existingCandidate = recoveryCandidateRef.current;
+    // Detect when the previously pinned screen-share UID disappears from the
+    // RTC render list while RTM still says the logical share is active.
     const capturedCandidate = captureScreenshareRecoveryCandidate({
       previousActiveUids: previousLayoutState.activeUids,
       currentActiveUids: activeUids,
@@ -251,6 +253,8 @@ export const ScreenshareConfigure = (props: {
 
     const candidate = recoveryCandidateRef.current;
     if (candidate) {
+      // Recovery is driven by render state: first wait for the same UID to
+      // rejoin, then wait for its video to be published before restoring it.
       const decision = getScreenshareRecoveryDecision({
         candidate,
         activeUids,
@@ -260,6 +264,7 @@ export const ScreenshareConfigure = (props: {
       });
 
       if (decision === 'waiting_for_video' && !candidate.joinedLogged) {
+        // The RTC user is back, but restoring now could show a blank tile.
         candidate.joinedLogged = true;
         logger.log(
           LogSource.Internals,
@@ -276,6 +281,8 @@ export const ScreenshareConfigure = (props: {
           },
         );
       } else if (decision === 'restore') {
+        // Restore only the layout state that existed before interruption. A
+        // newer user pin or screen-share session cancels this path below.
         isPinned.current = candidate.uid;
         dispatch({type: 'UserPin', value: [candidate.uid]});
         if (
@@ -312,6 +319,8 @@ export const ScreenshareConfigure = (props: {
           },
         );
       } else if (decision.startsWith('cancel_')) {
+        // An authoritative stop, replacement share, or user layout choice
+        // takes precedence over automatic interruption recovery.
         recoveryCandidateRef.current = null;
         logger.log(
           LogSource.Internals,
@@ -917,6 +926,8 @@ export const ScreenshareConfigure = (props: {
       return;
     }
     updateOperationState('stopping');
+    // Run only the stop workflow. RTC cleanup will invoke
+    // ScreenshareStoppedCallback to update local, RTM, and layout state.
     const stopped = await executeStopScreenshareWorkflow(
       screenshareAttemptId,
       screenshareSessionId,
@@ -1011,6 +1022,8 @@ export const ScreenshareConfigure = (props: {
       },
     );
     logStartRequested();
+    // Run only the start workflow. Stop requests received while this is
+    // pending are queued above and executed after startup completes.
     const started = await executeStartScreenshareWorkflow(
       screenshareAttemptId,
       screenshareSessionId,
@@ -1155,6 +1168,7 @@ export const ScreenshareConfigure = (props: {
         },
       );
       // @ts-ignore
+      // The RTC start API only creates, joins, and publishes screen tracks.
       await rtc.RtcEngineUnsafe.startScreenshare(
         screenShareToken,
         channel,
@@ -1448,6 +1462,8 @@ export const ScreenshareConfigure = (props: {
         },
       );
       // @ts-ignore
+      // The RTC stop API performs idempotent track/client cleanup and then
+      // invokes ScreenshareStoppedCallback for application-state cleanup.
       await rtc.RtcEngineUnsafe.stopScreenshare({
         screenshareAttemptId,
         screenshareSessionId,
