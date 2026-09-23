@@ -31,4 +31,5 @@ export const canViewInLarge = (
   uid: UidType,
   pinnedUid?: UidType,
   secondaryPinnedUid?: UidType,
-) => uid !== pinnedUid && uid !== secondaryPinnedUid;
+  fallbackMaximizedUid?: UidType,
+) => uid !== (pinnedUid || fallbackMaximizedUid) && uid !== secondaryPinnedUid;

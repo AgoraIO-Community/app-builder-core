@@ -208,7 +208,14 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       if (enablePinForMe) {
-        if (canViewInLarge(user.uid, pinnedUid, secondaryPinnedUid)) {
+        if (
+          canViewInLarge(
+            user.uid,
+            pinnedUid,
+            secondaryPinnedUid,
+            activeUids?.[0],
+          )
+        ) {
           const viewInLargeKey = ActionMenuKeys.VIEW_IN_LARGE;
           const viewInLargeConfig = userActionMenuItems?.[viewInLargeKey] ?? {};
           const isPinned = pinnedUid === user.uid;
