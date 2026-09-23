@@ -3,6 +3,8 @@ import protoRoot from './proto/ptoto';
 import PQueue from 'p-queue';
 import type {CaptionObj, TranscriptItem} from './useCaption';
 import type {LanguageType} from './utils';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import {TRANSCRIPT_JOURNEY} from './transcriptJourney';
 
 type StreamMessageCallback = (args: [number, Uint8Array]) => void;
 type FinalListType = {
@@ -42,8 +44,27 @@ const useStreamMessageUtils = ({
   const finalTranscriptListRef = React.useRef<FinalListType>({});
   const finalTranslationListRef = React.useRef<FinalTranslationListType>({});
   const queue = React.useMemo(() => new PQueue({concurrency: 1}), []);
+  const messagesReceivedRef = React.useRef(0);
+  const messagesProcessedRef = React.useRef(0);
 
   const streamMessageCallback: StreamMessageCallback = args => {
+    const [receivedBotUid, receivedPayload] = args;
+    const messageNumber = ++messagesReceivedRef.current;
+    if (messageNumber === 1 || messageNumber % 50 === 0) {
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} stream message received`,
+        {
+          stage: 'stream_message_received',
+          outcome: 'success',
+          botUid: receivedBotUid,
+          payloadByteLength: receivedPayload?.byteLength || 0,
+          messagesReceived: messageNumber,
+          messagesProcessed: messagesProcessedRef.current,
+        },
+      );
+    }
     const queueCallback = (args1: [number, Uint8Array]) => {
       const finalList = finalListRef.current;
       const finalTranscriptList = finalTranscriptListRef.current;
@@ -223,8 +244,18 @@ const useStreamMessageUtils = ({
         currentFinalText = finalText;
         // log info to show measure the duration of passes in which a sentence gets finalized
         const duration = performance.now() - captionStartTimeRef.current;
-        console.log(
-          `stt-Time taken to finalize caption ${currentFinalText}: ${duration}ms`,
+        logger.log(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          `${TRANSCRIPT_JOURNEY} transcript segment finalized`,
+          {
+            stage: 'segment_finalized',
+            outcome: 'success',
+            botUid,
+            speakerUid: textstream.uid,
+            finalCharacterCount: currentFinalText.length,
+            finalizeDurationMs: duration,
+          },
         );
         captionStartTimeRef.current = 0; // Reset start time
       }
@@ -364,14 +395,68 @@ const useStreamMessageUtils = ({
     };
     void queue
       .add(() => queueCallback(args))
-      .then(() => console.log('stt- using pq queue'))
-      .catch(error =>
-        console.error('Failed to process STT stream message', error),
-      );
+      .then(() => {
+        const processedCount = ++messagesProcessedRef.current;
+        if (processedCount === 1 || processedCount % 50 === 0) {
+          logger.log(
+            LogSource.Internals,
+            'TRANSCRIPT',
+            `${TRANSCRIPT_JOURNEY} stream message processed`,
+            {
+              stage: 'stream_message_processed',
+              outcome: 'success',
+              botUid: receivedBotUid,
+              messagesReceived: messagesReceivedRef.current,
+              messagesProcessed: processedCount,
+              queueSize: queue.size,
+            },
+          );
+        }
+      })
+      .catch(error => {
+        logger.error(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          `${TRANSCRIPT_JOURNEY} failed to process stream message`,
+          {
+            stage: 'stream_message_processing',
+            outcome: 'failure',
+            botUid: receivedBotUid,
+            messageNumber,
+            messagesReceived: messagesReceivedRef.current,
+            messagesProcessed: messagesProcessedRef.current,
+            error,
+          },
+        );
+      });
   };
 
   const flushStreamMessageQueue = React.useCallback(async () => {
+    logger.log(
+      LogSource.Internals,
+      'TRANSCRIPT',
+      `${TRANSCRIPT_JOURNEY} stream queue flush requested`,
+      {
+        stage: 'stream_queue_flush',
+        outcome: 'started',
+        messagesReceived: messagesReceivedRef.current,
+        messagesProcessed: messagesProcessedRef.current,
+        queueSize: queue.size,
+      },
+    );
     await queue.onIdle();
+    logger.log(
+      LogSource.Internals,
+      'TRANSCRIPT',
+      `${TRANSCRIPT_JOURNEY} stream queue flush completed`,
+      {
+        stage: 'stream_queue_flush',
+        outcome: 'success',
+        messagesReceived: messagesReceivedRef.current,
+        messagesProcessed: messagesProcessedRef.current,
+        queueSize: queue.size,
+      },
+    );
   }, [queue]);
 
   return {

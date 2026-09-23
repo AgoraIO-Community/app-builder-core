@@ -21,6 +21,7 @@ import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useContent, useRtc} from 'customization-api';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import {isWebInternal} from '../../utils/common';
+import {TRANSCRIPT_JOURNEY} from './transcriptJourney';
 
 // Types
 type GlobalSttState = {
@@ -348,17 +349,54 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       return;
     }
 
-    transcriptListenerSubscriptionRef.current = RtcEngineUnsafe.addListener(
-      'onStreamMessage',
-      handleStreamMessageCallback,
+    logger.log(
+      LogSource.Internals,
+      'TRANSCRIPT',
+      `${TRANSCRIPT_JOURNEY} stream listener registration requested`,
+      {stage: 'listener_registration', outcome: 'started'},
     );
-    setIsSTTListenerAdded(true);
+    try {
+      transcriptListenerSubscriptionRef.current = RtcEngineUnsafe.addListener(
+        'onStreamMessage',
+        handleStreamMessageCallback,
+      );
+      setIsSTTListenerAdded(true);
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} stream listener registered`,
+        {stage: 'listener_registration', outcome: 'success'},
+      );
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} stream listener registration failed`,
+        {stage: 'listener_registration', outcome: 'failure', error},
+      );
+    }
   }, [RtcEngineUnsafe, callActive, handleStreamMessageCallback]);
 
   React.useEffect(() => {
     return () => {
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} stream listener cleanup requested`,
+        {
+          stage: 'listener_cleanup',
+          outcome: 'started',
+          listenerReferencePresent: !!transcriptListenerSubscriptionRef.current,
+        },
+      );
       transcriptListenerSubscriptionRef.current?.remove();
       transcriptListenerSubscriptionRef.current = null;
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} stream listener subscription remove called and local reference cleared`,
+        {stage: 'listener_cleanup', outcome: 'completed'},
+      );
     };
   }, []);
 
@@ -408,6 +446,31 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   React.useEffect(() => {
     sttDepsReadyRef.current = sttDepsReady;
   }, [sttDepsReady]);
+
+  React.useEffect(() => {
+    logger.log(
+      LogSource.Internals,
+      'TRANSCRIPT',
+      `${TRANSCRIPT_JOURNEY} STT readiness changed`,
+      {
+        stage: 'stt_readiness',
+        outcome: sttDepsReady ? 'ready' : 'waiting',
+        localUidReady: !!localUid,
+        localBotUidReady: !!localBotUid,
+        rtmJoined: !!hasUserJoinedRTM,
+        callActive: !!callActive,
+        roomInfoReady: !!(roomId?.host || roomId?.attendee),
+        listenerRegistered: !!transcriptListenerSubscriptionRef.current,
+      },
+    );
+  }, [
+    callActive,
+    hasUserJoinedRTM,
+    localBotUid,
+    localUid,
+    roomId,
+    sttDepsReady,
+  ]);
 
   React.useEffect(() => {
     if (sttDepsReadyRef.current && !hasFlushedSttQueueRef.current) {
@@ -526,13 +589,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     try {
       setIsLangChangeInProgress(true);
       const result = await start(localBotUidRef.current, newConfig);
-      console.log('[STT] start result: ', result);
       if (result.success) {
         setIsSTTError(false);
         logger.log(
           LogSource.NetworkRest,
           'stt',
-          'STT started successfully',
+          `${TRANSCRIPT_JOURNEY} STT started successfully`,
           result.data,
         );
       } else {
@@ -540,7 +602,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         logger.error(
           LogSource.NetworkRest,
           'stt',
-          'Failed to start STT',
+          `${TRANSCRIPT_JOURNEY} failed to start STT`,
           result.error,
         );
         Toast.show({
@@ -558,7 +620,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     } catch (error: any) {
       setIsLangChangeInProgress(false);
       setIsSTTError(true);
-      logger.error(LogSource.NetworkRest, 'stt', 'STT start error', error);
+      logger.error(
+        LogSource.NetworkRest,
+        'stt',
+        `${TRANSCRIPT_JOURNEY} STT start error`,
+        error,
+      );
       // Show error toast: text1 = translated label, text2 = exception error
       Toast.show({
         leadingIconName: 'alert',
@@ -603,7 +670,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         logger.log(
           LogSource.NetworkRest,
           'stt',
-          'STT updated successfully',
+          `${TRANSCRIPT_JOURNEY} STT updated successfully`,
           result.data,
         );
       } else {
@@ -611,7 +678,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         logger.error(
           LogSource.NetworkRest,
           'stt',
-          'Failed to update STT',
+          `${TRANSCRIPT_JOURNEY} failed to update STT`,
           result.error,
         );
         // Show error toast: text1 = translated label, text2 = API error
@@ -630,7 +697,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     } catch (error: any) {
       setIsLangChangeInProgress(false);
       setIsSTTError(true);
-      logger.error(LogSource.NetworkRest, 'stt', 'STT update error', error);
+      logger.error(
+        LogSource.NetworkRest,
+        'stt',
+        `${TRANSCRIPT_JOURNEY} STT update error`,
+        error,
+      );
       // Show error toast: text1 = translated label, text2 = exception error
       Toast.show({
         leadingIconName: 'alert',
@@ -649,10 +721,20 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   };
 
   const stopSTTBotSession = React.useCallback(async () => {
-    console.log('[STT] stopSTTBotSession called');
+    logger.log(
+      LogSource.Internals,
+      'TRANSCRIPT',
+      `${TRANSCRIPT_JOURNEY} STT stop requested`,
+      {stage: 'stt_stop', localBotUid: localBotUidRef.current},
+    );
 
     if (!localBotUidRef.current) {
-      console.warn('[STT] Missing botUid for stop');
+      logger.warn(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} STT stop skipped because bot UID is missing`,
+        {stage: 'stt_stop', outcome: 'skipped'},
+      );
       return;
     }
 
@@ -668,7 +750,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         logger.log(
           LogSource.NetworkRest,
           'stt',
-          'STT stopped successfully',
+          `${TRANSCRIPT_JOURNEY} STT stopped successfully`,
           result.data,
         );
       } else {
@@ -676,7 +758,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         logger.error(
           LogSource.NetworkRest,
           'stt',
-          'Failed to stop STT',
+          `${TRANSCRIPT_JOURNEY} failed to stop STT`,
           result.error,
         );
       }
@@ -685,7 +767,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       logger.error(
         LogSource.NetworkRest,
         'stt',
-        'Error in stopSTTBotSession',
+        `${TRANSCRIPT_JOURNEY} error in stopSTTBotSession`,
         error,
       );
     }
@@ -757,12 +839,25 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         // Queue
         enqueueSttEvent(updatedState, true, targetChange);
 
-        console.log(
-          '[STT_GLOBAL] confirmSpokenLanguageChange sent STT_GLOBAL_STATE: ',
-          updatedState,
+        logger.log(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          `${TRANSCRIPT_JOURNEY} local spoken-language state queued`,
+          {
+            stage: 'global_state_queue',
+            outcome: 'queued',
+            spokenLanguage: updatedState.globalSpokenLanguage,
+            translationTargetCount:
+              updatedState.globalTranslationTargets.length,
+          },
         );
       } catch (error) {
-        console.log('[STT_GLOBAL] confirmSpokenLanguageChange error: ', error);
+        logger.error(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          `${TRANSCRIPT_JOURNEY} local spoken-language state failed`,
+          {stage: 'global_state_queue', outcome: 'failure', error},
+        );
       }
     },
     [localUid], // only real dependency
@@ -817,15 +912,24 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   // Queues all local + remote stt events
   const enqueueSttEvent = React.useCallback(
     (state: GlobalSttState, isLocal: boolean, targetChange?: TargetChange) => {
-      console.log(
-        '[STT_GLOBAL] inside enqueueSttEvent - sttDepsReadyRef flag',
-        sttDepsReadyRef.current,
-      );
       sttEventQueueRef.current.push({
         state,
         isLocal,
         targetChange,
       });
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} STT global state queued`,
+        {
+          stage: 'global_state_queue',
+          outcome: 'queued',
+          stateOrigin: isLocal ? 'local' : 'remote',
+          sttEnabled: state.globalSttEnabled,
+          sttDepsReady: sttDepsReadyRef.current,
+          queueSize: sttEventQueueRef.current.length,
+        },
+      );
       if (sttDepsReadyRef.current) {
         processSttEventQueue();
       }
@@ -852,7 +956,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         !globalSttStateRef.current.globalSttEnabled &&
         sttEventQueueRef.current.length === 0
       ) {
-        console.log('[STT] AUTO_START  injecting auto start state');
+        logger.log(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          `${TRANSCRIPT_JOURNEY} STT auto-start state injected`,
+          {stage: 'global_state_queue', outcome: 'queued'},
+        );
 
         sttAutoStartGuardRef.current = true;
 
@@ -879,7 +988,12 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       const {state: newState, isLocal, targetChange} = item;
       const prevState = globalSttStateRef.current;
       if (isSameState(prevState, newState)) {
-        console.log('[STT] Skipped duplicate STT_GLOBAL_STATE');
+        logger.log(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          `${TRANSCRIPT_JOURNEY} duplicate STT global state skipped`,
+          {stage: 'global_state_queue', outcome: 'skipped'},
+        );
         continue; // no call to processGlobalSttSingleEvent
       }
       const ok = await processGlobalSttSingleEvent(
@@ -889,16 +1003,22 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       );
       if (!ok) {
         if (isLocal) {
-          console.warn(
-            '[STT] Skipping local global state update because API failed.',
+          logger.warn(
+            LogSource.Internals,
+            'TRANSCRIPT',
+            `${TRANSCRIPT_JOURNEY} local global state update skipped because API failed`,
+            {stage: 'global_state_apply', outcome: 'skipped'},
           );
           continue;
         }
         // A received RTM event is authoritative for the meeting-level state.
         // Failure to provision this participant's bot must not make the UI
         // report that meeting STT is disabled while captions are arriving.
-        console.warn(
-          '[STT] Applying remote global state after local STT API failure.',
+        logger.warn(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          `${TRANSCRIPT_JOURNEY} remote global state applied after local STT API failure`,
+          {stage: 'global_state_apply', outcome: 'applied_with_api_failure'},
         );
       }
       // update global state AFTER processing
@@ -923,10 +1043,24 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       const isStopOperation = wasEnabledBefore && !isEnabledNow;
       try {
         if (isStartOperation) {
-          console.log('[STT] Remote global STT -> starting session', newState);
+          logger.log(
+            LogSource.Internals,
+            'TRANSCRIPT',
+            `${TRANSCRIPT_JOURNEY} STT global state selected start operation`,
+            {
+              stage: 'global_state_operation',
+              outcome: 'started',
+              stateOrigin: isLocal ? 'local' : 'remote',
+            },
+          );
           // Start guard starts
           if (sttStartGuardRef.current) {
-            console.log('[STT] Start skipped (already started)');
+            logger.log(
+              LogSource.Internals,
+              'TRANSCRIPT',
+              `${TRANSCRIPT_JOURNEY} STT start skipped by start guard`,
+              {stage: 'global_state_operation', outcome: 'skipped'},
+            );
             return;
           }
           sttStartGuardRef.current = true;
@@ -997,7 +1131,16 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           }
           return true;
         } else if (isUpdateOperation) {
-          console.log('[STT] Global STT -> updating session', newState);
+          logger.log(
+            LogSource.Internals,
+            'TRANSCRIPT',
+            `${TRANSCRIPT_JOURNEY} STT global state selected update operation`,
+            {
+              stage: 'global_state_operation',
+              outcome: 'started',
+              stateOrigin: isLocal ? 'local' : 'remote',
+            },
+          );
           const result = await updateSTTBotSession(
             {
               source: [newState.globalSpokenLanguage],
@@ -1061,7 +1204,16 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           }
           return true;
         } else if (isStopOperation) {
-          console.log('[STT] Global STT -> stopping session', newState);
+          logger.log(
+            LogSource.Internals,
+            'TRANSCRIPT',
+            `${TRANSCRIPT_JOURNEY} STT global state selected stop operation`,
+            {
+              stage: 'global_state_operation',
+              outcome: 'started',
+              stateOrigin: isLocal ? 'local' : 'remote',
+            },
+          );
           await stopSTTBotSession();
           sttStartGuardRef.current = false;
           return true;
@@ -1074,7 +1226,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         logger.error(
           LogSource.Internals,
           'STT',
-          'Error handling STT_GLOBAL_STATE event',
+          `${TRANSCRIPT_JOURNEY} error handling STT_GLOBAL_STATE event`,
           error,
         );
         return false;
@@ -1087,7 +1239,16 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   React.useEffect(() => {
     const handleGlobalSTTChange = async (evt: any) => {
       const {payload} = evt || {};
-      console.log('[STT] STT_GLOBAL_STATE event received: ', evt);
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} STT_GLOBAL_STATE event received`,
+        {
+          stage: 'global_state_event',
+          outcome: 'received',
+          payloadPresent: typeof payload === 'string' && payload.length > 0,
+        },
+      );
       let newState: GlobalSttState;
       try {
         newState = JSON.parse(payload);
@@ -1095,7 +1256,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         logger.error(
           LogSource.Internals,
           'STT',
-          'Failed to parse STT_GLOBAL_STATE event payload',
+          `${TRANSCRIPT_JOURNEY} failed to parse STT_GLOBAL_STATE event payload`,
           error,
         );
         return;

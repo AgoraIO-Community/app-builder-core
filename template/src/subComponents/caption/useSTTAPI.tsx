@@ -7,6 +7,7 @@ import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
 import {buildSTTRequestBody, type STTMethod} from './sttRequestBody';
 import {ensureSTTSessionId} from './sttSessionId';
+import {TRANSCRIPT_JOURNEY} from './transcriptJourney';
 
 export interface STTAPIResponse {
   success: boolean;
@@ -99,7 +100,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       });
 
       console.log(
-        `[STT_BOT_SUBSCRIPTION] ${method.toUpperCase()} - Bot UID: ${botUid} will subscribe to User UID: ${ownerUid}`,
+        `${TRANSCRIPT_JOURNEY} [STT_BOT_SUBSCRIPTION] ${method.toUpperCase()} - Bot UID: ${botUid} will subscribe to User UID: ${ownerUid}`,
         {
           method,
           botUid,
@@ -146,7 +147,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         logger.error(
           LogSource.NetworkRest,
           'stt',
-          `STT API Failure - Called ${method}`,
+          `${TRANSCRIPT_JOURNEY} STT API Failure - Called ${method}`,
           errorPayload,
           {
             responseData: res,
@@ -172,7 +173,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       logger.log(
         LogSource.NetworkRest,
         'stt',
-        `STT API Success - Called ${method}`,
+        `${TRANSCRIPT_JOURNEY} STT API Success - Called ${method}`,
         {
           responseData: res,
           httpStatus,
@@ -194,7 +195,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       logger.error(
         LogSource.NetworkRest,
         'stt',
-        `STT API Failure - Called ${method}`,
+        `${TRANSCRIPT_JOURNEY} STT API Failure - Called ${method}`,
         error,
         {
           requestId,
@@ -235,7 +236,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       logger.log(
         LogSource.NetworkRest,
         'stt',
-        'Retrying STT start after transient failure',
+        `${TRANSCRIPT_JOURNEY} Retrying STT start after transient failure`,
         {
           attempt,
           maxAttempts: STT_START_MAX_ATTEMPTS,
