@@ -170,7 +170,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     const unsubKickUser = LocalEventEmitter.on(
       LocalEventsEnum.USER_KICKED_OFF_BY_REMOTE_HOST,
       () => {
-        stopScreenshare(false, true);
+        forceStopScreenshare();
       },
     );
     /**
@@ -179,7 +179,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     const unsubKickScreenshare = events.on(
       controlMessageEnum.kickScreenshare,
       () => {
-        stopScreenshare(false, true);
+        forceStopScreenshare();
       },
     );
     const unsubScreenShareAttribute = events.on(
@@ -428,34 +428,39 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     unpublishScreenshare,
   ]);
 
-  const stopScreenshare = useCallback(
-    async (enableVideo: boolean = false, forceStop: boolean = false) => {
-      if (isScreenshareActive || forceStop) {
-        logger.log(
-          LogSource.Internals,
-          'SCREENSHARE',
-          'Trying to stop native screenshare',
-        );
-        try {
-          engine?.current?.stopScreenCapture();
-        } catch (error) {
-          logger.error(
-            LogSource.Internals,
-            'SCREENSHARE',
-            'native screenshare error on -> stopScreenCapture',
-            error,
-          );
-        }
-      } else {
-        logger.debug(
-          LogSource.Internals,
-          'SCREENSHARE',
-          'native screenshare -> no screenshare is active',
-        );
-      }
-    },
-    [engine, isScreenshareActive],
-  );
+  const stopNativeScreenCapture = useCallback(async () => {
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      'Trying to stop native screenshare',
+    );
+    try {
+      engine?.current?.stopScreenCapture();
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare error on -> stopScreenCapture',
+        error,
+      );
+    }
+  }, [engine]);
+
+  const stopScreenshare = useCallback(async () => {
+    if (isScreenshareActive) {
+      await stopNativeScreenCapture();
+    } else {
+      logger.debug(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare -> no screenshare is active',
+      );
+    }
+  }, [isScreenshareActive, stopNativeScreenCapture]);
+
+  const forceStopScreenshare = useCallback(async () => {
+    await stopNativeScreenCapture();
+  }, [stopNativeScreenCapture]);
 
   const onLocalVideoStateChanged = useCallback(
     (source: VideoSourceType, state: LocalVideoStreamState, error) => {

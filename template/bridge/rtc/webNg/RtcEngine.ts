@@ -209,6 +209,14 @@ interface ActiveScreenshareLifecycle {
   cleanupPromise?: Promise<void>;
   journeyData: Record<string, unknown>;
 }
+interface ScreenshareJourneyContext {
+  screenshareAttemptId?: string;
+  screenshareSessionId?: string;
+  recordingActive?: boolean;
+  screenShareUid?: UID;
+  stopOrigin?: string;
+  stopActorUid?: UID;
+}
 interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
@@ -1988,6 +1996,41 @@ export default class RtcEngine {
     }
   }
 
+  async stopScreenshare(
+    journeyContext: ScreenshareJourneyContext = {},
+  ): Promise<void> {
+    const journeyData = {
+      action: 'stop' as const,
+      screenshareAttemptId:
+        journeyContext.screenshareAttemptId || 'rtc-unknown-attempt',
+      screenshareSessionId:
+        journeyContext.screenshareSessionId || 'unknown-session',
+      recordingActive: journeyContext.recordingActive || false,
+      screenShareUid:
+        journeyContext.screenShareUid || this.screenClient?.uid,
+      stopOrigin: journeyContext.stopOrigin || 'unknown',
+      stopActorUid: journeyContext.stopActorUid,
+    };
+    logger.log(
+      LogSource.AgoraSDK,
+      'API',
+      `[SCREENSHARE_JOURNEY] screen share stop entered RTC engine from ${journeyData.stopOrigin}`,
+      {
+        ...journeyData,
+        stage: 'rtc_stop',
+        outcome: 'started',
+        requestedAction: 'stop',
+        executedAction: 'stop',
+        operationState: this.screenshareOperationState,
+      },
+    );
+    await this.cleanupActiveScreenshare(
+      journeyData.stopOrigin,
+      true,
+      journeyData.screenshareAttemptId,
+    );
+  }
+
   async startScreenshare(
     token: string,
     channelName: string,
@@ -2004,18 +2047,10 @@ export default class RtcEngine {
       encoderConfig: this.screenShareProfile,
     },
     audio: 'enable' | 'disable' | 'auto' = 'auto',
-    journeyContext: {
-      action?: 'start' | 'stop';
-      screenshareAttemptId?: string;
-      screenshareSessionId?: string;
-      recordingActive?: boolean;
-      screenShareUid?: UID;
-      stopOrigin?: string;
-      stopActorUid?: UID;
-    } = {},
+    journeyContext: ScreenshareJourneyContext = {},
   ): Promise<void> {
     const journeyData = {
-      action: journeyContext.action || (this.inScreenshare ? 'stop' : 'start'),
+      action: 'start' as const,
       screenshareAttemptId:
         journeyContext.screenshareAttemptId || 'rtc-unknown-attempt',
       screenshareSessionId:
@@ -2029,28 +2064,6 @@ export default class RtcEngine {
       ...screenShareConfig,
       encoderConfig: this.screenShareProfile,
     };
-    if (journeyData.action === 'stop') {
-      logger.log(
-        LogSource.AgoraSDK,
-        'API',
-        `[SCREENSHARE_JOURNEY] screen share stop entered RTC engine from ${journeyData.stopOrigin}`,
-        {
-          ...journeyData,
-          stage: 'rtc_stop',
-          outcome: 'started',
-          requestedAction: 'stop',
-          executedAction: 'stop',
-          operationState: this.screenshareOperationState,
-        },
-      );
-      await this.cleanupActiveScreenshare(
-        journeyData.stopOrigin,
-        true,
-        journeyData.screenshareAttemptId,
-      );
-      return;
-    }
-
     if (this.screenshareOperationState !== 'inactive' || this.inScreenshare) {
       const duplicateStartError = Object.assign(
         new Error(

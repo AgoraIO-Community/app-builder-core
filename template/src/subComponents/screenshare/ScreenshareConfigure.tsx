@@ -608,63 +608,80 @@ export const ScreenshareConfigure = (props: {
     );
   }, []);
 
-  const executeRecordingQuery = async (
-    isScreenActive: boolean,
+  const executeStartRecordingLayoutQuery = async (
     screenshareAttemptId: string,
     screenshareSessionId: string,
     stopOrigin: ScreenshareStopOrigin,
     stopActorUid?: UidType,
   ) => {
-    const action: ScreenshareAction = isScreenActive ? 'start' : 'stop';
-    if (isScreenActive) {
-      // If recording is going on, set the presenter query
-      logger.log(
-        LogSource.Internals,
-        'SCREENSHARE',
-        `${SCREENSHARE_JOURNEY} screen share start recording presenter layout query started`,
-        {
-          action,
-          stage: 'recording_layout',
-          outcome: 'started',
-          screenshareAttemptId,
-          screenshareSessionId,
-          recordingActive: props.isRecordingActive,
-          screenShareUid,
-          stopOrigin,
-          stopActorUid,
-        },
-      );
-      await executePresenterQuery(screenShareUid);
-      recordingLayoutReconcilerRef.current.markApplied(
-        screenshareSessionId,
-        recordingActiveRef.current,
-      );
-    } else {
-      logger.log(
-        LogSource.Internals,
-        'SCREENSHARE',
-        `${SCREENSHARE_JOURNEY} screen share stop recording normal layout query started`,
-        {
-          action,
-          stage: 'recording_layout',
-          outcome: 'started',
-          screenshareAttemptId,
-          screenshareSessionId,
-          recordingActive: props.isRecordingActive,
-          screenShareUid,
-          stopOrigin,
-          stopActorUid,
-        },
-      );
-      // If no recording is going on, set the normal query
-      await executeNormalQuery();
-    }
     logger.log(
       LogSource.Internals,
       'SCREENSHARE',
-      `${SCREENSHARE_JOURNEY} screen share ${action} recording layout query completed successfully`,
+      `${SCREENSHARE_JOURNEY} screen share start recording presenter layout query started`,
       {
-        action,
+        action: 'start',
+        stage: 'recording_layout',
+        outcome: 'started',
+        screenshareAttemptId,
+        screenshareSessionId,
+        recordingActive: props.isRecordingActive,
+        screenShareUid,
+        stopOrigin,
+        stopActorUid,
+      },
+    );
+    await executePresenterQuery(screenShareUid);
+    recordingLayoutReconcilerRef.current.markApplied(
+      screenshareSessionId,
+      recordingActiveRef.current,
+    );
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      `${SCREENSHARE_JOURNEY} screen share start recording layout query completed successfully`,
+      {
+        action: 'start',
+        stage: 'recording_layout',
+        outcome: 'success',
+        screenshareAttemptId,
+        screenshareSessionId,
+        recordingActive: props.isRecordingActive,
+        screenShareUid,
+        stopOrigin,
+        stopActorUid,
+      },
+    );
+  };
+
+  const executeStopRecordingLayoutQuery = async (
+    screenshareAttemptId: string,
+    screenshareSessionId: string,
+    stopOrigin: ScreenshareStopOrigin,
+    stopActorUid?: UidType,
+  ) => {
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      `${SCREENSHARE_JOURNEY} screen share stop recording normal layout query started`,
+      {
+        action: 'stop',
+        stage: 'recording_layout',
+        outcome: 'started',
+        screenshareAttemptId,
+        screenshareSessionId,
+        recordingActive: props.isRecordingActive,
+        screenShareUid,
+        stopOrigin,
+        stopActorUid,
+      },
+    );
+    await executeNormalQuery();
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      `${SCREENSHARE_JOURNEY} screen share stop recording layout query completed successfully`,
+      {
+        action: 'stop',
         stage: 'recording_layout',
         outcome: 'success',
         screenshareAttemptId,
@@ -900,8 +917,7 @@ export const ScreenshareConfigure = (props: {
       return;
     }
     updateOperationState('stopping');
-    const stopped = await userScreenshare(
-      false,
+    const stopped = await executeStopScreenshareWorkflow(
       screenshareAttemptId,
       screenshareSessionId,
       stopOrigin,
@@ -995,8 +1011,7 @@ export const ScreenshareConfigure = (props: {
       },
     );
     logStartRequested();
-    const started = await userScreenshare(
-      true,
+    const started = await executeStartScreenshareWorkflow(
       screenshareAttemptId,
       screenshareSessionId,
       'unknown',
@@ -1047,24 +1062,22 @@ export const ScreenshareConfigure = (props: {
   };
   stopScreenshareRef.current = stopScreenshare;
 
-  const userScreenshare = async (
-    isActive: boolean,
+  const executeStartScreenshareWorkflow = async (
     screenshareAttemptId: string,
     screenshareSessionId: string,
     stopOrigin: ScreenshareStopOrigin,
     stopActorUid?: UidType,
   ) => {
     const startedAt = Date.now();
-    const action: ScreenshareAction = isActive ? 'start' : 'stop';
     let stage = 'recording_layout';
     let recordingLayoutFailed = false;
     let rtcOperationSucceeded = false;
     logger.log(
       LogSource.Internals,
       'SCREENSHARE',
-      `${SCREENSHARE_JOURNEY} screen share ${action} workflow started`,
+      `${SCREENSHARE_JOURNEY} screen share start workflow started`,
       {
-        action,
+        action: 'start',
         stage: 'journey',
         outcome: 'started',
         screenshareAttemptId,
@@ -1079,8 +1092,7 @@ export const ScreenshareConfigure = (props: {
     try {
       if (props.isRecordingActive) {
         try {
-          await executeRecordingQuery(
-            isActive,
+          await executeStartRecordingLayoutQuery(
             screenshareAttemptId,
             screenshareSessionId,
             stopOrigin,
@@ -1091,10 +1103,10 @@ export const ScreenshareConfigure = (props: {
           logger.error(
             LogSource.Internals,
             'SCREENSHARE',
-            `${SCREENSHARE_JOURNEY} screen share ${action} recording layout query failed; continuing screen share ${action}`,
+            `${SCREENSHARE_JOURNEY} screen share start recording layout query failed; continuing screen share start`,
             recordingError,
             {
-              action,
+              action: 'start',
               stage,
               outcome: 'partial_failure',
               screenshareAttemptId,
@@ -1111,9 +1123,9 @@ export const ScreenshareConfigure = (props: {
         logger.log(
           LogSource.Internals,
           'SCREENSHARE',
-          `${SCREENSHARE_JOURNEY} screen share ${action} recording layout query skipped because recording is inactive`,
+          `${SCREENSHARE_JOURNEY} screen share start recording layout query skipped because recording is inactive`,
           {
-            action,
+            action: 'start',
             stage,
             outcome: 'skipped',
             screenshareAttemptId,
@@ -1129,9 +1141,9 @@ export const ScreenshareConfigure = (props: {
       logger.log(
         LogSource.Internals,
         'SCREENSHARE',
-        `${SCREENSHARE_JOURNEY} screen share ${action} calling RtcEngine.startScreenshare`,
+        `${SCREENSHARE_JOURNEY} screen share start calling RtcEngine.startScreenshare`,
         {
-          action,
+          action: 'start',
           stage,
           outcome: 'started',
           screenshareAttemptId,
@@ -1154,7 +1166,6 @@ export const ScreenshareConfigure = (props: {
         {encoderConfig: '1080p_2', optimizationMode: 'detail'},
         'auto',
         {
-          action,
           screenshareAttemptId,
           screenshareSessionId,
           recordingActive: props.isRecordingActive,
@@ -1167,9 +1178,9 @@ export const ScreenshareConfigure = (props: {
       logger.log(
         LogSource.Internals,
         'SCREENSHARE',
-        `${SCREENSHARE_JOURNEY} screen share ${action} RtcEngine.startScreenshare completed successfully`,
+        `${SCREENSHARE_JOURNEY} screen share start RtcEngine.startScreenshare completed successfully`,
         {
-          action,
+          action: 'start',
           stage,
           outcome: 'success',
           screenshareAttemptId,
@@ -1181,99 +1192,95 @@ export const ScreenshareConfigure = (props: {
         },
       );
 
-      if (isActive) {
-        activeScreenshareSessionIdRef.current = screenshareSessionId;
-        pendingScreenshareSessionIdRef.current = null;
-        updateOperationState('active');
-        setScreenshareActive(true);
-        stage = 'local_active_state';
-        logger.log(
-          LogSource.Internals,
-          'SCREENSHARE',
-          `${SCREENSHARE_JOURNEY} screen share start local active state set to active`,
-          {
-            action,
-            stage,
-            outcome: 'success',
-            screenshareAttemptId,
-            screenshareSessionId,
-            recordingActive: props.isRecordingActive,
-            screenShareUid,
-            stopOrigin,
-            stopActorUid,
-          },
-        );
-        // 1. Set local state
-        stage = 'screenshare_context';
-        setScreenShareData(prevState => {
-          return {
-            ...prevState,
-            [screenShareUid]: {
-              name: defaultContentRef.current.defaultContent[screenShareUid]
-                ?.name,
-              isActive: true,
-              ts: timeNow(),
-            },
-          };
-        });
-        logger.log(
-          LogSource.Internals,
-          'SCREENSHARE',
-          `${SCREENSHARE_JOURNEY} screen share start local context set to active`,
-          {
-            action,
-            stage,
-            outcome: 'success',
-            screenshareAttemptId,
-            screenshareSessionId,
-            recordingActive: props.isRecordingActive,
-            screenShareUid,
-            stopOrigin,
-            stopActorUid,
-          },
-        );
-        // 2. Inform everyone in the channel screenshare is actice
-        stage = 'rtm_event';
-        const rtmEventSent = await events.send(
-          EventNames.SCREENSHARE_ATTRIBUTE,
-          JSON.stringify({
-            action: EventActions.SCREENSHARE_STARTED,
-            value: timeNow(),
-            screenUidOfUser: screenShareUid,
-          }),
-          PersistanceLevel.Sender,
-        );
-        logger.log(
-          LogSource.Internals,
-          'SCREENSHARE',
-          `${SCREENSHARE_JOURNEY} screen share start RTM event ${
-            rtmEventSent
-              ? 'sent to remote users'
-              : 'failed to send to remote users'
-          }`,
-          {
-            action,
-            stage,
-            outcome: rtmEventSent ? 'success' : 'failure',
-            screenshareAttemptId,
-            screenshareSessionId,
-            recordingActive: props.isRecordingActive,
-            screenShareUid,
-            stopOrigin,
-            stopActorUid,
-          },
-        );
-      }
+      activeScreenshareSessionIdRef.current = screenshareSessionId;
+      pendingScreenshareSessionIdRef.current = null;
+      updateOperationState('active');
+      setScreenshareActive(true);
+      stage = 'local_active_state';
       logger.log(
         LogSource.Internals,
         'SCREENSHARE',
-        `${SCREENSHARE_JOURNEY} screen share ${action} workflow ${
+        `${SCREENSHARE_JOURNEY} screen share start local active state set to active`,
+        {
+          action: 'start',
+          stage,
+          outcome: 'success',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+        },
+      );
+      stage = 'screenshare_context';
+      setScreenShareData(prevState => {
+        return {
+          ...prevState,
+          [screenShareUid]: {
+            name: defaultContentRef.current.defaultContent[screenShareUid]
+              ?.name,
+            isActive: true,
+            ts: timeNow(),
+          },
+        };
+      });
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share start local context set to active`,
+        {
+          action: 'start',
+          stage,
+          outcome: 'success',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+        },
+      );
+      stage = 'rtm_event';
+      const rtmEventSent = await events.send(
+        EventNames.SCREENSHARE_ATTRIBUTE,
+        JSON.stringify({
+          action: EventActions.SCREENSHARE_STARTED,
+          value: timeNow(),
+          screenUidOfUser: screenShareUid,
+        }),
+        PersistanceLevel.Sender,
+      );
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share start RTM event ${
+          rtmEventSent
+            ? 'sent to remote users'
+            : 'failed to send to remote users'
+        }`,
+        {
+          action: 'start',
+          stage,
+          outcome: rtmEventSent ? 'success' : 'failure',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+        },
+      );
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share start workflow ${
           recordingLayoutFailed
             ? 'completed with recording layout failure'
             : 'completed successfully'
         }`,
         {
-          action,
+          action: 'start',
           stage: 'complete',
           outcome: recordingLayoutFailed ? 'partial_success' : 'success',
           screenshareAttemptId,
@@ -1291,13 +1298,13 @@ export const ScreenshareConfigure = (props: {
       logger.error(
         LogSource.Internals,
         'SCREENSHARE',
-        `${SCREENSHARE_JOURNEY} screen share ${action} workflow failed at ${stage}: ${
+        `${SCREENSHARE_JOURNEY} screen share start workflow failed at ${stage}: ${
           userCancelOrPermissionDenied
             ? 'user cancelled picker or permission was denied'
             : 'unexpected failure'
         }`,
         {
-          action,
+          action: 'start',
           stage,
           outcome: userCancelOrPermissionDenied
             ? 'user_cancel_or_permission_denied'
@@ -1321,7 +1328,7 @@ export const ScreenshareConfigure = (props: {
         primaryBtn: null,
         secondaryBtn: null,
       });
-      if (isActive && !rtcOperationSucceeded) {
+      if (!rtcOperationSucceeded) {
         pendingScreenshareSessionIdRef.current = null;
         activeScreenshareSessionIdRef.current = null;
         setScreenshareActive(false);
@@ -1344,6 +1351,185 @@ export const ScreenshareConfigure = (props: {
           },
         );
       }
+      return rtcOperationSucceeded;
+    }
+  };
+
+  const executeStopScreenshareWorkflow = async (
+    screenshareAttemptId: string,
+    screenshareSessionId: string,
+    stopOrigin: ScreenshareStopOrigin,
+    stopActorUid?: UidType,
+  ) => {
+    const startedAt = Date.now();
+    let stage = 'recording_layout';
+    let recordingLayoutFailed = false;
+    let rtcOperationSucceeded = false;
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      `${SCREENSHARE_JOURNEY} screen share stop workflow started`,
+      {
+        action: 'stop',
+        stage: 'journey',
+        outcome: 'started',
+        screenshareAttemptId,
+        screenshareSessionId,
+        recordingActive: props.isRecordingActive,
+        screenShareUid,
+        stopOrigin,
+        stopActorUid,
+        channel,
+      },
+    );
+    try {
+      if (props.isRecordingActive) {
+        try {
+          await executeStopRecordingLayoutQuery(
+            screenshareAttemptId,
+            screenshareSessionId,
+            stopOrigin,
+            stopActorUid,
+          );
+        } catch (recordingError) {
+          recordingLayoutFailed = true;
+          logger.error(
+            LogSource.Internals,
+            'SCREENSHARE',
+            `${SCREENSHARE_JOURNEY} screen share stop recording layout query failed; continuing screen share stop`,
+            recordingError,
+            {
+              action: 'stop',
+              stage,
+              outcome: 'partial_failure',
+              screenshareAttemptId,
+              screenshareSessionId,
+              recordingActive: props.isRecordingActive,
+              screenShareUid,
+              stopOrigin,
+              stopActorUid,
+              ...getScreenshareError(recordingError),
+            },
+          );
+        }
+      } else {
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          `${SCREENSHARE_JOURNEY} screen share stop recording layout query skipped because recording is inactive`,
+          {
+            action: 'stop',
+            stage,
+            outcome: 'skipped',
+            screenshareAttemptId,
+            screenshareSessionId,
+            recordingActive: false,
+            screenShareUid,
+            stopOrigin,
+            stopActorUid,
+          },
+        );
+      }
+      stage = 'rtc_operation';
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share stop calling RtcEngine.startScreenshare`,
+        {
+          action: 'stop',
+          stage,
+          outcome: 'started',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+        },
+      );
+      // @ts-ignore
+      await rtc.RtcEngineUnsafe.stopScreenshare({
+        screenshareAttemptId,
+        screenshareSessionId,
+        recordingActive: props.isRecordingActive,
+        screenShareUid,
+        stopOrigin,
+        stopActorUid,
+      });
+      rtcOperationSucceeded = true;
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share stop RtcEngine.startScreenshare completed successfully`,
+        {
+          action: 'stop',
+          stage,
+          outcome: 'success',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+        },
+      );
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share stop workflow ${
+          recordingLayoutFailed
+            ? 'completed with recording layout failure'
+            : 'completed successfully'
+        }`,
+        {
+          action: 'stop',
+          stage: 'complete',
+          outcome: recordingLayoutFailed ? 'partial_success' : 'success',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+          elapsedMs: Date.now() - startedAt,
+        },
+      );
+      return true;
+    } catch (e) {
+      const userCancelOrPermissionDenied = isUserCancelOrPermissionDenied(e);
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        `${SCREENSHARE_JOURNEY} screen share stop workflow failed at ${stage}: ${
+          userCancelOrPermissionDenied
+            ? 'user cancelled picker or permission was denied'
+            : 'unexpected failure'
+        }`,
+        {
+          action: 'stop',
+          stage,
+          outcome: userCancelOrPermissionDenied
+            ? 'user_cancel_or_permission_denied'
+            : 'failure',
+          screenshareAttemptId,
+          screenshareSessionId,
+          recordingActive: props.isRecordingActive,
+          screenShareUid,
+          stopOrigin,
+          stopActorUid,
+          elapsedMs: Date.now() - startedAt,
+          ...getScreenshareError(e),
+        },
+      );
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: toastHeading,
+        text2: toastSubHeading,
+        visibilityTime: 1000 * 10,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
       return rtcOperationSucceeded;
     }
   };
