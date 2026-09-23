@@ -883,24 +883,28 @@ export default class RtcEngine {
         user,
         mediaType,
       );
-      if (this.inScreenshare && user.uid === this.screenClient.uid) {
-        (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
-          {},
-          user.uid,
-          2,
-          0,
-          0,
-        );
-      } else {
-        await this.client.subscribe(user, mediaType);
-        logger.log(
-          LogSource.AgoraSDK,
-          'API',
-          'RTC [subscribe] to track successfully done',
-          user,
-          mediaType,
-        );
+      const isOwnScreenshare =
+        this.inScreenshare && user.uid === this.screenClient?.uid;
+      if (isOwnScreenshare) {
+        if (mediaType === 'video') {
+          (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
+            {},
+            user.uid,
+            2,
+            0,
+            0,
+          );
+        }
+        return;
       }
+      await this.client.subscribe(user, mediaType);
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        'RTC [subscribe] to track successfully done',
+        user,
+        mediaType,
+      );
       // If the subscribed track is an audio track
       if (mediaType === 'audio') {
         const audioTrack = user.audioTrack;
