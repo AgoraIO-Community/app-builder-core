@@ -952,6 +952,20 @@ export default class RtcEngine {
         user,
         mediaType,
       );
+      const isOwnScreenshare =
+        this.inScreenshare && user.uid === this.screenClient?.uid;
+      if (isOwnScreenshare) {
+        if (mediaType === 'video') {
+          (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
+            {},
+            user.uid,
+            0,
+            0,
+            0,
+          );
+        }
+        return;
+      }
       if (mediaType === 'video') {
         this.logRemoteScreenshareTermination(
           user.uid,
