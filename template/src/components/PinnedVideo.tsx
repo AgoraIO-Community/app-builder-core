@@ -37,6 +37,8 @@ import {
   videoRoomGoToActiveSpeakerText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {useFullScreen} from '..//utils/useFullScreen';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {getPinnedLayoutState} from './pinnedLayoutState';
 const {topPinned} = layoutProps;
 
 const PinnedVideo = ({renderData}) => {
@@ -50,12 +52,38 @@ const PinnedVideo = ({renderData}) => {
   const {width} = useWindowDimensions();
   const isDesktop = width > BREAKPOINTS.lg;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
-  const [maxUid, ...minUids] = renderData;
+  const {maximizedUid, sidebarUids} = getPinnedLayoutState(
+    renderData,
+    pinnedUid,
+    secondaryPinnedUid,
+  );
+  const renderDataSnapshot = JSON.stringify(renderData);
+  const sidebarUidsSnapshot = JSON.stringify(sidebarUids);
   const activeSpeaker = useActiveSpeaker();
   const {dispatch} = useContext(DispatchContext);
   const {videoTileInViewPortState} = useVideoCall();
   const {getWhiteboardUid = () => 0} = useWhiteboard();
   const {defaultContent, customContent} = useContent();
+  useEffect(() => {
+    logger.log(
+      LogSource.Internals,
+      'LAYOUT',
+      '[PINNED_LAYOUT] pinned layout UIDs resolved',
+      {
+        renderData: JSON.parse(renderDataSnapshot),
+        pinnedUid: pinnedUid || null,
+        secondaryPinnedUid: secondaryPinnedUid || null,
+        maximizedUid,
+        sidebarUids: JSON.parse(sidebarUidsSnapshot),
+      },
+    );
+  }, [
+    renderDataSnapshot,
+    pinnedUid,
+    secondaryPinnedUid,
+    maximizedUid,
+    sidebarUidsSnapshot,
+  ]);
   useEffect(() => {
     if (activeSpeaker && !videoTileInViewPortState[activeSpeaker] && isOnTop) {
       dispatch({
@@ -85,21 +113,20 @@ const PinnedVideo = ({renderData}) => {
     }
   };
 
-  const isWhiteboard = customContent && customContent[pinnedUid || maxUid];
+  const isWhiteboard = customContent && customContent[maximizedUid];
   const isRemoteScreenshare =
-    (pinnedUid || maxUid) != screenUid &&
+    maximizedUid != screenUid &&
     defaultContent &&
-    defaultContent[pinnedUid || maxUid]?.video &&
-    defaultContent[pinnedUid || maxUid]?.type === 'screenshare';
+    defaultContent[maximizedUid]?.video &&
+    defaultContent[maximizedUid]?.type === 'screenshare';
 
   //fixed issue on expand/collapse for screenshare
   //screen will have the fullscreen functionality
   useEffect(() => {
-    const maximizedUid = pinnedUid || maxUid;
     if (getWhiteboardUid() != maximizedUid && collapse) {
       setCollapse(false);
     }
-  }, [isWhiteboard, collapse, pinnedUid, maxUid, getWhiteboardUid]);
+  }, [isWhiteboard, collapse, maximizedUid, getWhiteboardUid]);
 
   return (
     <View
@@ -129,9 +156,7 @@ const PinnedVideo = ({renderData}) => {
                     marginBottom: 8,
                   }
             }>
-            {secondaryPinnedUid &&
-            secondaryPinnedUid !== pinnedUid &&
-            secondaryPinnedUid !== maxUid ? (
+            {secondaryPinnedUid && sidebarUids.includes(secondaryPinnedUid) ? (
               <Pressable
                 disabled={true}
                 style={
@@ -158,10 +183,8 @@ const PinnedVideo = ({renderData}) => {
               <></>
             )}
             {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
-            {minUids?.map((minUid, i) => {
+            {sidebarUids?.map(minUid => {
               if (minUid === secondaryPinnedUid) return null;
-              if (minUid === pinnedUid) return null;
-              if (minUid === maxUid) return null;
               //rendering minimized view
               return (
                 <Pressable
@@ -194,7 +217,7 @@ const PinnedVideo = ({renderData}) => {
                           marginRight: 8,
                         }
                   }
-                  key={'minVideo' + i}
+                  key={'minVideo' + minUid}
                   onPress={() => {}}>
                   <RenderComponent uid={minUid} />
                 </Pressable>
@@ -259,7 +282,7 @@ const PinnedVideo = ({renderData}) => {
           )}
         </>
       )}
-      {(pinnedUid || maxUid) && (
+      {maximizedUid && (
         <View
           style={
             isSidePinnedlayout
@@ -268,7 +291,7 @@ const PinnedVideo = ({renderData}) => {
                 : style.width80
               : style.flex8
           }>
-          <View style={style.flex1} key={'maxVideo' + (pinnedUid || maxUid)}>
+          <View style={style.flex1} key={'maxVideo' + maximizedUid}>
             {isSidePinnedlayout && (isWhiteboard || isRemoteScreenshare) ? (
               <IconButton
                 containerStyle={{
@@ -279,12 +302,9 @@ const PinnedVideo = ({renderData}) => {
                   elevation: 999,
                 }}
                 onPress={() => {
-                  if (
-                    defaultContent &&
-                    defaultContent[pinnedUid || maxUid]?.video
-                  ) {
-                    requestFullscreen(pinnedUid || maxUid);
-                  } else if (customContent[pinnedUid || maxUid]) {
+                  if (defaultContent && defaultContent[maximizedUid]?.video) {
+                    requestFullscreen(maximizedUid);
+                  } else if (customContent[maximizedUid]) {
                     setCollapse(!collapse);
                   }
                 }}
@@ -348,7 +368,7 @@ const PinnedVideo = ({renderData}) => {
               <></>
             )} */}
             {/** Render the maximized view */}
-            <RenderComponent uid={pinnedUid || maxUid} isMax={true} />
+            <RenderComponent uid={maximizedUid} isMax={true} />
           </View>
         </View>
       )}
