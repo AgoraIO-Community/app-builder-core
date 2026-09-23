@@ -105,7 +105,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           method,
           botUid,
           ownerUid,
-          translationConfig,
+          translationConfig: translationConfig ?? null,
         },
       );
       const response = await fetch(`${STT_API_URL}/${method}`, {
@@ -148,9 +148,9 @@ const useSTTAPI = (): IuseSTTAPI => {
           LogSource.NetworkRest,
           'stt',
           `${TRANSCRIPT_JOURNEY} STT API Failure - Called ${method}`,
-          errorPayload,
+          errorPayload ?? {message},
           {
-            responseData: res,
+            responseData: res ?? null,
             httpStatus,
             requestId,
             startReqTs,
@@ -175,7 +175,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         'stt',
         `${TRANSCRIPT_JOURNEY} STT API Success - Called ${method}`,
         {
-          responseData: res,
+          responseData: res ?? null,
           httpStatus,
           requestId,
           startReqTs,
@@ -196,7 +196,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         LogSource.NetworkRest,
         'stt',
         `${TRANSCRIPT_JOURNEY} STT API Failure - Called ${method}`,
-        error,
+        error ?? null,
         {
           requestId,
           startReqTs,
@@ -242,8 +242,8 @@ const useSTTAPI = (): IuseSTTAPI => {
           maxAttempts: STT_START_MAX_ATTEMPTS,
           retryDelayMs,
           botUid,
-          httpStatus: result.httpStatus,
-          errorCode: result.error?.code,
+          httpStatus: result.httpStatus ?? null,
+          errorCode: result.error?.code ?? null,
         },
       );
       await wait(retryDelayMs);

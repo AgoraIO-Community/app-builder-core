@@ -46,6 +46,8 @@ const useStreamMessageUtils = ({
   const queue = React.useMemo(() => new PQueue({concurrency: 1}), []);
   const messagesReceivedRef = React.useRef(0);
   const messagesProcessedRef = React.useRef(0);
+  const finalizedSegmentsRef = React.useRef(0);
+  const speakersWithFinalizedSegmentsRef = React.useRef(new Set<string>());
 
   const streamMessageCallback: StreamMessageCallback = args => {
     const [receivedBotUid, receivedPayload] = args;
@@ -58,7 +60,7 @@ const useStreamMessageUtils = ({
         {
           stage: 'stream_message_received',
           outcome: 'success',
-          botUid: receivedBotUid,
+          botUid: receivedBotUid ?? null,
           payloadByteLength: receivedPayload?.byteLength || 0,
           messagesReceived: messageNumber,
           messagesProcessed: messagesProcessedRef.current,
@@ -242,21 +244,29 @@ const useStreamMessageUtils = ({
         finalList[textstream.uid].push(finalText);
         finalTranscriptList[textstream.uid].push(finalText);
         currentFinalText = finalText;
-        // log info to show measure the duration of passes in which a sentence gets finalized
+        const speakerUid = textstream.uid ?? null;
+        const speakerKey = String(speakerUid ?? 'unknown');
+        const isFirstFinalizedSegmentForSpeaker =
+          !speakersWithFinalizedSegmentsRef.current.has(speakerKey);
+        finalizedSegmentsRef.current += 1;
         const duration = performance.now() - captionStartTimeRef.current;
-        logger.log(
-          LogSource.Internals,
-          'TRANSCRIPT',
-          `${TRANSCRIPT_JOURNEY} transcript segment finalized`,
-          {
-            stage: 'segment_finalized',
-            outcome: 'success',
-            botUid,
-            speakerUid: textstream.uid,
-            finalCharacterCount: currentFinalText.length,
-            finalizeDurationMs: duration,
-          },
-        );
+        if (isFirstFinalizedSegmentForSpeaker) {
+          speakersWithFinalizedSegmentsRef.current.add(speakerKey);
+          logger.log(
+            LogSource.Internals,
+            'TRANSCRIPT',
+            `${TRANSCRIPT_JOURNEY} first transcript segment finalized for speaker`,
+            {
+              stage: 'segment_finalized',
+              outcome: 'success',
+              botUid: botUid ?? null,
+              speakerUid,
+              finalCharacterCount: currentFinalText.length,
+              finalizeDurationMs: duration,
+              finalizedSegments: finalizedSegmentsRef.current,
+            },
+          );
+        }
         captionStartTimeRef.current = 0; // Reset start time
       }
 
@@ -405,7 +415,7 @@ const useStreamMessageUtils = ({
             {
               stage: 'stream_message_processed',
               outcome: 'success',
-              botUid: receivedBotUid,
+              botUid: receivedBotUid ?? null,
               messagesReceived: messagesReceivedRef.current,
               messagesProcessed: processedCount,
               queueSize: queue.size,
@@ -421,11 +431,11 @@ const useStreamMessageUtils = ({
           {
             stage: 'stream_message_processing',
             outcome: 'failure',
-            botUid: receivedBotUid,
+            botUid: receivedBotUid ?? null,
             messageNumber,
             messagesReceived: messagesReceivedRef.current,
             messagesProcessed: messagesProcessedRef.current,
-            error,
+            error: error ?? null,
           },
         );
       });
@@ -441,6 +451,9 @@ const useStreamMessageUtils = ({
         outcome: 'started',
         messagesReceived: messagesReceivedRef.current,
         messagesProcessed: messagesProcessedRef.current,
+        finalizedSegments: finalizedSegmentsRef.current,
+        speakersWithFinalizedSegments:
+          speakersWithFinalizedSegmentsRef.current.size,
         queueSize: queue.size,
       },
     );
@@ -454,6 +467,9 @@ const useStreamMessageUtils = ({
         outcome: 'success',
         messagesReceived: messagesReceivedRef.current,
         messagesProcessed: messagesProcessedRef.current,
+        finalizedSegments: finalizedSegmentsRef.current,
+        speakersWithFinalizedSegments:
+          speakersWithFinalizedSegmentsRef.current.size,
         queueSize: queue.size,
       },
     );

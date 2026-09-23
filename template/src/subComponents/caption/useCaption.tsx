@@ -372,7 +372,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         LogSource.Internals,
         'TRANSCRIPT',
         `${TRANSCRIPT_JOURNEY} stream listener registration failed`,
-        {stage: 'listener_registration', outcome: 'failure', error},
+        {
+          stage: 'listener_registration',
+          outcome: 'failure',
+          error: error ?? null,
+        },
       );
     }
   }, [RtcEngineUnsafe, callActive, handleStreamMessageCallback]);
@@ -595,7 +599,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           LogSource.NetworkRest,
           'stt',
           `${TRANSCRIPT_JOURNEY} STT started successfully`,
-          result.data,
+          result.data ?? null,
         );
       } else {
         setIsSTTError(true);
@@ -603,7 +607,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           LogSource.NetworkRest,
           'stt',
           `${TRANSCRIPT_JOURNEY} failed to start STT`,
-          result.error,
+          result.error ?? null,
         );
         Toast.show({
           leadingIconName: 'alert',
@@ -624,7 +628,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         LogSource.NetworkRest,
         'stt',
         `${TRANSCRIPT_JOURNEY} STT start error`,
-        error,
+        error ?? null,
       );
       // Show error toast: text1 = translated label, text2 = exception error
       Toast.show({
@@ -671,7 +675,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           LogSource.NetworkRest,
           'stt',
           `${TRANSCRIPT_JOURNEY} STT updated successfully`,
-          result.data,
+          result.data ?? null,
         );
       } else {
         setIsSTTError(true);
@@ -679,7 +683,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           LogSource.NetworkRest,
           'stt',
           `${TRANSCRIPT_JOURNEY} failed to update STT`,
-          result.error,
+          result.error ?? null,
         );
         // Show error toast: text1 = translated label, text2 = API error
         Toast.show({
@@ -701,7 +705,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         LogSource.NetworkRest,
         'stt',
         `${TRANSCRIPT_JOURNEY} STT update error`,
-        error,
+        error ?? null,
       );
       // Show error toast: text1 = translated label, text2 = exception error
       Toast.show({
@@ -725,7 +729,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       LogSource.Internals,
       'TRANSCRIPT',
       `${TRANSCRIPT_JOURNEY} STT stop requested`,
-      {stage: 'stt_stop', localBotUid: localBotUidRef.current},
+      {stage: 'stt_stop', localBotUid: localBotUidRef.current ?? null},
     );
 
     if (!localBotUidRef.current) {
@@ -751,7 +755,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           LogSource.NetworkRest,
           'stt',
           `${TRANSCRIPT_JOURNEY} STT stopped successfully`,
-          result.data,
+          result.data ?? null,
         );
       } else {
         setIsSTTError(true);
@@ -759,7 +763,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           LogSource.NetworkRest,
           'stt',
           `${TRANSCRIPT_JOURNEY} failed to stop STT`,
-          result.error,
+          result.error ?? null,
         );
       }
     } catch (error) {
@@ -768,7 +772,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         LogSource.NetworkRest,
         'stt',
         `${TRANSCRIPT_JOURNEY} error in stopSTTBotSession`,
-        error,
+        error ?? null,
       );
     }
   }, [stop]);
@@ -846,7 +850,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           {
             stage: 'global_state_queue',
             outcome: 'queued',
-            spokenLanguage: updatedState.globalSpokenLanguage,
+            spokenLanguage: updatedState.globalSpokenLanguage ?? null,
             translationTargetCount:
               updatedState.globalTranslationTargets.length,
           },
@@ -856,7 +860,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           LogSource.Internals,
           'TRANSCRIPT',
           `${TRANSCRIPT_JOURNEY} local spoken-language state failed`,
-          {stage: 'global_state_queue', outcome: 'failure', error},
+          {
+            stage: 'global_state_queue',
+            outcome: 'failure',
+            error: error ?? null,
+          },
         );
       }
     },
@@ -1227,7 +1235,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           LogSource.Internals,
           'STT',
           `${TRANSCRIPT_JOURNEY} error handling STT_GLOBAL_STATE event`,
-          error,
+          error ?? null,
         );
         return false;
       }
@@ -1257,7 +1265,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           LogSource.Internals,
           'STT',
           `${TRANSCRIPT_JOURNEY} failed to parse STT_GLOBAL_STATE event payload`,
-          error,
+          error ?? null,
         );
         return;
       }
