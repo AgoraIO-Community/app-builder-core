@@ -27,4 +27,10 @@ describe('pinned layout state', () => {
     expect(canViewInLarge(100, 101, 100)).toBe(false);
     expect(canViewInLarge(200, 101, 100)).toBe(true);
   });
+
+  it('does not offer View in large for the fallback maximized UID', () => {
+    expect(canViewInLarge(101, undefined, 100, 101)).toBe(false);
+    expect(canViewInLarge(100, undefined, 100, 101)).toBe(false);
+    expect(canViewInLarge(200, undefined, 100, 101)).toBe(true);
+  });
 });
