@@ -77,6 +77,7 @@ import {
   DEFAULT_ACTION_KEYS,
   UserActionMenuItemsConfig,
 } from '../../atoms/UserActionMenuPreset';
+import {canViewInLarge} from '../pinnedLayoutState';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -207,7 +208,7 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       if (enablePinForMe) {
-        if (pinnedUid !== user.uid) {
+        if (canViewInLarge(user.uid, pinnedUid, secondaryPinnedUid)) {
           const viewInLargeKey = ActionMenuKeys.VIEW_IN_LARGE;
           const viewInLargeConfig = userActionMenuItems?.[viewInLargeKey] ?? {};
           const isPinned = pinnedUid === user.uid;
