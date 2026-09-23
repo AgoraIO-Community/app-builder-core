@@ -52,6 +52,11 @@ import {timeNow} from '../../rtm/utils';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../rtm-events-api/LocalEvents';
+import {
+  captureScreenshareRecoveryCandidate,
+  getScreenshareRecoveryDecision,
+  ScreenshareRecoveryCandidate,
+} from './screenshareInterruptionRecovery';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -82,6 +87,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     secondaryPinnedUid: secondaryPinnedUid,
   });
   const screenShareDataRef = useRef({screenShareData: screenShareData});
+  const recoveryCandidateRef = useRef<ScreenshareRecoveryCandidate | null>(
+    null,
+  );
+  const previousLayoutStateRef = useRef({
+    activeUids,
+    pinnedUid,
+    currentLayout,
+  });
   const localMute = useMuteToggleLocal();
   const {video} = useLocalUserInfo();
   useEffect(() => {
@@ -162,6 +175,71 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
     }
   }, [activeUids, screenShareData, triggerChangeLayout]);
+
+  useEffect(() => {
+    const previousLayoutState = previousLayoutStateRef.current;
+    const existingCandidate = recoveryCandidateRef.current;
+    const capturedCandidate = captureScreenshareRecoveryCandidate({
+      previousActiveUids: previousLayoutState.activeUids,
+      currentActiveUids: activeUids,
+      previousPinnedUid: previousLayoutState.pinnedUid,
+      previousLayout: previousLayoutState.currentLayout,
+      screenShareData,
+      detectedAt: Date.now(),
+    });
+
+    if (!existingCandidate && capturedCandidate) {
+      recoveryCandidateRef.current = capturedCandidate;
+    }
+
+    const candidate = recoveryCandidateRef.current;
+    if (candidate) {
+      const decision = getScreenshareRecoveryDecision({
+        candidate,
+        activeUids,
+        pinnedUid,
+        isVideoPublished: defaultContent?.[candidate.uid]?.video === 1,
+        screenShareData,
+      });
+
+      if (decision === 'waiting_for_video') {
+        candidate.joinedLogged = true;
+      } else if (decision === 'restore') {
+        isPinned.current = candidate.uid;
+        dispatch({type: 'UserPin', value: [candidate.uid]});
+        if (
+          candidate.previousLayout === getPinnedLayoutName() &&
+          currentLayout !== getPinnedLayoutName()
+        ) {
+          setPinnedLayout();
+        }
+        recoveryCandidateRef.current = null;
+      } else if (decision.startsWith('cancel_')) {
+        recoveryCandidateRef.current = null;
+      }
+    }
+
+    previousLayoutStateRef.current = {
+      activeUids,
+      pinnedUid,
+      currentLayout,
+    };
+  }, [
+    activeUids,
+    currentLayout,
+    defaultContent,
+    dispatch,
+    pinnedUid,
+    screenShareData,
+    setPinnedLayout,
+  ]);
+
+  useEffect(
+    () => () => {
+      recoveryCandidateRef.current = null;
+    },
+    [],
+  );
 
   useEffect(() => {
     /**
