@@ -21,6 +21,7 @@ export {customize, $config};
 export * from './action-library';
 export * from './app-state';
 export * from './customEvents';
+export * from './logger';
 export * from './sub-components';
 export * from './typeDefinition';
 export * from './utils';
