@@ -247,10 +247,12 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
             uid={user.uid}
             hasLeadingIcon={
               currentLayout === DefaultLayouts[1].name &&
+              !isMax &&
               user.uid === secondaryPinnedUid
             }
           />
           {currentLayout === DefaultLayouts[1].name &&
+          !isMax &&
           user.uid === secondaryPinnedUid ? (
             <View
               style={{

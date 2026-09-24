@@ -40,6 +40,8 @@ import {
   sttTranscriptPanelSearchText,
   sttTranscriptPanelViewLatestText,
 } from '../../../src/language/default-labels/videoCallScreenLabels';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import {TRANSCRIPT_JOURNEY} from './transcriptJourney';
 
 export interface TranscriptProps {
   showHeader?: boolean;
@@ -56,6 +58,7 @@ const Transcript = (props: TranscriptProps) => {
     isSTTActive,
     selectedTranslationLanguage,
     transcriptViewMode,
+    isSTTListenerAdded,
   } = useCaption();
 
   const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
@@ -68,6 +71,39 @@ const Transcript = (props: TranscriptProps) => {
 
   const data = meetingTranscript; // Object.entries(transcript);
   console.log('[STT_GLOBAL] meetingTranscript data: ', data);
+  const hasLoggedFirstEntryRef = React.useRef(false);
+  const transcriptEntryCountRef = React.useRef(data.length);
+  transcriptEntryCountRef.current = data.length;
+
+  React.useEffect(() => {
+    logger.log(
+      LogSource.Internals,
+      'TRANSCRIPT',
+      `${TRANSCRIPT_JOURNEY} transcript panel state`,
+      {
+        stage: 'transcript_panel',
+        isSTTActive,
+        listenerRegistered: isSTTListenerAdded,
+        transcriptEntryCount: transcriptEntryCountRef.current,
+      },
+    );
+  }, [isSTTActive, isSTTListenerAdded]);
+
+  React.useEffect(() => {
+    if (data.length > 0 && !hasLoggedFirstEntryRef.current) {
+      hasLoggedFirstEntryRef.current = true;
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} first transcript entry available to panel`,
+        {
+          stage: 'transcript_panel_data',
+          outcome: 'success',
+          transcriptEntryCount: data.length,
+        },
+      );
+    }
+  }, [data.length]);
 
   const [showButton, setShowButton] = React.useState(false);
 
