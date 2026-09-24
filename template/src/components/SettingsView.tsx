@@ -54,6 +54,7 @@ import {
   settingPanelNameInputLabel,
 } from '../../src/language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import AudioDiagnostics from './AudioDiagnostics';
 
 interface EditNameProps {
   label: string;
@@ -307,6 +308,7 @@ const SettingsView = props => {
       <ScrollView style={style.contentContainer}>
         {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}
+        {isWebInternal() && <AudioDiagnostics />}
         <LanguageSelector />
       </ScrollView>
     </View>

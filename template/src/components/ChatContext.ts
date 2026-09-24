@@ -11,7 +11,7 @@
 */
 import RtmEngine from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
-import {createContext, SetStateAction} from 'react';
+import {createContext} from 'react';
 
 import {ChatMessageType, Reaction} from './chat-messages/useChatMessages';
 import {createHook} from 'customization-implementation';
@@ -92,6 +92,14 @@ export interface RtmContextInterface {
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
+  rtmConnectionState?: number;
+  rtmLinkState?: {
+    previousState: number;
+    currentState: number;
+    reasonCode: number;
+    at: string;
+  };
+  debugInterruptRtm?: () => Promise<void>;
 }
 
 export enum controlMessageEnum {

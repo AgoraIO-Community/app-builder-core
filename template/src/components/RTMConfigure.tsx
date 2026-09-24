@@ -93,6 +93,13 @@ const RtmConfigure = (props: any) => {
   const timerValueRef: any = useRef(5);
   // Track RTM connection state (equivalent to v1.5x connectionState check)
   const [rtmConnectionState, setRtmConnectionState] = useState<number>(0); // 0=IDLE, 2=CONNECTED
+  const [rtmLinkState, setRtmLinkState] = useState<{
+    previousState: number;
+    currentState: number;
+    reasonCode: number;
+    at: string;
+  }>();
+  const debugRtmCycleInProgress = useRef(false);
 
   /**
    * inside event callback state won't have latest value.
@@ -226,7 +233,15 @@ const RtmConfigure = (props: any) => {
       'linkState',
       async (data: LinkStateEvent) => {
         // Update connection state for duplicate initialization prevention
-        setRtmConnectionState(data.currentState);
+        const currentState = data.currentState ?? nativeLinkStateMapping.IDLE;
+        const previousState = data.previousState ?? nativeLinkStateMapping.IDLE;
+        setRtmConnectionState(currentState);
+        setRtmLinkState({
+          previousState,
+          currentState,
+          reasonCode: data.reasonCode ?? 0,
+          at: new Date().toISOString(),
+        });
         logger.log(
           LogSource.AgoraSDK,
           'Event',
@@ -1084,6 +1099,72 @@ const RtmConfigure = (props: any) => {
     logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
   };
 
+  const debugInterruptRtm = async () => {
+    if (!isWebInternal() || !engine.current || !rtcProps.rtm) {
+      throw new Error('RTM diagnostic is unavailable for this session');
+    }
+    if (debugRtmCycleInProgress.current) {
+      throw new Error('RTM diagnostic is already running');
+    }
+
+    const client = engine.current;
+    debugRtmCycleInProgress.current = true;
+    try {
+      logger.log(
+        LogSource.Internals,
+        'DEVICE_CONFIGURE',
+        '[AUDIO_DIAGNOSTICS] RTM-only interruption started',
+      );
+      await client.logout();
+      logger.log(
+        LogSource.Internals,
+        'DEVICE_CONFIGURE',
+        '[AUDIO_DIAGNOSTICS] RTM logged out for 10 seconds',
+      );
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      if (!isRTMMounted.current || engine.current !== client) {
+        throw new Error('Call ended before RTM diagnostic recovery');
+      }
+      await client.login({token: rtcProps.rtm});
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const options: SetOrUpdateUserMetadataOptions = {
+        userId: `${localUid}`,
+      };
+      await client.storage.removeUserMetadata(options);
+      await client.storage.setUserMetadata(
+        {
+          items: [
+            {key: 'screenUid', value: String(rtcProps.screenShareUid)},
+            {key: 'isHost', value: String(isHostRef.current.isHost)},
+          ],
+        },
+        options,
+      );
+      // Bypass the cached channel ID after logout, without replaying queued events.
+      await client.subscribe(rtcProps.channel, {
+        withMessage: true,
+        withPresence: true,
+        withMetadata: true,
+        withLock: false,
+      });
+      logger.log(
+        LogSource.Internals,
+        'DEVICE_CONFIGURE',
+        '[AUDIO_DIAGNOSTICS] RTM reconnected and resubscribed',
+      );
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'DEVICE_CONFIGURE',
+        '[AUDIO_DIAGNOSTICS] RTM interruption or recovery failed',
+        {error},
+      );
+      throw error;
+    } finally {
+      debugRtmCycleInProgress.current = false;
+    }
+  };
+
   useAsyncEffect(async () => {
     //waiting room attendee -> rtm login will happen on page load
     try {
@@ -1133,6 +1214,9 @@ const RtmConfigure = (props: any) => {
         engine: engine.current,
         localUid: localUid,
         onlineUsersCount,
+        rtmConnectionState,
+        rtmLinkState,
+        debugInterruptRtm,
       }}>
       {props.children}
     </ChatContext.Provider>
