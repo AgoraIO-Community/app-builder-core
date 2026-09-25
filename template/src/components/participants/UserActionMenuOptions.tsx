@@ -77,6 +77,7 @@ import {
   DEFAULT_ACTION_KEYS,
   UserActionMenuItemsConfig,
 } from '../../atoms/UserActionMenuPreset';
+import {canViewInLarge, isUidMaximized} from '../pinnedLayoutState';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -207,7 +208,14 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       if (enablePinForMe) {
-        if (pinnedUid !== user.uid) {
+        if (
+          canViewInLarge(
+            user.uid,
+            pinnedUid,
+            secondaryPinnedUid,
+            activeUids?.[0],
+          )
+        ) {
           const viewInLargeKey = ActionMenuKeys.VIEW_IN_LARGE;
           const viewInLargeConfig = userActionMenuItems?.[viewInLargeKey] ?? {};
           const isPinned = pinnedUid === user.uid;
@@ -274,9 +282,14 @@ export default function UserActionMenuOptionsOptions(
           const pinToTopKey = ActionMenuKeys.PIN_TO_TOP;
           const pinToTopConfig = userActionMenuItems?.[pinToTopKey] ?? {};
           const isPinnedToTop = user.uid === secondaryPinnedUid;
+          const isMaximized = isUidMaximized(
+            user.uid,
+            pinnedUid,
+            activeUids?.[0],
+          );
           const isOnlyOneActive = activeUids?.length === 1;
 
-          if (!pinToTopConfig.hide) {
+          if (!pinToTopConfig.hide && !isMaximized) {
             items.push({
               key: pinToTopKey,
               disabled: pinToTopConfig.disabled ?? isOnlyOneActive,

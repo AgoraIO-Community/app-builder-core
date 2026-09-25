@@ -75,7 +75,7 @@ describe('web RTC screen-share lifecycle', () => {
   let engine: any;
   let screenClient: any;
 
-  const callScreenshare = (action: 'start' | 'stop', sessionId = 'session-1') =>
+  const callStartScreenshare = (sessionId = 'session-1') =>
     engine.startScreenshare(
       'token',
       'channel',
@@ -87,13 +87,20 @@ describe('web RTC screen-share lifecycle', () => {
       {encoderConfig: '1080p_2'},
       'auto',
       {
-        action,
-        screenshareAttemptId: `${action}-request`,
+        screenshareAttemptId: 'start-request',
         screenshareSessionId: sessionId,
         screenShareUid: 101,
         stopOrigin: 'toolbar',
       },
     );
+
+  const callStopScreenshare = (sessionId = 'session-1') =>
+    engine.stopScreenshare({
+      screenshareAttemptId: 'stop-request',
+      screenshareSessionId: sessionId,
+      screenShareUid: 101,
+      stopOrigin: 'toolbar',
+    });
 
   beforeAll(() => {
     (global as any).window = {};
@@ -120,9 +127,9 @@ describe('web RTC screen-share lifecycle', () => {
     const {track} = createTrack();
     mockCreateScreenVideoTrack.mockReturnValueOnce(picker.promise);
 
-    const firstStart = callScreenshare('start');
+    const firstStart = callStartScreenshare();
     await expect(
-      callScreenshare('start', 'duplicate-session'),
+      callStartScreenshare('duplicate-session'),
     ).rejects.toMatchObject({code: 'SCREENSHARE_OPERATION_IN_PROGRESS'});
 
     expect(mockCreateScreenVideoTrack).toHaveBeenCalledTimes(1);
@@ -136,7 +143,7 @@ describe('web RTC screen-share lifecycle', () => {
     const stopped = jest.fn();
     engine.eventsMap.set('onScreenshareStopped', stopped);
 
-    await callScreenshare('stop');
+    await callStopScreenshare();
 
     expect(mockCreateScreenVideoTrack).not.toHaveBeenCalled();
     expect(screenClient.join).not.toHaveBeenCalled();
@@ -153,7 +160,7 @@ describe('web RTC screen-share lifecycle', () => {
       }),
     );
 
-    await expect(callScreenshare('start')).rejects.toMatchObject({
+    await expect(callStartScreenshare()).rejects.toMatchObject({
       code: 'INVALID_OPERATION',
     });
 
@@ -168,7 +175,7 @@ describe('web RTC screen-share lifecycle', () => {
     mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
     screenClient.publish.mockRejectedValueOnce(new Error('publish failed'));
 
-    await expect(callScreenshare('start')).rejects.toThrow('publish failed');
+    await expect(callStartScreenshare()).rejects.toThrow('publish failed');
 
     expect(track.stop).toHaveBeenCalledTimes(1);
     expect(track.close).toHaveBeenCalledTimes(1);
@@ -185,7 +192,7 @@ describe('web RTC screen-share lifecycle', () => {
     mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
     screenClient.publish.mockRejectedValueOnce(publishError);
 
-    await expect(callScreenshare('start')).rejects.toBe(publishError);
+    await expect(callStartScreenshare()).rejects.toBe(publishError);
 
     expect(track.stop).toHaveBeenCalledTimes(1);
     expect(track.close).toHaveBeenCalledTimes(1);
@@ -201,13 +208,13 @@ describe('web RTC screen-share lifecycle', () => {
       }),
     );
 
-    await expect(callScreenshare('start')).rejects.toMatchObject({
+    await expect(callStartScreenshare()).rejects.toMatchObject({
       code: 'PERMISSION_DENIED',
     });
 
     const {track} = createTrack();
     mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
-    await callScreenshare('start', 'session-2');
+    await callStartScreenshare('session-2');
 
     expect(mockCreateScreenVideoTrack).toHaveBeenCalledTimes(2);
     expect(screenClient.join).toHaveBeenCalledTimes(1);
@@ -220,7 +227,7 @@ describe('web RTC screen-share lifecycle', () => {
     const {track} = createTrack();
     mockCreateScreenVideoTrack.mockReturnValueOnce(picker.promise);
 
-    const pendingStart = callScreenshare('start');
+    const pendingStart = callStartScreenshare();
     await engine.release('end_call_cleanup');
     picker.resolve(track);
 
@@ -239,13 +246,35 @@ describe('web RTC screen-share lifecycle', () => {
     engine.eventsMap.set('onScreenshareStopped', stopped);
     mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
 
-    await callScreenshare('start');
-    await callScreenshare('stop');
+    await callStartScreenshare();
+    await callStopScreenshare();
     await handlers['track-ended']();
 
     expect(screenClient.leave).toHaveBeenCalledTimes(1);
     expect(track.stop).toHaveBeenCalledTimes(1);
     expect(track.close).toHaveBeenCalledTimes(1);
+    expect(stopped).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not let an older lifecycle clean up a newer screen share', async () => {
+    const first = createTrack();
+    const second = createTrack();
+    const stopped = jest.fn();
+    engine.eventsMap.set('onScreenshareStopped', stopped);
+    mockCreateScreenVideoTrack
+      .mockResolvedValueOnce(first.track)
+      .mockResolvedValueOnce(second.track);
+
+    await callStartScreenshare();
+    await callStopScreenshare();
+    await callStartScreenshare('session-2');
+    await first.handlers['track-ended']();
+
+    expect(engine.activeScreenshareLifecycle.video).toBe(second.track);
+    expect(engine.inScreenshare).toBe(true);
+    expect(screenClient.leave).toHaveBeenCalledTimes(1);
+    expect(second.track.stop).not.toHaveBeenCalled();
+    expect(second.track.close).not.toHaveBeenCalled();
     expect(stopped).toHaveBeenCalledTimes(1);
   });
 
@@ -257,9 +286,9 @@ describe('web RTC screen-share lifecycle', () => {
     mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
     screenClient.leave.mockReturnValueOnce(leave.promise);
 
-    await callScreenshare('start');
-    const firstStop = callScreenshare('stop');
-    const secondStop = callScreenshare('stop');
+    await callStartScreenshare();
+    const firstStop = callStopScreenshare();
+    const secondStop = callStopScreenshare();
     leave.resolve(undefined);
     await Promise.all([firstStop, secondStop]);
 
@@ -278,8 +307,8 @@ describe('web RTC screen-share lifecycle', () => {
       throw new Error('track stop failed');
     });
 
-    await callScreenshare('start');
-    await expect(callScreenshare('stop')).resolves.toBeUndefined();
+    await callStartScreenshare();
+    await expect(callStopScreenshare()).resolves.toBeUndefined();
 
     expect(track.close).toHaveBeenCalledTimes(1);
     expect(screenClient.leave).toHaveBeenCalledTimes(1);
@@ -294,7 +323,7 @@ describe('web RTC screen-share lifecycle', () => {
     mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
     screenClient.leave.mockRejectedValueOnce(new Error('leave failed'));
 
-    await callScreenshare('start');
+    await callStartScreenshare();
     await expect(handlers['track-ended']()).resolves.toBeUndefined();
 
     expect(screenClient.leave).toHaveBeenCalledTimes(1);
@@ -317,7 +346,7 @@ describe('web RTC screen-share lifecycle', () => {
     engine.eventsMap.set('onScreenshareStopped', stopped);
     mockCreateScreenVideoTrack.mockResolvedValueOnce(track);
 
-    await callScreenshare('start');
+    await callStartScreenshare();
     await engine.release('end_call_cleanup');
 
     const {logger} = require('../../../../src/logger/AppBuilderLogger');
