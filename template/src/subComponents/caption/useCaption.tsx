@@ -447,12 +447,17 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const updateErrorLabel = useString(sttUpdateError)();
 
   // --- Derived readiness flag for STT ---
+  const localUidReady = !!localUid;
+  const localBotUidReady = !!localBotUid;
+  const rtmJoined = !!hasUserJoinedRTM;
+  const activeCallReady = !!callActive;
+  const roomInfoReady = !!(roomId?.host || roomId?.attendee);
   const sttDepsReady =
-    !!localUid &&
-    !!localBotUid &&
-    !!hasUserJoinedRTM &&
-    !!callActive &&
-    !!(roomId?.host || roomId?.attendee);
+    localUidReady &&
+    localBotUidReady &&
+    rtmJoined &&
+    activeCallReady &&
+    roomInfoReady;
 
   const sttStartGuardRef = React.useRef(false);
   const sttAutoStartGuardRef = React.useRef(false);
@@ -464,27 +469,42 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   }, [sttDepsReady]);
 
   React.useEffect(() => {
+    const missingDependencies = [
+      !localUidReady && 'localUid',
+      !localBotUidReady && 'localBotUid',
+      !rtmJoined && 'RTM',
+      !activeCallReady && 'activeCall',
+      !roomInfoReady && 'roomInfo',
+      !isSTTListenerAdded && 'streamListener',
+    ].filter(Boolean);
+    const transcriptReady = sttDepsReady && isSTTListenerAdded;
+
     logger.log(
       LogSource.Internals,
       'TRANSCRIPT',
-      `${TRANSCRIPT_JOURNEY} STT readiness changed`,
+      `${TRANSCRIPT_JOURNEY} STT readiness: ${
+        transcriptReady
+          ? 'READY'
+          : `WAITING (missing: ${missingDependencies.join(', ')})`
+      }`,
       {
         stage: 'stt_readiness',
-        outcome: sttDepsReady ? 'ready' : 'waiting',
-        localUidReady: !!localUid,
-        localBotUidReady: !!localBotUid,
-        rtmJoined: !!hasUserJoinedRTM,
-        callActive: !!callActive,
-        roomInfoReady: !!(roomId?.host || roomId?.attendee),
-        listenerRegistered: !!transcriptListenerRegistrationRef.current,
+        outcome: transcriptReady ? 'ready' : 'waiting',
+        localUidReady,
+        localBotUidReady,
+        rtmJoined,
+        callActive: activeCallReady,
+        roomInfoReady,
+        listenerRegistered: isSTTListenerAdded,
       },
     );
   }, [
-    callActive,
-    hasUserJoinedRTM,
-    localBotUid,
-    localUid,
-    roomId,
+    activeCallReady,
+    isSTTListenerAdded,
+    localBotUidReady,
+    localUidReady,
+    roomInfoReady,
+    rtmJoined,
     sttDepsReady,
   ]);
 
