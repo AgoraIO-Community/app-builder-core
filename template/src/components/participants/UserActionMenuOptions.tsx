@@ -78,7 +78,6 @@ import {
   UserActionMenuItemsConfig,
 } from '../../atoms/UserActionMenuPreset';
 import {canViewInLarge, isUidMaximized} from '../pinnedLayoutState';
-import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -223,24 +222,6 @@ export default function UserActionMenuOptionsOptions(
           fallbackMaximizedUid,
           isPinnedLayout,
         );
-        // TEMP DEBUG (remove later): diagnose View in Large menu visibility
-        // across Grid <-> Pinned layout switches after PR #818.
-        logger.log(
-          LogSource.Internals,
-          'LAYOUT',
-          '[TEMP_DEBUG][VIEW_IN_LARGE] action visibility evaluated',
-          {
-            uid: user.uid,
-            currentLayout,
-            isPinnedLayout,
-            pinnedUid: pinnedUid || null,
-            secondaryPinnedUid: secondaryPinnedUid || null,
-            activeUids0: activeUids?.[0] || null,
-            fallbackMaximizedUid: fallbackMaximizedUid || null,
-            allowViewInLarge,
-            isPinnedUidMatch: pinnedUid === user.uid,
-          },
-        );
         if (allowViewInLarge) {
           const viewInLargeKey = ActionMenuKeys.VIEW_IN_LARGE;
           const viewInLargeConfig = userActionMenuItems?.[viewInLargeKey] ?? {};
@@ -266,19 +247,6 @@ export default function UserActionMenuOptionsOptions(
                 : viewInLargeLabel,
               onPress: () => {
                 setActionMenuVisible(false);
-                // TEMP DEBUG (remove later): confirm View in Large press after Grid return
-                logger.log(
-                  LogSource.Internals,
-                  'LAYOUT',
-                  '[TEMP_DEBUG][VIEW_IN_LARGE] action pressed',
-                  {
-                    uid: user.uid,
-                    currentLayout,
-                    isPinnedLayout,
-                    pinnedUid: pinnedUid || null,
-                    activeUids0: activeUids?.[0] || null,
-                  },
-                );
                 if (viewInLargeConfig.onPress) {
                   viewInLargeConfig.onPress();
                 } else {

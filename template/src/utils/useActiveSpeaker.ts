@@ -17,7 +17,6 @@ import {
   getCurrentActiveSpeaker,
   setCurrentActiveSpeaker,
 } from './activeSpeakerState';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 /**
  * Returns active speaker uid or undefined if nobody speaking.
@@ -34,19 +33,6 @@ function useActiveSpeaker() {
     // Re-sync if an emit landed between first render and effect attach.
     if (hydrated !== activeSpeaker) {
       setActiveSpeaker(hydrated);
-    }
-    // TEMP DEBUG (remove later): confirm large-tile remounts hydrate AS highlight
-    if (hydrated) {
-      logger.log(
-        LogSource.Internals,
-        'ACTIVE_SPEAKER',
-        '[TEMP_DEBUG][ACTIVE_SPEAKER] tile hook mounted/hydrated',
-        {
-          hydratedUid: hydrated,
-          stateUid: activeSpeaker || null,
-          didResync: hydrated !== activeSpeaker,
-        },
-      );
     }
 
     const listenActiveSpeaker = data => {

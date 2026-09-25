@@ -40,7 +40,7 @@ const useFindActiveSpeaker = () => {
       activeSpeakerUid.current = uid;
       // Keep shared state in sync before emit so remounted tiles can hydrate
       // even when this uid is not re-emitted later (deduped while still speaking).
-      const next = setCurrentActiveSpeaker(uid);
+      setCurrentActiveSpeaker(uid);
       uid
         ? logger.log(
             LogSource.Internals,
@@ -52,17 +52,6 @@ const useFindActiveSpeaker = () => {
             },
           )
         : {};
-      // TEMP DEBUG (remove later): trace AS cache updates vs tile remounts
-      logger.log(
-        LogSource.Internals,
-        'ACTIVE_SPEAKER',
-        '[TEMP_DEBUG][ACTIVE_SPEAKER] emitted and cached',
-        {
-          emittedUid: uid || null,
-          cachedUid: next || null,
-          timestamp: timenow,
-        },
-      );
       LocalEventEmitter.emit(LocalEventsEnum.ACTIVE_SPEAKER, uid);
     }
   };
