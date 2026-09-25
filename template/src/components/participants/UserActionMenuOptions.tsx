@@ -78,6 +78,7 @@ import {
   UserActionMenuItemsConfig,
 } from '../../atoms/UserActionMenuPreset';
 import {canViewInLarge, isUidMaximized} from '../pinnedLayoutState';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -208,17 +209,44 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       if (enablePinForMe) {
-        if (
-          canViewInLarge(
-            user.uid,
-            pinnedUid,
-            secondaryPinnedUid,
-            activeUids?.[0],
-          )
-        ) {
+        const isPinnedLayout = currentLayout === getPinnedLayoutName();
+        // Fallback maximized UID is only meaningful in pinned/sidebar layout.
+        // Passing activeUids[0] in Grid incorrectly hides View in Large for the
+        // user who was previously promoted (UserPin leaves them at index 0).
+        const fallbackMaximizedUid = isPinnedLayout
+          ? activeUids?.[0]
+          : undefined;
+        const allowViewInLarge = canViewInLarge(
+          user.uid,
+          pinnedUid,
+          secondaryPinnedUid,
+          fallbackMaximizedUid,
+          isPinnedLayout,
+        );
+        // TEMP DEBUG (remove later): diagnose View in Large menu visibility
+        // across Grid <-> Pinned layout switches after PR #818.
+        logger.log(
+          LogSource.Internals,
+          'LAYOUT',
+          '[TEMP_DEBUG][VIEW_IN_LARGE] action visibility evaluated',
+          {
+            uid: user.uid,
+            currentLayout,
+            isPinnedLayout,
+            pinnedUid: pinnedUid || null,
+            secondaryPinnedUid: secondaryPinnedUid || null,
+            activeUids0: activeUids?.[0] || null,
+            fallbackMaximizedUid: fallbackMaximizedUid || null,
+            allowViewInLarge,
+            isPinnedUidMatch: pinnedUid === user.uid,
+          },
+        );
+        if (allowViewInLarge) {
           const viewInLargeKey = ActionMenuKeys.VIEW_IN_LARGE;
           const viewInLargeConfig = userActionMenuItems?.[viewInLargeKey] ?? {};
-          const isPinned = pinnedUid === user.uid;
+          // In Grid, a leftover pinnedUid must not suppress View in Large —
+          // Grid has no large tile, so the action should re-promote the user.
+          const isPinned = isPinnedLayout && pinnedUid === user.uid;
           const isWhiteboard = user.uid === getWhiteboardUid();
           const isOnlyOneActive = activeUids?.length === 1;
 
@@ -238,6 +266,19 @@ export default function UserActionMenuOptionsOptions(
                 : viewInLargeLabel,
               onPress: () => {
                 setActionMenuVisible(false);
+                // TEMP DEBUG (remove later): confirm View in Large press after Grid return
+                logger.log(
+                  LogSource.Internals,
+                  'LAYOUT',
+                  '[TEMP_DEBUG][VIEW_IN_LARGE] action pressed',
+                  {
+                    uid: user.uid,
+                    currentLayout,
+                    isPinnedLayout,
+                    pinnedUid: pinnedUid || null,
+                    activeUids0: activeUids?.[0] || null,
+                  },
+                );
                 if (viewInLargeConfig.onPress) {
                   viewInLargeConfig.onPress();
                 } else {
@@ -766,6 +807,7 @@ export default function UserActionMenuOptionsOptions(
     disableChatUids,
     secondaryPinnedUid,
     currentLayout,
+    activeUids,
     spotlightUid,
     extraMenuItems,
     setActionMenuVisible,
