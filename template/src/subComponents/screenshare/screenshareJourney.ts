@@ -1,5 +1,34 @@
 export const SCREENSHARE_JOURNEY = '[SCREENSHARE_JOURNEY]';
 
+export type ScreenshareLayoutSwitchReason =
+  | 'screenshare start'
+  | 'screenshare stop'
+  | 'screenshare recover';
+
+/**
+ * Message + fields for Datadog correlation of screenshare-driven layout changes.
+ * Search: `[SCREENSHARE_JOURNEY] layout switched` or `layout unchanged`.
+ */
+export const getScreenshareLayoutSwitchLog = (
+  reason: ScreenshareLayoutSwitchReason,
+  fromLayout: string,
+  toLayout: string,
+) => {
+  const layoutSwitched = fromLayout !== toLayout;
+  return {
+    message: layoutSwitched
+      ? `${SCREENSHARE_JOURNEY} layout switched from ${fromLayout} to ${toLayout} (${reason})`
+      : `${SCREENSHARE_JOURNEY} layout unchanged at ${fromLayout} (${reason})`,
+    fields: {
+      stage: 'layout_update' as const,
+      reason,
+      fromLayout,
+      toLayout,
+      layoutSwitched,
+    },
+  };
+};
+
 export const getScreenshareSessionBoundaryMessage = (
   boundary: 'start' | 'end',
   screenshareSessionId: string,

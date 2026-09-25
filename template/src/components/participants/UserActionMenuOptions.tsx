@@ -208,17 +208,26 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       if (enablePinForMe) {
-        if (
-          canViewInLarge(
-            user.uid,
-            pinnedUid,
-            secondaryPinnedUid,
-            activeUids?.[0],
-          )
-        ) {
+        const isPinnedLayout = currentLayout === getPinnedLayoutName();
+        // Fallback maximized UID is only meaningful in pinned/sidebar layout.
+        // Passing activeUids[0] in Grid incorrectly hides View in Large for the
+        // user who was previously promoted (UserPin leaves them at index 0).
+        const fallbackMaximizedUid = isPinnedLayout
+          ? activeUids?.[0]
+          : undefined;
+        const allowViewInLarge = canViewInLarge(
+          user.uid,
+          pinnedUid,
+          secondaryPinnedUid,
+          fallbackMaximizedUid,
+          isPinnedLayout,
+        );
+        if (allowViewInLarge) {
           const viewInLargeKey = ActionMenuKeys.VIEW_IN_LARGE;
           const viewInLargeConfig = userActionMenuItems?.[viewInLargeKey] ?? {};
-          const isPinned = pinnedUid === user.uid;
+          // In Grid, a leftover pinnedUid must not suppress View in Large —
+          // Grid has no large tile, so the action should re-promote the user.
+          const isPinned = isPinnedLayout && pinnedUid === user.uid;
           const isWhiteboard = user.uid === getWhiteboardUid();
           const isOnlyOneActive = activeUids?.length === 1;
 
@@ -766,6 +775,7 @@ export default function UserActionMenuOptionsOptions(
     disableChatUids,
     secondaryPinnedUid,
     currentLayout,
+    activeUids,
     spotlightUid,
     extraMenuItems,
     setActionMenuVisible,
