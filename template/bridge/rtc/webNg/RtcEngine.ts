@@ -209,6 +209,14 @@ interface ActiveScreenshareLifecycle {
   cleanupPromise?: Promise<void>;
   journeyData: Record<string, unknown>;
 }
+interface ScreenshareJourneyContext {
+  screenshareAttemptId?: string;
+  screenshareSessionId?: string;
+  recordingActive?: boolean;
+  screenShareUid?: UID;
+  stopOrigin?: string;
+  stopActorUid?: UID;
+}
 interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
@@ -883,24 +891,28 @@ export default class RtcEngine {
         user,
         mediaType,
       );
-      if (this.inScreenshare && user.uid === this.screenClient.uid) {
-        (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
-          {},
-          user.uid,
-          2,
-          0,
-          0,
-        );
-      } else {
-        await this.client.subscribe(user, mediaType);
-        logger.log(
-          LogSource.AgoraSDK,
-          'API',
-          'RTC [subscribe] to track successfully done',
-          user,
-          mediaType,
-        );
+      const isOwnScreenshare =
+        this.inScreenshare && user.uid === this.screenClient?.uid;
+      if (isOwnScreenshare) {
+        if (mediaType === 'video') {
+          (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
+            {},
+            user.uid,
+            2,
+            0,
+            0,
+          );
+        }
+        return;
       }
+      await this.client.subscribe(user, mediaType);
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        'RTC [subscribe] to track successfully done',
+        user,
+        mediaType,
+      );
       // If the subscribed track is an audio track
       if (mediaType === 'audio') {
         const audioTrack = user.audioTrack;
@@ -948,6 +960,20 @@ export default class RtcEngine {
         user,
         mediaType,
       );
+      const isOwnScreenshare =
+        this.inScreenshare && user.uid === this.screenClient?.uid;
+      if (isOwnScreenshare) {
+        if (mediaType === 'video') {
+          (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
+            {},
+            user.uid,
+            0,
+            0,
+            0,
+          );
+        }
+        return;
+      }
       if (mediaType === 'video') {
         this.logRemoteScreenshareTermination(
           user.uid,
@@ -1713,6 +1739,9 @@ export default class RtcEngine {
       return;
     }
 
+    // The track-ended callback passes the exact lifecycle object it captured.
+    // A different reference means a newer screen share is now active, so this
+    // older callback must not clean up the current share.
     if (
       expectedLifecycle &&
       this.activeScreenshareLifecycle !== expectedLifecycle
@@ -1814,6 +1843,9 @@ export default class RtcEngine {
         throw error;
       } finally {
         lifecycle.cleaned = true;
+        // Only the lifecycle that is still active may clear shared state and
+        // notify the app. Object identity prevents stale cleanup from ending a
+        // newer screen-share session.
         if (this.activeScreenshareLifecycle === lifecycle) {
           this.activeScreenshareLifecycle = null;
           this.screenStream = {};
@@ -1970,6 +2002,41 @@ export default class RtcEngine {
     }
   }
 
+  async stopScreenshare(
+    journeyContext: ScreenshareJourneyContext = {},
+  ): Promise<void> {
+    const journeyData = {
+      action: 'stop' as const,
+      screenshareAttemptId:
+        journeyContext.screenshareAttemptId || 'rtc-unknown-attempt',
+      screenshareSessionId:
+        journeyContext.screenshareSessionId || 'unknown-session',
+      recordingActive: journeyContext.recordingActive || false,
+      screenShareUid:
+        journeyContext.screenShareUid || this.screenClient?.uid,
+      stopOrigin: journeyContext.stopOrigin || 'unknown',
+      stopActorUid: journeyContext.stopActorUid,
+    };
+    logger.log(
+      LogSource.AgoraSDK,
+      'API',
+      `[SCREENSHARE_JOURNEY] screen share stop entered RTC engine from ${journeyData.stopOrigin}`,
+      {
+        ...journeyData,
+        stage: 'rtc_stop',
+        outcome: 'started',
+        requestedAction: 'stop',
+        executedAction: 'stop',
+        operationState: this.screenshareOperationState,
+      },
+    );
+    await this.cleanupActiveScreenshare(
+      journeyData.stopOrigin,
+      true,
+      journeyData.screenshareAttemptId,
+    );
+  }
+
   async startScreenshare(
     token: string,
     channelName: string,
@@ -1986,18 +2053,10 @@ export default class RtcEngine {
       encoderConfig: this.screenShareProfile,
     },
     audio: 'enable' | 'disable' | 'auto' = 'auto',
-    journeyContext: {
-      action?: 'start' | 'stop';
-      screenshareAttemptId?: string;
-      screenshareSessionId?: string;
-      recordingActive?: boolean;
-      screenShareUid?: UID;
-      stopOrigin?: string;
-      stopActorUid?: UID;
-    } = {},
+    journeyContext: ScreenshareJourneyContext = {},
   ): Promise<void> {
     const journeyData = {
-      action: journeyContext.action || (this.inScreenshare ? 'stop' : 'start'),
+      action: 'start' as const,
       screenshareAttemptId:
         journeyContext.screenshareAttemptId || 'rtc-unknown-attempt',
       screenshareSessionId:
@@ -2011,28 +2070,6 @@ export default class RtcEngine {
       ...screenShareConfig,
       encoderConfig: this.screenShareProfile,
     };
-    if (journeyData.action === 'stop') {
-      logger.log(
-        LogSource.AgoraSDK,
-        'API',
-        `[SCREENSHARE_JOURNEY] screen share stop entered RTC engine from ${journeyData.stopOrigin}`,
-        {
-          ...journeyData,
-          stage: 'rtc_stop',
-          outcome: 'started',
-          requestedAction: 'stop',
-          executedAction: 'stop',
-          operationState: this.screenshareOperationState,
-        },
-      );
-      await this.cleanupActiveScreenshare(
-        journeyData.stopOrigin,
-        true,
-        journeyData.screenshareAttemptId,
-      );
-      return;
-    }
-
     if (this.screenshareOperationState !== 'inactive' || this.inScreenshare) {
       const duplicateStartError = Object.assign(
         new Error(
