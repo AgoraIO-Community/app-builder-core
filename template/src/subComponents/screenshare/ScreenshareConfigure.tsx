@@ -47,6 +47,7 @@ import {
   getScreenshareSessionBoundaryMessage,
   getScreenshareSessionId,
   getScreenshareError,
+  getScreenshareLayoutSwitchLog,
   isUserCancelOrPermissionDenied,
   SCREENSHARE_JOURNEY,
 } from './screenshareJourney';
@@ -184,7 +185,7 @@ export const ScreenshareConfigure = (props: {
     screenShareUid?: UidType,
     parentUid?: UidType,
   ) => {
-    let layout = currentLayoutRef.current.currentLayout;
+    const fromLayout = currentLayoutRef.current.currentLayout;
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
       isPinned.current = screenShareUid;
@@ -206,11 +207,55 @@ export const ScreenshareConfigure = (props: {
           value: [parentUid],
         });
       }
-      layout !== getPinnedLayoutName() && setPinnedLayout();
+      const toLayout = getPinnedLayoutName();
+      const layoutSwitched = fromLayout !== toLayout;
+      if (layoutSwitched) {
+        setPinnedLayout();
+      }
+      const layoutSwitchLog = getScreenshareLayoutSwitchLog(
+        'screenshare start',
+        fromLayout,
+        toLayout,
+      );
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        layoutSwitchLog.message,
+        {
+          action: 'start',
+          ...layoutSwitchLog.fields,
+          screenshareSessionId:
+            activeScreenshareSessionIdRef.current || 'unknown-session',
+          screenShareUid,
+          parentUid: parentUid || null,
+        },
+      );
     } else {
       isPinned.current = 0;
       //screenshare is stopped set the layout Grid View
-      layout !== getGridLayoutName() && changeLayout();
+      const toLayout = getGridLayoutName();
+      const layoutSwitched = fromLayout !== toLayout;
+      if (layoutSwitched) {
+        changeLayout();
+      }
+      const layoutSwitchLog = getScreenshareLayoutSwitchLog(
+        'screenshare stop',
+        fromLayout,
+        toLayout,
+      );
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        layoutSwitchLog.message,
+        {
+          action: 'stop',
+          ...layoutSwitchLog.fields,
+          screenshareSessionId:
+            activeScreenshareSessionIdRef.current || 'unknown-session',
+          screenShareUid: screenShareUid || null,
+          parentUid: parentUid || null,
+        },
+      );
     }
   };
 
@@ -281,13 +326,20 @@ export const ScreenshareConfigure = (props: {
         // newer user pin or screen-share session cancels this path below.
         isPinned.current = candidate.uid;
         dispatch({type: 'UserPin', value: [candidate.uid]});
-        if (
+        const fromLayout = currentLayout;
+        const toLayout = getPinnedLayoutName();
+        const layoutSwitched =
           candidate.previousLayout === getPinnedLayoutName() &&
-          currentLayout !== getPinnedLayoutName()
-        ) {
+          fromLayout !== toLayout;
+        if (layoutSwitched) {
           setPinnedLayout();
         }
         recoveryCandidateRef.current = null;
+        const layoutSwitchLog = getScreenshareLayoutSwitchLog(
+          'screenshare recover',
+          fromLayout,
+          layoutSwitched ? toLayout : fromLayout,
+        );
         logger.log(
           LogSource.Internals,
           'SCREENSHARE',
@@ -302,6 +354,19 @@ export const ScreenshareConfigure = (props: {
             restoredPinnedUid: candidate.previousPinnedUid,
             restoredLayout: candidate.previousLayout,
             elapsedMs: Date.now() - candidate.detectedAt,
+          },
+        );
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          layoutSwitchLog.message,
+          {
+            action: 'recover',
+            ...layoutSwitchLog.fields,
+            screenshareSessionId:
+              activeScreenshareSessionIdRef.current || 'unknown-session',
+            screenShareUid: candidate.uid,
+            restoredPinnedUid: candidate.previousPinnedUid,
           },
         );
       } else if (decision.startsWith('cancel_')) {

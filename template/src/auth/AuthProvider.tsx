@@ -137,6 +137,15 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
   }, [store?.token]);
 
+  // A running native app is already authenticated when it receives a URL
+  // event, so there may be no later token change to consume returnTo.
+  useEffect(() => {
+    if (authenticated && returnTo && (isAndroid() || isIOS())) {
+      history.push(returnTo);
+      setReturnTo('');
+    }
+  }, [authenticated, history, returnTo]);
+
   const deepLinkUrl = (link: string | null) => {
     if (link !== null) {
       if (lifecycle?.onDeepLink?.(link)) {

@@ -1,5 +1,6 @@
 import {
   getScreenshareError,
+  getScreenshareLayoutSwitchLog,
   getScreenshareReleaseOrigin,
   getScreenshareSessionBoundaryMessage,
   getScreenshareSessionId,
@@ -10,6 +11,48 @@ import {
 describe('screenshare journey logging', () => {
   it('uses the Datadog filter prefix', () => {
     expect(SCREENSHARE_JOURNEY).toBe('[SCREENSHARE_JOURNEY]');
+  });
+
+  it('describes screenshare-driven layout switches for Datadog', () => {
+    expect(
+      getScreenshareLayoutSwitchLog('screenshare start', 'grid', 'pinned'),
+    ).toEqual({
+      message:
+        '[SCREENSHARE_JOURNEY] layout switched from grid to pinned (screenshare start)',
+      fields: {
+        stage: 'layout_update',
+        reason: 'screenshare start',
+        fromLayout: 'grid',
+        toLayout: 'pinned',
+        layoutSwitched: true,
+      },
+    });
+    expect(
+      getScreenshareLayoutSwitchLog('screenshare stop', 'pinned', 'grid'),
+    ).toEqual({
+      message:
+        '[SCREENSHARE_JOURNEY] layout switched from pinned to grid (screenshare stop)',
+      fields: {
+        stage: 'layout_update',
+        reason: 'screenshare stop',
+        fromLayout: 'pinned',
+        toLayout: 'grid',
+        layoutSwitched: true,
+      },
+    });
+    expect(
+      getScreenshareLayoutSwitchLog('screenshare stop', 'grid', 'grid'),
+    ).toEqual({
+      message:
+        '[SCREENSHARE_JOURNEY] layout unchanged at grid (screenshare stop)',
+      fields: {
+        stage: 'layout_update',
+        reason: 'screenshare stop',
+        fromLayout: 'grid',
+        toLayout: 'grid',
+        layoutSwitched: false,
+      },
+    });
   });
 
   it('puts the session ID directly in start and end boundary messages', () => {

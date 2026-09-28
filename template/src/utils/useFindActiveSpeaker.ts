@@ -14,6 +14,7 @@ import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {setCurrentActiveSpeaker} from './activeSpeakerState';
 
 enum volumeEnum {
   IS_SPEAKING = 'IS_SPEAKING',
@@ -37,6 +38,9 @@ const useFindActiveSpeaker = () => {
     const timenow = Date.now();
     if (uid !== activeSpeakerUid.current) {
       activeSpeakerUid.current = uid;
+      // Keep shared state in sync before emit so remounted tiles can hydrate
+      // even when this uid is not re-emitted later (deduped while still speaking).
+      setCurrentActiveSpeaker(uid);
       uid
         ? logger.log(
             LogSource.Internals,

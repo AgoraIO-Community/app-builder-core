@@ -21,6 +21,13 @@ import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useContent, useRtc} from 'customization-api';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import {isWebInternal} from '../../utils/common';
+import {TRANSCRIPT_JOURNEY} from './transcriptJourney';
+import {
+  registerTranscriptStreamListener,
+  removeTranscriptStreamListener,
+  TranscriptStreamEngine,
+  TranscriptStreamListenerRegistration,
+} from './transcriptStreamListener';
 
 // Types
 type GlobalSttState = {
@@ -320,22 +327,20 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       prevSpeakerRef,
       selectedTranslationLanguageRef,
     });
-  const transcriptListenerSubscriptionRef = React.useRef<{
-    remove: () => void;
-  } | null>(null);
+  const streamMessageCallbackRef = React.useRef(streamMessageCallback);
+  streamMessageCallbackRef.current = streamMessageCallback;
+  const transcriptListenerRegistrationRef =
+    React.useRef<TranscriptStreamListenerRegistration | null>(null);
 
-  const handleStreamMessageCallback = React.useCallback(
-    (...args: any[]) => {
-      if (isWebInternal()) {
-        const [uid, data] = args;
-        streamMessageCallback([uid, data]);
-      } else {
-        const [, uid, , data] = args;
-        streamMessageCallback([uid, data]);
-      }
-    },
-    [streamMessageCallback],
-  );
+  const handleStreamMessageCallback = React.useCallback((...args: any[]) => {
+    if (isWebInternal()) {
+      const [uid, data] = args;
+      streamMessageCallbackRef.current([uid, data]);
+    } else {
+      const [, uid, , data] = args;
+      streamMessageCallbackRef.current([uid, data]);
+    }
+  }, []);
 
   // Register once for the lifetime of the active call. Keeping collection in
   // the provider makes it independent of whether caption/transcript UI is open.
@@ -343,24 +348,73 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     if (
       !$config.ENABLE_STT ||
       !callActive ||
-      transcriptListenerSubscriptionRef.current
+      transcriptListenerRegistrationRef.current
     ) {
       return;
     }
 
-    transcriptListenerSubscriptionRef.current = RtcEngineUnsafe.addListener(
-      'onStreamMessage',
-      handleStreamMessageCallback,
+    logger.log(
+      LogSource.Internals,
+      'TRANSCRIPT',
+      `${TRANSCRIPT_JOURNEY} stream listener registration requested`,
+      {stage: 'listener_registration', outcome: 'started'},
     );
-    setIsSTTListenerAdded(true);
-  }, [RtcEngineUnsafe, callActive, handleStreamMessageCallback]);
+    try {
+      transcriptListenerRegistrationRef.current =
+        registerTranscriptStreamListener(
+          RtcEngineUnsafe as unknown as TranscriptStreamEngine,
+          handleStreamMessageCallback,
+        );
+      setIsSTTListenerAdded(true);
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} stream listener registered`,
+        {stage: 'listener_registration', outcome: 'success'},
+      );
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} stream listener registration failed`,
+        {
+          stage: 'listener_registration',
+          outcome: 'failure',
+          error: error ?? null,
+        },
+      );
+      return;
+    }
 
-  React.useEffect(() => {
     return () => {
-      transcriptListenerSubscriptionRef.current?.remove();
-      transcriptListenerSubscriptionRef.current = null;
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} stream listener cleanup requested`,
+        {
+          stage: 'listener_cleanup',
+          outcome: 'started',
+          listenerRegistered: !!transcriptListenerRegistrationRef.current,
+        },
+      );
+      if (transcriptListenerRegistrationRef.current) {
+        removeTranscriptStreamListener(
+          RtcEngineUnsafe as unknown as TranscriptStreamEngine,
+          handleStreamMessageCallback,
+          transcriptListenerRegistrationRef.current,
+          isWebInternal(),
+        );
+      }
+      transcriptListenerRegistrationRef.current = null;
+      setIsSTTListenerAdded(false);
+      logger.log(
+        LogSource.Internals,
+        'TRANSCRIPT',
+        `${TRANSCRIPT_JOURNEY} stream listener removed and local references cleared`,
+        {stage: 'listener_cleanup', outcome: 'completed'},
+      );
     };
-  }, []);
+  }, [RtcEngineUnsafe, callActive, handleStreamMessageCallback]);
 
   const flushPendingTranscript = React.useCallback(async () => {
     await flushStreamMessageQueue();
@@ -393,12 +447,17 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const updateErrorLabel = useString(sttUpdateError)();
 
   // --- Derived readiness flag for STT ---
+  const localUidReady = !!localUid;
+  const localBotUidReady = !!localBotUid;
+  const rtmJoined = !!hasUserJoinedRTM;
+  const activeCallReady = !!callActive;
+  const roomInfoReady = !!(roomId?.host || roomId?.attendee);
   const sttDepsReady =
-    !!localUid &&
-    !!localBotUid &&
-    !!hasUserJoinedRTM &&
-    !!callActive &&
-    !!(roomId?.host || roomId?.attendee);
+    localUidReady &&
+    localBotUidReady &&
+    rtmJoined &&
+    activeCallReady &&
+    roomInfoReady;
 
   const sttStartGuardRef = React.useRef(false);
   const sttAutoStartGuardRef = React.useRef(false);
@@ -408,6 +467,46 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   React.useEffect(() => {
     sttDepsReadyRef.current = sttDepsReady;
   }, [sttDepsReady]);
+
+  React.useEffect(() => {
+    const missingDependencies = [
+      !localUidReady && 'localUid',
+      !localBotUidReady && 'localBotUid',
+      !rtmJoined && 'RTM',
+      !activeCallReady && 'activeCall',
+      !roomInfoReady && 'roomInfo',
+      !isSTTListenerAdded && 'streamListener',
+    ].filter(Boolean);
+    const transcriptReady = sttDepsReady && isSTTListenerAdded;
+
+    logger.log(
+      LogSource.Internals,
+      'TRANSCRIPT',
+      `${TRANSCRIPT_JOURNEY} STT readiness: ${
+        transcriptReady
+          ? 'READY'
+          : `WAITING (missing: ${missingDependencies.join(', ')})`
+      }`,
+      {
+        stage: 'stt_readiness',
+        outcome: transcriptReady ? 'ready' : 'waiting',
+        localUidReady,
+        localBotUidReady,
+        rtmJoined,
+        callActive: activeCallReady,
+        roomInfoReady,
+        listenerRegistered: isSTTListenerAdded,
+      },
+    );
+  }, [
+    activeCallReady,
+    isSTTListenerAdded,
+    localBotUidReady,
+    localUidReady,
+    roomInfoReady,
+    rtmJoined,
+    sttDepsReady,
+  ]);
 
   React.useEffect(() => {
     if (sttDepsReadyRef.current && !hasFlushedSttQueueRef.current) {
