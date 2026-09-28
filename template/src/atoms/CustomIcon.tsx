@@ -155,4 +155,5 @@ export interface IconsInterface {
   fullscreen: string;
   add_reaction: string;
   spotlight: string;
+  'agent-bot': string;
 }
