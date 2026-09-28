@@ -378,10 +378,7 @@ const EventsConfigure: React.FC<Props> = ({
         secondaryBtn: null,
         leadingIcon: null,
       });
-      isWebInternal()
-        ? await RtcEngineUnsafe.muteLocalAudioStream(true)
-        : //@ts-ignore
-          await RtcEngineUnsafe.enableLocalAudio(false);
+      await RtcEngineUnsafe.muteLocalAudioStream(true);
       dispatch({
         type: 'LocalMuteAudio',
         value: [0],
@@ -429,10 +426,7 @@ const EventsConfigure: React.FC<Props> = ({
               textStyle={style.textStyle}
               text={requestUserAudioPrimaryBtnRef.current}
               onPress={async () => {
-                isWebInternal()
-                  ? await RtcEngineUnsafe.muteLocalAudioStream(false)
-                  : //@ts-ignore
-                    await RtcEngineUnsafe.enableLocalAudio(true);
+                await RtcEngineUnsafe.muteLocalAudioStream(false);
                 dispatch({
                   type: 'LocalMuteAudio',
                   value: [1],
