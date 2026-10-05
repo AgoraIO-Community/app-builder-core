@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-agent-bot:before {
+  content: '\e9a6';
+  color: #fff;
+}
 .icon-arrow-right:before {
   content: '\e9a5';
   color: #fff;

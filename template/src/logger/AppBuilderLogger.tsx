@@ -38,6 +38,8 @@ export declare const StatusTypes: {
 
 export type StatusType = (typeof StatusTypes)[keyof typeof StatusTypes];
 
+export type CustomizationLogType = string;
+
 export enum LogSource {
   AgoraSDK = 'Agora-SDK',
   /** Logs related to all features */
@@ -107,10 +109,7 @@ type LogType = {
     | 'recording_delete'
     | 'ban_user';
   [LogSource.Events]: 'CUSTOM_EVENTS' | 'RTM_EVENTS';
-  [LogSource.CustomizationAPI]:
-    | 'Log'
-    | 'AI_AGENT_CUSTOMIZATION'
-    | 'EXTERNAL_CUSTOMIZATION';
+  [LogSource.CustomizationAPI]: CustomizationLogType;
   [LogSource.SDK]: 'Log' | 'Event';
 };
 

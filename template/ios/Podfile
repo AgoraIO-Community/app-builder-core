@@ -126,5 +126,32 @@ target 'HelloWorld' do
 end
 
 target 'ScreenSharing' do
-  pod 'AgoraRtcEngine_iOS', '4.3.2'
+  pod 'AgoraRtcEngine_iOS', '4.6.4'
+end
+
+# Agora RTC 4.6.4 and RTM 2.2.4 both vend an aosl.framework. CocoaPods embeds
+# the RTM copy last, overwriting the newer RTC copy even though the RTM binary
+# does not export aosl_so_register_group, which AgoraRtcKit needs at startup.
+# Keep the AgoraInfra_iOS copy; it exports the AOSL symbols required by both
+# AgoraRtcKit and AgoraRtmKit.
+post_integrate do |_installer|
+  framework_scripts = Dir.glob(
+    File.join(
+      __dir__,
+      'Pods',
+      'Target Support Files',
+      'Pods-HelloWorld*',
+      '*-frameworks.sh'
+    )
+  )
+  rtm_aosl_embed = /^\s*install_framework "\$\{PODS_XCFRAMEWORKS_BUILD_DIR\}\/AgoraRtm\/RtmBasic\/aosl\.framework"\n/
+
+  framework_scripts.each do |script_path|
+    script = File.read(script_path)
+    updated_script = script.gsub(rtm_aosl_embed, '')
+    next if updated_script == script
+
+    File.write(script_path, updated_script)
+    Pod::UI.puts "Removed incompatible Agora RTM aosl embed from #{File.basename(script_path)}"
+  end
 end
