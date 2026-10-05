@@ -204,6 +204,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   return (
     <>
       <UserActionMenuOptionsOptions
+        isMax={isMax}
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={flag => {
           //once user clicks action menu item -> hide the action menu and set parent isHovered false

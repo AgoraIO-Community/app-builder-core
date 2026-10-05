@@ -81,6 +81,7 @@ import {canViewInLarge, isUidMaximized} from '../pinnedLayoutState';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
+  isMax?: boolean;
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: any;
@@ -106,6 +107,7 @@ export default function UserActionMenuOptionsOptions(
   const {setSidePanel} = useSidePanel();
   const {
     user,
+    isMax = false,
     actionMenuVisible,
     setActionMenuVisible,
     spotlightUid,
@@ -215,13 +217,15 @@ export default function UserActionMenuOptionsOptions(
         const fallbackMaximizedUid = isPinnedLayout
           ? activeUids?.[0]
           : undefined;
-        const allowViewInLarge = canViewInLarge(
-          user.uid,
-          pinnedUid,
-          secondaryPinnedUid,
-          fallbackMaximizedUid,
-          isPinnedLayout,
-        );
+        const allowViewInLarge =
+          !isMax &&
+          canViewInLarge(
+            user.uid,
+            pinnedUid,
+            secondaryPinnedUid,
+            fallbackMaximizedUid,
+            isPinnedLayout,
+          );
         if (allowViewInLarge) {
           const viewInLargeKey = ActionMenuKeys.VIEW_IN_LARGE;
           const viewInLargeConfig = userActionMenuItems?.[viewInLargeKey] ?? {};
@@ -291,11 +295,9 @@ export default function UserActionMenuOptionsOptions(
           const pinToTopKey = ActionMenuKeys.PIN_TO_TOP;
           const pinToTopConfig = userActionMenuItems?.[pinToTopKey] ?? {};
           const isPinnedToTop = user.uid === secondaryPinnedUid;
-          const isMaximized = isUidMaximized(
-            user.uid,
-            pinnedUid,
-            activeUids?.[0],
-          );
+          const isMaximized =
+            isMax ||
+            isUidMaximized(user.uid, pinnedUid, activeUids?.[0]);
           const isOnlyOneActive = activeUids?.length === 1;
 
           if (!pinToTopConfig.hide && !isMaximized) {
@@ -772,6 +774,7 @@ export default function UserActionMenuOptionsOptions(
     raiseHandList,
     hostUids,
     user,
+    isMax,
     disableChatUids,
     secondaryPinnedUid,
     currentLayout,
