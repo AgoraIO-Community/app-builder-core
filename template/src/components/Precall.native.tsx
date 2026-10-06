@@ -10,7 +10,13 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
 import {PropsContext, ClientRoleType, ToggleState} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
 import ColorContext from './ColorContext';
@@ -214,6 +220,8 @@ const JoinRoomButton = () => {
 };
 
 const Precall = (props: any) => {
+  const {width, height} = useWindowDimensions();
+  const isTabletView = Math.min(width, height) >= 600;
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(true);
@@ -424,16 +432,27 @@ const Precall = (props: any) => {
                       <></>
                     )}
                   </View>
-                  <View style={style.content}>
-                    <View style={style.preview}>
+                  <View
+                    style={[
+                      style.content,
+                      isTabletView && style.tabletContent,
+                    ]}>
+                    <View
+                      style={[
+                        style.preview,
+                        isTabletView && style.tabletPreview,
+                      ]}>
                       <View
-                        style={{
-                          flex: 1,
-                          position: 'relative',
-                          overflow: 'hidden',
-                          borderTopLeftRadius: 12,
-                          borderTopRightRadius: 12,
-                        }}>
+                        style={[
+                          {
+                            flex: 1,
+                            position: 'relative',
+                            overflow: 'hidden',
+                            borderTopLeftRadius: 12,
+                            borderTopRightRadius: 12,
+                          },
+                          isTabletView && style.tabletVideo,
+                        ]}>
                         {isLocalVideoON ? (
                           <View style={style.switchCamera}>
                             <LocalSwitchCamera
@@ -494,6 +513,18 @@ const style = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  tabletContent: {
+    justifyContent: 'center',
+  },
+  tabletPreview: {
+    flex: 0,
+    width: '100%',
+    maxWidth: 600,
+  },
+  tabletVideo: {
+    flex: 0,
+    aspectRatio: 4 / 3,
   },
   preview: {
     // paddingHorizontal: 20,
