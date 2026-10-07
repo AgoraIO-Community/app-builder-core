@@ -1,6 +1,6 @@
 # Android build and API 36 migration
 
-Branch: `feature/fix-android-build`. Validation date: 6 October 2026.
+Branch: `feature/fix-android-build`. Build validation: 6–7 October 2026.
 
 The Android template now compiles and produces a release APK and Android App
 Bundle targeting Android 16, API 36. QA can use this branch to build and test the
@@ -210,6 +210,11 @@ ZIP offsets of uncompressed native libraries. The AAB check covers ELF
 alignment; also check ZIP alignment in APKs generated from the AAB. See
 [Android 16 KB page-size guidance](https://developer.android.com/guide/practices/page-sizes).
 
+The checker also verifies that the packaged `libaosl.so` exports every required
+`aosl_*` function imported by the other native libraries, across all packaged
+ABIs. Treat missing-symbol failures as a release blocker: a build can succeed
+and still crash when joining a call if an incompatible shared library is selected.
+
 Using the tools from your SDK's `build-tools/35.0.0` directory:
 
 ```sh
@@ -275,6 +280,10 @@ queries stalled during the local build.
 - `android/app/build.gradle` uses modern app autolinking, limits Metro to four
   workers, and adds optional upload signing. Old Kotlin 1.8.21 constraints and
   Flipper dependencies are removed.
+  It declares `io.agora.infra:aosl:1.3.5` before React Native autolinking so that
+  `pickFirst 'lib/**/libaosl.so'` selects this shared library ahead of the older
+  copy bundled with RTM. This follows
+  [Agora's SDK library-conflict guidance](https://doc.shengwang.cn/faq/integration-issues/rtm2-rtc-integration-issue).
 - `android/app/src/main/java/com/helloworld/MainApplication.java` implements
   ReactHost access and initializes SoLoader with React Native's merged-library
   mapping, including the required IOException handling. Flipper initialization
@@ -310,8 +319,8 @@ queries stalled during the local build.
 - `Gulpfile.js` adds Unix and Windows AAB tasks and copies the output to
   `Builds/android`. `package.json` exposes the `android:bundle` commands while
   retaining existing APK commands.
-- `scripts/verify-android-native-libs.py` provides an APK/AAB alignment check
-  using only Python's standard library.
+- `scripts/verify-android-native-libs.py` checks APK/AAB alignment and shared
+  Agora AOSL symbol compatibility using only Python's standard library.
 - `src/pages/video-call/__tests__/VideoCallScreen.native.test.tsx` covers RTC
   readiness, permission granted and denied, background state, and unmount
   before a permission check resolves.
@@ -319,6 +328,33 @@ queries stalled during the local build.
   QA process. The root `Readme.md` links to it.
 
 ## Validation and QA handoff
+
+### Call-entry crash found during device testing on 7 October
+
+On a Samsung Galaxy M52 running Android 13, creating a room and opening the
+join screen worked, but entering the video-call screen crashed. Native-loader
+logs showed missing `aosl_ref_magic` for RTC and `aosl_so_register_group` for
+Chat. Chat then failed with `Utils.nativeGetDohVendor()` / `UnsatisfiedLinkError`
+because its native library had not loaded.
+
+The previous duplicate-library `pickFirst` rules selected an older RTM copy of
+`libaosl.so`. The explicit AOSL dependency described above fixes the selection
+for both RTC and Chat. Existing QA APKs must be rebuilt and reinstalled; changing
+the source or reconnecting to the internet does not replace a packaged library.
+The native-library checker now rejects this exact missing-symbol combination.
+
+The corrected APK and AAB rebuilt successfully on 7 October. Both passed
+alignment checks for 73 64-bit libraries and AOSL import checks for 56 native
+libraries across all four ABIs. The merged libraries matched AOSL 1.3.5 in
+every ABI, and both artifacts contained those libraries after Gradle stripping.
+The rebuilt APK was installed on the Samsung test phone. The tester confirmed
+that entering the video-call screen now works without the previous crash.
+The full Android 16 and call-feature QA checklist below still applies.
+
+For device verification, connect the phone to the internet, install the rebuilt
+APK, create a room, continue through the join screen, and confirm the video-call
+screen opens with working audio, video, and chat. Then leave and join again.
+Capture `adb logcat -b crash -v threadtime` if the app closes.
 
 Local checks on 6 October 2026:
 
