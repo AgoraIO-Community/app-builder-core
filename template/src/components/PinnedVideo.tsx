@@ -113,7 +113,9 @@ const PinnedVideo = ({renderData}) => {
     }
   };
 
-  const isWhiteboard = customContent && customContent[maximizedUid];
+  const whiteboardUid = getWhiteboardUid();
+  const isWhiteboard =
+    Boolean(whiteboardUid) && String(maximizedUid) === String(whiteboardUid);
   const isRemoteScreenshare =
     maximizedUid != screenUid &&
     defaultContent &&
