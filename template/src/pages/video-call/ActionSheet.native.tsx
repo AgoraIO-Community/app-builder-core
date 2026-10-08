@@ -5,6 +5,7 @@ import {
   View,
   Modal,
   TouchableWithoutFeedback,
+  useWindowDimensions,
 } from 'react-native';
 import React, {useCallback, useRef, useState} from 'react';
 import BottomSheet, {
@@ -31,6 +32,7 @@ import {useControlPermissionMatrix} from '../../components/controls/useControlPe
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
 const ActionSheet = props => {
+  const {width, height} = useWindowDimensions();
   const [showCustomSidePanel, setShowCustomSidePanel] = useState(false);
   const [customSidePanelIndex, setCustomSidePanelIndex] = useState<
     undefined | number
@@ -52,7 +54,7 @@ const ActionSheet = props => {
   const {snapPointsMinMax = [100, 400]} = props;
   const [isExpanded, setIsExpanded] = React.useState(false);
   const {sidePanel, setSidePanel} = useSidePanel();
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
   const chatSheetRef = useRef<BottomSheetModal>(null);
   const participantsSheetRef = useRef<BottomSheetModal>(null);
   const settingsSheetRef = useRef<BottomSheetModal>(null);
@@ -63,10 +65,6 @@ const ActionSheet = props => {
   const handleSheetChanges = useCallback((index: number) => {
     bottomSheetRef.current?.snapToIndex(index);
     index === 0 ? setIsExpanded(false) : setIsExpanded(true);
-  }, []);
-
-  React.useEffect(() => {
-    bottomSheetRef?.current.present();
   }, []);
 
   React.useEffect(() => {
@@ -117,7 +115,7 @@ const ActionSheet = props => {
               settingsSheetRef?.current?.close();
               transcriptSheetRef?.current?.close();
               customActionSheetRef?.current?.close();
-              bottomSheetRef?.current?.present();
+              bottomSheetRef?.current?.snapToIndex(0);
             }, 200);
           } else {
             // Code to be executed immediately without a timer
@@ -132,7 +130,7 @@ const ActionSheet = props => {
           break;
         }
         default:
-          bottomSheetRef?.current.present();
+          bottomSheetRef?.current?.snapToIndex(0);
       }
     } else {
       setShowCustomSidePanel(true);
@@ -167,14 +165,16 @@ const ActionSheet = props => {
         </TouchableWithoutFeedback>
       )}
       {/* Controls  Action Sheet*/}
-      <BottomSheetModal
+      <BottomSheet
+        // Reinitialize the animated position after rotation or window resizing.
+        key={`${width}-${height}`}
+        index={isExpanded ? 1 : 0}
         snapPoints={snapPointsMinMax}
         ref={bottomSheetRef}
-        onChange={handleSheetChanges}
+        onChange={index => setIsExpanded(index > 0)}
         enablePanDownToClose={false}
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
-        stackBehavior="push"
         handleComponent={() => (
           <>
             <ActionSheetHandle sidePanel={SidePanelType.None} />
@@ -190,7 +190,7 @@ const ActionSheet = props => {
             {...props}
           />
         </BottomSheetView>
-      </BottomSheetModal>
+      </BottomSheet>
 
       {/* Chat Action Sheet */}
       {canAccessChat && (

@@ -1,8 +1,6 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, Dimensions, Pressable} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, useWindowDimensions, Pressable} from 'react-native';
 import {FlatList} from 'react-native-gesture-handler';
-
-const {width} = Dimensions.get('window');
 
 interface CarouselItem {
   id: string;
@@ -14,9 +12,22 @@ interface CarouselProps {
 }
 
 const Carousel: React.FC<CarouselProps> = ({data}) => {
+  const {width: windowWidth} = useWindowDimensions();
+  const [width, setWidth] = useState(windowWidth);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const flatListRef = React.useRef<FlatList | null>(null);
+  const previousWidth = React.useRef(width);
+
+  useEffect(() => {
+    if (previousWidth.current !== width) {
+      previousWidth.current = width;
+      flatListRef.current?.scrollToOffset({
+        offset: activeIndex * width,
+        animated: false,
+      });
+    }
+  }, [width, activeIndex]);
 
   const handleScroll = event => {
     const {contentOffset} = event.nativeEvent;
@@ -37,7 +48,13 @@ const Carousel: React.FC<CarouselProps> = ({data}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+      onLayout={({nativeEvent: {layout}}) => {
+        if (layout.width > 0) {
+          setWidth(layout.width);
+        }
+      }}>
       <FlatList
         ref={flatListRef}
         data={data}

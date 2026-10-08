@@ -16,6 +16,7 @@ import {isMobileUA} from '../../utils/common';
 import Card from '../../atoms/Card';
 import Spacer from '../../atoms/Spacer';
 import IDPLogoutComponent from '../../auth/IDPLogoutComponent';
+import useIsTablet from '../../utils/useIsTablet';
 
 interface MeetingInfoProps {
   margin?: 'dense' | 'normal';
@@ -25,6 +26,7 @@ interface MeetingInfoProps {
 }
 
 const MeetingInfo = (props: MeetingInfoProps) => {
+  const isTabletView = useIsTablet();
   const {margin, padding, children, cardContainerStyle} = props;
   const {FpeShareComponent} = useCustomization(data => {
     let components: {
@@ -53,9 +55,12 @@ const MeetingInfo = (props: MeetingInfoProps) => {
         <Card
           margin={margin}
           padding={padding}
-          cardContainerStyle={cardContainerStyle}>
-          <View
-            style={{display: 'flex', flex: 1, justifyContent: 'space-between'}}>
+          cardContainerStyle={
+            isTabletView
+              ? {...cardContainerStyle, ...style.tabletCard}
+              : cardContainerStyle
+          }>
+          <View style={[style.content, isTabletView && style.tabletContent]}>
             {children}
           </View>
         </Card>
@@ -73,5 +78,18 @@ export const style = StyleSheet.create({
     flexGrow: 1,
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  content: {
+    display: 'flex',
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  tabletContent: {
+    flex: 0,
+    justifyContent: 'flex-start',
+  },
+  tabletCard: {
+    flex: 0,
+    alignSelf: 'center',
   },
 });

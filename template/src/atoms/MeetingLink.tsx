@@ -1,12 +1,9 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {
-  SHARE_LINK_CONTENT_TYPE,
-  useShareLink,
-} from '../components/useShareLink';
+import {Platform, StyleSheet, Text, View} from 'react-native';
+import {SHARE_LINK_CONTENT_TYPE} from '../components/useShareLink';
 import platform from '../subComponents/Platform';
-import Spacer from './Spacer';
 import isSDKCheck from '../utils/isSDK';
+import Spacer from './Spacer';
 import ClipboardIconButton from './ClipboardIconButton';
 import ThemeConfig, {FontSizes} from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -41,12 +38,8 @@ const MeetingLink = (props: MeetingLinkProps) => {
   } = props;
 
   const style = useStyles(styleProps);
-
-  const {getShareLink} = useShareLink();
-
-  const isSDK = isSDKCheck();
   const isWebCheck =
-    $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
+    $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDKCheck());
 
   return (
     <>
@@ -60,7 +53,7 @@ const MeetingLink = (props: MeetingLinkProps) => {
             style={[
               style.linkText,
               //@ts-ignore
-              isWebCheck ? urlWeb : {opacity: 1},
+              Platform.OS === 'web' && isWebCheck ? urlWeb : {opacity: 1},
             ]}>
             {link}
           </Text>

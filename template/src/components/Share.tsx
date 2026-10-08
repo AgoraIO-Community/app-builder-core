@@ -18,6 +18,7 @@ import {
   TouchableOpacity,
   Image,
   Pressable,
+  Platform,
 } from 'react-native';
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
@@ -25,6 +26,7 @@ import SecondaryButton from '../atoms/SecondaryButton';
 import {SHARE_LINK_CONTENT_TYPE, useShareLink} from './useShareLink';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
+import useIsTablet from '../utils/useIsTablet';
 import Logo from '../components/common/Logo';
 import {useRoomInfo} from './room-info/useRoomInfo';
 import {useHistory} from '../components/Router';
@@ -144,7 +146,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
                   style.url,
                   style.urlPadding,
                   //@ts-ignore
-                  isWebCheck ? urlWeb : {opacity: 1},
+                  Platform.OS === 'web' && isWebCheck ? urlWeb : {opacity: 1},
                 ]}>
                 {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
               </Text>
@@ -178,7 +180,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
                   style.url,
                   style.urlPadding,
                   //@ts-ignore
-                  isWebCheck ? urlWeb : {opacity: 1},
+                  Platform.OS === 'web' && isWebCheck ? urlWeb : {opacity: 1},
                 ]}>
                 {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
               </Text>
@@ -210,7 +212,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
                   style={[
                     style.url,
                     //@ts-ignore
-                    isWebCheck ? urlWeb : {opacity: 1},
+                    Platform.OS === 'web' && isWebCheck ? urlWeb : {opacity: 1},
                   ]}>
                   {shareRoomPSTNNumber} - {pstn?.number} {' | '}{' '}
                   {shareRoomPSTNPin} - {pstn?.pin}
@@ -302,7 +304,7 @@ export const ShowInputURL = (props: ShowInputURLProps) => {
               style.url,
               style.urlPadding,
               //@ts-ignore
-              urlWeb,
+              Platform.OS === 'web' ? urlWeb : {opacity: 1},
             ]}>
             {url}
           </Text>
@@ -314,6 +316,7 @@ export const ShowInputURL = (props: ShowInputURLProps) => {
 };
 
 const Share = () => {
+  const isTabletView = useIsTablet();
   const {FpeShareComponent} = useCustomization(data => {
     let components: {
       FpeShareComponent?: React.ElementType;
@@ -368,8 +371,12 @@ const Share = () => {
       ) : (
         <></>
       )}
-      <ScrollView contentContainerStyle={style.scrollMain}>
-        <Card>
+      <ScrollView
+        contentContainerStyle={[
+          style.scrollMain,
+          isTabletView && style.tabletScrollMain,
+        ]}>
+        <Card cardContainerStyle={isTabletView ? style.tabletCard : undefined}>
           <View>
             <View
               style={{
@@ -424,6 +431,20 @@ const style = StyleSheet.create({
     flexGrow: 1,
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  tabletScrollMain: {
+    alignItems: 'center',
+    padding: 24,
+  },
+  tabletCard: {
+    flex: 0,
+    alignSelf: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 40,
+    paddingVertical: 40,
+    borderRadius: ThemeConfig.BorderRadius.extraLarge,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
   },
   heading: {
     fontSize: ThemeConfig.FontSize.extraLarge,
