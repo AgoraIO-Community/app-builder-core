@@ -85,6 +85,10 @@ export interface AIAgentInterface {
       region: string;
     };
   };
+  asr: {
+    vendor: string;
+    params: Record<string, any>;
+  };
 }
 
 export interface RoomInfoContextInterface {
