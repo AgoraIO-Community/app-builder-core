@@ -10,15 +10,10 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  useWindowDimensions,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {PropsContext, ClientRoleType, ToggleState} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
+import useIsTablet from '../utils/useIsTablet';
 import ColorContext from './ColorContext';
 import {useRoomInfo} from './room-info/useRoomInfo';
 import PreCallLogo from './common/Logo';
@@ -220,8 +215,7 @@ const JoinRoomButton = () => {
 };
 
 const Precall = (props: any) => {
-  const {width, height} = useWindowDimensions();
-  const isTabletView = Math.min(width, height) >= 600;
+  const isTabletView = useIsTablet();
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(true);
@@ -441,6 +435,7 @@ const Precall = (props: any) => {
                       style={[
                         style.preview,
                         isTabletView && style.tabletPreview,
+                        isTabletView && style.tabletFrame,
                       ]}>
                       <View
                         style={[
@@ -477,7 +472,8 @@ const Precall = (props: any) => {
                         />
                       </View>
                     </View>
-                    <View style={style.footer}>
+                    <View
+                      style={[style.footer, isTabletView && style.tabletFrame]}>
                       <JoinRoomName isDesktop={false} isOnPrecall={true} />
                       <Spacer size={8} horizontal={false} />
                       <JoinRoomButton />
@@ -519,8 +515,11 @@ const style = StyleSheet.create({
   },
   tabletPreview: {
     flex: 0,
+  },
+  tabletFrame: {
     width: '100%',
     maxWidth: 600,
+    alignSelf: 'center',
   },
   tabletVideo: {
     flex: 0,

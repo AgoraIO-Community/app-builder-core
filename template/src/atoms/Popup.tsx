@@ -3,6 +3,7 @@ import {
   Text,
   View,
   Modal,
+  ScrollView,
   TouchableWithoutFeedback,
   ModalProps,
   ViewStyle,
@@ -13,6 +14,7 @@ import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {isMobileUA, useIsDesktop} from '../../src/utils/common';
 import Spacer from './Spacer';
+import useIsTablet from '../utils/useIsTablet';
 
 interface PopupProps extends ModalProps {
   title?: string;
@@ -44,6 +46,7 @@ const Popup = (props: PopupProps) => {
   } = props;
 
   const isDesktop = useIsDesktop()('popup');
+  const isTabletView = useIsTablet();
 
   return (
     <Modal
@@ -67,7 +70,12 @@ const Popup = (props: PopupProps) => {
           <View style={styles.backDrop} />
         </TouchableWithoutFeedback>
 
-        <View style={[styles.modalView, props?.contentContainerStyle]}>
+        <View
+          style={[
+            styles.modalView,
+            props?.contentContainerStyle,
+            isTabletView && styles.tabletModalView,
+          ]}>
           {title || showCloseIcon || headerComponent ? (
             <>
               <View style={styles.header}>
@@ -111,7 +119,15 @@ const Popup = (props: PopupProps) => {
           ) : (
             <></>
           )}
-          <View style={bodyContainerStyle}>{children}</View>
+          {isTabletView ? (
+            <ScrollView
+              style={styles.tabletBody}
+              contentContainerStyle={bodyContainerStyle}>
+              {children}
+            </ScrollView>
+          ) : (
+            <View style={bodyContainerStyle}>{children}</View>
+          )}
         </View>
       </View>
     </Modal>
@@ -152,6 +168,14 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor:
       $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60%'],
+  },
+  tabletModalView: {
+    maxHeight: '90%',
+    flexShrink: 1,
+  },
+  tabletBody: {
+    flexGrow: 0,
+    flexShrink: 1,
   },
   header: {
     flexDirection: 'row',
