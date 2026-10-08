@@ -239,26 +239,44 @@ Paths in this section are relative to `template/`.
 
 ### Dependencies and JavaScript tooling
 
-`package.json` and `_package-lock.json` update React Native to 0.77.3 and React,
-React DOM, and React Test Renderer to 18.3.1. React Native CLI and its Android
-and iOS platform packages are explicitly installed at 15.0.1. React Native's
-Babel preset, Metro configuration, and ESLint configuration use 0.77.3. Babel
-core and runtime requirements and React types are updated; obsolete standalone
-React Native types and the old Metro Babel preset are removed.
+The main upgrade was React Native 0.72.4 to 0.77.3. Its old build plugin could
+not work with the newer Android build tools used for API 36. Updating React
+Native also required compatible supporting packages. `package.json` declares
+these changes, and `_package-lock.json` records the resolved dependency versions
+so QA installs the same packages.
 
-Native dependency changes address compilation and page-size compatibility:
+Packages upgraded:
 
-| Package                 | Change                                                                  | Reason                                                                                              |
-| ----------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Gesture Handler         | 2.8.0 to 2.25.0                                                         | Compatible native implementation for the upgraded RN toolchain.                                     |
-| Reanimated              | 3.4.2 to 3.17.5                                                         | Compatible React Native/native build implementation while retaining Reanimated 3.                   |
-| React Native SVG        | 13.6.0 to 15.11.2                                                       | Resolve native API compatibility with the newer RN version.                                         |
-| React Native WebView    | 13.8.1 to 13.13.5                                                       | Resolve a Kotlin nullable-value compilation failure. The whiteboard override uses the same version. |
-| React Native Agora Chat | 1.2.1 to 1.4.1                                                          | Replace bundled chat libraries that failed the x86_64 16 KB ELF alignment check.                    |
-| Clipboard               | Community clipboard 1.5.1 to `@react-native-clipboard/clipboard` 1.16.3 | Replace a native module using removed RN APIs.                                                      |
-| Safe Area Context       | Add 5.4.0                                                               | Support Android window insets when targeting API 36.                                                |
-| Foreground service      | Pin 1.1.1                                                               | Keep the native compatibility patch tied to the reviewed package version.                           |
-| Patch Package           | Add 8.0.0 and a failing-on-error postinstall hook                       | Apply native fixes after every dependency installation.                                             |
+| Package | Previous → New | Why it was needed |
+| ------- | -------------- | ----------------- |
+| React Native (`react-native`) | 0.72.4 → 0.77.3 | Works with the upgraded Android build setup and adds Android 16 KB page support. |
+| React, React DOM, React Test Renderer | 18.2.0 → 18.3.1 | Matches the React version expected by React Native 0.77. |
+| React Native Agora Chat (`react-native-agora-chat`) | 1.2.1 → 1.4.1 | Replaces bundled chat libraries that failed the x86_64 16 KB ELF alignment check. |
+| Gesture Handler (`react-native-gesture-handler`) | 2.8.0 → 2.25.0 | Updates its native implementation for the newer React Native version. |
+| Reanimated (`react-native-reanimated`) | 3.4.2 → 3.17.5 | Makes the animation library compatible with the upgraded React Native/native build while retaining Reanimated 3. |
+| React Native SVG (`react-native-svg`) | 13.6.0 → 15.11.2 | Resolves compatibility with newer React Native native APIs. |
+| React Native WebView (`react-native-webview`) | 13.8.1 → 13.13.5 | Fixes a Kotlin nullable-value compilation error. The whiteboard dependency uses this version too. |
+| React Native Metro Config (`@react-native/metro-config`) | ^0.72.11 → 0.77.3 | Matches the JavaScript bundler configuration to React Native 0.77. |
+| React Native ESLint Config (`@react-native/eslint-config`) | ^0.72.2 → 0.77.3 | Matches the code-checking configuration to the upgraded React Native version. |
+| Babel Core (`@babel/core`) | ^7.20.0 → ^7.25.2 | Meets the updated JavaScript compiler requirements. |
+| Babel Runtime (`@babel/runtime`) | ^7.20.0 → ^7.25.0 | Matches the runtime helpers to the upgraded JavaScript tooling. |
+| React types (`@types/react`) | 17.0.2 → ^18.3.1 | Updates TypeScript's understanding of React to match React 18. |
+
+Packages added, replaced, or pinned:
+
+| Package | Change | Why it was needed |
+| ------- | ------ | ----------------- |
+| Safe Area Context (`react-native-safe-area-context`) | Added 5.4.0 | Keeps Android content clear of status bars, camera cutouts, and bottom navigation when targeting API 36. |
+| Clipboard | Replaced `@react-native-community/clipboard` 1.5.1 with `@react-native-clipboard/clipboard` 1.16.3 | The old native module used APIs removed from newer React Native. |
+| React Native Babel Preset | Replaced `metro-react-native-babel-preset` 0.76.8 with `@react-native/babel-preset` 0.77.3 | Uses the JavaScript compiler settings for React Native 0.77. |
+| React Native CLI (`@react-native-community/cli`, `cli-platform-android`, `cli-platform-ios`) | Explicitly added all three at 15.0.1 | Provides compatible build commands and automatic native-library linking. |
+| Patch Package (`patch-package`) | Added 8.0.0 and a failing-on-error postinstall hook | Automatically reapplies the foreground-service fixes after every dependency installation. |
+| Foreground service (`@supersami/rn-foreground-service`) | ^1.1.1 → exact 1.1.1 | Keeps the existing version pinned so its native compatibility patch applies consistently; this is not a version upgrade. |
+| Agora AOSL (`io.agora.infra:aosl`, Android Maven dependency) | Explicitly selected 1.3.5 before native-library autolinking | Prevents an older shared Agora library from being packaged. This fixes the video-call crash confirmed during device testing. |
+
+The obsolete `@types/react-native` 0.67.6 package was removed because the newer
+React Native package provides its own types. The build-tool versions and their
+requirements are listed in the Build versions section above.
 
 `babel.config.js` uses `module:@react-native/babel-preset`.
 `metro.config.js` uses the Node file crawler when `CI=true` because Watchman
