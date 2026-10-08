@@ -7,7 +7,6 @@ import {
   Animated,
   PanResponder,
   TouchableOpacity,
-  ViewPropTypes,
 } from 'react-native';
 import PropTypes from 'prop-types';
 

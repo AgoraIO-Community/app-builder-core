@@ -2,23 +2,48 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "33.0.0"
+        buildToolsVersion = "35.0.0"
         minSdkVersion = 24
-        compileSdkVersion = 34
-        targetSdkVersion = 34
+        compileSdkVersion = 36
+        targetSdkVersion = 36
 
-        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
-        ndkVersion = "23.1.7779620"
-        kotlinVersion = "1.8.21" // added this for datadog logs - https://docs.datadoghq.com/real_user_monitoring/mobile_and_tv_monitoring/setup/reactnative/#setup
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "2.0.21"
         androidXAnnotation = "1.2.0"
         androidXBrowser = "1.3.0"
     }
     subprojects { subproject ->
+        // Older native modules declare obsolete AGP versions in their own builds.
+        subproject.buildscript.repositories {
+            google()
+            mavenCentral()
+        }
+        subproject.buildscript.configurations.configureEach {
+            resolutionStrategy.force 'com.android.tools.build:gradle:8.10.1'
+        }
+        subproject.plugins.withId('com.android.library') {
+            subproject.android.ndkVersion = rootProject.ext.ndkVersion
+            subproject.android.buildFeatures.buildConfig = true
+            // NDK 27 needs this flag when compiling native libraries for 16 KB devices.
+            subproject.android.defaultConfig.externalNativeBuild.cmake.arguments.add('-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON')
+            // AGP 8 requires a namespace; legacy modules still put it in the manifest.
+            if (subproject.android.namespace == null) {
+                def manifest = subproject.file('src/main/AndroidManifest.xml')
+                if (manifest.exists()) {
+                    def packageName = (manifest.text =~ /package\s*=\s*["']([^"']+)["']/)
+                    if (packageName.find()) {
+                        subproject.android.namespace = packageName.group(1)
+                    }
+                }
+            }
+        }
         afterEvaluate{
             if((subproject.plugins.hasPlugin('android') || subproject.plugins.hasPlugin('android-library'))) {
                 android {
                     compileSdkVersion rootProject.ext.compileSdkVersion
                     buildToolsVersion rootProject.ext.buildToolsVersion
+                    ndkVersion rootProject.ext.ndkVersion
+                    externalNativeBuild.cmake.version = '3.22.1'
                 }
             }
         }
@@ -28,9 +53,19 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle")
+        classpath("com.android.tools.build:gradle:8.10.1")
         classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
 
+apply plugin: "com.facebook.react.rootproject"
 
+allprojects {
+    repositories {
+        maven {
+            url 'https://download.agora.io/maven/'
+            content { includeGroupByRegex 'io\\.agora\\.rtc.*' }
+        }
+    }
+}

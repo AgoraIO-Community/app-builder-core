@@ -1,0 +1,12 @@
+diff --git a/node_modules/@supersami/rn-foreground-service/android/src/main/java/com/supersami/foregroundservice/NotificationHelper.java b/node_modules/@supersami/rn-foreground-service/android/src/main/java/com/supersami/foregroundservice/NotificationHelper.java
+--- a/node_modules/@supersami/rn-foreground-service/android/src/main/java/com/supersami/foregroundservice/NotificationHelper.java
++++ b/node_modules/@supersami/rn-foreground-service/android/src/main/java/com/supersami/foregroundservice/NotificationHelper.java
+@@ -59 +59 @@
+-        PendingIntent pendingIntent = PendingIntent.getActivity(context, uniqueInt1, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
++        PendingIntent pendingIntent = PendingIntent.getActivity(context, uniqueInt1, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+@@ -66 +66 @@
+-            pendingBtnIntent = PendingIntent.getActivity(context, uniqueInt, notificationBtnIntent, PendingIntent.FLAG_UPDATE_CURRENT);
++            pendingBtnIntent = PendingIntent.getActivity(context, uniqueInt, notificationBtnIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+@@ -125 +125 @@
+-           notificationBuilder.addAction(R.drawable.redbox_top_border_background, bundle.getString("buttonText", "Button"), pendingBtnIntent);
++           notificationBuilder.addAction(android.R.drawable.ic_media_play, bundle.getString("buttonText", "Button"), pendingBtnIntent);
