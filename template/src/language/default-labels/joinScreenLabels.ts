@@ -23,9 +23,9 @@ export interface I18nJoinScreenLabelsInterface {
 export const JoinScreenLabels: I18nJoinScreenLabelsInterface = {
   [joinRoomHeading]: ({eventMode}) => {
     if (eventMode) {
-      return 'Join a Room';
-    } else {
       return 'Join a Stream';
+    } else {
+      return 'Join a Room';
     }
   },
   [joinRoomInputLabel]: ({eventMode}) => {

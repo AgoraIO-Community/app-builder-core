@@ -2,7 +2,7 @@ import {View} from 'react-native';
 import React from 'react';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useCaption} from './useCaption';
-import LanguageSelectorPopup from './LanguageSelectorPopup';
+import {useVideoCall} from '../../components/useVideoCall';
 import {useString} from '../../utils/useString';
 import {toolbarItemCaptionText} from '../../language/default-labels/videoCallScreenLabels';
 import {useToolbarProps} from '../../atoms/ToolbarItem';
@@ -23,6 +23,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     useToolbarProps();
   const {
     showLabel = $config.ICON_TEXT,
+    disabled = false,
     isOnActionSheet = false,
     closeActionSheet,
   } = props;
@@ -34,8 +35,8 @@ const CaptionIcon = (props: CaptionIconProps) => {
     confirmSpokenLanguageChange,
   } = useCaption();
 
-  const [isLanguagePopupOpen, setLanguagePopup] =
-    React.useState<boolean>(false);
+  const {openSpokenLanguagePopup, closeSpokenLanguagePopup} = useVideoCall();
+  const isDisabled = disabled || !sttDepsReady;
 
   // const isFirstTimePopupOpen = React.useRef(false);
   // const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
@@ -49,7 +50,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
       setIsCaptionON(false);
       closeActionSheet?.();
     } else if (!isSTTActive) {
-      setLanguagePopup(true);
+      openSpokenLanguagePopup(onConfirm);
     } else {
       setIsCaptionON(true);
       closeActionSheet?.();
@@ -65,13 +66,15 @@ const CaptionIcon = (props: CaptionIconProps) => {
   };
   const iconButtonProps: IconButtonProps = {
     onPress: onPressCustom || onPress,
-    disabled: !sttDepsReady,
+    disabled: isDisabled,
     iconProps: {
       name: isCaptionON ? 'captions-off' : 'captions',
       iconBackgroundColor: isCaptionON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: isCaptionON
+      tintColor: isDisabled
+        ? $config.SEMANTIC_NEUTRAL
+        : isCaptionON
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
@@ -81,7 +84,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
           ? labelCustom || label?.replace(' ', '\n')
           : labelCustom || label
         : '',
-      textColor: $config.FONT_COLOR,
+      textColor: isDisabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
       numberOfLines: 2,
     },
   };
@@ -93,7 +96,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const onConfirm = async (newSpokenLang: LanguageType) => {
     try {
       closeActionSheet?.();
-      setLanguagePopup(false);
+      closeSpokenLanguagePopup();
       setIsCaptionON(true);
       await confirmSpokenLanguageChange(newSpokenLang);
     } catch (error) {
@@ -106,12 +109,6 @@ const CaptionIcon = (props: CaptionIconProps) => {
   return (
     <View>
       <IconButton {...iconButtonProps} />
-      <LanguageSelectorPopup
-        modalVisible={isLanguagePopupOpen}
-        setModalVisible={setLanguagePopup}
-        onConfirm={onConfirm}
-        // isFirstTimePopupOpen={isFirstTimePopupOpen.current}
-      />
     </View>
   );
 };
