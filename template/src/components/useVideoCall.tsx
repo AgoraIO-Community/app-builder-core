@@ -51,6 +51,8 @@ import {
 import StorageContext from './StorageContext';
 import {useString} from '../utils/useString';
 import {videoRoomUserFallbackText} from '../language/default-labels/videoCallScreenLabels';
+import LanguageSelectorPopup from '../subComponents/caption/LanguageSelectorPopup';
+import {LanguageType} from '../subComponents/caption/utils';
 
 interface InViewPortState {
   [key: number]: boolean;
@@ -58,6 +60,10 @@ interface InViewPortState {
 export interface VideoCallContextInterface {
   showInvitePopup: boolean;
   setShowInvitePopup: React.Dispatch<SetStateAction<boolean>>;
+  openSpokenLanguagePopup: (
+    onConfirm: (language: LanguageType) => void,
+  ) => void;
+  closeSpokenLanguagePopup: () => void;
   showStopRecordingPopup: boolean;
   setShowStopRecordingPopup: React.Dispatch<SetStateAction<boolean>>;
   showLayoutOption: boolean;
@@ -80,6 +86,8 @@ export interface VideoCallContextInterface {
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
   showInvitePopup: false,
   setShowInvitePopup: () => {},
+  openSpokenLanguagePopup: () => {},
+  closeSpokenLanguagePopup: () => {},
   showStopRecordingPopup: false,
   setShowStopRecordingPopup: () => {},
   showLayoutOption: false,
@@ -108,6 +116,21 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const [enablePinForMe, setEnablePinForMe] = useState(true);
   const [showLayoutOption, setShowLayoutOption] = useState(false);
   const [showInvitePopup, setShowInvitePopup] = useState(false);
+  const [showSpokenLanguagePopup, setShowSpokenLanguagePopup] = useState(false);
+  const spokenLanguageConfirmRef = useRef<
+    ((language: LanguageType) => void) | null
+  >(null);
+  const openSpokenLanguagePopup = useCallback(
+    (onConfirm: (language: LanguageType) => void) => {
+      spokenLanguageConfirmRef.current = onConfirm;
+      setShowSpokenLanguagePopup(true);
+    },
+    [],
+  );
+  const closeSpokenLanguagePopup = useCallback(() => {
+    setShowSpokenLanguagePopup(false);
+    spokenLanguageConfirmRef.current = null;
+  }, []);
   const [showStopRecordingPopup, setShowStopRecordingPopup] = useState(false);
   const [showStartScreenSharePopup, setShowStartScreenSharePopup] =
     useState(false);
@@ -260,7 +283,8 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
       const senderDisplayName = getReactionSenderName(String(localUser.uid));
       const tonePreference = store.liveReactionSkinTone ?? 'default';
       const skinTone: SkinToneCode | undefined =
-        tonePreference !== 'default' && reaction.skinToneVariants?.[tonePreference]
+        tonePreference !== 'default' &&
+        reaction.skinToneVariants?.[tonePreference]
           ? tonePreference
           : undefined;
       const emoji = applySkinToneToEmoji(reaction, tonePreference);
@@ -356,6 +380,8 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
       value={{
         showInvitePopup,
         setShowInvitePopup,
+        openSpokenLanguagePopup,
+        closeSpokenLanguagePopup,
         showStopRecordingPopup,
         setShowStopRecordingPopup,
         showLayoutOption,
@@ -379,6 +405,14 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
       <StopScreenSharePopup />
       <StopRecordingPopup />
       <InvitePopup />
+      {/* Keep toolbar dialogs outside the carousel and its translated pages. */}
+      {showSpokenLanguagePopup && (
+        <LanguageSelectorPopup
+          modalVisible={showSpokenLanguagePopup}
+          setModalVisible={setShowSpokenLanguagePopup}
+          onConfirm={language => spokenLanguageConfirmRef.current?.(language)}
+        />
+      )}
       <WhiteboardClearAllPopup />
       {props.children}
     </VideoCallContext.Provider>
