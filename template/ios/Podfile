@@ -47,6 +47,16 @@ target 'HelloWorld' do
       :mac_catalyst_enabled => false
     )
 
+    # Work around fmt consteval errors with Xcode 26.5.
+    # Keep React Native and all other Pods on their existing C++ standard.
+    installer.pods_project.targets.each do |target|
+      next unless target.name == 'fmt'
+
+      target.build_configurations.each do |build_config|
+        build_config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+      end
+    end
+
     # === BEGIN: Bitcode Stripping ===
     bitcode_strip_path = `xcrun --find bitcode_strip`.chomp
 
