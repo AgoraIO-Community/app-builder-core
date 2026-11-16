@@ -1,3 +1,14 @@
+import com.android.build.api.artifact.SingleArtifact
+import groovy.json.JsonSlurper
+import org.w3c.dom.Element
+
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
 
@@ -145,4 +156,103 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+}
+
+abstract class ConfigureAppLinks extends DefaultTask {
+    private static final String ANDROID = 'http://schemas.android.com/apk/res/android'
+    private static final String VIEW = 'android.intent.action.VIEW'
+    private static final String DEFAULT = 'android.intent.category.DEFAULT'
+    private static final String BROWSABLE = 'android.intent.category.BROWSABLE'
+
+    @InputFile @PathSensitive(PathSensitivity.NONE)
+    abstract RegularFileProperty getAppConfig()
+
+    @InputFile @PathSensitive(PathSensitivity.NONE)
+    abstract RegularFileProperty getInputManifest()
+
+    @OutputFile
+    abstract RegularFileProperty getOutputManifest()
+
+    @TaskAction
+    void configureAppLinks() {
+        def endpoint = new JsonSlurper().parse(appConfig.get().asFile).FRONTEND_ENDPOINT
+        def host = endpoint instanceof String && endpoint.startsWith('https://')
+            ? new URI(endpoint).host?.toLowerCase(Locale.ROOT)
+            : null
+        def input = inputManifest.get().asFile
+        def output = outputManifest.get().asFile
+        output.parentFile.mkdirs()
+        if (!host) {
+            Files.copy(input.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            return
+        }
+
+        def factory = DocumentBuilderFactory.newDefaultInstance()
+        factory.namespaceAware = true
+        def document = factory.newDocumentBuilder().parse(input)
+        def activity = elements(document.documentElement, 'activity').find {
+            it.getAttributeNS(ANDROID, 'name').endsWith('.MainActivity')
+        }
+        if (activity == null) {
+            throw new GradleException('MainActivity is missing from the merged Android manifest.')
+        }
+
+        def filters = elements(activity, 'intent-filter').findAll { filter ->
+            def schemes = values(filter, 'data', 'scheme')
+            def categories = values(filter, 'category', 'name')
+            values(filter, 'data', 'host').toSet() == ([host] as Set) &&
+                schemes && schemes.every { it in ['http', 'https'] } &&
+                VIEW in values(filter, 'action', 'name') &&
+                categories.containsAll([DEFAULT, BROWSABLE])
+        }
+        if (filters.isEmpty()) {
+            def filter = document.createElement('intent-filter')
+            activity.appendChild(filter)
+            append(filter, 'action', 'name', VIEW)
+            append(filter, 'category', 'name', DEFAULT)
+            append(filter, 'category', 'name', BROWSABLE)
+            append(filter, 'data', 'host', host)
+            filters = [filter]
+        }
+
+        filters.each { filter ->
+            filter.setAttributeNS(ANDROID, 'android:autoVerify', 'true')
+            def schemes = values(filter, 'data', 'scheme')
+            (['http', 'https'] - schemes).each { append(filter, 'data', 'scheme', it) }
+        }
+        TransformerFactory.newDefaultInstance().newTransformer()
+            .transform(new DOMSource(document), new StreamResult(output))
+    }
+
+    static List<String> values(Element parent, String tag, String attribute) {
+        elements(parent, tag).collect { it.getAttributeNS(ANDROID, attribute) }.findAll()
+    }
+
+    static List<Element> elements(Element parent, String tag) {
+        def nodes = parent.getElementsByTagName(tag)
+        (0..<nodes.length).collect { (Element) nodes.item(it) }
+    }
+
+    static void append(Element parent, String tag, String attribute, String value) {
+        def element = parent.ownerDocument.createElement(tag)
+        element.setAttributeNS(ANDROID, "android:${attribute}", value)
+        parent.appendChild(element)
+    }
+}
+
+def appBuilderConfig = rootProject.layout.projectDirectory.file('../config.json')
+
+// Work with the merged manifest so existing CLI-generated projects get the fix.
+androidComponents.onVariants(androidComponents.selector().all(), { variant ->
+    def configureAppLinks = tasks.register("configure${variant.name.capitalize()}AppLinks", ConfigureAppLinks) {
+        appConfig.set(appBuilderConfig)
+    }
+    variant.artifacts.use(configureAppLinks)
+        .wiredWithFiles({ it.inputManifest }, { it.outputManifest })
+        .toTransform(SingleArtifact.MERGED_MANIFEST.INSTANCE)
+} as Action)
+
+// React Native's bundle task tracks sources, but Babel also reads this JSON.
+tasks.matching { it.name.startsWith('createBundle') && it.name.endsWith('JsAndAssets') }.configureEach {
+    inputs.file(appBuilderConfig)
 }
