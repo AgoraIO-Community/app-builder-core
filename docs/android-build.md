@@ -202,6 +202,15 @@ on the existing HTTPS intent filter for the host in `FRONTEND_ENDPOINT`.
 Publish the domain association and ship the updated Android build to enable
 automatic opening.
 
+For this repository's Vercel Git previews, including the preprod branch
+preview, the web build publishes the [QA association](android-app-links/preview/assetlinks.json).
+Build the QA app with that preview's URL as `FRONTEND_ENDPOINT` and with the QA
+package and signing certificate in the file. Install that APK and tap a meeting
+invite from the same preview host to test automatic opening with default phone
+settings. When this web build needs a different app identity, set
+`APPBUILDER_ANDROID_ASSET_LINKS_JSON` to the association array for that
+deployment. The build uses that array in place of the preview association.
+
 For the production Conferencing app, publish the
 [Conferencing assetlinks.json](android-app-links/conferencing/assetlinks.json)
 in the website's static output at `/.well-known/assetlinks.json`. Serve it with
