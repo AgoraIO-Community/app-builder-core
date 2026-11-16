@@ -197,10 +197,10 @@ that debug-signed AAB to Google Play or commit keystores and passwords.
 
 ## Deploy Android App Links
 
-When built from the updated Core template, the APK and AAB use the HTTPS host
-in the project's `FRONTEND_ENDPOINT` for the verified App Links filter on
-`MainActivity`. Publish the domain association and ship the updated Android
-build to enable automatic opening.
+For CLI-generated projects, the APK and AAB build enables `android:autoVerify`
+on the existing HTTPS intent filter for the host in `FRONTEND_ENDPOINT`.
+Publish the domain association and ship the updated Android build to enable
+automatic opening.
 
 For the production Conferencing app, publish the
 [Conferencing assetlinks.json](android-app-links/conferencing/assetlinks.json)

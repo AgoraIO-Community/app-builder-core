@@ -207,19 +207,9 @@ const useResponsive = () => {
 };
 
 const processDeepLinkURI = (url: string): string => {
-  const frontend = $config.FRONTEND_ENDPOINT.replace(/\/+$/, '');
-  const prefixes = [
-    `${$config.PRODUCT_ID.toLowerCase()}://my-host`,
-    frontend,
-    frontend.replace(/^https:/, 'http:'),
-  ];
-  const prefix = prefixes.find(candidate => {
-    const next = url[candidate.length];
-    return (
-      candidate && url.startsWith(candidate) && (!next || '/?#'.includes(next))
-    );
-  });
-  return prefix ? url.slice(prefix.length) : url;
+  return url
+    .replace(`${$config.PRODUCT_ID.toLowerCase()}://my-host`, '')
+    .replace($config.FRONTEND_ENDPOINT, '');
 };
 
 const getParamFromURL = (url, param) => {

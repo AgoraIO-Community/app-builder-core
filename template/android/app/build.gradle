@@ -164,7 +164,7 @@ abstract class ConfigureAppLinks extends DefaultTask {
     private static final String DEFAULT = 'android.intent.category.DEFAULT'
     private static final String BROWSABLE = 'android.intent.category.BROWSABLE'
 
-    @InputFile @PathSensitive(PathSensitivity.NONE)
+    @Optional @InputFile @PathSensitive(PathSensitivity.NONE)
     abstract RegularFileProperty getAppConfig()
 
     @InputFile @PathSensitive(PathSensitivity.NONE)
@@ -175,7 +175,9 @@ abstract class ConfigureAppLinks extends DefaultTask {
 
     @TaskAction
     void configureAppLinks() {
-        def endpoint = new JsonSlurper().parse(appConfig.get().asFile).FRONTEND_ENDPOINT
+        def endpoint = appConfig.present
+            ? new JsonSlurper().parse(appConfig.get().asFile).FRONTEND_ENDPOINT
+            : null
         def host = endpoint instanceof String && endpoint.startsWith('https://')
             ? new URI(endpoint).host?.toLowerCase(Locale.ROOT)
             : null
@@ -193,32 +195,21 @@ abstract class ConfigureAppLinks extends DefaultTask {
         def activity = elements(document.documentElement, 'activity').find {
             it.getAttributeNS(ANDROID, 'name').endsWith('.MainActivity')
         }
-        if (activity == null) {
-            throw new GradleException('MainActivity is missing from the merged Android manifest.')
-        }
-
-        def filters = elements(activity, 'intent-filter').findAll { filter ->
+        def filters = activity == null ? [] : elements(activity, 'intent-filter').findAll { filter ->
             def schemes = values(filter, 'data', 'scheme')
             def categories = values(filter, 'category', 'name')
             values(filter, 'data', 'host').toSet() == ([host] as Set) &&
-                schemes && schemes.every { it in ['http', 'https'] } &&
+                schemes.contains('https') && schemes.every { it in ['http', 'https'] } &&
                 VIEW in values(filter, 'action', 'name') &&
                 categories.containsAll([DEFAULT, BROWSABLE])
         }
         if (filters.isEmpty()) {
-            def filter = document.createElement('intent-filter')
-            activity.appendChild(filter)
-            append(filter, 'action', 'name', VIEW)
-            append(filter, 'category', 'name', DEFAULT)
-            append(filter, 'category', 'name', BROWSABLE)
-            append(filter, 'data', 'host', host)
-            filters = [filter]
+            Files.copy(input.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            return
         }
 
         filters.each { filter ->
             filter.setAttributeNS(ANDROID, 'android:autoVerify', 'true')
-            def schemes = values(filter, 'data', 'scheme')
-            (['http', 'https'] - schemes).each { append(filter, 'data', 'scheme', it) }
         }
         TransformerFactory.newDefaultInstance().newTransformer()
             .transform(new DOMSource(document), new StreamResult(output))
@@ -232,12 +223,6 @@ abstract class ConfigureAppLinks extends DefaultTask {
         def nodes = parent.getElementsByTagName(tag)
         (0..<nodes.length).collect { (Element) nodes.item(it) }
     }
-
-    static void append(Element parent, String tag, String attribute, String value) {
-        def element = parent.ownerDocument.createElement(tag)
-        element.setAttributeNS(ANDROID, "android:${attribute}", value)
-        parent.appendChild(element)
-    }
 }
 
 def appBuilderConfig = rootProject.layout.projectDirectory.file('../config.json')
@@ -245,14 +230,11 @@ def appBuilderConfig = rootProject.layout.projectDirectory.file('../config.json'
 // Work with the merged manifest so existing CLI-generated projects get the fix.
 androidComponents.onVariants(androidComponents.selector().all(), { variant ->
     def configureAppLinks = tasks.register("configure${variant.name.capitalize()}AppLinks", ConfigureAppLinks) {
-        appConfig.set(appBuilderConfig)
+        if (appBuilderConfig.asFile.isFile()) {
+            appConfig.set(appBuilderConfig)
+        }
     }
     variant.artifacts.use(configureAppLinks)
         .wiredWithFiles({ it.inputManifest }, { it.outputManifest })
         .toTransform(SingleArtifact.MERGED_MANIFEST.INSTANCE)
 } as Action)
-
-// React Native's bundle task tracks sources, but Babel also reads this JSON.
-tasks.matching { it.name.startsWith('createBundle') && it.name.endsWith('JsAndAssets') }.configureEach {
-    inputs.file(appBuilderConfig)
-}
