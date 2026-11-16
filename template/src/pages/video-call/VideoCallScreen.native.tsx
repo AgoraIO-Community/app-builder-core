@@ -2,13 +2,34 @@ import React from 'react';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import VideoCallMobileView from './VideoCallMobileView';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
-import {AppRegistry, Platform} from 'react-native';
+import {
+  AppRegistry,
+  AppState,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
+import {RtcContext} from '../../../agora-rn-uikit';
 import {isValidReactComponent} from '../../utils/common';
 import {useCustomization} from 'customization-implementation';
 
 const VideoCallleScreen = () => {
+  const {rtcTracksReady} = React.useContext(RtcContext);
+
   React.useEffect(() => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS !== 'android' || !rtcTracksReady) {
+      return;
+    }
+
+    let cancelled = false;
+    const startCallService = async () => {
+      // RTC initialization requests microphone access. Android requires it to be
+      // granted before starting a microphone foreground service.
+      const canRecord = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      );
+      if (cancelled || !canRecord || AppState.currentState !== 'active') {
+        return;
+      }
       ReactNativeForegroundService.register();
       AppRegistry.registerComponent($config.APP_NAME, () => VideoCallleScreen);
       ReactNativeForegroundService.add_task(
@@ -22,13 +43,21 @@ const VideoCallleScreen = () => {
           onError: e => console.log(`Error logging:`, e),
         },
       );
-      ReactNativeForegroundService.start({
+      await ReactNativeForegroundService.start({
         id: 145,
         title: $config.APP_NAME,
         message: 'Call is active',
       });
-    }
-  }, []);
+    };
+
+    startCallService().catch(error => {
+      console.warn('Unable to start the call foreground service', error);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [rtcTracksReady]);
 
   const {VideocallWrapper} = useCustomization(data => {
     let components: {

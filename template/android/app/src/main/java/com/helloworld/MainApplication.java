@@ -3,11 +3,15 @@ package com.helloworld;
 import android.app.Application;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactHost;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
+import com.facebook.react.defaults.DefaultReactHost;
+import com.facebook.react.soloader.OpenSourceMergedSoMapping;
 import com.facebook.soloader.SoLoader;
+import java.io.IOException;
 import java.util.List;
 import com.facebook.react.modules.network.OkHttpClientProvider;
 
@@ -52,14 +56,22 @@ public class MainApplication extends Application implements ReactApplication {
   }
 
   @Override
+  public ReactHost getReactHost() {
+    return DefaultReactHost.getDefaultReactHost(getApplicationContext(), mReactNativeHost);
+  }
+
+  @Override
   public void onCreate() {
     super.onCreate();
-    SoLoader.init(this, /* native exopackage */ false);
+    try {
+      SoLoader.init(this, OpenSourceMergedSoMapping.INSTANCE);
+    } catch (IOException error) {
+      throw new RuntimeException("Unable to initialize React Native libraries", error);
+    }
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       DefaultNewArchitectureEntryPoint.load();
     }
-    ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     SSLPinningFactory sslPinningFactory = new SSLPinningFactory(getApplicationContext());
     OkHttpClientProvider.setOkHttpClientFactory(sslPinningFactory);
   }  

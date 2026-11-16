@@ -28,6 +28,7 @@ import {
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateRoom from '../utils/useCreateRoom';
+import useIsTablet from '../utils/useIsTablet';
 import {CreateProvider} from './create/useCreate';
 import {
   RoomInfoDefaultValue,
@@ -64,6 +65,7 @@ import {LogSource, logger} from '../logger/AppBuilderLogger';
 import SDKEvents from '../utils/SdkEvents';
 
 const Create = () => {
+  const isTabletView = useIsTablet();
   const {CreateComponent, CreateHeaderRightSlotComponent} = useCustomization(
     data => {
       let components: {
@@ -315,8 +317,15 @@ const Create = () => {
             ) : (
               <></>
             )}
-            <ScrollView contentContainerStyle={style.main}>
-              <Card>
+            <ScrollView
+              contentContainerStyle={[
+                style.main,
+                isTabletView && style.tabletMain,
+              ]}>
+              <Card
+                cardContainerStyle={
+                  isTabletView ? style.tabletCard : undefined
+                }>
                 <View>
                   <View style={style.logoContainerStyle}>
                     <Logo />
@@ -435,7 +444,7 @@ const Create = () => {
                   ) : (
                     <></>
                   )}
-                  <Spacer size={isDesktop ? 60 : 125} />
+                  <Spacer size={isDesktop || isTabletView ? 60 : 125} />
                 </View>
                 <View style={[style.btnContainer]}>
                   <PrimaryButton
@@ -498,6 +507,20 @@ const style = StyleSheet.create({
     flexGrow: 1,
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  tabletMain: {
+    alignItems: 'center',
+    padding: 24,
+  },
+  tabletCard: {
+    flex: 0,
+    alignSelf: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 40,
+    paddingVertical: 40,
+    borderRadius: ThemeConfig.BorderRadius.extraLarge,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
   },
   heading: {
     fontSize: ThemeConfig.FontSize.extraLarge,

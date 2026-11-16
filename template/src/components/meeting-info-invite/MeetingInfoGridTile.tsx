@@ -8,6 +8,7 @@ import Spacer from '../../atoms/Spacer';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import {SHARE_LINK_CONTENT_TYPE, useShareLink} from '../useShareLink';
 import useGetName from '../../utils/useGetName';
+import useIsTablet from '../../utils/useIsTablet';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {isMobileUA, isValidReactComponent} from '../../utils/common';
 import Avatar from '../../atoms/Avatar';
@@ -23,6 +24,7 @@ const waveHandEmoji = '👋';
 
 export default function MeetingInfoGridTile() {
   const isMobile = isMobileUA();
+  const isTabletView = useIsTablet();
   const welcomeLabel = useString(inviteTileWelcomeText)();
   const copyInviteButtonLabel = useString(inviteTileCopyInviteBtnText)();
   const copyInviteButton = copyInviteButtonLabel;
@@ -67,7 +69,11 @@ export default function MeetingInfoGridTile() {
           style.scroll,
           !isMobile && {paddingLeft: 0, paddingRight: 0},
         ]}>
-        <View style={style.inviteContainerTile}>
+        <View
+          style={[
+            style.inviteContainerTile,
+            isTabletView && style.tabletInviteContainerTile,
+          ]}>
           <View style={style.inviteTile}>
             <MeetingInfo
               padding="dense"
@@ -117,7 +123,7 @@ export default function MeetingInfoGridTile() {
               ) : (
                 <>
                   {isMobile ? <Spacer size={20} /> : <Spacer size={30} />}
-                  {!isMobile && (
+                  {(!isMobile || isTabletView) && (
                     <MeetingInfoLinks variant="secondary" size="tiny" />
                   )}
                   <View>
@@ -180,6 +186,9 @@ const style = StyleSheet.create({
     height: '100%',
     paddingHorizontal: isMobileUA() ? 0 : 35,
     borderRadius: 2,
+  },
+  tabletInviteContainerTile: {
+    paddingVertical: 20,
   },
   flexRow: {
     display: 'flex',

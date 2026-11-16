@@ -21,6 +21,8 @@ This repository is a part of [RTE app builder](https://appbuilder.agora.io).
 
    This command will automatically set everything up for development
 
+For Android APK and AAB builds, follow the [Android build guide](docs/android-build.md).
+
 To build react sdk using esbuild,
 
 1. Install the go compiler from https://go.dev/doc/install

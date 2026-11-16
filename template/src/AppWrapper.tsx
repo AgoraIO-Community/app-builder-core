@@ -14,13 +14,7 @@ import {Router} from './components/Router';
 import Navigation from './components/Navigation';
 import {StorageProvider} from './components/StorageContext';
 import {SessionProvider} from './components/SessionContext';
-import {
-  ImageBackground,
-  SafeAreaView,
-  StatusBar,
-  Platform,
-  View,
-} from 'react-native';
+import {ImageBackground, StatusBar, Platform, View} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import {isValidReactComponent} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
@@ -35,6 +29,7 @@ import {ToastContext, ToastProvider} from './components/useToast';
 import {SdkApiContext} from './components/SdkApiContext';
 import isSDK from './utils/isSDK';
 import BlockUI from './subComponents/BlockUI';
+import SafeAreaView from './components/AppSafeAreaView';
 
 interface AppWrapperProps {
   children: React.ReactNode;

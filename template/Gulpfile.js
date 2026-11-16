@@ -309,6 +309,26 @@ const android = {
   gradleBuildWin: cb => {
     runCli('cd android && gradlew.bat assembleRelease', cb);
   },
+  gradleBundleUnix: cb => {
+    runCli('cd android && ./gradlew bundleRelease', cb);
+  },
+  gradleBundleWin: cb => {
+    runCli('cd android && gradlew.bat bundleRelease', cb);
+  },
+  copyBundle: () => {
+    return fs.copyFile(
+      path.resolve(
+        'android',
+        'app',
+        'build',
+        'outputs',
+        'bundle',
+        'release',
+        'app-release.aab',
+      ),
+      path.resolve(BUILD_PATH, `${config.PRODUCT_ID}.aab`),
+    );
+  },
   copyBuild: cb => {
     fs.copyFile(
       path.resolve(
@@ -458,6 +478,20 @@ module.exports.androidWin = series(
   general.createBuildDirectory,
   android.gradleBuildWin,
   android.copyBuild,
+);
+
+module.exports.androidBundleUnix = series(
+  general.cleanBuildDirectory,
+  general.createBuildDirectory,
+  android.gradleBundleUnix,
+  android.copyBundle,
+);
+
+module.exports.androidBundleWin = series(
+  general.cleanBuildDirectory,
+  general.createBuildDirectory,
+  android.gradleBundleWin,
+  android.copyBundle,
 );
 
 module.exports.test = series(
