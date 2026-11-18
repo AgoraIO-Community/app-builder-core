@@ -197,10 +197,10 @@ that debug-signed AAB to Google Play or commit keystores and passwords.
 
 ## Deploy Android App Links
 
-For CLI-generated projects, the APK and AAB build enables `android:autoVerify`
-on the existing HTTPS intent filter for the host in `FRONTEND_ENDPOINT`.
-Publish the domain association and ship the updated Android build to enable
-automatic opening.
+The APK and AAB build enables `android:autoVerify` on the existing HTTPS intent
+filter for the host in `FRONTEND_ENDPOINT`. When a direct Core build has no web
+link filter on `MainActivity`, Gradle adds the HTTPS filter. Publish the domain
+association and ship the updated Android build to enable automatic opening.
 
 For this repository's Vercel Git previews, including the preprod branch
 preview, the web build publishes the [QA association](android-app-links/preview/assetlinks.json).

@@ -195,13 +195,27 @@ abstract class ConfigureAppLinks extends DefaultTask {
         def activity = elements(document.documentElement, 'activity').find {
             it.getAttributeNS(ANDROID, 'name').endsWith('.MainActivity')
         }
-        def filters = activity == null ? [] : elements(activity, 'intent-filter').findAll { filter ->
+        def webFilters = activity == null ? [] : elements(activity, 'intent-filter').findAll { filter ->
+            VIEW in values(filter, 'action', 'name') &&
+                BROWSABLE in values(filter, 'category', 'name') &&
+                values(filter, 'data', 'scheme').any { it in ['http', 'https'] }
+        }
+        def filters = webFilters.findAll { filter ->
             def schemes = values(filter, 'data', 'scheme')
-            def categories = values(filter, 'category', 'name')
             values(filter, 'data', 'host').toSet() == ([host] as Set) &&
                 schemes.contains('https') && schemes.every { it in ['http', 'https'] } &&
-                VIEW in values(filter, 'action', 'name') &&
-                categories.containsAll([DEFAULT, BROWSABLE])
+                DEFAULT in values(filter, 'category', 'name')
+        }
+        if (activity != null && webFilters.isEmpty()) {
+            // Direct Core builds start with only the launcher filter.
+            def filter = document.createElement('intent-filter')
+            activity.appendChild(filter)
+            addFilterElement(filter, 'action', 'name', VIEW)
+            addFilterElement(filter, 'category', 'name', DEFAULT)
+            addFilterElement(filter, 'category', 'name', BROWSABLE)
+            def data = addFilterElement(filter, 'data', 'scheme', 'https')
+            data.setAttributeNS(ANDROID, 'android:host', host)
+            filters = [filter]
         }
         if (filters.isEmpty()) {
             Files.copy(input.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
@@ -222,6 +236,13 @@ abstract class ConfigureAppLinks extends DefaultTask {
     static List<Element> elements(Element parent, String tag) {
         def nodes = parent.getElementsByTagName(tag)
         (0..<nodes.length).collect { (Element) nodes.item(it) }
+    }
+
+    static Element addFilterElement(Element parent, String tag, String attribute, String value) {
+        def element = parent.ownerDocument.createElement(tag)
+        element.setAttributeNS(ANDROID, "android:${attribute}", value)
+        parent.appendChild(element)
+        element
     }
 }
 
