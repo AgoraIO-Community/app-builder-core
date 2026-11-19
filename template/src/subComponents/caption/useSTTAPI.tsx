@@ -6,7 +6,11 @@ import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
 import {buildSTTRequestBody, type STTMethod} from './sttRequestBody';
-import {ensureSTTSessionId, rotateSTTSessionId} from './sttSessionId';
+import {
+  ensureSTTSessionId,
+  rotateSTTSessionId,
+  wasSTTSessionIdFreshlyCreated,
+} from './sttSessionId';
 import {TRANSCRIPT_JOURNEY} from './transcriptJourney';
 
 export interface STTAPIResponse {
@@ -34,6 +38,21 @@ const shouldRetryStart = (result: STTAPIResponse) =>
 
 const shouldRotateSessionId = (result: STTAPIResponse) =>
   result.error?.code === 631;
+
+// Status values returned by /v1/stt-transcript that mean the session_id
+// has moved past 'active' in the backend's ledger and should not be reused
+// for a new startv7. See managed-service `storage/postgres/stt.go` status
+// enum: STARTED/INPROGRESS are active; COMPLETED/FAILED/ARTIFACTS_PENDING/
+// PROCESSING are not.
+const TERMINAL_STT_STATUSES = new Set<string>([
+  'COMPLETED',
+  'FAILED',
+  'ARTIFACTS_PENDING',
+  'PROCESSING',
+]);
+// Cap page-1 lookup so a channel with lots of history doesn't blow past
+// pagination; stale IDs are almost always near the top (recency-sorted).
+const PREFLIGHT_PAGE_LIMIT = 50;
 
 interface IuseSTTAPI {
   start: (
@@ -218,14 +237,124 @@ const useSTTAPI = (): IuseSTTAPI => {
     }
   };
 
+  const preflightSessionStatus = async (
+    passphrase: string,
+    channelName: string,
+    sessionId: string,
+  ): Promise<void> => {
+    if (!passphrase || !channelName || !sessionId) {
+      return;
+    }
+    const url = `${$config.BACKEND_ENDPOINT}/v1/stt-transcript`;
+    const body = JSON.stringify({
+      passphrase,
+      limit: PREFLIGHT_PAGE_LIMIT,
+      page: 1,
+    });
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: tokenRef?.current ? `Bearer ${tokenRef?.current}` : '',
+        },
+        body,
+      });
+    } catch (fetchError) {
+      logger.warn(
+        LogSource.NetworkRest,
+        'stt',
+        `${TRANSCRIPT_JOURNEY} STT session pre-flight network error`,
+        fetchError ?? null,
+      );
+      return;
+    }
+    if (!response.ok) {
+      logger.warn(
+        LogSource.NetworkRest,
+        'stt',
+        `${TRANSCRIPT_JOURNEY} STT session pre-flight non-OK response`,
+        {httpStatus: response.status},
+      );
+      return;
+    }
+    let data: {stts?: Array<{session_id?: string; status?: string}>};
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      logger.warn(
+        LogSource.NetworkRest,
+        'stt',
+        `${TRANSCRIPT_JOURNEY} STT session pre-flight body parse error`,
+        parseError ?? null,
+      );
+      return;
+    }
+    const match = data?.stts?.find(entry => entry?.session_id === sessionId);
+    if (!match) {
+      return; // id not in BE's recent terminal list → treat as usable
+    }
+    if (!match.status || !TERMINAL_STT_STATUSES.has(match.status)) {
+      return; // still active
+    }
+    logger.log(
+      LogSource.NetworkRest,
+      'stt',
+      `${TRANSCRIPT_JOURNEY} STT session pre-flight detected stale id; rotating`,
+      {
+        channelName,
+        staleSessionId: sessionId,
+        beStatus: match.status,
+      },
+    );
+    try {
+      await rotateSTTSessionId(channelName, sessionId);
+    } catch (rotateError) {
+      logger.error(
+        LogSource.NetworkRest,
+        'stt',
+        `${TRANSCRIPT_JOURNEY} STT session pre-flight rotation failed`,
+        rotateError as any,
+      );
+    }
+  };
+
   const start = async (
     botUid: number,
     translationConfig: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
     const retryDelayMs = getStartRetryDelay(botUid);
     const channelName = rtcPropsRef?.current?.channel || '';
+    const passphrase =
+      roomIdRef?.current?.host || roomIdRef?.current?.attendee || '';
     let result: STTAPIResponse;
     let rotatedOnce = false;
+
+    // Pre-flight: if we are about to send a session_id that already existed
+    // in RTM channel metadata (not one we just minted), check with the
+    // backend whether it has moved past 'active' in the ledger. If so, we
+    // rotate here to avoid a guaranteed-to-fail startv7 round-trip.
+    if (channelName && passphrase) {
+      try {
+        const cachedSessionId = await ensureSTTSessionId(channelName);
+        const isFreshlyCreated = wasSTTSessionIdFreshlyCreated(channelName);
+        if (cachedSessionId && !isFreshlyCreated) {
+          await preflightSessionStatus(
+            passphrase,
+            channelName,
+            cachedSessionId,
+          );
+        }
+      } catch (preflightError) {
+        logger.warn(
+          LogSource.NetworkRest,
+          'stt',
+          `${TRANSCRIPT_JOURNEY} STT session pre-flight skipped`,
+          preflightError ?? null,
+        );
+      }
+    }
 
     for (let attempt = 1; attempt <= STT_START_MAX_ATTEMPTS; attempt += 1) {
       result = await apiCall('startv7', botUid, translationConfig);

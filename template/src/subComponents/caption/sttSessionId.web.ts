@@ -20,3 +20,5 @@ export const clearSTTSessionIdIfLast = coordinator.clearSTTSessionIdIfLast;
 export const cleanupSTTSessionOnEnd = coordinator.cleanupSTTSessionOnEnd;
 export const resetSTTSessionIdCache = coordinator.resetSTTSessionIdCache;
 export const rotateSTTSessionId = coordinator.rotateSessionId;
+export const wasSTTSessionIdFreshlyCreated =
+  coordinator.wasSessionIdFreshlyCreated;

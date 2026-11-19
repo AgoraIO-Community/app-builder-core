@@ -13,6 +13,11 @@ export const createSTTSessionCoordinator = (
 ) => {
   const sessionIds = new Map<string, string>();
   const pendingResolutions = new Map<string, Promise<string>>();
+  // Channels whose current cached session_id was minted by this FE (either
+  // via initial createId or via rotateSessionId). We use this to let callers
+  // skip server-side pre-flight validation for IDs that are too fresh to
+  // possibly be stale in the backend's ledger.
+  const freshlyCreatedChannels = new Set<string>();
 
   const getAndLogChannelMetadata = async (
     channelName: string,
@@ -104,6 +109,7 @@ export const createSTTSessionCoordinator = (
             },
           );
           sessionIds.set(channelName, existing.value);
+          freshlyCreatedChannels.delete(channelName);
           return existing.value;
         }
 
@@ -136,6 +142,7 @@ export const createSTTSessionCoordinator = (
             'after session ID creation',
           );
           sessionIds.set(channelName, candidate);
+          freshlyCreatedChannels.add(channelName);
           return candidate;
         } catch (error) {
           lastError = error;
@@ -157,6 +164,7 @@ export const createSTTSessionCoordinator = (
               },
             );
             sessionIds.set(channelName, winner.value);
+            freshlyCreatedChannels.add(channelName);
             return winner.value;
           }
         }
@@ -299,11 +307,16 @@ export const createSTTSessionCoordinator = (
     if (channelName) {
       sessionIds.delete(channelName);
       pendingResolutions.delete(channelName);
+      freshlyCreatedChannels.delete(channelName);
       return;
     }
     sessionIds.clear();
     pendingResolutions.clear();
+    freshlyCreatedChannels.clear();
   };
+
+  const wasSessionIdFreshlyCreated = (channelName: string): boolean =>
+    freshlyCreatedChannels.has(channelName);
 
   const rotateSessionId = async (
     channelName: string,
@@ -316,6 +329,7 @@ export const createSTTSessionCoordinator = (
 
     sessionIds.delete(channelName);
     pendingResolutions.delete(channelName);
+    freshlyCreatedChannels.delete(channelName);
 
     const existing = await readSessionItem(
       channelName,
@@ -369,6 +383,7 @@ export const createSTTSessionCoordinator = (
         {channelName, sessionId: candidate},
       );
       sessionIds.set(channelName, candidate);
+      freshlyCreatedChannels.add(channelName);
       await logChannelMetadataBestEffort(
         channelName,
         'after session ID rotation',
@@ -393,6 +408,7 @@ export const createSTTSessionCoordinator = (
           },
         );
         sessionIds.set(channelName, winner.value);
+        freshlyCreatedChannels.add(channelName);
         return winner.value;
       }
       return resolveSessionId(channelName);
@@ -406,5 +422,6 @@ export const createSTTSessionCoordinator = (
     cleanupSTTSessionOnEnd,
     resetSTTSessionIdCache,
     rotateSessionId,
+    wasSessionIdFreshlyCreated,
   };
 };
