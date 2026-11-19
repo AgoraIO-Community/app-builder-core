@@ -6,7 +6,7 @@ import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
 import {buildSTTRequestBody, type STTMethod} from './sttRequestBody';
-import {ensureSTTSessionId} from './sttSessionId';
+import {ensureSTTSessionId, rotateSTTSessionId} from './sttSessionId';
 import {TRANSCRIPT_JOURNEY} from './transcriptJourney';
 
 export interface STTAPIResponse {
@@ -31,6 +31,9 @@ const getStartRetryDelay = (botUid: number) =>
 
 const shouldRetryStart = (result: STTAPIResponse) =>
   result.httpStatus === 429 || result.error?.code === 610;
+
+const shouldRotateSessionId = (result: STTAPIResponse) =>
+  result.error?.code === 631;
 
 interface IuseSTTAPI {
   start: (
@@ -220,16 +223,63 @@ const useSTTAPI = (): IuseSTTAPI => {
     translationConfig: LanguageTranslationConfig,
   ): Promise<STTAPIResponse> => {
     const retryDelayMs = getStartRetryDelay(botUid);
+    const channelName = rtcPropsRef?.current?.channel || '';
     let result: STTAPIResponse;
+    let rotatedOnce = false;
 
     for (let attempt = 1; attempt <= STT_START_MAX_ATTEMPTS; attempt += 1) {
       result = await apiCall('startv7', botUid, translationConfig);
 
-      if (
-        result.success ||
-        !shouldRetryStart(result) ||
-        attempt === STT_START_MAX_ATTEMPTS
-      ) {
+      if (result.success) {
+        return result;
+      }
+
+      if (shouldRotateSessionId(result) && !rotatedOnce && channelName) {
+        const staleSessionId = await ensureSTTSessionId(channelName).catch(
+          () => undefined,
+        );
+        logger.log(
+          LogSource.NetworkRest,
+          'stt',
+          `${TRANSCRIPT_JOURNEY} Rotating STT session ID after terminal-reuse error`,
+          {
+            attempt,
+            botUid,
+            httpStatus: result.httpStatus ?? null,
+            errorCode: result.error?.code ?? null,
+            staleSessionId: staleSessionId ?? null,
+          },
+        );
+        try {
+          const newSessionId = await rotateSTTSessionId(
+            channelName,
+            staleSessionId,
+          );
+          logger.log(
+            LogSource.NetworkRest,
+            'stt',
+            `${TRANSCRIPT_JOURNEY} STT session ID rotated; retrying start`,
+            {
+              attempt,
+              botUid,
+              staleSessionId: staleSessionId ?? null,
+              newSessionId,
+            },
+          );
+          rotatedOnce = true;
+          continue;
+        } catch (rotateError) {
+          logger.error(
+            LogSource.NetworkRest,
+            'stt',
+            `${TRANSCRIPT_JOURNEY} Failed to rotate STT session ID`,
+            rotateError as any,
+          );
+          return result;
+        }
+      }
+
+      if (!shouldRetryStart(result) || attempt === STT_START_MAX_ATTEMPTS) {
         return result;
       }
 

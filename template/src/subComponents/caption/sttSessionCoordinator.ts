@@ -305,11 +305,106 @@ export const createSTTSessionCoordinator = (
     pendingResolutions.clear();
   };
 
+  const rotateSessionId = async (
+    channelName: string,
+    staleSessionId?: string,
+  ): Promise<string> => {
+    console.log('[STT_SESSION_ID] Rotating session ID due to stale value', {
+      channelName,
+      staleSessionId,
+    });
+
+    sessionIds.delete(channelName);
+    pendingResolutions.delete(channelName);
+
+    const existing = await readSessionItem(
+      channelName,
+      'before session ID rotation',
+    );
+
+    if (
+      existing?.value &&
+      staleSessionId &&
+      existing.value !== staleSessionId
+    ) {
+      console.log(
+        '[STT_SESSION_ID] Another peer already rotated; adopting their value',
+        {
+          channelName,
+          sessionId: existing.value,
+          revision: existing.revision,
+          staleSessionId,
+        },
+      );
+      sessionIds.set(channelName, existing.value);
+      return existing.value;
+    }
+
+    const candidate = dependencies.createId();
+    const expectedRevision = existing?.revision ?? 0;
+    console.log('[STT_SESSION_ID] Attempting revision-checked replacement', {
+      channelName,
+      currentSessionId: existing?.value ?? null,
+      nextSessionId: candidate,
+      expectedRevision,
+    });
+
+    try {
+      await dependencies.getClient().storage.setChannelMetadata(
+        channelName,
+        1,
+        {
+          items: [
+            {
+              key: STT_SESSION_ID_KEY,
+              value: candidate,
+              revision: expectedRevision,
+            },
+          ],
+        },
+        {addUserId: true, addTimeStamp: true},
+      );
+      console.log(
+        '[STT_SESSION_ID] Rotated session ID in RTM channel metadata',
+        {channelName, sessionId: candidate},
+      );
+      sessionIds.set(channelName, candidate);
+      await logChannelMetadataBestEffort(
+        channelName,
+        'after session ID rotation',
+      );
+      return candidate;
+    } catch (error) {
+      console.log(
+        '[STT_SESSION_ID] Rotation lost the race; reading shared value',
+        {channelName, attemptedSessionId: candidate, error},
+      );
+      const winner = await readSessionItem(
+        channelName,
+        'after rotation conflict',
+      );
+      if (winner?.value) {
+        console.log(
+          '[STT_SESSION_ID] Adopting session ID rotated by another participant',
+          {
+            channelName,
+            sessionId: winner.value,
+            revision: winner.revision,
+          },
+        );
+        sessionIds.set(channelName, winner.value);
+        return winner.value;
+      }
+      return resolveSessionId(channelName);
+    }
+  };
+
   return {
     ensureSTTSessionId,
     isOnlyLocalRTMParticipant,
     clearSTTSessionIdIfLast,
     cleanupSTTSessionOnEnd,
     resetSTTSessionIdCache,
+    rotateSessionId,
   };
 };
