@@ -1,3 +1,14 @@
+import com.android.build.api.artifact.SingleArtifact
+import groovy.json.JsonSlurper
+import org.w3c.dom.Element
+
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
 
@@ -146,3 +157,105 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+abstract class ConfigureAppLinks extends DefaultTask {
+    private static final String ANDROID = 'http://schemas.android.com/apk/res/android'
+    private static final String VIEW = 'android.intent.action.VIEW'
+    private static final String DEFAULT = 'android.intent.category.DEFAULT'
+    private static final String BROWSABLE = 'android.intent.category.BROWSABLE'
+
+    @Optional @InputFile @PathSensitive(PathSensitivity.NONE)
+    abstract RegularFileProperty getAppConfig()
+
+    @InputFile @PathSensitive(PathSensitivity.NONE)
+    abstract RegularFileProperty getInputManifest()
+
+    @OutputFile
+    abstract RegularFileProperty getOutputManifest()
+
+    @TaskAction
+    void configureAppLinks() {
+        def endpoint = appConfig.present
+            ? new JsonSlurper().parse(appConfig.get().asFile).FRONTEND_ENDPOINT
+            : null
+        def host = endpoint instanceof String && endpoint.startsWith('https://')
+            ? new URI(endpoint).host?.toLowerCase(Locale.ROOT)
+            : null
+        def input = inputManifest.get().asFile
+        def output = outputManifest.get().asFile
+        output.parentFile.mkdirs()
+        if (!host) {
+            Files.copy(input.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            return
+        }
+
+        def factory = DocumentBuilderFactory.newDefaultInstance()
+        factory.namespaceAware = true
+        def document = factory.newDocumentBuilder().parse(input)
+        def activity = elements(document.documentElement, 'activity').find {
+            it.getAttributeNS(ANDROID, 'name').endsWith('.MainActivity')
+        }
+        def webFilters = activity == null ? [] : elements(activity, 'intent-filter').findAll { filter ->
+            VIEW in values(filter, 'action', 'name') &&
+                BROWSABLE in values(filter, 'category', 'name') &&
+                values(filter, 'data', 'scheme').any { it in ['http', 'https'] }
+        }
+        def filters = webFilters.findAll { filter ->
+            def schemes = values(filter, 'data', 'scheme')
+            values(filter, 'data', 'host').toSet() == ([host] as Set) &&
+                schemes.contains('https') && schemes.every { it in ['http', 'https'] } &&
+                DEFAULT in values(filter, 'category', 'name')
+        }
+        if (activity != null && webFilters.isEmpty()) {
+            // Direct Core builds start with only the launcher filter.
+            def filter = document.createElement('intent-filter')
+            activity.appendChild(filter)
+            addFilterElement(filter, 'action', 'name', VIEW)
+            addFilterElement(filter, 'category', 'name', DEFAULT)
+            addFilterElement(filter, 'category', 'name', BROWSABLE)
+            def data = addFilterElement(filter, 'data', 'scheme', 'https')
+            data.setAttributeNS(ANDROID, 'android:host', host)
+            filters = [filter]
+        }
+        if (filters.isEmpty()) {
+            Files.copy(input.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            return
+        }
+
+        filters.each { filter ->
+            filter.setAttributeNS(ANDROID, 'android:autoVerify', 'true')
+        }
+        TransformerFactory.newDefaultInstance().newTransformer()
+            .transform(new DOMSource(document), new StreamResult(output))
+    }
+
+    static List<String> values(Element parent, String tag, String attribute) {
+        elements(parent, tag).collect { it.getAttributeNS(ANDROID, attribute) }.findAll()
+    }
+
+    static List<Element> elements(Element parent, String tag) {
+        def nodes = parent.getElementsByTagName(tag)
+        (0..<nodes.length).collect { (Element) nodes.item(it) }
+    }
+
+    static Element addFilterElement(Element parent, String tag, String attribute, String value) {
+        def element = parent.ownerDocument.createElement(tag)
+        element.setAttributeNS(ANDROID, "android:${attribute}", value)
+        parent.appendChild(element)
+        element
+    }
+}
+
+def appBuilderConfig = rootProject.layout.projectDirectory.file('../config.json')
+
+// Work with the merged manifest so existing CLI-generated projects get the fix.
+androidComponents.onVariants(androidComponents.selector().all(), { variant ->
+    def configureAppLinks = tasks.register("configure${variant.name.capitalize()}AppLinks", ConfigureAppLinks) {
+        if (appBuilderConfig.asFile.isFile()) {
+            appConfig.set(appBuilderConfig)
+        }
+    }
+    variant.artifacts.use(configureAppLinks)
+        .wiredWithFiles({ it.inputManifest }, { it.outputManifest })
+        .toTransform(SingleArtifact.MERGED_MANIFEST.INSTANCE)
+} as Action)
