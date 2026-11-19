@@ -641,15 +641,21 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           `${TRANSCRIPT_JOURNEY} failed to start STT`,
           result.error ?? null,
         );
-        Toast.show({
-          leadingIconName: 'alert',
-          type: 'error',
-          text1: startErrorLabel,
-          text2: result.error?.message || 'Unknown error occurred',
-          visibilityTime: 4000,
-          primaryBtn: null,
-          secondaryBtn: null,
-        });
+        // Suppress the user-facing toast for terminal-reuse errors (code 631).
+        // The 631 path is a transient coordination failure that the rotate +
+        // retry inside useSTTAPI already handles; if a 631 still surfaces
+        // here, it has already been structurally logged above.
+        if (result.error?.code !== 631) {
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: startErrorLabel,
+            text2: result.error?.message || 'Unknown error occurred',
+            visibilityTime: 4000,
+            primaryBtn: null,
+            secondaryBtn: null,
+          });
+        }
       }
       setIsLangChangeInProgress(false);
       return result;
