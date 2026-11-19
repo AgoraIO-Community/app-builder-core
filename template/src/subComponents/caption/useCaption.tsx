@@ -638,6 +638,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           'stt',
           `${TRANSCRIPT_JOURNEY} STT started successfully`,
           result.data ?? null,
+          {sessionId: result.sessionId ?? null},
         );
       } else {
         setIsSTTError(true);
@@ -646,6 +647,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           'stt',
           `${TRANSCRIPT_JOURNEY} failed to start STT`,
           result.error ?? null,
+          {sessionId: result.sessionId ?? null},
         );
         // Suppress the user-facing toast for terminal-reuse errors (code 631).
         // The 631 path is a transient coordination failure that the rotate +

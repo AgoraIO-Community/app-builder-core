@@ -6,6 +6,7 @@ interface CoordinatorDependencies {
   getClient: () => Pick<RTMClient, 'storage' | 'presence'>;
   createId: () => string;
   wait: (milliseconds: number) => Promise<void>;
+  log?: (event: string, details: Record<string, unknown>) => void;
 }
 
 export const createSTTSessionCoordinator = (
@@ -13,11 +14,23 @@ export const createSTTSessionCoordinator = (
 ) => {
   const sessionIds = new Map<string, string>();
   const pendingResolutions = new Map<string, Promise<string>>();
+  const pendingRotations = new Map<string, Promise<string>>();
   // Channels whose current cached session_id was minted by this FE (either
-  // via initial createId or via rotateSessionId). We use this to let callers
-  // skip server-side pre-flight validation for IDs that are too fresh to
-  // possibly be stale in the backend's ledger.
+  // via initial createId or via rotateSessionId), until their first start.
+  // Later starts must validate reused IDs even if this FE originally minted them.
   const freshlyCreatedChannels = new Set<string>();
+
+  // Observability must not affect session coordination.
+  const logSessionEvent = (
+    event: string,
+    details: Record<string, unknown>,
+  ): void => {
+    try {
+      dependencies.log?.(event, details);
+    } catch {
+      // A failed logging transport must not fail an STT operation.
+    }
+  };
 
   const getAndLogChannelMetadata = async (
     channelName: string,
@@ -108,6 +121,12 @@ export const createSTTSessionCoordinator = (
               revision: existing.revision,
             },
           );
+          logSessionEvent('STT session resolved', {
+            channelName,
+            sessionId: existing.value,
+            source: 'rtm',
+            revision: existing.revision,
+          });
           sessionIds.set(channelName, existing.value);
           freshlyCreatedChannels.delete(channelName);
           return existing.value;
@@ -141,6 +160,11 @@ export const createSTTSessionCoordinator = (
             channelName,
             'after session ID creation',
           );
+          logSessionEvent('STT session resolved', {
+            channelName,
+            sessionId: candidate,
+            source: 'created',
+          });
           sessionIds.set(channelName, candidate);
           freshlyCreatedChannels.add(channelName);
           return candidate;
@@ -163,8 +187,14 @@ export const createSTTSessionCoordinator = (
                 revision: winner.revision,
               },
             );
+            logSessionEvent('STT session resolved', {
+              channelName,
+              sessionId: winner.value,
+              source: 'creation_peer',
+              revision: winner.revision,
+            });
             sessionIds.set(channelName, winner.value);
-            freshlyCreatedChannels.add(channelName);
+            freshlyCreatedChannels.delete(channelName);
             return winner.value;
           }
         }
@@ -179,11 +209,20 @@ export const createSTTSessionCoordinator = (
   };
 
   const ensureSTTSessionId = async (channelName: string): Promise<string> => {
+    const rotation = pendingRotations.get(channelName);
+    if (rotation) {
+      return rotation;
+    }
     const cached = sessionIds.get(channelName);
     if (cached) {
       console.log('[STT_SESSION_ID] Using locally cached session ID', {
         channelName,
         sessionId: cached,
+      });
+      logSessionEvent('STT session resolved', {
+        channelName,
+        sessionId: cached,
+        source: 'cache',
       });
       return cached;
     }
@@ -318,17 +357,25 @@ export const createSTTSessionCoordinator = (
   const wasSessionIdFreshlyCreated = (channelName: string): boolean =>
     freshlyCreatedChannels.has(channelName);
 
-  const rotateSessionId = async (
+  const markSessionIdUsed = (channelName: string, sessionId: string): void => {
+    if (sessionIds.get(channelName) === sessionId) {
+      freshlyCreatedChannels.delete(channelName);
+    }
+  };
+
+  const replaceSessionId = async (
     channelName: string,
-    staleSessionId?: string,
+    staleSessionId: string,
   ): Promise<string> => {
     console.log('[STT_SESSION_ID] Rotating session ID due to stale value', {
       channelName,
       staleSessionId,
     });
 
+    // Finish any older lookup before replacing its value, so it cannot later
+    // restore the stale ID in the local cache.
+    await pendingResolutions.get(channelName)?.catch(() => undefined);
     sessionIds.delete(channelName);
-    pendingResolutions.delete(channelName);
     freshlyCreatedChannels.delete(channelName);
 
     const existing = await readSessionItem(
@@ -350,6 +397,13 @@ export const createSTTSessionCoordinator = (
           staleSessionId,
         },
       );
+      logSessionEvent('STT session rotation adopted', {
+        channelName,
+        staleSessionId,
+        sessionId: existing.value,
+        revision: existing.revision,
+        source: 'rtm',
+      });
       sessionIds.set(channelName, existing.value);
       return existing.value;
     }
@@ -382,6 +436,12 @@ export const createSTTSessionCoordinator = (
         '[STT_SESSION_ID] Rotated session ID in RTM channel metadata',
         {channelName, sessionId: candidate},
       );
+      logSessionEvent('STT session rotated', {
+        channelName,
+        staleSessionId,
+        sessionId: candidate,
+        expectedRevision,
+      });
       sessionIds.set(channelName, candidate);
       freshlyCreatedChannels.add(channelName);
       await logChannelMetadataBestEffort(
@@ -398,7 +458,7 @@ export const createSTTSessionCoordinator = (
         channelName,
         'after rotation conflict',
       );
-      if (winner?.value) {
+      if (winner?.value && winner.value !== staleSessionId) {
         console.log(
           '[STT_SESSION_ID] Adopting session ID rotated by another participant',
           {
@@ -407,11 +467,43 @@ export const createSTTSessionCoordinator = (
             revision: winner.revision,
           },
         );
+        logSessionEvent('STT session rotation adopted', {
+          channelName,
+          staleSessionId,
+          sessionId: winner.value,
+          revision: winner.revision,
+          source: 'write_recovery',
+        });
         sessionIds.set(channelName, winner.value);
-        freshlyCreatedChannels.add(channelName);
+        freshlyCreatedChannels.delete(channelName);
         return winner.value;
       }
-      return resolveSessionId(channelName);
+      logSessionEvent('STT session rotation failed', {
+        channelName,
+        staleSessionId,
+        attemptedSessionId: candidate,
+        expectedRevision,
+      });
+      throw error;
+    }
+  };
+
+  const rotateSessionId = async (
+    channelName: string,
+    staleSessionId: string,
+  ): Promise<string> => {
+    // Serialize local recoveries as well as using RTM revisions across peers.
+    while (pendingRotations.has(channelName)) {
+      await pendingRotations.get(channelName)!.catch(() => undefined);
+    }
+    const rotation = replaceSessionId(channelName, staleSessionId);
+    pendingRotations.set(channelName, rotation);
+    try {
+      return await rotation;
+    } finally {
+      if (pendingRotations.get(channelName) === rotation) {
+        pendingRotations.delete(channelName);
+      }
     }
   };
 
@@ -423,5 +515,6 @@ export const createSTTSessionCoordinator = (
     resetSTTSessionIdCache,
     rotateSessionId,
     wasSessionIdFreshlyCreated,
+    markSessionIdUsed,
   };
 };
