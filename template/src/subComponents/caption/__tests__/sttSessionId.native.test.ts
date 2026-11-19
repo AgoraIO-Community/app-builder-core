@@ -9,6 +9,11 @@ const mockPresence = {
   getOnlineUsers: jest.fn<any>(),
 };
 
+jest.mock('../../../logger/AppBuilderLogger', () => ({
+  LogSource: {Internals: 'Internals'},
+  logger: {log: jest.fn()},
+}));
+
 jest.mock('../../../rtm/RTMEngine', () => ({
   __esModule: true,
   default: {

@@ -47,6 +47,12 @@ type SttQueueItem = {
   state: GlobalSttState;
   isLocal: boolean;
   targetChange?: TargetChange;
+  // Deferred callbacks resolved by processSttEventQueue so callers of
+  // enqueueSttEvent can observe whether the queued local operation
+  // actually succeeded. Items pushed outside enqueueSttEvent (e.g. the
+  // auto-start injection) leave these undefined; the processor no-ops.
+  resolve?: () => void;
+  reject?: (err: unknown) => void;
 };
 
 export type LanguageTranslationConfig = {
@@ -632,6 +638,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           'stt',
           `${TRANSCRIPT_JOURNEY} STT started successfully`,
           result.data ?? null,
+          {sessionId: result.sessionId ?? null},
         );
       } else {
         setIsSTTError(true);
@@ -640,16 +647,23 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           'stt',
           `${TRANSCRIPT_JOURNEY} failed to start STT`,
           result.error ?? null,
+          {sessionId: result.sessionId ?? null},
         );
-        Toast.show({
-          leadingIconName: 'alert',
-          type: 'error',
-          text1: startErrorLabel,
-          text2: result.error?.message || 'Unknown error occurred',
-          visibilityTime: 4000,
-          primaryBtn: null,
-          secondaryBtn: null,
-        });
+        // Suppress the user-facing toast for terminal-reuse errors (code 631).
+        // The 631 path is a transient coordination failure that the rotate +
+        // retry inside useSTTAPI already handles; if a 631 still surfaces
+        // here, it has already been structurally logged above.
+        if (result.error?.code !== 631) {
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: startErrorLabel,
+            text2: result.error?.message || 'Unknown error occurred',
+            visibilityTime: 4000,
+            primaryBtn: null,
+            secondaryBtn: null,
+          });
+        }
       }
       setIsLangChangeInProgress(false);
       return result;
@@ -872,8 +886,6 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             };
           }
         }
-        // Queue
-        enqueueSttEvent(updatedState, true, targetChange);
 
         logger.log(
           LogSource.Internals,
@@ -887,6 +899,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
               updatedState.globalTranslationTargets.length,
           },
         );
+
+        // Await the queued processing so the UI caller (e.g. Show Caption)
+        // can observe whether the start actually succeeded, and revert its
+        // optimistic state on failure.
+        await enqueueSttEvent(updatedState, true, targetChange);
       } catch (error) {
         logger.error(
           LogSource.Internals,
@@ -898,6 +915,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             error: error ?? null,
           },
         );
+        throw error;
       }
     },
     [localUid], // only real dependency
@@ -939,40 +957,55 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         globalSpokenLanguage: globalSttStateRef.current.globalSpokenLanguage,
         globalTranslationTargets: newTargets,
       };
-      // 5. Queue event
+      // 5. Queue event. Caller doesn't surface failure to UI today; swallow
+      // rejections to avoid unhandled-promise-rejection warnings.
       const prevTargetLang = selectedTranslationLanguageRef.current;
       enqueueSttEvent(updatedState, true, {
         prev: prevTargetLang,
         next: newTargetLang,
+      }).catch(() => {
+        /* already logged by processSttEventQueue */
       });
     },
     [selectedTranslationLanguage], // only real state dependency
   );
 
-  // Queues all local + remote stt events
+  // Queues all local + remote stt events.
+  // Returns a promise that resolves once the queued item has been processed
+  // (whether no-op, applied, or skipped). Rejects if the underlying STT API
+  // call fails for a local item, so the UI caller can revert optimistic
+  // state (e.g. the Show Caption / Hide Caption label).
   const enqueueSttEvent = React.useCallback(
-    (state: GlobalSttState, isLocal: boolean, targetChange?: TargetChange) => {
-      sttEventQueueRef.current.push({
-        state,
-        isLocal,
-        targetChange,
+    (
+      state: GlobalSttState,
+      isLocal: boolean,
+      targetChange?: TargetChange,
+    ): Promise<void> => {
+      return new Promise<void>((resolve, reject) => {
+        sttEventQueueRef.current.push({
+          state,
+          isLocal,
+          targetChange,
+          resolve,
+          reject,
+        });
+        logger.log(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          `${TRANSCRIPT_JOURNEY} STT global state queued`,
+          {
+            stage: 'global_state_queue',
+            outcome: 'queued',
+            stateOrigin: isLocal ? 'local' : 'remote',
+            sttEnabled: state.globalSttEnabled,
+            sttDepsReady: sttDepsReadyRef.current,
+            queueSize: sttEventQueueRef.current.length,
+          },
+        );
+        if (sttDepsReadyRef.current) {
+          processSttEventQueue();
+        }
       });
-      logger.log(
-        LogSource.Internals,
-        'TRANSCRIPT',
-        `${TRANSCRIPT_JOURNEY} STT global state queued`,
-        {
-          stage: 'global_state_queue',
-          outcome: 'queued',
-          stateOrigin: isLocal ? 'local' : 'remote',
-          sttEnabled: state.globalSttEnabled,
-          sttDepsReady: sttDepsReadyRef.current,
-          queueSize: sttEventQueueRef.current.length,
-        },
-      );
-      if (sttDepsReadyRef.current) {
-        processSttEventQueue();
-      }
     },
     [],
   );
@@ -1025,7 +1058,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       if (!item) {
         break;
       }
-      const {state: newState, isLocal, targetChange} = item;
+      const {state: newState, isLocal, targetChange, resolve, reject} = item;
       const prevState = globalSttStateRef.current;
       if (isSameState(prevState, newState)) {
         logger.log(
@@ -1034,7 +1067,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           `${TRANSCRIPT_JOURNEY} duplicate STT global state skipped`,
           {stage: 'global_state_queue', outcome: 'skipped'},
         );
-        continue; // no call to processGlobalSttSingleEvent
+        resolve?.(); // no-op from the caller's perspective, but a success
+        continue;
       }
       const ok = await processGlobalSttSingleEvent(
         newState,
@@ -1049,6 +1083,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
             `${TRANSCRIPT_JOURNEY} local global state update skipped because API failed`,
             {stage: 'global_state_apply', outcome: 'skipped'},
           );
+          reject?.(new Error('STT API call failed'));
           continue;
         }
         // A received RTM event is authoritative for the meeting-level state.
@@ -1064,6 +1099,7 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
       // update global state AFTER processing
       setGlobalSttState(newState);
       globalSttStateRef.current = newState;
+      resolve?.();
     }
     isProcessingSttEventRef.current = false;
   }, []);
@@ -1301,7 +1337,11 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         );
         return;
       }
-      enqueueSttEvent(newState, false);
+      // Remote events are informational for the caller; we don't surface
+      // their failure. Swallow rejections so they don't become unhandled.
+      enqueueSttEvent(newState, false).catch(() => {
+        /* already logged by processSttEventQueue */
+      });
     };
 
     events.on(EventNames.STT_GLOBAL_STATE, handleGlobalSTTChange);

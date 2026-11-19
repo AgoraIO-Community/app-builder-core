@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.agora.appbuilder.conferencing",
+      "sha256_cert_fingerprints": [
+        "F7:24:D2:15:55:65:58:65:24:08:ED:88:2D:D6:8A:31:0B:E1:85:34:ED:FE:CE:61:54:EE:1A:1C:F5:70:AA:DC"
+      ]
+    }
+  }
+]

@@ -1,5 +1,10 @@
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 
+jest.mock('../../../logger/AppBuilderLogger', () => ({
+  LogSource: {Internals: 'Internals'},
+  logger: {log: jest.fn()},
+}));
+
 jest.mock('../../../rtm/RTMEngine', () => ({
   __esModule: true,
   default: {
@@ -58,18 +63,110 @@ const createHarness = () => {
   };
   const createId = jest.fn(() => 'candidate');
   const wait = jest.fn(async () => {});
+  const log = jest.fn();
   const coordinator = createSTTSessionCoordinator({
+    log,
     getClient: () => ({storage, presence: rtmPresence} as any),
     createId,
     wait,
   });
 
-  return {coordinator, createId, rtmPresence, storage, wait};
+  return {coordinator, createId, rtmPresence, storage, wait, log};
 };
 
 describe('web STT session coordinator', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('two peers converge on one replacement and delayed errors adopt it', async () => {
+    const {storage, rtmPresence} = createHarness();
+    let value = 'stale';
+    let revision = 9;
+    storage.getChannelMetadata.mockImplementation(async () =>
+      channelMetadata(value, revision),
+    );
+    storage.setChannelMetadata.mockImplementation(
+      async (_channel, _type, data) => {
+        if (data.items[0].revision !== revision) {
+          throw new Error('revision conflict');
+        }
+        value = data.items[0].value;
+        revision += 1;
+        return {};
+      },
+    );
+    const makePeer = (candidate: string, log = jest.fn()) =>
+      createSTTSessionCoordinator({
+        getClient: () => ({storage, presence: rtmPresence} as any),
+        createId: () => candidate,
+        wait: async () => {},
+        log,
+      });
+    const logB = jest.fn();
+    const a = makePeer('new-a');
+    const b = makePeer('new-b', logB);
+    const ids = await Promise.all([
+      a.rotateSessionId('room', 'stale'),
+      b.rotateSessionId('room', 'stale'),
+    ]);
+    expect(ids).toEqual(['new-a', 'new-a']);
+    expect(await a.ensureSTTSessionId('room')).toBe('new-a');
+    expect(await b.ensureSTTSessionId('room')).toBe('new-a');
+    expect(logB).toHaveBeenCalledWith(
+      'STT session rotation adopted',
+      expect.objectContaining({sessionId: 'new-a', staleSessionId: 'stale'}),
+    );
+    storage.setChannelMetadata.mockClear();
+    expect(await b.rotateSessionId('room', 'stale')).toBe('new-a');
+    expect(storage.setChannelMetadata).not.toHaveBeenCalled();
+  });
+
+  it('surfaces a failed rotation instead of adopting the unchanged stale value', async () => {
+    const {coordinator, storage} = createHarness();
+    storage.getChannelMetadata.mockResolvedValue(channelMetadata('stale'));
+    storage.setChannelMetadata.mockRejectedValue(
+      new Error('permission denied'),
+    );
+    await expect(coordinator.rotateSessionId('room', 'stale')).rejects.toThrow(
+      'permission denied',
+    );
+  });
+
+  it('does not let an older lookup restore a stale value after recovery', async () => {
+    const {coordinator, storage} = createHarness();
+    let finishRead!: (value: any) => void;
+    storage.getChannelMetadata
+      .mockImplementationOnce(
+        () =>
+          new Promise(resolve => {
+            finishRead = resolve;
+          }),
+      )
+      .mockResolvedValue(channelMetadata('stale'));
+    storage.setChannelMetadata.mockResolvedValue({});
+    const lookup = coordinator.ensureSTTSessionId('room');
+    const rotation = coordinator.rotateSessionId('room', 'stale');
+    finishRead(channelMetadata('stale'));
+    await lookup;
+    expect(await rotation).toBe('candidate');
+    expect(await coordinator.ensureSTTSessionId('room')).toBe('candidate');
+  });
+
+  it('only skips validation until a locally created ID is first used', async () => {
+    const {coordinator, storage, log} = createHarness();
+    storage.getChannelMetadata.mockResolvedValue(channelMetadata());
+    storage.setChannelMetadata.mockResolvedValue({});
+    log.mockImplementation(() => {
+      throw new Error('transport failed');
+    });
+    expect(await coordinator.ensureSTTSessionId('room')).toBe('candidate');
+    expect(coordinator.wasSessionIdFreshlyCreated('room')).toBe(true);
+    coordinator.markSessionIdUsed('room', 'other-id');
+    expect(coordinator.wasSessionIdFreshlyCreated('room')).toBe(true);
+    coordinator.markSessionIdUsed('room', 'candidate');
+    expect(coordinator.wasSessionIdFreshlyCreated('room')).toBe(false);
+    expect(await coordinator.ensureSTTSessionId('room')).toBe('candidate');
   });
 
   it('reuses existing channel metadata without writing', async () => {

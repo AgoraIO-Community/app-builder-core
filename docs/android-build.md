@@ -195,6 +195,47 @@ signing; a partial configuration fails with a clear error. When none are set,
 the release build uses the existing Android debug key for QA. Do not upload
 that debug-signed AAB to Google Play or commit keystores and passwords.
 
+## Deploy Android App Links
+
+The APK and AAB build enables `android:autoVerify` on the existing HTTPS intent
+filter for the host in `FRONTEND_ENDPOINT`. When a direct Core build has no web
+link filter on `MainActivity`, Gradle adds the HTTPS filter. Publish the domain
+association and ship the updated Android build to enable automatic opening.
+
+For this repository's Vercel Git previews, including the preprod branch
+preview, the web build publishes the [QA association](android-app-links/preview/assetlinks.json).
+Build the QA app with that preview's URL as `FRONTEND_ENDPOINT` and with the QA
+package and signing certificate in the file. Install that APK and tap a meeting
+invite from the same preview host to test automatic opening with default phone
+settings. When this web build needs a different app identity, set
+`APPBUILDER_ANDROID_ASSET_LINKS_JSON` to the association array for that
+deployment. The build uses that array in place of the preview association.
+
+For the production Conferencing app, publish the
+[Conferencing assetlinks.json](android-app-links/conferencing/assetlinks.json)
+in the website's static output at `/.well-known/assetlinks.json`. Serve it with
+HTTP 200, the `application/json` content type, and no redirect. Make that
+exact path bypass the site's catch-all rewrite to `index.html`. The public
+URL is `https://conferencing.agora.io/.well-known/assetlinks.json`.
+
+The statement identifies the Play package `io.agora.appbuilder.conferencing`
+and the SHA-256 signing fingerprint verified from the Play-installed app.
+For other domains or packages, use the installed app's application ID and
+signing certificate. For Play App Signing, use the app signing certificate
+from Play Console.
+
+After deploying the website file, install the updated Play-signed build on an
+Android 12+ test device with default link settings. Request verification, wait
+for the domain to report `verified`, then open a real meeting invite. Confirm
+that Android opens the meeting's Join Room screen directly.
+
+```sh
+adb shell pm verify-app-links --re-verify io.agora.appbuilder.conferencing
+adb shell pm get-app-links io.agora.appbuilder.conferencing
+```
+
+See [Android's App Links verification guide](https://developer.android.com/training/app-links/verify-applinks).
+
 ## Verify the artifacts
 
 From the repository root:
